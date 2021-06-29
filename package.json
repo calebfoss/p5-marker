@@ -1,0 +1,29 @@
+{
+  "name": "p-dash",
+  "version": "0.0.0",
+  "description": "A p5 add-on with custom html elements to create sketches declaratively.",
+  "main": "dist/p-dash.js",
+  "source": "src/index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "build": "npx parcel build && node utils/addBuildComment.mjs",
+    "docs": "npx jsdoc -c docs/jsdoc.json dist -r",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "npx parcel watch"
+  },
+  "keywords": [
+    "creative",
+    "coding",
+    "p5",
+    "processing"
+  ],
+  "author": "Caleb Foss",
+  "license": "MIT",
+  "devDependencies": {
+    "jsdoc": "^3.6.11",
+    "p5": "x",
+    "parcel": "latest"
+  }
+}
