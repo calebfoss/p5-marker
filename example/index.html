@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="../node_modules/p5/lib/p5.min.js"></script>
-    <script src="../dist/p-dash.js" type="module" defer></script>
+    <script src="../node_modules/p5/lib/p5.js"></script>
+    <script src="../dist/p-dash.js" defer></script>
     <link rel="stylesheet" type="text/css" href="style.css" />
     <meta charset="utf-8" />
   </head>
@@ -14,24 +14,24 @@
       <if-p5 cond="mouseDragging">
         <line-p5 x1="pmouseX" y1="pmouseY" x2="mouseX" y2="mouseY"></line-p5>
       </if-p5>
-      <else-if-p5 cond="mouseUp"
-        ><circle-p5
+      <else-if-p5 cond="mouseUp">
+        <circle-p5
           x="mouseX"
           y="mouseY"
           d="map(mouseX + mouseY, 0, width + height, 0, 100)"
-        ></circle-p5
-      ></else-if-p5>
+        ></circle-p5>
+      </else-if-p5>
       <if-p5 cond="keyUp" apply-to="ALL" test="123">
-        <switch-p5 exp="key" test="123"
-          ><case-p5 val="'r'"
-            ><setting-p5 fill="'red'" apply-to="ALL"></setting-p5>
+        <switch-p5 exp="key" test="123">
+          <case-p5 val="'r'">
+            <setting-p5 fill="'red'" apply-to="ALL"></setting-p5>
           </case-p5>
           <case-p5 val="'g'" test="123" apply-to="ALL">
             <setting-p5 fill="'green'" apply-to="ALL"></setting-p5>
           </case-p5>
-          <case-p5 val="'b'"
-            ><setting-p5 fill="'blue'" apply-to="ALL"></setting-p5
-          ></case-p5>
+          <case-p5 val="'b'">
+            <setting-p5 fill="'blue'" apply-to="ALL"></setting-p5>
+          </case-p5>
         </switch-p5>
         <setting-p5 test="123"></setting-p5>
         <square-p5
