@@ -1,4 +1,4 @@
-import { P5Function, PositionedFunction } from "./base.js";
+import { P5Function, PositionedFunction, P5Constructor } from "./base.js";
 
 p5.prototype._registerElements(
   class Arc extends PositionedFunction {
@@ -29,8 +29,8 @@ p5.prototype._registerElements(
   class Quad extends PositionedFunction {
     constructor() {
       super([
-        "x1, y1, x2, y2, x3, y3, x4, y4, [detailX], [detailY]",
-        "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detailX], [detailY]",
+        "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
+        "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
       ]);
     }
   },
@@ -38,7 +38,7 @@ p5.prototype._registerElements(
     constructor() {
       super([
         "x, y, w, [h], [tl], [tr], [br], [bl]",
-        "x, y, w, h, [detailX], [detailY]",
+        "x, y, w, h, [detail_x], [detail_y]",
       ]);
     }
   },
@@ -92,6 +92,94 @@ p5.prototype._registerElements(
       super(["a, b, c, d, t", "x1, y1, x2, y2, x3, y3, x4, y4, t"]);
     }
     returnsVal = true;
+  },
+  class Contour extends PositionedFunction {
+    constructor() {
+      super([""]);
+    }
+    fnName = "beginContour";
+    innerEnd = "endContour()";
+  },
+  class Shape extends PositionedFunction {
+    constructor() {
+      super(["[kind]"]);
+    }
+    fnName = "beginShape";
+    innerEnd = `endShape(${this.mode ? "mode" : ""});`;
+  },
+  class Vertex extends P5Function {
+    constructor() {
+      super(["x, y", "x, y, [z]", "x, y, [z], [u], [v]"]);
+    }
+  },
+  class CurveVertex extends P5Function {
+    constructor() {
+      super(["x, y", "x, y, [z]"]);
+    }
+  },
+  class QuadraticVertex extends P5Function {
+    constructor() {
+      super(["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"]);
+    }
+  },
+  class Normal extends P5Function {
+    constructor() {
+      super(["vector", "x, y, z"]);
+    }
+  },
+  class Plane extends P5Function {
+    constructor() {
+      super("[w], [h], [detail_x], [detail_y]");
+    }
+  },
+  class Box extends P5Function {
+    constructor() {
+      super(["[w], [h], [depth], [detail_x], [detail_y]"]);
+    }
+  },
+  class Sphere extends P5Function {
+    constructor() {
+      super(["[radius], [detail_x], [detail_y]"]);
+    }
+  },
+  class Cylinder extends P5Function {
+    constructor() {
+      super(["[radius], [h], [detail_x], [detail_y], [bottomCap], [topCap]"]);
+    }
+  },
+  class Cone extends P5Function {
+    constructor() {
+      super(["[radius], [h], [detail_x], [detail_y], [cap]"]);
+    }
+  },
+  class Ellipsoid extends P5Function {
+    constructor() {
+      super(["[radius_x], [radius_y], [radius_z], [detail_x], [detail_y]"]);
+    }
+  },
+  class Torus extends P5Function {
+    constructor() {
+      super(["[radius], [tubeRadius], [detailX], [detailY]"]);
+    }
+  },
+  class Geometry extends P5Constructor {
+    constructor() {
+      super(["[detail_x], [detail_y], [callback]"]);
+    }
+  },
+  //  TODO - test when preload implemented
+  class LoadModel extends P5Function {
+    constructor() {
+      super([
+        "path, normalize, [successCallback], [failureCallback], [fileType]",
+        "path, [successCallback], [failureCallback], [fileType]",
+      ]);
+    }
+  },
+  class Model extends P5Function {
+    constructor() {
+      super(["model"]);
+    }
   }
 );
 const pointTangentOverload = (fn) =>
