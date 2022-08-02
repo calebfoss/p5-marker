@@ -16,28 +16,26 @@ class ColorFunction extends P5Function {
   }
 }
 
-p5.prototype.setFill = p5.prototype.fill;
-p5.prototype.setStroke = p5.prototype.stroke;
 p5.prototype.setErase = p5.prototype.erase;
 p5.prototype._defineProperties({
-  fill: {
+  fill_color: {
     get: function () {
       if (!this.drawingContext) return "";
       return this.color(this.drawingContext.fillStyle);
     },
     set: function (val) {
       if (val === this.NONE) this.noFill();
-      else this.setFill(val);
+      else this.fill(val);
     },
   },
-  stroke: {
+  stroke_color: {
     get: function () {
       if (!this.drawingContext) return "";
       return this.color(this.drawingContext.strokeStyle);
     },
     set: function (val) {
       if (val === this.NONE) this.noStroke();
-      else this.setStroke(val);
+      else this.stroke(val);
     },
   },
   erase: {

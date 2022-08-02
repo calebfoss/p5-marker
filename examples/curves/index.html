@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <canvas width="400" height="400" is="p-sketch">
+      <p-if cond="first_frame">
+        <p-background c="[200, 160, 240]"></p-background>
+        <p-repeat-if x2="0" cond="x2 < width">
+          <p-curve
+            x1="x2 + width"
+            y1="height"
+            y2="0"
+            x3="x2"
+            y3="height"
+            x4="x2 - width"
+            y4="height"
+            stroke_weight="2"
+            fill_color="NONE"
+          >
+            <p-repeat-if
+              t="0"
+              cond="t < 1"
+              stroke_color="[60, 180, 20]"
+              fill_color="[20, 60, 180]"
+              stroke_weight="4"
+            >
+              <p-curve-point>
+                <p-lerp-color
+                  c1="stroke_color"
+                  c2="fill_color"
+                  amt="t"
+                  anchor="output"
+                >
+                  <p-lerp-color
+                    c1="fill_color"
+                    c2="stroke_color"
+                    lerped_stroke="output"
+                  >
+                    <p-circle
+                      x="0"
+                      y="0"
+                      d="20"
+                      fill_color="output"
+                      stroke_color="lerped_stroke"
+                    ></p-circle>
+                  </p-lerp-color>
+                </p-lerp-color>
+              </p-curve-point>
+              <p-update t="t + 0.1"></p-update>
+            </p-repeat-if>
+          </p-curve>
+
+          <p-update x2="x2 + width/10"></p-update>
+        </p-repeat-if>
+      </p-if>
+    </canvas>
+  </body>
+</html>
