@@ -1,7 +1,7 @@
 p5.prototype._defaultAnchor = p5.prototype.createVector();
 p5.prototype._anchorStack = [p5.prototype._defaultAnchor];
 
-p5.prototype._defaultAngle = 0;
+p5.prototype._defaultAngle = p5.prototype.createVector();
 p5.prototype._angleStack = [p5.prototype._defaultAngle];
 
 p5.prototype._defaultScale = p5.prototype.createVector(1);
@@ -45,11 +45,38 @@ p5.prototype._defineProperties({
   },
   angle: {
     get: function () {
-      return this._angleStack.slice(-1)[0];
+      return this._angleStack.slice(-1)[0].z;
     },
     set: function (val) {
-      this._angleStack[this._anchorStack.length - 1] = val;
+      this._angleStack[this._anchorStack.length - 1].z = val;
       this.rotate(this.angle);
+    },
+  },
+  angle_x: {
+    get: function () {
+      return this._angleStack.slice(-1)[0].x;
+    },
+    set: function (val) {
+      this._angleStack[this._angleStack.length - 1].x = val;
+      this.rotateX(this.angle_x);
+    },
+  },
+  angle_y: {
+    get: function () {
+      return this._angleStack.slice(-1)[0].y;
+    },
+    set: function (val) {
+      this._angleStack[this._angleStack.length - 1].y = val;
+      this.rotateY(this.angle_y);
+    },
+  },
+  angle_z: {
+    get: function () {
+      return this._angleStack.slice(-1)[0].z;
+    },
+    set: function (val) {
+      this._angleStack[this._angleStack.length - 1].z = val;
+      this.rotateZ(this.angle_z);
     },
   },
   scale: {
