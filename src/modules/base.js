@@ -176,11 +176,23 @@ export class P5Function extends P5Element {
       );
       //  If matched overload found
       if (overloadMatch) {
-        //  Save parameters with attributes
-        const params = overloadParams
-          .map((p) => p.replaceAll(/\[|\]/g, ""))
-          .filter((p) => this.vars.includes(p) || this.varInitialized(p));
-        this.params = params;
+        //  Filter params recursively
+        const filterParams = (overloadParams, filteredParams = [], i = 0) => {
+          //  If there are no more overload params, return filtered params
+          if (i === overloadParams.length) return filteredParams;
+          const optional = isOptional(overloadParams[i]);
+          const p = overloadParams[i].replaceAll(/\[|\]/g, "");
+          //  If param defined on this element, add it to filtered params
+          if (this.vars.includes(p))
+            return filterParams(overloadParams, filteredParams.concat(p), ++i);
+          //  If not defined on this element and optional, return filtered params
+          if (optional) return filteredParams;
+          //  If required and already initialized, add it to filtered params
+          if (this.varInitialized(p))
+            return filterParams(overloadParams, filteredParams.concat(p), ++i);
+          return filteredParams;
+        };
+        this.params = filterParams(overloadParams);
         return;
       }
     }
