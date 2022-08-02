@@ -227,6 +227,14 @@ export class P5Function extends P5Element {
   }
 }
 
+export class P5Constructor extends P5Function {
+  constructor(overloads) {
+    super(overloads);
+  }
+  fnName = `new p5.${super.fnName[0].toUpperCase()}${super.fnName.slice(1)}`;
+  returnsVal = true;
+}
+
 export class PositionedFunction extends P5Function {
   constructor(overloads) {
     super(overloads);
