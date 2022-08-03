@@ -24,11 +24,31 @@ p5.prototype._createFriendlyGlobalFunctionBinder = function (options = {}) {
   };
 };
 
+const logicKeyWordToAttribute = new Map([
+  ["if", "show_if"],
+  ["else", "else_show"],
+  ["else if", "else_show_if"],
+  ["while", "repeat_while"],
+]);
+const logicAttributeToKeyword = new Map(
+  Array.from(logicKeyWordToAttribute, (a) => a.reverse())
+);
+const attrIsLogic = (val) => {
+  const logicNames = logicKeyWordToAttribute.values();
+  const checkNames = () => {
+    const logicName = logicNames.next();
+    if (logicName.value === val) return true;
+    if (logicName.done) return false;
+    return checkNames();
+  };
+  return checkNames();
+};
+
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
     constructor() {
       super();
-      [this.settings, this.vars] = this.parseAttributes();
+      [this.settings, this.vars, this.logic] = this.parseAttributes();
       this.createAttributeGetters();
     }
     static addTab(line) {
@@ -50,15 +70,19 @@ const P5Extension = (baseClass) =>
       });
     }
     get isBlock() {
-      return this.vars.length + this.settings.length > 0;
+      return this.vars.length + this.settings.length > 0 || this.logic !== null;
     }
     get blockEnd() {
       if (this.isBlock) return "}";
       return "";
     }
     get blockStart() {
-      if (this.isBlock) return "{";
-      return "";
+      if (this.isBlock === false) return "";
+      if (this.logic === null) return "{";
+      if (this.logic === logicKeyWordToAttribute.get("else")) return "else {";
+      return `${logicAttributeToKeyword.get(this.logic)} (${
+        this[this.logic]
+      }) {`;
     }
     get childStrings() {
       if (this.children.length === 0) return [];
@@ -113,11 +137,20 @@ const P5Extension = (baseClass) =>
     }
     parseAttributes() {
       return Array.from(this.attributes).reduce(
-        ([s, v], { name: attr }) => {
-          if (P5Element.isP5(attr)) return [s.concat(attr), v];
-          return [s, v.concat(attr)];
+        ([s, v, l], { name: attr }) => {
+          if (P5Element.isP5(attr)) return [s.concat(attr), v, l];
+          if (attrIsLogic(attr)) {
+            if (l !== null) {
+              console.error(
+                `${this.constructor.elementName} has ${l} and ${attr} attributes, but can have only one.`
+              );
+              return [s, v, l];
+            }
+            return [s, v.concat(attr), attr];
+          }
+          return [s, v.concat(attr), l];
         },
-        [[], []]
+        [[], [], null]
       );
     }
     get pushStr() {
@@ -254,23 +287,6 @@ export class PositionedFunction extends P5Function {
   setParamsFromOverloads() {
     super.setParamsFromOverloads();
     if ((this.angle || this.scaling) && !this.anchor) this.setAnchorToXY();
-  }
-}
-
-export class BlockStarter extends P5Function {
-  constructor(overloads) {
-    super(overloads);
-  }
-  get childStrings() {
-    return super.childStrings.map(this.constructor.addTab, this);
-  }
-  get innerEnd() {
-    return "}";
-  }
-
-  //  Create string to call function with provided arguments
-  get fnStr() {
-    return `${this.fnName}(${this.params.map((p) => p).join("; ")}) {`;
   }
 }
 
