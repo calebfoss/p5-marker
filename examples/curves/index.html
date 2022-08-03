@@ -8,28 +8,29 @@
   </head>
   <body>
     <canvas width="400" height="400" is="p-sketch">
-      <p-if cond="first_frame">
+      <p-_ show_if="first_frame">
         <p-background c="[200, 160, 240]"></p-background>
-        <p-repeat-if x2="0" cond="x2 < width">
+        <p-_ x_base="0">
           <p-curve
-            x1="x2 + width"
+            x1="x_base + width"
+            x2="x_base"
             y1="height"
             y2="0"
-            x3="x2"
+            x3="x_base"
             y3="height"
-            x4="x2 - width"
+            x4="x_base - width"
             y4="height"
+            repeat_while="x_base < width"
             stroke_weight="2"
             fill_color="NONE"
           >
-            <p-repeat-if
-              t="0"
-              cond="t < 1"
-              stroke_color="[60, 180, 20]"
-              fill_color="[20, 60, 180]"
-              stroke_weight="4"
-            >
-              <p-curve-point>
+            <p-_ t="0">
+              <p-curve-point
+                repeat_while="t < 1"
+                stroke_color="[60, 180, 20]"
+                fill_color="[20, 60, 180]"
+                stroke_weight="4"
+              >
                 <p-lerp-color
                   c1="stroke_color"
                   c2="fill_color"
@@ -50,14 +51,13 @@
                     ></p-circle>
                   </p-lerp-color>
                 </p-lerp-color>
+                <p-_ t="t + 0.1"></p-_>
               </p-curve-point>
-              <p-update t="t + 0.1"></p-update>
-            </p-repeat-if>
+            </p-_>
+            <p-_ x_base="x_base + width/10"></p-_>
           </p-curve>
-
-          <p-update x2="x2 + width/10"></p-update>
-        </p-repeat-if>
-      </p-if>
+        </p-_>
+      </p-_>
     </canvas>
   </body>
 </html>
