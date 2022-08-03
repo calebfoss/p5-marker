@@ -3,9 +3,9 @@ p5.prototype._defineProperties({
     get: function () {
       return this.isLooping();
     },
-  },
-  set: function (val) {
-    if (val) this.loop();
-    else this.noLoop();
+    set: function (val) {
+      if (val) this.loop();
+      else this.noLoop();
+    },
   },
 });
