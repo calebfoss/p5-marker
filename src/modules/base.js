@@ -338,7 +338,7 @@ const sketch = class Sketch extends P5Extension(HTMLCanvasElement) {
 
       " ",
       "this.setup = function() {",
-      ...[...this.setStrings, ...this.assignStrings, this.fnStr].map(
+      ...[this.fnStr, ...this.setStrings, ...this.assignStrings].map(
         this.constructor.addTab,
         this
       ),
