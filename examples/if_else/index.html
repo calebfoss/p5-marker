@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <canvas
+      width="400"
+      height="400"
+      is="p-sketch"
+      anchor="[width/2, height/2]"
+      stroke_color="NONE"
+    >
+      <p-background c="255"></p-background>
+      <p-circle
+        fill_color="'red'"
+        x="0"
+        y="0"
+        d="width"
+        show_if="frame_count < 60"
+      ></p-circle>
+      <p-circle
+        fill_color="'yellow'"
+        x="0"
+        y="0"
+        d="width"
+        else_show_if="frame_count < 120"
+      ></p-circle>
+      <p-circle fill_color="'green'" x="0" y="0" d="width" else_show></p-circle>
+    </canvas>
+  </body>
+</html>
