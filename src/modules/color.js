@@ -16,8 +16,27 @@ class ColorFunction extends P5Function {
   }
 }
 
+//  TODO - Less hacky way to set color before initializing p5?
+const transparent = p5.prototype.color.call(
+  {
+    _colorMode: "rgb",
+    _colorMaxes: { rgb: [255, 255, 255, 255] },
+  },
+  0,
+  0
+);
 p5.prototype.setErase = p5.prototype.erase;
+p5.prototype._backgroundColor = transparent;
 p5.prototype._defineProperties({
+  background_color: {
+    get: function () {
+      return this._backgroundColor;
+    },
+    set: function (val) {
+      if (val === this.NONE) this._backgroundColor = transparent;
+      else this._backgroundColor = this.color(val);
+    },
+  },
   fill_color: {
     get: function () {
       if (!this.drawingContext) return "";
@@ -116,9 +135,14 @@ p5.prototype._registerElements(
       super(["", "r, g, b, a"]);
     }
   },
-  class Background extends ColorFunction {
+  class PaintBucket extends ColorFunction {
     constructor() {
       super(["colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"]);
     }
+    fnName = "background";
   }
 );
+
+p5.prototype.registerMethod("pre", function () {
+  this.background(this.background_color);
+});

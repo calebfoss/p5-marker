@@ -7,56 +7,59 @@
     <meta charset="utf-8" />
   </head>
   <body>
-    <canvas width="400" height="400" is="p-sketch">
-      <p-_ show_if="first_frame">
-        <p-background c="[200, 160, 240]"></p-background>
-        <p-_ x_base="0">
-          <p-curve
-            x1="x_base + width"
-            x2="x_base"
-            y1="height"
-            y2="0"
-            x3="x_base"
-            y3="height"
-            x4="x_base - width"
-            y4="height"
-            repeat_while="x_base < width"
-            stroke_weight="2"
-            fill_color="NONE"
-          >
-            <p-_ t="0">
-              <p-curve-point
-                repeat_while="t < 1"
-                stroke_color="[60, 180, 20]"
-                fill_color="[20, 60, 180]"
-                stroke_weight="4"
+    <canvas
+      width="400"
+      height="400"
+      is="p-sketch"
+      background_color="[200, 160, 240]"
+      animate="false"
+    >
+      <p-_ x_base="0">
+        <p-curve
+          x1="x_base + width"
+          x2="x_base"
+          y1="height"
+          y2="0"
+          x3="x_base"
+          y3="height"
+          x4="x_base - width"
+          y4="height"
+          repeat_while="x_base < width"
+          stroke_weight="2"
+          fill_color="NONE"
+        >
+          <p-_ t="0">
+            <p-curve-point
+              repeat_while="t < 1"
+              stroke_color="[60, 180, 20]"
+              fill_color="[20, 60, 180]"
+              stroke_weight="4"
+            >
+              <p-lerp-color
+                c1="stroke_color"
+                c2="fill_color"
+                amt="t"
+                anchor="output"
               >
                 <p-lerp-color
-                  c1="stroke_color"
-                  c2="fill_color"
-                  amt="t"
-                  anchor="output"
+                  c1="fill_color"
+                  c2="stroke_color"
+                  lerped_stroke="output"
                 >
-                  <p-lerp-color
-                    c1="fill_color"
-                    c2="stroke_color"
-                    lerped_stroke="output"
-                  >
-                    <p-circle
-                      x="0"
-                      y="0"
-                      d="20"
-                      fill_color="output"
-                      stroke_color="lerped_stroke"
-                    ></p-circle>
-                  </p-lerp-color>
+                  <p-circle
+                    x="0"
+                    y="0"
+                    d="20"
+                    fill_color="output"
+                    stroke_color="lerped_stroke"
+                  ></p-circle>
                 </p-lerp-color>
-                <p-_ t="t + 0.1"></p-_>
-              </p-curve-point>
-            </p-_>
-            <p-_ x_base="x_base + width/10"></p-_>
-          </p-curve>
-        </p-_>
+              </p-lerp-color>
+              <p-_ t="t + 0.1"></p-_>
+            </p-curve-point>
+          </p-_>
+          <p-_ x_base="x_base + width/10"></p-_>
+        </p-curve>
       </p-_>
     </canvas>
   </body>
