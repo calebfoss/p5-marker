@@ -94,7 +94,7 @@ p5.prototype._defineProperties({
       return this._scaleStack.slice(-1)[0];
     },
     set: function (val) {
-      if (typeof val === "array")
+      if (Array.isArray(val))
         this._scaleStack[this._scaleStack.length - 1].set(...val);
       else this._scaleStack[this._scaleStack.length - 1].set(val);
       this.scale(this.scale_factor);

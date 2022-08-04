@@ -63,8 +63,8 @@ p5.prototype._defineProperties({
     },
     set: function (val) {
       if (val === true) this.setErase();
-      if (typeof val === "array") this.setErase(...val);
-      this.setErase(val);
+      else if (Array.isArray(val)) this.setErase(...val);
+      else this.setErase(val);
     },
   },
 });

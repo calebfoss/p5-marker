@@ -51,12 +51,11 @@ p5.prototype._fullscreen = p5.prototype.fullscreen;
 p5.prototype._defineProperties({
   cursor: {
     get: function () {
-      return false;
-      return this._curElement.elt.style.cursor;
+      return this.canvas?.style.cursor;
     },
     set: function (val) {
-      if (typeof val === "array") return this._setCursor(...val);
-      return this._setCursor(val);
+      if (Array.isArray(val)) this._setCursor(...val);
+      else this._setCursor(val);
     },
   },
   frame_count: {
