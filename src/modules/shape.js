@@ -61,18 +61,6 @@ p5.prototype._registerElements(
       ]);
     }
   },
-  class BezierPoint extends P5Function {
-    constructor() {
-      super(["a, b, c, d, t", "x1, y1, x2, y2, x3, y3, x4, y4, t"]);
-    }
-    returnsVal = true;
-  },
-  class BezierTangent extends P5Function {
-    constructor() {
-      super(["a, b, c, d, t", "x1, y1, x2, y2, x3, y3, x4, y4, t"]);
-    }
-    returnsVal = true;
-  },
   class Curve extends PositionedFunction {
     constructor() {
       super([
@@ -80,18 +68,6 @@ p5.prototype._registerElements(
         "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4",
       ]);
     }
-  },
-  class CurvePoint extends P5Function {
-    constructor() {
-      super(["a, b, c, d, t", "x1, y1, x2, y2, x3, y3, x4, y4, t"]);
-    }
-    returnsVal = true;
-  },
-  class CurveTangent extends P5Function {
-    constructor() {
-      super(["a, b, c, d, t", "x1, y1, x2, y2, x3, y3, x4, y4, t"]);
-    }
-    returnsVal = true;
   },
   class Contour extends PositionedFunction {
     constructor() {
@@ -160,11 +136,6 @@ p5.prototype._registerElements(
   class Torus extends P5Function {
     constructor() {
       super(["[radius], [tubeRadius], [detailX], [detailY]"]);
-    }
-  },
-  class Geometry extends P5Constructor {
-    constructor() {
-      super(["[detail_x], [detail_y], [callback]"]);
     }
   },
   //  TODO - test when preload implemented

@@ -27,36 +27,28 @@
           repeat_while="x_base < width"
           stroke_weight="2"
           fill_color="NONE"
+          t="0"
         >
-          <p-_ t="0">
-            <p-curve-point
-              repeat_while="t < 1"
-              stroke_color="[60, 180, 20]"
-              fill_color="[20, 60, 180]"
-              stroke_weight="4"
+          <p-_
+            repeat_while="t < 1"
+            anchor="curvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t)"
+            stroke_color="[60, 180, 20]"
+            fill_color="[20, 60, 180]"
+            stroke_weight="4"
+          >
+            <p-_
+              lerped_stroke="lerpColor(stroke_color, fill_color, t)"
+              lerped_fill="lerpColor(fill_color, stroke_color, t)"
             >
-              <p-lerp-color
-                c1="stroke_color"
-                c2="fill_color"
-                amt="t"
-                anchor="output"
-              >
-                <p-lerp-color
-                  c1="fill_color"
-                  c2="stroke_color"
-                  lerped_stroke="output"
-                >
-                  <p-circle
-                    x="0"
-                    y="0"
-                    d="20"
-                    fill_color="output"
-                    stroke_color="lerped_stroke"
-                  ></p-circle>
-                </p-lerp-color>
-              </p-lerp-color>
-              <p-_ t="t + 0.1"></p-_>
-            </p-curve-point>
+              <p-circle
+                x="0"
+                y="0"
+                d="20"
+                fill_color="lerped_fill"
+                stroke_color="lerped_stroke"
+                t="t + 0.1"
+              ></p-circle>
+            </p-_>
           </p-_>
           <p-_ x_base="x_base + width/10"></p-_>
         </p-curve>

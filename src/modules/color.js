@@ -70,66 +70,6 @@ p5.prototype._defineProperties({
 });
 
 p5.prototype._registerElements(
-  class Alpha extends P5Function {
-    constructor() {
-      super(["c"]);
-    }
-    returnsVal = true;
-  },
-  class Blue extends P5Function {
-    constructor() {
-      super(["c"]);
-    }
-    returnsVal = true;
-  },
-  class Brightness extends P5Function {
-    constructor() {
-      super(["c"]);
-    }
-    returnsVal = true;
-  },
-  class Color extends ColorFunction {
-    constructor() {
-      super([]);
-    }
-    returnsVal = true;
-  },
-  class Green extends P5Function {
-    constructor() {
-      super([]);
-    }
-    returnsVal = true;
-  },
-  class Hue extends P5Function {
-    constructor() {
-      super(["c"]);
-    }
-    returnsVal = true;
-  },
-  class LerpColor extends P5Function {
-    constructor() {
-      super(["c1, c2, amt"]);
-    }
-    returnsVal = true;
-  },
-  class Lightness extends P5Function {
-    constructor() {
-      super(["c"]);
-    }
-    returnsVal = true;
-  },
-  class Red extends P5Function {
-    constructor() {
-      super(["c"]);
-    }
-    returnsVal = true;
-  },
-  class Saturation extends P5Function {
-    constructor() {
-      super(["c"]);
-    }
-    returnsVal = true;
-  },
   class Clear extends P5Function {
     constructor() {
       super(["", "r, g, b, a"]);

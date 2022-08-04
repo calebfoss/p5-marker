@@ -185,9 +185,7 @@ export class P5Function extends P5Element {
   }
   //  Create string to call function with provided arguments
   get fnStr() {
-    return `${this.outputAssignment}${this.targetStr}${
-      this.fnName
-    }(${this.params.join(", ")});`;
+    return `${this.targetStr}${this.fnName}(${this.params.join(", ")});`;
   }
 
   setParamsFromOverloads() {
@@ -241,31 +239,11 @@ export class P5Function extends P5Element {
         this.outerHTML
     );
   }
-  get parentReturns() {
-    if (this.parentElement.returnsVal) return true;
-    if (this.parentElement.parentReturns)
-      return this.parentElement.parentReturns;
-    return false;
-  }
-  get outputAssignment() {
-    if (!this.returnsVal) return "";
-    const outputAssignment = "output = ";
-    if (this.parentReturns) return outputAssignment;
-    return "let " + outputAssignment;
-  }
   get targetStr() {
     if (!this.target) return "";
     const init = this.varInitialized(this.target) ? "" : "let ";
     return `${init}${this.target} = `;
   }
-}
-
-export class P5Constructor extends P5Function {
-  constructor(overloads) {
-    super(overloads);
-  }
-  fnName = `new p5.${super.fnName[0].toUpperCase()}${super.fnName.slice(1)}`;
-  returnsVal = true;
 }
 
 export class PositionedFunction extends P5Function {
