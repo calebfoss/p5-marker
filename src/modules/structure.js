@@ -8,4 +8,12 @@ p5.prototype._defineProperties({
       else this.noLoop();
     },
   },
+  remove_canvas: {
+    get: function () {
+      return false;
+    },
+    set: function () {
+      this.remove();
+    },
+  },
 });
