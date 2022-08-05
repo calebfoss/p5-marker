@@ -49,7 +49,7 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
       [this.settings, this.vars, this.logic] = this.parseAttributes();
-      this.createAttributeGetters();
+      this.defineAttributeGetters();
     }
     static addTab(line) {
       return line.length && this.isBlock ? "\t" + line : line;
@@ -107,15 +107,15 @@ const P5Extension = (baseClass) =>
         this.blockEnd,
       ].filter((line) => line.length);
     }
-    //  Create getter for each attribute
-    createAttributeGetters() {
-      Array.from(this.attributes).forEach(({ name }) =>
-        Object.defineProperty(this, name, {
-          get() {
-            return this.getAttribute(name);
-          },
-        })
-      );
+    //  Define getter for given attribute
+    defineAttributeGetter = ({ name }) =>
+      Object.defineProperty(this, name, {
+        get() {
+          return this.getAttribute(name);
+        },
+      });
+    defineAttributeGetters() {
+      Array.from(this.attributes).forEach(this.defineAttributeGetter);
     }
     get comment() {
       return `// ${this.html}`;
@@ -269,7 +269,6 @@ export class PositionedFunction extends P5Function {
 }
 
 p5.prototype.assignCanvas = function (c, r) {
-  this.noCanvas();
   const mainDiv = document.querySelector("main");
   if (mainDiv.children.length === 0) mainDiv.remove();
   if (r === this.WEBGL) {
@@ -280,6 +279,7 @@ p5.prototype.assignCanvas = function (c, r) {
   }
   this._renderer._applyDefaults();
   this._setProperty("_elements", [this._renderer]);
+  this.resizeCanvas(c.width, c.height);
 };
 
 p5.prototype._registerElements(
@@ -293,10 +293,6 @@ p5.prototype._registerElements(
       super();
       //  Remove 'is' attribute from vars
       this.vars = this.vars.filter((v) => v !== "is" && v != "renderer");
-      //  Remove 'width' and 'height' from settings
-      this.settings = this.settings.filter(
-        (s) => s !== "width" && s !== "height"
-      );
 
       const setParams = (el) => {
         el.setParamsFromOverloads?.();
@@ -334,6 +330,12 @@ p5.prototype._registerElements(
       ].join("\n");
     }
     static constructorOptions = { extends: "canvas" };
+    defineAttributeGetters() {
+      //  Filter out width and height so they can be set based on pixel density
+      Array.from(this.attributes)
+        .filter(({ name }) => name !== "width" && name !== "height")
+        .forEach(this.defineAttributeGetter);
+    }
     get fnStr() {
       const renderer = this.getAttribute("renderer");
       if (!renderer) return "assignCanvas(canvas);";
