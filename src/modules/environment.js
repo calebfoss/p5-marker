@@ -47,6 +47,8 @@ p5.prototype.registerMethod("post", function () {
 });
 
 p5.prototype._fullscreen = p5.prototype.fullscreen;
+p5.prototype._width = p5.prototype.width;
+p5.prototype._height = p5.prototype.height;
 
 p5.prototype._defineProperties({
   cursor: {
@@ -122,6 +124,28 @@ p5.prototype._defineProperties({
   url_params: {
     get: function () {
       return this.getURLParams();
+    },
+  },
+  width: {
+    get: function () {
+      return this._width;
+    },
+    set: function (val) {
+      if (val !== this._width) {
+        this._setProperty("_width", val);
+        this.resizeCanvas(this._width, this._height);
+      }
+    },
+  },
+  height: {
+    get: function () {
+      return this._height;
+    },
+    set: function (val) {
+      if (val !== this._height) {
+        this._setProperty("_height", val);
+        this.resizeCanvas(this._width, this._height);
+      }
     },
   },
 });
