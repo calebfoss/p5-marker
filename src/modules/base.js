@@ -49,7 +49,6 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
       [this.settings, this.vars, this.logic] = this.parseAttributes();
-      this.defineAttributeGetters();
     }
     static addTab(line) {
       return line.length && this.isBlock ? "\t" + line : line;
@@ -65,10 +64,13 @@ const P5Extension = (baseClass) =>
       return this.vars.map((attr) => {
         const init =
           this.varInitialized(attr) || P5Element.isP5(attr) ? "" : "let ";
-        if (this[attr].length === 0) return `${init}${attr};`;
-        return `${init}${attr} = ${this[attr]};`;
+        if (this.getAttr(attr).length === 0) return `${init}${attr};`;
+        return `${init}${attr} = ${this.getAttr(attr)};`;
       });
     }
+    getAttr = this.getAttribute;
+    hasAttr = this.hasAttribute;
+    setAttr = this.setAttribute;
     get isBlock() {
       return this.vars.length + this.settings.length > 0 || this.logic !== null;
     }
@@ -80,9 +82,9 @@ const P5Extension = (baseClass) =>
       if (this.isBlock === false) return "";
       if (this.logic === null) return "{";
       if (this.logic === logicKeyWordToAttribute.get("else")) return "else {";
-      return `${logicAttributeToKeyword.get(this.logic)} (${
-        this[this.logic]
-      }) {`;
+      return `${logicAttributeToKeyword.get(this.logic)} (${this.getAttr(
+        this.logic
+      )}) {`;
     }
     get childStrings() {
       if (this.children.length === 0) return [];
@@ -106,16 +108,6 @@ const P5Extension = (baseClass) =>
         ].map(P5Element.addTab, this),
         this.blockEnd,
       ].filter((line) => line.length);
-    }
-    //  Define getter for given attribute
-    defineAttributeGetter = ({ name }) =>
-      Object.defineProperty(this, name, {
-        get() {
-          return this.getAttribute(name);
-        },
-      });
-    defineAttributeGetters() {
-      Array.from(this.attributes).forEach(this.defineAttributeGetter);
     }
     get comment() {
       return `// ${this.html}`;
@@ -163,7 +155,7 @@ const P5Extension = (baseClass) =>
     }
     //  Create string to call functions for each setting
     get setStrings() {
-      return this.settings.map((s) => `${s} = ${this[s]};`);
+      return this.settings.map((s) => `${s} = ${this.getAttr(s)};`);
     }
     varInitialized(varName) {
       if (this.parentElement.hasAttribute(varName)) return true;
@@ -185,7 +177,7 @@ export class P5Function extends P5Element {
   }
   //  Create string to call function with provided arguments
   get fnStr() {
-    return `${this.targetStr}${this.fnName}(${this.params.join(", ")});`;
+    return `${this.fnName}(${this.params.join(", ")});`;
   }
 
   setParamsFromOverloads() {
@@ -239,11 +231,6 @@ export class P5Function extends P5Element {
         this.outerHTML
     );
   }
-  get targetStr() {
-    if (!this.target) return "";
-    const init = this.varInitialized(this.target) ? "" : "let ";
-    return `${init}${this.target} = `;
-  }
 }
 
 export class PositionedFunction extends P5Function {
@@ -251,20 +238,21 @@ export class PositionedFunction extends P5Function {
     super(overloads);
   }
   setAnchorToXY() {
-    const x = this.x || this.x1;
-    const y = this.y || this.y1;
+    const x = this.getAttr("x") || this.getAttr("x1");
+    const y = this.getAttr("y") || this.getAttr("y1");
     const anchorVal = `[${x}, ${y}]`;
-    this.setAttribute("anchor", anchorVal);
-    this.setAttribute(this.params[0], 0);
-    this.setAttribute(this.params[1], 0);
+    this.setAttr("anchor", anchorVal);
+    this.setAttr(this.params[0], 0);
+    this.setAttr(this.params[1], 0);
     this.settings.unshift("anchor");
-    Object.defineProperty(this, "anchor", {
-      get: () => this.getAttribute("anchor"),
-    });
   }
   setParamsFromOverloads() {
     super.setParamsFromOverloads();
-    if ((this.angle || this.scaling) && !this.anchor) this.setAnchorToXY();
+    if (
+      (this.hasAttr("angle") || this.hasAttr("scaling")) &&
+      !this.hasAttr("anchor")
+    )
+      this.setAnchorToXY();
   }
 }
 
@@ -330,12 +318,6 @@ p5.prototype._registerElements(
       ].join("\n");
     }
     static constructorOptions = { extends: "canvas" };
-    defineAttributeGetters() {
-      //  Filter out width and height so they can be set based on pixel density
-      Array.from(this.attributes)
-        .filter(({ name }) => name !== "width" && name !== "height")
-        .forEach(this.defineAttributeGetter);
-    }
     get fnStr() {
       const renderer = this.getAttribute("renderer");
       if (!renderer) return "assignCanvas(canvas);";
