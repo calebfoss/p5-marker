@@ -282,74 +282,108 @@ p5.prototype.assignCanvas = function (c, r) {
   this._setProperty("_elements", [this._renderer]);
 };
 
-const sketch = class Sketch extends P5Extension(HTMLCanvasElement) {
-  constructor() {
-    super();
-    //  Remove 'is' attribute from vars
-    this.vars = this.vars.filter((v) => v !== "is" && v != "renderer");
-    //  Remove 'width' and 'height' from settings
-    this.settings = this.settings.filter(
-      (s) => s !== "width" && s !== "height"
-    );
-
-    const setParams = (el) => {
-      el.setParamsFromOverloads?.();
-      for (let i = 0; i < el.children.length; i++) {
-        const child = el.children.item(i);
-        setParams(child);
-      }
-    };
-
-    const runCode = () => {
-      setParams(this);
-
-      console.log(this.codeString);
-
-      Function("canvas", this.codeString)(this);
-    };
-    window.addEventListener("customElementsDefined", runCode);
-  }
-  get codeString() {
-    return [
-      this.comment,
-      ...this.initStrings,
-
-      " ",
-      "this.setup = function() {",
-      ...[this.fnStr, ...this.setStrings, ...this.assignStrings].map(
-        this.constructor.addTab,
-        this
-      ),
-      "}",
-      " ",
-      `this.draw = function() {`,
-      ...[...this.childStrings].map(this.constructor.addTab, this),
-      "}",
-    ].join("\n");
-  }
-  static constructorOptions = { extends: "canvas" };
-  get fnStr() {
-    const renderer = this.getAttribute("renderer");
-    if (!renderer) return "assignCanvas(canvas);";
-    return `assignCanvas(canvas, ${renderer});`;
-  }
-  get initStrings() {
-    return this.vars.map((v) => `let ${v};`);
-  }
-  isBlock = true;
-  varInitialized(varName) {
-    if (this.vars.includes(varName)) return true;
-    return super.varInitialized(varName);
-  }
-};
-
 p5.prototype._registerElements(
   class _ extends P5Element {
     constructor() {
       super();
     }
   },
-  sketch,
+  class Sketch extends P5Extension(HTMLCanvasElement) {
+    constructor() {
+      super();
+      //  Remove 'is' attribute from vars
+      this.vars = this.vars.filter((v) => v !== "is" && v != "renderer");
+      //  Remove 'width' and 'height' from settings
+      this.settings = this.settings.filter(
+        (s) => s !== "width" && s !== "height"
+      );
+
+      const setParams = (el) => {
+        el.setParamsFromOverloads?.();
+        for (let i = 0; i < el.children.length; i++) {
+          const child = el.children.item(i);
+          setParams(child);
+        }
+      };
+
+      const runCode = () => {
+        setParams(this);
+
+        console.log(this.codeString);
+
+        Function("canvas", this.codeString)(this);
+      };
+      window.addEventListener("customElementsDefined", runCode);
+    }
+    get codeString() {
+      return [
+        this.comment,
+        ...this.initStrings,
+
+        " ",
+        "this.setup = function() {",
+        ...[this.fnStr, ...this.setStrings, ...this.assignStrings].map(
+          this.constructor.addTab,
+          this
+        ),
+        "}",
+        " ",
+        `this.draw = function() {`,
+        ...[...this.childStrings].map(this.constructor.addTab, this),
+        "}",
+      ].join("\n");
+    }
+    static constructorOptions = { extends: "canvas" };
+    get fnStr() {
+      const renderer = this.getAttribute("renderer");
+      if (!renderer) return "assignCanvas(canvas);";
+      return `assignCanvas(canvas, ${renderer});`;
+    }
+    get initStrings() {
+      return this.vars.map((v) => `let ${v};`);
+    }
+    isBlock = true;
+    varInitialized(varName) {
+      if (this.vars.includes(varName)) return true;
+      return super.varInitialized(varName);
+    }
+  },
+  class Custom extends P5Function {
+    constructor() {
+      super(["name, [attributes]"]);
+      if (this.name.slice(0, 2) !== "p-")
+        this.setAttribute("name", "p-" + this.name);
+      const custom = this;
+      const { name, attributes, children, settings, vars } = custom;
+      customElements.define(
+        name,
+        class extends P5Function {
+          constructor() {
+            super([attributes]);
+            const addAttribute = (obj, arr, attr) => {
+              arr.push(attr);
+              Object.defineProperty(obj, attr, {
+                get() {
+                  return custom.getAttribute(attr);
+                },
+              });
+            };
+            settings.forEach((s) => addAttribute(this, this.settings, s));
+            vars.forEach((v) => {
+              if (v !== "name" && v != "attributes")
+                addAttribute(this, this.vars, v);
+            });
+            const childClones = Array.from(children).map((child) =>
+              child.cloneNode(true)
+            );
+            this.prepend(...childClones);
+          }
+          static elementName = name;
+          fnStr = "";
+        }
+      );
+    }
+  },
   class Update extends P5Element {
     constructor() {
       super();

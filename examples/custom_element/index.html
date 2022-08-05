@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <p-custom name="cloud" attributes="center_x, center_y" stroke_color="NONE">
+      <p-_ anchor="[center_x, center_y]" d="40">
+        <p-circle x="-20" y="-10" fill_color="220"></p-circle>
+        <p-circle x="20" y="-10" fill_color="210"></p-circle>
+        <p-circle x="-10" y="-20" fill_color="250"></p-circle>
+        <p-circle x="10" y="-20" fill_color="210"></p-circle>
+        <p-circle x="0" y="0" fill_color="180"></p-circle>
+        <p-circle x="20" y="0" fill_color="200"></p-circle>
+        <p-circle x="-20" y="0" fill_color="240"></p-circle>
+        <p-circle x="0" y="-5" fill_color="235"></p-circle>
+      </p-_>
+    </p-custom>
+
+    <canvas
+      width="400"
+      height="400"
+      is="p-sketch"
+      background_color="[100, 140, 200]"
+      cloud_x="0"
+    >
+      <p-_ center_y="75" center_x="cloud_x - 40">
+        <p-cloud repeat_while="center_x < width * 1.25">
+          <p-_ center_x="center_x + width * 0.25"></p-_>
+        </p-cloud>
+      </p-_>
+      <p-_ cloud_x="cloud_x + 0.25">
+        <p-_ show_if="cloud_x >= width * 0.25" cloud_x="0"></p-_>
+      </p-_>
+    </canvas>
+  </body>
+</html>
