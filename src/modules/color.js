@@ -37,6 +37,14 @@ p5.prototype._defineProperties({
       else this._backgroundColor = this.color(val);
     },
   },
+  color_mode: {
+    get: function () {
+      return this._colorMode;
+    },
+    set: function (val) {
+      this.colorMode(val);
+    },
+  },
   fill_color: {
     get: function () {
       if (!this.drawingContext) return "";
