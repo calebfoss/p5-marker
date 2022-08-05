@@ -69,6 +69,11 @@ const P5Extension = (baseClass) =>
       });
     }
     getAttr = this.getAttribute;
+    getInheritedAttr(attrName) {
+      if (this.parentElement.hasAttr(attrName))
+        return this.parentElement.getAttr(attrName);
+      return this.parentElement.getInheritedAttr();
+    }
     hasAttr = this.hasAttribute;
     setAttr = this.setAttribute;
     get isBlock() {
@@ -238,8 +243,9 @@ export class PositionedFunction extends P5Function {
     super(overloads);
   }
   setAnchorToXY() {
-    const x = this.getAttr("x") || this.getAttr("x1");
-    const y = this.getAttr("y") || this.getAttr("y1");
+    const [xParam, yParam] = this.params.slice(0, 2);
+    const x = this.getAttr(xParam) || this.getInheritedAttr(xParam);
+    const y = this.getAttr(yParam) || this.getInheritedAttr(yParam);
     const anchorVal = `[${x}, ${y}]`;
     this.setAttr("anchor", anchorVal);
     this.setAttr(this.params[0], 0);
@@ -335,29 +341,28 @@ p5.prototype._registerElements(
   class Custom extends P5Function {
     constructor() {
       super(["name, [attributes]"]);
-      if (this.name.slice(0, 2) !== "p-")
-        this.setAttribute("name", "p-" + this.name);
+      if (this.getAttr("name").slice(0, 2) !== "p-")
+        this.setAttr("name", "p-" + this.getAttr("name"));
+      const name = this.getAttr("name");
+      const attributes = this.getAttr("attributes");
       const custom = this;
-      const { name, attributes, children, settings, vars } = custom;
       customElements.define(
-        name,
+        this.getAttr("name"),
         class extends P5Function {
           constructor() {
             super([attributes]);
             const addAttribute = (obj, arr, attr) => {
               arr.push(attr);
-              Object.defineProperty(obj, attr, {
-                get() {
-                  return custom.getAttribute(attr);
-                },
-              });
+              obj.setAttr(attr, custom.getAttr(attr));
             };
-            settings.forEach((s) => addAttribute(this, this.settings, s));
-            vars.forEach((v) => {
+            custom.settings.forEach((s) =>
+              addAttribute(this, this.settings, s)
+            );
+            custom.vars.forEach((v) => {
               if (v !== "name" && v != "attributes")
                 addAttribute(this, this.vars, v);
             });
-            const childClones = Array.from(children).map((child) =>
+            const childClones = Array.from(custom.children).map((child) =>
               child.cloneNode(true)
             );
             this.prepend(...childClones);
