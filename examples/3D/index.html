@@ -14,9 +14,6 @@
       renderer="WEBGL"
       angle_mode="DEGREES"
     >
-      <p-if cond="first_frame">
-        <p-geometry><p-print contents="output"></p-print></p-geometry>
-      </p-if>
       <p-box angle_y="frame_count" angle_x="30"></p-box>
       <p-sphere anchor="[-width/4, -height/4]" angle_z="frame_count"></p-sphere>
       <p-cylinder radius="height" angle_y="frame_count * -0.25"></p-cylinder>
