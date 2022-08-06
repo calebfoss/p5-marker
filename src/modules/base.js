@@ -100,7 +100,7 @@ const P5Extension = (baseClass) =>
     get codeStrings() {
       return [
         " ",
-        this.comment,
+        ...this.comments,
         this.blockStart,
         ...[
           this.pushStr,
@@ -114,8 +114,12 @@ const P5Extension = (baseClass) =>
         this.blockEnd,
       ].filter((line) => line.length);
     }
-    get comment() {
-      return `// ${this.html.replace(/(?:\r\n|\r|\n)/g, "")}`;
+    get comments() {
+      return this.html
+        .split(/(?:\r\n|\r|\n)/)
+        .map((line) => line.match(/.{1,80}/g))
+        .flat()
+        .map((line) => "//\t" + line);
     }
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
@@ -307,7 +311,7 @@ p5.prototype._registerElements(
     }
     get codeString() {
       return [
-        this.comment,
+        this.comments,
         ...this.initStrings,
 
         " ",
