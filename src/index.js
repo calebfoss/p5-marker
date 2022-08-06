@@ -4,6 +4,7 @@ import "./modules/color.js";
 import "./modules/shape.js";
 import "./modules/structure";
 import "./modules/math.js";
+import "./modules/rendering.js";
 import "./modules/transform.js";
 import "./modules/events.js";
 
