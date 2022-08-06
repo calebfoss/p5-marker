@@ -115,7 +115,7 @@ const P5Extension = (baseClass) =>
       ].filter((line) => line.length);
     }
     get comment() {
-      return `// ${this.html}`;
+      return `// ${this.html.replace(/(?:\r\n|\r|\n)/g, "")}`;
     }
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
