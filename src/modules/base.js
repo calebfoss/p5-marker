@@ -383,3 +383,14 @@ p5.prototype._registerElements(
     }
   }
 );
+
+p5.prototype._defineProperties({
+  set_obj_prop: {
+    set: function () {
+      const [arg] = arguments;
+      const [obj, prop] = arg;
+      Object.assign(obj, prop);
+    },
+  },
+});
+p5.prototype.get_obj_prop = (obj, prop) => obj[prop];
