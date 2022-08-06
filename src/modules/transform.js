@@ -7,6 +7,9 @@ p5.prototype._angleStack = [defaultAngle.copy()];
 const defaultScale = p5.prototype.createVector(1, 1, 1);
 p5.prototype._scaleStack = [defaultScale.copy()];
 
+const defaultShear = p5.prototype.createVector(1, 1);
+p5.prototype._shearStack = [defaultShear.copy()];
+
 p5.prototype._pushBase = p5.prototype.push;
 p5.prototype.push = function () {
   this._setProperty(
@@ -21,6 +24,10 @@ p5.prototype.push = function () {
     "_scaleStack",
     this._scaleStack.concat(defaultScale.copy())
   );
+  this._setProperty(
+    "_shearStack",
+    this._shearStack.concat(defaultShear.copy())
+  );
   this._pushBase();
 };
 
@@ -29,8 +36,11 @@ p5.prototype.pop = function () {
   this._setProperty("_anchorStack", this._anchorStack.slice(0, -1));
   this._setProperty("_angleStack", this._angleStack.slice(0, -1));
   this._setProperty("_scaleStack", this._scaleStack.slice(0, -1));
+  this._setProperty("_shearStack", this._shearStack.slice(0, -1));
   this._popBase();
 };
+
+p5.prototype.RESET = "reset";
 
 p5.prototype._defineProperties({
   anchor: {
@@ -98,6 +108,28 @@ p5.prototype._defineProperties({
         this._scaleStack[this._scaleStack.length - 1].set(...val);
       else this._scaleStack[this._scaleStack.length - 1].set(val);
       this.scale(this.scale_factor);
+    },
+  },
+  shear: {
+    get: function () {
+      const [lastShear] = this._shearStack.slice(-1);
+      return lastShear;
+    },
+    set: function (val) {
+      if (Array.isArray(val))
+        this._shearStack[this._shearStack.length - 1].set(...val);
+      else this._shearStack[this._shearStack.length - 1].set(val);
+      this.shearX(this.shear.x);
+      this.shearY(this.shear.y);
+    },
+  },
+  transform_matrix: {
+    get: function () {
+      return this.drawingContext?.getTransform();
+    },
+    set: function (val) {
+      if (val === this.RESET) this.resetMatrix();
+      else this.applyMatrix(val);
     },
   },
 });

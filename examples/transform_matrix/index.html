@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <!-- https://p5js.org/reference/#/p5/resetMatrix -->
+    <canvas width="100" height="100" is="p-sketch" background_color="220">
+      <p-rect
+        x="0"
+        y="0"
+        w="20"
+        h="20"
+        anchor="[50, 50]"
+        transform_matrix="[0.5, 0.5, -0.5, 0.5, 0, 0]"
+      >
+        <!-- Note that the translate is also reset. -->
+        <p-rect transform_matrix="RESET"></p-rect>
+      </p-rect>
+    </canvas>
+  </body>
+</html>
