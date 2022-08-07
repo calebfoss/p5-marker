@@ -3,6 +3,7 @@ import "./modules/environment.js";
 import "./modules/color.js";
 import "./modules/shape.js";
 import "./modules/structure";
+import "./modules/dom";
 import "./modules/math.js";
 import "./modules/rendering.js";
 import "./modules/transform.js";
