@@ -1,4 +1,4 @@
-import { pascalToCamel, pascalToKebab } from "./utils.js";
+import { camelToSnake, pascalToCamel, pascalToKebab } from "../caseConvert";
 
 p5.prototype._customElements = [];
 p5.prototype._registerElements = function () {
