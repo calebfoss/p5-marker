@@ -1,13 +1,13 @@
-import "./modules/base.js";
-import "./modules/environment.js";
-import "./modules/color.js";
-import "./modules/shape.js";
+import "./modules/base";
+import "./modules/environment";
+import "./modules/color";
+import "./modules/shape";
 import "./modules/structure";
 import "./modules/dom";
-import "./modules/math.js";
-import "./modules/rendering.js";
-import "./modules/transform.js";
-import "./modules/events.js";
+import "./modules/math";
+import "./modules/rendering";
+import "./modules/transform";
+import "./modules/events";
 
 //  Create an HTML element for every class from modules
 (() => {
