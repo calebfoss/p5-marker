@@ -4,6 +4,7 @@ import "./modules/color";
 import "./modules/shape";
 import "./modules/structure";
 import "./modules/dom";
+import "./modules/data";
 import "./modules/math";
 import "./modules/rendering";
 import "./modules/transform";

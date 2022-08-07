@@ -1,0 +1,9 @@
+p5.prototype._defineSnakeAlias(
+  "storeItem",
+  "getItem",
+  "clearStorage",
+  "removeItem",
+  "createStringDict",
+  "createNumberDict",
+  "splitTokens"
+);
