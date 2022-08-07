@@ -1,5 +1,4 @@
-p5.prototype.create_canvas = p5.prototype.createCanvas;
-p5.prototype.create_graphics = p5.prototype.createGraphics;
+p5.prototype._defineSnakeAlias("createCanvas", "createGraphics");
 
 p5.prototype._defineProperties({
   blend_mode: {

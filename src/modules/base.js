@@ -24,6 +24,12 @@ p5.prototype._createFriendlyGlobalFunctionBinder = function (options = {}) {
   };
 };
 
+p5.prototype._defineSnakeAlias = (...propNames) =>
+  propNames.forEach(
+    (propName) =>
+      (p5.prototype[camelToSnake(propName)] = p5.prototype[propName])
+  );
+
 const logicKeyWordToAttribute = new Map([
   ["if", "show_if"],
   ["else", "else_show"],
