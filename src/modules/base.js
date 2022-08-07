@@ -273,6 +273,7 @@ export class PositionedFunction extends P5Function {
 }
 
 p5.prototype.assignCanvas = function (c, r) {
+  this.noCanvas();
   const mainDiv = document.querySelector("main");
   if (mainDiv.children.length === 0) mainDiv.remove();
   if (r === this.WEBGL) {
