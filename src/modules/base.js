@@ -173,6 +173,8 @@ const P5Extension = (baseClass) =>
       return this.settings.map((s) => `${s} = ${this.getAttr(s)};`);
     }
     varInitialized(varName) {
+      const [obj, ...props] = varName.split(".");
+      if (props.length) return this.varInitialized(obj);
       if (this.parentElement.hasAttribute(varName)) return true;
       if (this.parentElement.varInitialized)
         return this.parentElement.varInitialized(varName);
