@@ -24,14 +24,15 @@
           y3="height"
           x4="x_base - width"
           y4="height"
+          x_base="x_base + width/10"
           repeat_while="x_base < width"
           stroke_weight="2"
           fill_color="NONE"
           t="0"
         >
           <p-_
+            t="t + 0.1"
             repeat_while="t < 1"
-            anchor="curvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t)"
             stroke_color="[60, 180, 20]"
             fill_color="[20, 60, 180]"
             stroke_weight="4"
@@ -41,16 +42,15 @@
               lerped_fill="lerpColor(fill_color, stroke_color, t)"
             >
               <p-circle
+                anchor="curvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t)"
                 x="0"
                 y="0"
                 d="20"
                 fill_color="lerped_fill"
                 stroke_color="lerped_stroke"
-                t="t + 0.1"
               ></p-circle>
             </p-_>
           </p-_>
-          <p-_ x_base="x_base + width/10"></p-_>
         </p-curve>
       </p-_>
     </canvas>

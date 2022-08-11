@@ -74,14 +74,19 @@ p5.prototype._registerElements(
       super([""]);
     }
     fnName = "beginContour";
-    innerEnd = "endContour()";
+    endRender(p) {
+      p.endContour();
+    }
   },
   class Shape extends PositionedFunction {
     constructor() {
       super(["[kind]"]);
     }
     fnName = "beginShape";
-    innerEnd = `endShape(${this.mode ? "mode" : ""});`;
+    endRender(p, assigned) {
+      if (assigned.hasOwnProperty("mode")) p.endShape(assigned.mode);
+      else p.endShape();
+    }
   },
   class Vertex extends P5Function {
     constructor() {

@@ -12,6 +12,8 @@ p5.prototype._defineProperties = function (obj) {
   Object.defineProperties(p5.prototype, obj);
 };
 
+p5.prototype.state = {};
+
 p5.prototype._createFriendlyGlobalFunctionBinderBase =
   p5.prototype._createFriendlyGlobalFunctionBinder;
 p5.prototype._createFriendlyGlobalFunctionBinder = function (options = {}) {
@@ -55,6 +57,7 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
       [this.settings, this.vars, this.logic] = this.parseAttributes();
+      this.storeEvalFns();
     }
     static addTab(line) {
       return line.length && this.isBlock ? "\t" + line : line;
@@ -66,60 +69,35 @@ const P5Extension = (baseClass) =>
         this.settings.slice(anchorIndex + 1)
       );
     }
-    get assignStrings() {
-      return this.vars.map((attr) => {
-        const init =
-          this.varInitialized(attr) || P5Element.isP5(attr) ? "" : "let ";
-        if (this.getAttr(attr).length === 0) return `${init}${attr};`;
-        return `${init}${attr} = ${this.getAttr(attr)};`;
-      });
+    attrEvals = new Map();
+    storeEvalFn(attr) {
+      const varNameExp =
+        /(?<![a-z\_\$\.])[a-z][a-z0-9\_\$]*(?=(?:[^"'`]*["'`][^"'`]*["'`])*[^"'`]*$)/gi;
+      const localVars = [];
+      const fnStr =
+        "return " +
+        attr.value.replace(varNameExp, (varName) => {
+          if (this.constructor.isP5(varName)) return "p." + varName;
+          localVars.push(varName);
+          return "_." + varName;
+        });
+      const evalFn = new Function("p", "_", fnStr);
+      this.attrEvals.set(attr.name, evalFn);
     }
-    getAttr = this.getAttribute;
+    storeEvalFns() {
+      const { attributes } = this;
+      for (let i = 0; i < attributes.length; i++) {
+        this.storeEvalFn(attributes[i]);
+      }
+    }
     getInheritedAttr(attrName) {
       if (this.parentElement.hasAttr(attrName))
         return this.parentElement.getAttr(attrName);
       return this.parentElement.getInheritedAttr();
     }
+    getAttr = this.getAttribute;
     hasAttr = this.hasAttribute;
     setAttr = this.setAttribute;
-    get isBlock() {
-      return this.vars.length + this.settings.length > 0 || this.logic !== null;
-    }
-    get blockEnd() {
-      if (this.isBlock) return "}";
-      return "";
-    }
-    get blockStart() {
-      if (this.isBlock === false) return "";
-      if (this.logic === null) return "{";
-      if (this.logic === logicKeyWordToAttribute.get("else")) return "else {";
-      return `${logicAttributeToKeyword.get(this.logic)} (${this.getAttr(
-        this.logic
-      )}) {`;
-    }
-    get childStrings() {
-      if (this.children.length === 0) return [];
-      return Array.from(this.children)
-        .map((child) => child.codeStrings || [])
-        .flat();
-    }
-    get codeStrings() {
-      return [
-        " ",
-        ...this.comments,
-        this.blockStart,
-        ...[
-          this.pushStr,
-          ...this.setStrings,
-          ...this.assignStrings,
-          this.fnStr,
-          ...this.childStrings,
-          this.innerEnd,
-          this.popStr,
-        ].map(P5Element.addTab, this),
-        this.blockEnd,
-      ].filter((line) => line.length);
-    }
     get comments() {
       return this.html
         .split(/(?:\r\n|\r|\n)/)
@@ -127,17 +105,76 @@ const P5Extension = (baseClass) =>
         .flat()
         .map((line) => "//\t" + line);
     }
+    evalAttr(p, _, attrName) {
+      const evalFn = this.attrEvals.get(attrName);
+      if (typeof evalFn !== "function")
+        return console.error(
+          `${this.constructor.elementName} couldn't get ${attrName}`
+        );
+      return evalFn(p, _);
+    }
+    assignAttrVals(p, inherited) {
+      const assigned = Object.assign({}, inherited);
+      const vars = this.vars.concat(this.settings);
+      for (let i = 0; i < vars.length; i++) {
+        const attrName = vars[i];
+        const props = attrName.split(".");
+        const val = this.evalAttr(p, inherited, attrName);
+        if (P5Element.isP5(props[0])) {
+          let target = p;
+          const propCount = props.length;
+          for (let i = 0; i < propCount - 1; i++) {
+            target = p[props[i]];
+          }
+          const [lastProp] = props.slice(-1);
+          target[lastProp] = val;
+        } else assigned[attrName] = val;
+      }
+      return assigned;
+    }
+    draw(p, inherited) {
+      const ifAttr = logicKeyWordToAttribute.get("if");
+      if (
+        this.logic === ifAttr &&
+        this.evalAttr(p, inherited, ifAttr) === false
+      )
+        return;
+      const elseAttr = logicKeyWordToAttribute.get("else");
+      const elseIfAttr = logicKeyWordToAttribute.get("else if");
+      const prevSib = this.previousElementSibling;
+      if (
+        (this.logic === elseAttr || this.logic === elseIfAttr) &&
+        prevSib.evalAttr(p, inherited, prevSib.logic)
+      )
+        return;
+      if (
+        this.logic === elseIfAttr &&
+        this.evalAttr(p, inherited, elseIfAttr) === false
+      )
+        return;
+      p.push();
+      const assigned = this.assignAttrVals(p, inherited);
+      this.renderToCanvas?.(p, assigned);
+      this.drawChildren(p, assigned);
+      const whileKeyword = logicKeyWordToAttribute.get("while");
+      if (
+        this.logic === whileKeyword &&
+        this.evalAttr(p, assigned, whileKeyword) === true
+      )
+        this.draw(p, assigned);
+      this.endRender?.(p, assigned);
+      p.pop();
+    }
+    drawChildren(p, assigned) {
+      for (let c = 0; c < this.children.length; c++) {
+        this.children[c].draw(p, assigned);
+      }
+    }
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
     }
-    get fnStr() {
-      return "";
-    }
     get html() {
       return this.outerHTML.replace(this.innerHTML, "");
-    }
-    get innerEnd() {
-      return "";
     }
     static isP5(name) {
       return p5.prototype.hasOwnProperty(name);
@@ -160,18 +197,6 @@ const P5Extension = (baseClass) =>
         [[], [], null]
       );
     }
-    get pushStr() {
-      if (this.settings.length) return "push();";
-      return "";
-    }
-    get popStr() {
-      if (this.settings.length) return "pop();";
-      return "";
-    }
-    //  Create string to call functions for each setting
-    get setStrings() {
-      return this.settings.map((s) => `${s} = ${this.getAttr(s)};`);
-    }
     varInitialized(varName) {
       const [obj, ...props] = varName.split(".");
       if (props.length) return this.varInitialized(obj);
@@ -188,6 +213,10 @@ export class P5Function extends P5Element {
   constructor(overloads) {
     super();
     this.overloads = overloads;
+  }
+  renderToCanvas(p, assigned) {
+    const args = this.params.map((p) => assigned[p]);
+    p[this.fnName](...args);
   }
   get fnName() {
     return pascalToCamel(this.constructor.name);
@@ -312,40 +341,26 @@ p5.prototype._registerElements(
       const runCode = () => {
         setParams(this);
 
-        console.log(this.codeString);
+        const canvas = this;
 
-        Function("canvas", this.codeString)(this);
+        const sketch = (p) => {
+          p.setup = function () {
+            const renderer = canvas.hasAttr("renderer")
+              ? canvas.evalAttr(p, {}, "renderer")
+              : null;
+            p.assignCanvas(canvas, renderer);
+            const baseState = canvas.assignAttrVals(p, {});
+
+            p.draw = function () {
+              canvas.drawChildren(p, baseState);
+            };
+          };
+        };
+        new p5(sketch);
       };
       window.addEventListener("customElementsDefined", runCode);
     }
-    get codeString() {
-      return [
-        this.comments,
-        ...this.initStrings,
-
-        " ",
-        "this.setup = function() {",
-        ...[this.fnStr, ...this.setStrings, ...this.assignStrings].map(
-          this.constructor.addTab,
-          this
-        ),
-        "}",
-        " ",
-        `this.draw = function() {`,
-        ...[...this.childStrings].map(this.constructor.addTab, this),
-        "}",
-      ].join("\n");
-    }
     static constructorOptions = { extends: "canvas" };
-    get fnStr() {
-      const renderer = this.getAttribute("renderer");
-      if (!renderer) return "assignCanvas(canvas);";
-      return `assignCanvas(canvas, ${renderer});`;
-    }
-    get initStrings() {
-      return this.vars.map((v) => `let ${v};`);
-    }
-    isBlock = true;
     varInitialized(varName) {
       if (this.vars.includes(varName)) return true;
       return super.varInitialized(varName);
@@ -379,9 +394,10 @@ p5.prototype._registerElements(
               child.cloneNode(true)
             );
             this.prepend(...childClones);
+            this.storeEvalFns();
           }
           static elementName = name;
-          fnStr = "";
+          renderToCanvas = null;
         }
       );
     }
