@@ -21,11 +21,6 @@ p5.prototype._registerElements(
       super(["[display]"]);
     }
   },
-  class Print extends P5Function {
-    constructor() {
-      super(["contents"]);
-    }
-  },
   class FrameRate extends P5Function {
     constructor() {
       super(["", "fps"]);
@@ -146,6 +141,11 @@ p5.prototype._defineProperties({
         this._setProperty("_height", val);
         this.resizeCanvas(this._width, this._height);
       }
+    },
+  },
+  log: {
+    set: function (val) {
+      this.print(val);
     },
   },
 });
