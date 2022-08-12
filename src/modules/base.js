@@ -167,20 +167,24 @@ const P5Extension = (baseClass) =>
         return;
       p.push();
       const assigned = this.assignAttrVals(p, persistent, inherited);
+      this.drawIteration(p, persistent, assigned);
+      p.pop();
+    }
+    drawIteration(p, persistent, assigned) {
+      const { WHILE, WHILE_NOT } = logicKeys;
       this.renderToCanvas?.(p, assigned);
       this.drawChildren(p, persistent, assigned);
-      if (
-        this.logic === WHILE &&
-        this.evalAttr(p, persistent, assigned, WHILE) === true
-      )
-        this.draw(p, persistent, assigned);
-      if (
+      const changeObj = this.hasAttr("change")
+        ? this.evalAttr(p, persistent, assigned, "change")
+        : {};
+      const updated = { ...assigned, ...changeObj };
+      const whileCond =
+        this.logic === WHILE && this.evalAttr(p, persistent, assigned, WHILE);
+      const whileNotCond =
         this.logic === WHILE_NOT &&
-        this.evalAttr(p, persistent, assigned, WHILE_NOT) === false
-      )
-        this.draw(p, persistent, assigned);
-      this.endRender?.(p, assigned);
-      p.pop();
+        this.evalAttr(p, persistent, assigned, WHILE_NOT) === false;
+      this.endRender?.(p, updated);
+      if (whileCond || whileNotCond) this.drawIteration(p, persistent, updated);
     }
     drawChildren(p, persistent, assigned) {
       for (let c = 0; c < this.children.length; c++) {
