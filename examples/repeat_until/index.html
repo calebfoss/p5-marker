@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <canvas
+      width="400"
+      height="400"
+      is="p-sketch"
+      background_color="220"
+      animate="false"
+    >
+      <p-rect
+        x="0"
+        y="0"
+        w="width/10"
+        h="height/10"
+        change="{x: x + width / 10}"
+        repeat_until="x >= width"
+      ><p-rect change="{y: y + height / 10}" repeat_until="y >= height"></p-rect>
+    </canvas>
+  </body>
+</html>
