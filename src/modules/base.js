@@ -67,7 +67,7 @@ const P5Extension = (baseClass) =>
       );
     }
     attrEvals = new Map();
-    storeEvalFn(attr) {
+    setupEvalFn(attr) {
       const varNameExp =
         /(?<![a-z\_\$\.])[a-z][a-z0-9\_\$]*(?=(?:[^"'`]*["'`][^"'`]*["'`])*[^"'`]*$)/gi;
       const evalFnName = `${this.constructor.name}_${attr.name}`;
@@ -81,10 +81,10 @@ const P5Extension = (baseClass) =>
       const evalFn = new Function(fnStr)();
       this.attrEvals.set(attr.name, evalFn);
     }
-    storeEvalFns() {
+    setupEvalFns() {
       const { attributes } = this;
       for (let i = 0; i < attributes.length; i++) {
-        this.storeEvalFn(attributes[i]);
+        this.setupEvalFn(attributes[i]);
       }
     }
     getInheritedAttr(attrName) {
@@ -338,7 +338,7 @@ p5.prototype._registerElements(
       this.vars = this.vars.filter((v) => v !== "is");
 
       const setupElement = (el) => {
-        el.storeEvalFns?.();
+        el.setupEvalFns?.();
         el.setParamsFromOverloads?.();
         for (let i = 0; i < el.children.length; i++) {
           const child = el.children.item(i);
@@ -404,7 +404,7 @@ p5.prototype._registerElements(
               child.cloneNode(true)
             );
             this.prepend(...childClones);
-            this.storeEvalFns();
+            this.setupEvalFns();
           }
           static elementName = name;
           renderToCanvas = null;
