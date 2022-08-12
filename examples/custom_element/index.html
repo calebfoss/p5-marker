@@ -25,16 +25,18 @@
       height="400"
       is="p-sketch"
       background_color="[100, 140, 200]"
-      state.cloud_x="0"
+      cloud_x="0"
+      animate="false"
     >
-      <p-_ center_y="75" center_x="state.cloud_x - 40 - width * 0.25">
+      <p-_ log="_persistent"></p-_>
+      <p-_ center_y="75" center_x="cloud_x - 40 - width * 0.25">
         <p-cloud
           center_x="center_x + width * 0.25"
           repeat_while="center_x < width * 1.25"
         ></p-cloud>
       </p-_>
-      <p-_ state.cloud_x="state.cloud_x + 0.25">
-        <p-_ show_if="state.cloud_x >= width * 0.25" state.cloud_x="0"></p-_>
+      <p-_ cloud_x="cloud_x + 0.25">
+        <p-_ show_if="cloud_x >= width * 0.25" cloud_x="0"></p-_>
       </p-_>
     </canvas>
   </body>

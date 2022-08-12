@@ -12,8 +12,6 @@ p5.prototype._defineProperties = function (obj) {
   Object.defineProperties(p5.prototype, obj);
 };
 
-p5.prototype.state = {};
-
 p5.prototype._createFriendlyGlobalFunctionBinderBase =
   p5.prototype._createFriendlyGlobalFunctionBinder;
 p5.prototype._createFriendlyGlobalFunctionBinder = function (options = {}) {
@@ -57,7 +55,6 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
       [this.settings, this.vars, this.logic] = this.parseAttributes();
-      this.storeEvalFns();
     }
     static addTab(line) {
       return line.length && this.isBlock ? "\t" + line : line;
@@ -73,15 +70,15 @@ const P5Extension = (baseClass) =>
     storeEvalFn(attr) {
       const varNameExp =
         /(?<![a-z\_\$\.])[a-z][a-z0-9\_\$]*(?=(?:[^"'`]*["'`][^"'`]*["'`])*[^"'`]*$)/gi;
-      const localVars = [];
-      const fnStr =
-        "return " +
-        attr.value.replace(varNameExp, (varName) => {
-          if (this.constructor.isP5(varName)) return "p." + varName;
-          localVars.push(varName);
-          return "_." + varName;
-        });
-      const evalFn = new Function("p", "_", fnStr);
+      const evalFnName = `${this.constructor.name}_${attr.name}`;
+      const fnHeader = `return function ${evalFnName}(_p5Inst, _persistent, _assigned) {`;
+      const fnBody = `return ${attr.value.replace(varNameExp, (varName) => {
+        if (this.constructor.isP5(varName)) return "_p5Inst." + varName;
+        if (this.isPersistent(varName)) return "_persistent." + varName;
+        return "_assigned." + varName;
+      })};\n};`;
+      const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
+      const evalFn = new Function(fnStr)();
       this.attrEvals.set(attr.name, evalFn);
     }
     storeEvalFns() {
@@ -105,38 +102,44 @@ const P5Extension = (baseClass) =>
         .flat()
         .map((line) => "//\t" + line);
     }
-    evalAttr(p, _, attrName) {
+    evalAttr(p5Inst, persistent, assigned, attrName) {
       const evalFn = this.attrEvals.get(attrName);
       if (typeof evalFn !== "function")
         return console.error(
           `${this.constructor.elementName} couldn't get ${attrName}`
         );
-      return evalFn(p, _);
+      return evalFn(p5Inst, persistent, assigned);
     }
-    assignAttrVals(p, inherited) {
+    assignAttrVals(p, persistent, inherited) {
       const assigned = Object.assign({}, inherited);
       const vars = this.vars.concat(this.settings);
       for (let i = 0; i < vars.length; i++) {
         const attrName = vars[i];
-        const props = attrName.split(".");
-        const val = this.evalAttr(p, inherited, attrName);
-        if (P5Element.isP5(props[0])) {
-          let target = p;
-          const propCount = props.length;
+        const propNames = attrName.split(".");
+        const [basePropName] = propNames;
+        const val = this.evalAttr(p, persistent, inherited, attrName);
+        const modifyProperty = (obj, propNameArray) => {
+          let target = obj;
+          const propCount = propNameArray.length;
           for (let i = 0; i < propCount - 1; i++) {
-            target = p[props[i]];
+            target = p[propNames[i]];
           }
-          const [lastProp] = props.slice(-1);
+          const [lastProp] = propNames.slice(-1);
           target[lastProp] = val;
+        };
+        if (P5Element.isP5(basePropName)) {
+          modifyProperty(p, propNames);
+        } else if (this.isPersistent(basePropName)) {
+          modifyProperty(persistent, propNames);
         } else assigned[attrName] = val;
       }
       return assigned;
     }
-    draw(p, inherited) {
+    draw(p, persistent, inherited) {
       const ifAttr = logicKeyWordToAttribute.get("if");
       if (
         this.logic === ifAttr &&
-        this.evalAttr(p, inherited, ifAttr) === false
+        this.evalAttr(p, persistent, inherited, ifAttr) === false
       )
         return;
       const elseAttr = logicKeyWordToAttribute.get("else");
@@ -144,30 +147,30 @@ const P5Extension = (baseClass) =>
       const prevSib = this.previousElementSibling;
       if (
         (this.logic === elseAttr || this.logic === elseIfAttr) &&
-        prevSib.evalAttr(p, inherited, prevSib.logic)
+        prevSib.evalAttr(p, persistent, inherited, prevSib.logic)
       )
         return;
       if (
         this.logic === elseIfAttr &&
-        this.evalAttr(p, inherited, elseIfAttr) === false
+        this.evalAttr(p, persistent, inherited, elseIfAttr) === false
       )
         return;
       p.push();
-      const assigned = this.assignAttrVals(p, inherited);
+      const assigned = this.assignAttrVals(p, persistent, inherited);
       this.renderToCanvas?.(p, assigned);
-      this.drawChildren(p, assigned);
+      this.drawChildren(p, persistent, assigned);
       const whileKeyword = logicKeyWordToAttribute.get("while");
       if (
         this.logic === whileKeyword &&
-        this.evalAttr(p, assigned, whileKeyword) === true
+        this.evalAttr(p, persistent, assigned, whileKeyword) === true
       )
-        this.draw(p, assigned);
+        this.draw(p, persistent, assigned);
       this.endRender?.(p, assigned);
       p.pop();
     }
-    drawChildren(p, assigned) {
+    drawChildren(p, persistent, assigned) {
       for (let c = 0; c < this.children.length; c++) {
-        this.children[c].draw(p, assigned);
+        this.children[c].draw(p, persistent, assigned);
       }
     }
     static get elementName() {
@@ -196,6 +199,10 @@ const P5Extension = (baseClass) =>
         },
         [[], [], null]
       );
+    }
+    isPersistent(attrName) {
+      if (this instanceof HTMLCanvasElement) return this.hasAttr(attrName);
+      return this.parentElement?.isPersistent?.(attrName);
     }
     varInitialized(varName) {
       const [obj, ...props] = varName.split(".");
@@ -328,32 +335,35 @@ p5.prototype._registerElements(
     constructor() {
       super();
       //  Remove 'is' attribute from vars
-      this.vars = this.vars.filter((v) => v !== "is" && v != "renderer");
+      this.vars = this.vars.filter((v) => v !== "is");
 
-      const setParams = (el) => {
+      const setupElement = (el) => {
+        el.storeEvalFns?.();
         el.setParamsFromOverloads?.();
         for (let i = 0; i < el.children.length; i++) {
           const child = el.children.item(i);
-          setParams(child);
+          setupElement(child);
         }
       };
 
       const runCode = () => {
-        setParams(this);
+        setupElement(this);
 
         const canvas = this;
 
-        const sketch = (p) => {
-          p.setup = function () {
-            const renderer = canvas.hasAttr("renderer")
-              ? canvas.evalAttr(p, {}, "renderer")
-              : null;
-            p.assignCanvas(canvas, renderer);
-            const baseState = canvas.assignAttrVals(p, {});
+        const sketch = (p5Inst) => {
+          const persistent = {};
 
-            p.draw = function () {
-              canvas.drawChildren(p, baseState);
-            };
+          p5Inst.setup = function () {
+            const renderer = canvas.hasAttr("renderer")
+              ? canvas.evalAttr(p5Inst, {}, {}, "renderer")
+              : null;
+            p5Inst.assignCanvas(canvas, renderer);
+            canvas.assignAttrVals(p5Inst, persistent, {});
+          };
+
+          p5Inst.draw = function () {
+            canvas.drawChildren(p5Inst, persistent, {});
           };
         };
         new p5(sketch);
