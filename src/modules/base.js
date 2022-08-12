@@ -29,25 +29,16 @@ p5.prototype._defineSnakeAlias = (...propNames) =>
     (propName) =>
       (p5.prototype[camelToSnake(propName)] = p5.prototype[propName])
   );
-
-const logicKeyWordToAttribute = new Map([
-  ["if", "show_if"],
-  ["else", "else_show"],
-  ["else if", "else_show_if"],
-  ["while", "repeat_while"],
-]);
-const logicAttributeToKeyword = new Map(
-  Array.from(logicKeyWordToAttribute, (a) => a.reverse())
-);
+const logicKeyWordToAttribute = {
+  IF: "show_if",
+  ELSE: "else_show",
+  ELSE_IF: "else_show_if",
+  WHILE: "repeat_while",
+  WHILE_NOT: "repeat_until",
+};
 const attrIsLogic = (val) => {
-  const logicNames = logicKeyWordToAttribute.values();
-  const checkNames = () => {
-    const logicName = logicNames.next();
-    if (logicName.value === val) return true;
-    if (logicName.done) return false;
-    return checkNames();
-  };
-  return checkNames();
+  const logicNames = Object.values(logicKeyWordToAttribute);
+  return logicNames.includes(val);
 };
 
 const P5Extension = (baseClass) =>
@@ -136,33 +127,35 @@ const P5Extension = (baseClass) =>
       return assigned;
     }
     draw(p, persistent, inherited) {
-      const ifAttr = logicKeyWordToAttribute.get("if");
+      const { IF, ELSE, ELSE_IF, WHILE, WHILE_NOT } = logicKeyWordToAttribute;
       if (
-        this.logic === ifAttr &&
-        this.evalAttr(p, persistent, inherited, ifAttr) === false
+        this.logic === IF &&
+        this.evalAttr(p, persistent, inherited, IF) === false
       )
         return;
-      const elseAttr = logicKeyWordToAttribute.get("else");
-      const elseIfAttr = logicKeyWordToAttribute.get("else if");
       const prevSib = this.previousElementSibling;
       if (
-        (this.logic === elseAttr || this.logic === elseIfAttr) &&
+        (this.logic === ELSE || this.logic === ELSE_IF) &&
         prevSib.evalAttr(p, persistent, inherited, prevSib.logic)
       )
         return;
       if (
-        this.logic === elseIfAttr &&
-        this.evalAttr(p, persistent, inherited, elseIfAttr) === false
+        this.logic === ELSE_IF &&
+        this.evalAttr(p, persistent, inherited, ELSE_IF) === false
       )
         return;
       p.push();
       const assigned = this.assignAttrVals(p, persistent, inherited);
       this.renderToCanvas?.(p, assigned);
       this.drawChildren(p, persistent, assigned);
-      const whileKeyword = logicKeyWordToAttribute.get("while");
       if (
-        this.logic === whileKeyword &&
-        this.evalAttr(p, persistent, assigned, whileKeyword) === true
+        this.logic === WHILE &&
+        this.evalAttr(p, persistent, assigned, WHILE) === true
+      )
+        this.draw(p, persistent, assigned);
+      if (
+        this.logic === WHILE_NOT &&
+        this.evalAttr(p, persistent, assigned, WHILE_NOT) === false
       )
         this.draw(p, persistent, assigned);
       this.endRender?.(p, assigned);
