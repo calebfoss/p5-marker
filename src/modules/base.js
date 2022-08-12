@@ -94,6 +94,18 @@ const P5Extension = (baseClass) =>
       this.attrEvals.set(attr.name, evalFn);
     }
     setupEvalFns() {
+      const { WHILE, WHILE_NOT } = logicKeys;
+      if (
+        (this.logic === WHILE || this.logic === WHILE_NOT) &&
+        !this.hasAttr("change")
+      ) {
+        console.error(
+          `It looks like a ${this.constructor.elementName} has a ${this.logic} attribute ` +
+            `but does not have a change attribute. The change attribute is required to ` +
+            `prevent infinite loops`
+        );
+        this.removeAttribute(this.logic);
+      }
       const { attributes } = this;
       for (let i = 0; i < attributes.length; i++) {
         this.setupEvalFn(attributes[i]);
