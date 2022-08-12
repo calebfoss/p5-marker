@@ -15,17 +15,6 @@ p5.prototype._defineProperties({
       return this.drawingContext;
     },
   },
-  set_drawing_context_prop: {
-    set: function () {
-      const [arg] = arguments;
-      if (Array.isArray(arg)) {
-        const [prop, val] = arg;
-        this.set_obj_prop = [this.drawingContext, prop, val];
-      } else {
-        this.set_obj_prop = [this.drawingContext, arg];
-      }
-    },
-  },
   set_webgl_attr: {
     set: function (val) {
       this.setAttributes(val);
