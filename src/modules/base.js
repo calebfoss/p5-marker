@@ -29,7 +29,7 @@ p5.prototype._defineSnakeAlias = (...propNames) =>
     (propName) =>
       (p5.prototype[camelToSnake(propName)] = p5.prototype[propName])
   );
-const logicKeyWordToAttribute = {
+const logicKeys = {
   IF: "show_if",
   ELSE: "else_show",
   ELSE_IF: "else_show_if",
@@ -37,7 +37,7 @@ const logicKeyWordToAttribute = {
   WHILE_NOT: "repeat_until",
 };
 const attrIsLogic = (val) => {
-  const logicNames = Object.values(logicKeyWordToAttribute);
+  const logicNames = Object.values(logicKeys);
   return logicNames.includes(val);
 };
 
@@ -127,7 +127,7 @@ const P5Extension = (baseClass) =>
       return assigned;
     }
     draw(p, persistent, inherited) {
-      const { IF, ELSE, ELSE_IF, WHILE, WHILE_NOT } = logicKeyWordToAttribute;
+      const { IF, ELSE, ELSE_IF } = logicKeys;
       if (
         this.logic === IF &&
         this.evalAttr(p, persistent, inherited, IF) === false
