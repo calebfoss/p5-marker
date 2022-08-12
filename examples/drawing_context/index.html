@@ -8,18 +8,20 @@
   </head>
   <body>
     <!-- https://p5js.org/reference/#/p5/drawingContext -->
-    <canvas width="100" height="100" is="p-sketch" background_color="200">
+    <canvas
+      width="100"
+      height="100"
+      is="p-sketch"
+      background_color="200"
+      animate="false"
+    >
+      <!-- TODO more elegant solution? -->
       <p-ellipse
         x="width / 2"
         y="height / 2"
         w="50"
         h="50"
-        set_drawing_context_prop="{
-          shadowOffsetX: 5, 
-          shadowOffsetY: -5, 
-          shadowBlur: 10,
-          shadowColor: 'black'
-        }"
+        _="Object.assign(drawing_context, {shadowOffsetX: 5, shadowOffsetY: -5, shadowBlur: 10, shadowColor: 'black'})"
       ></p-ellipse>
     </canvas>
   </body>
