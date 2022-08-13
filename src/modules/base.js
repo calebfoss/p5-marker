@@ -329,6 +329,8 @@ export class PositionedFunction extends P5Function {
     this.setAttr(this.params[0], 0);
     this.setAttr(this.params[1], 0);
     this.settings.unshift("anchor");
+    const anchorAttr = this.attributes["anchor"];
+    this.setupEvalFn(anchorAttr);
   }
   setParamsFromOverloads() {
     super.setParamsFromOverloads();
