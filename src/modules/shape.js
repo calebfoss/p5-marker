@@ -1,4 +1,4 @@
-import { P5Function, PositionedFunction, P5Constructor } from "./base.js";
+import { P5Function, PositionedFunction } from "./base.js";
 
 p5.prototype._registerElements(
   class Arc extends PositionedFunction {
