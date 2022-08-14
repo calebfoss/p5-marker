@@ -14,6 +14,8 @@ p5.prototype.mouse_dragging = false;
 
 p5.prototype.mouse_double_clicked = false;
 
+p5.prototype._mouseWheel = 0;
+
 p5.prototype.key_down = false;
 
 p5.prototype.key_up = false;
@@ -43,6 +45,12 @@ p5.prototype._onmousemove = function (e) {
   this._setProperty("mouse_dragging", this.mouseIsPressed);
 };
 
+p5.prototype._onwheelbase = p5.prototype._onwheel;
+p5.prototype._onwheel = function (e) {
+  this._onwheelbase(e);
+  this._setProperty("_mouseWheel", this._mouseWheelDeltaY);
+};
+
 p5.prototype._onkeyupbase = p5.prototype._onkeyup;
 p5.prototype._onkeyup = function (e) {
   this._onkeyupbase(e);
@@ -70,6 +78,7 @@ p5.prototype.registerMethod("post", function () {
   this._setProperty("mouse_down", false);
   this._setProperty("mouse_dragging", false);
   this._setProperty("mouse_double_clicked", false);
+  this._setProperty("_mouseWheel", false);
   this._setProperty("key_up", false);
   this._setProperty("key_down", false);
 });
@@ -176,6 +185,11 @@ p5.prototype._defineProperties({
       return this.pmouseY;
     },
   },
+  mouse_wheel: {
+    get: function () {
+      return this._mouseWheel;
+    },
+  },
   mouse_window_pos: {
     get: function () {
       return this.createVector(this.winMouseX, this.winMouseY);
@@ -227,6 +241,15 @@ p5.prototype._defineProperties({
   moved_y: {
     get: function () {
       return this.movedY;
+    },
+  },
+  pointer_lock_request: {
+    get: function () {
+      return document.pointerLockElement === this._curElement.elt;
+    },
+    set: function (val) {
+      if (val) this.requestPointerLock();
+      else this.exitPointerLock();
     },
   },
   shake_threshold: {
