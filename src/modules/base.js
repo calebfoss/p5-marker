@@ -12,6 +12,9 @@ p5.prototype._defineProperties = function (obj) {
   Object.defineProperties(p5.prototype, obj);
 };
 
+export const wrapP5PrototypeMethod = (methodName, wrapper) =>
+  (p5.prototype[methodName] = wrapper(p5.prototype[methodName]));
+
 p5.prototype._createFriendlyGlobalFunctionBinderBase =
   p5.prototype._createFriendlyGlobalFunctionBinder;
 p5.prototype._createFriendlyGlobalFunctionBinder = function (options = {}) {

@@ -1,3 +1,5 @@
+import { wrapP5PrototypeMethod } from "./base";
+
 p5.prototype._defineSnakeAlias("deviceOrientation", "turnAxis");
 
 //  TODO - test on mobile device
@@ -21,42 +23,60 @@ p5.prototype.key_down = false;
 p5.prototype.key_up = false;
 
 p5.prototype._startAngleZ;
-p5.prototype._handleMotionBase = p5.prototype._handleMotion;
-p5.prototype._handleMotion = function () {
-  this._handleMotionBase();
-  this._setProperty("deviced_moved", true);
-};
+wrapP5PrototypeMethod(
+  "_handleMotion",
+  (base) =>
+    function () {
+      base.call(this);
+      this._setProperty("deviced_moved", true);
+    }
+);
 
-p5.prototype._onmousedownbase = p5.prototype._onmousedown;
-p5.prototype._onmousedown = function (e) {
-  this._onmousedownbase(e);
-  this._setProperty("mouse_down", true);
-};
+wrapP5PrototypeMethod(
+  "_onmousedown",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("mouse_down", true);
+    }
+);
 
-p5.prototype._ondbclickbase = p5.prototype._ondbclick;
-p5.prototype._ondbclick = function (e) {
-  this._ondbclickbase(e);
-  this._setProperty("mouse_double_clicked", true);
-};
+wrapP5PrototypeMethod(
+  "_ondbclick",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("mouse_double_clicked", true);
+    }
+);
 
-p5.prototype._onmousemovebase = p5.prototype._onmousemove;
-p5.prototype._onmousemove = function (e) {
-  this._onmousemovebase(e);
-  this._setProperty("mouse_dragging", this.mouseIsPressed);
-};
+wrapP5PrototypeMethod(
+  "_onmousemove",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("mouse_dragging", this.mouseIsPressed);
+    }
+);
 
-p5.prototype._onwheelbase = p5.prototype._onwheel;
-p5.prototype._onwheel = function (e) {
-  this._onwheelbase(e);
-  this._setProperty("_mouseWheel", this._mouseWheelDeltaY);
-};
+wrapP5PrototypeMethod(
+  "_onwheel",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("_mouseWheel", this._mouseWheelDeltaY);
+    }
+);
 
-p5.prototype._onkeyupbase = p5.prototype._onkeyup;
-p5.prototype._onkeyup = function (e) {
-  this._onkeyupbase(e);
-  this._setProperty("key_up", true);
-  this._setProperty("key_held", false);
-};
+wrapP5PrototypeMethod(
+  "_onkeyup",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("key_up", true);
+      this._setProperty("key_held", false);
+    }
+);
 
 p5.prototype._onkeydownbase = p5.prototype._onkeydown;
 p5.prototype._onkeydown = function (e) {
