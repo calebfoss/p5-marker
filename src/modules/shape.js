@@ -182,6 +182,14 @@ p5.prototype._defineProperties({
       this.ellipseMode(val);
     },
   },
+  rect_mode: {
+    get: function () {
+      return this._renderer?._rectMode;
+    },
+    set: function (val) {
+      this.rectMode(val);
+    },
+  },
   smooth: {
     get: function () {
       if (this._renderer?.isP3D)
