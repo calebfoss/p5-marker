@@ -22,6 +22,11 @@ p5.prototype.key_down = false;
 
 p5.prototype.key_up = false;
 
+//  TODO - test on mobile device
+p5.prototype.touch_started = false;
+p5.prototype.touch_moved = false;
+p5.prototype.touch_ended = false;
+
 p5.prototype._startAngleZ;
 wrapP5PrototypeMethod(
   "_handleMotion",
@@ -78,11 +83,41 @@ wrapP5PrototypeMethod(
     }
 );
 
-p5.prototype._onkeydownbase = p5.prototype._onkeydown;
-p5.prototype._onkeydown = function (e) {
-  this._onkeydownbase(e);
-  this._setProperty("key_down", true);
-};
+wrapP5PrototypeMethod(
+  "_onkeydown",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("key_down", true);
+    }
+);
+
+wrapP5PrototypeMethod(
+  "_ontouchbase",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("touch_started", true);
+    }
+);
+
+wrapP5PrototypeMethod(
+  "_ontouchmove",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("touche_moved", true);
+    }
+);
+
+wrapP5PrototypeMethod(
+  "_ontouchend",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("touch_ended", true);
+    }
+);
 
 p5.prototype.registerMethod("pre", function () {
   this._setProperty(
@@ -101,6 +136,9 @@ p5.prototype.registerMethod("post", function () {
   this._setProperty("_mouseWheel", false);
   this._setProperty("key_up", false);
   this._setProperty("key_down", false);
+  this._setProperty("touch_started", false);
+  this._setProperty("touch_moved", false);
+  this._setProperty("touch_ended", false);
 });
 
 //  Create properties with default value
