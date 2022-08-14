@@ -1,42 +1,35 @@
-const defaultAnchor = new p5.Vector();
-p5.prototype._anchorStack = [defaultAnchor.copy()];
-
+const defaultAnchor = p5.prototype.createVector();
 const defaultAngle = p5.prototype.createVector();
-p5.prototype._angleStack = [defaultAngle.copy()];
-
-const defaultScale = p5.prototype.createVector(1, 1, 1);
-p5.prototype._scaleStack = [defaultScale.copy()];
-
 const defaultShear = p5.prototype.createVector(1, 1);
-p5.prototype._shearStack = [defaultShear.copy()];
+const defaultScale = p5.prototype.createVector(1, 1, 1);
+const wrap = function (renderer) {
+  function wrappedRenderer() {
+    renderer.apply(this, arguments);
+    this._anchorStack = [defaultAnchor.copy()];
+    this._angleStack = [defaultAngle.copy()];
+    this._scaleStack = [defaultScale.copy()];
+    this._shearStack = [defaultShear.copy()];
+  }
+  wrappedRenderer.prototype = Object.create(renderer.prototype);
+  return wrappedRenderer;
+};
+p5.Renderer = wrap(p5.Renderer);
 
 p5.prototype._pushBase = p5.prototype.push;
 p5.prototype.push = function () {
-  this._setProperty(
-    "_anchorStack",
-    this._anchorStack.concat(defaultAnchor.copy())
-  );
-  this._setProperty(
-    "_angleStack",
-    this._angleStack.concat(defaultAngle.copy())
-  );
-  this._setProperty(
-    "_scaleStack",
-    this._scaleStack.concat(defaultScale.copy())
-  );
-  this._setProperty(
-    "_shearStack",
-    this._shearStack.concat(defaultShear.copy())
-  );
+  this._renderer._anchorStack.push(defaultAnchor.copy());
+  this._renderer._angleStack.push(defaultAngle.copy());
+  this._renderer._scaleStack.push(defaultScale.copy());
+  this._renderer._shearStack.push(defaultShear.copy());
   this._pushBase();
 };
 
 p5.prototype._popBase = p5.prototype.pop;
 p5.prototype.pop = function () {
-  this._setProperty("_anchorStack", this._anchorStack.slice(0, -1));
-  this._setProperty("_angleStack", this._angleStack.slice(0, -1));
-  this._setProperty("_scaleStack", this._scaleStack.slice(0, -1));
-  this._setProperty("_shearStack", this._shearStack.slice(0, -1));
+  this._renderer._anchorStack.pop();
+  this._renderer._angleStack.pop();
+  this._renderer._scaleStack.pop();
+  this._renderer._shearStack.pop();
   this._popBase();
 };
 
@@ -45,80 +38,97 @@ p5.prototype.RESET = "reset";
 p5.prototype._defineProperties({
   anchor: {
     get: function () {
-      return this._anchorStack[this._anchorStack.length - 1];
+      return this._renderer?._anchorStack[
+        this._renderer._anchorStack.length - 1
+      ];
     },
     set: function (val) {
-      const len = this._anchorStack.length;
+      const len = this._renderer._anchorStack.length;
       if (Array.isArray(val))
-        this._anchorStack[this._anchorStack.length - 1].set(...val);
-      else this._anchorStack[this._anchorStack.length - 1].set(val);
+        this._renderer._anchorStack[this._renderer._anchorStack.length - 1].set(
+          ...val
+        );
+      else
+        this._renderer._anchorStack[this._renderer._anchorStack.length - 1].set(
+          val
+        );
       this.translate(this.anchor);
     },
   },
   angle: {
     get: function () {
-      return this._angleStack.slice(-1)[0].z;
+      return this._renderer?._angleStack.slice(-1)[0].z;
     },
     set: function (val) {
-      this._angleStack[this._anchorStack.length - 1].z = val;
+      this._renderer._angleStack[this._renderer._anchorStack.length - 1].z =
+        val;
       this.rotate(this.angle);
     },
   },
   angle_x: {
     get: function () {
-      return this._angleStack.slice(-1)[0].x;
+      return this._renderer?._angleStack.slice(-1)[0].x;
     },
     set: function (val) {
-      this._angleStack[this._angleStack.length - 1].x = val;
+      this._renderer._angleStack[this._renderer._angleStack.length - 1].x = val;
       this.rotateX(this.angle_x);
     },
   },
   angle_y: {
     get: function () {
-      return this._angleStack.slice(-1)[0].y;
+      return this._renderer?._angleStack.slice(-1)[0].y;
     },
     set: function (val) {
-      this._angleStack[this._angleStack.length - 1].y = val;
+      this._renderer._angleStack[this._renderer._angleStack.length - 1].y = val;
       this.rotateY(this.angle_y);
     },
   },
   angle_z: {
     get: function () {
-      return this._angleStack.slice(-1)[0].z;
+      return this._renderer?._angleStack.slice(-1)[0].z;
     },
     set: function (val) {
-      this._angleStack[this._angleStack.length - 1].z = val;
+      this._renderer._angleStack[this._renderer._angleStack.length - 1].z = val;
       this.rotateZ(this.angle_z);
     },
   },
   angle_vector: {
     get: function () {
-      return this._angleStack.slice(-1)[0];
+      return this._renderer?._angleStack.slice(-1)[0];
     },
     set: function (val) {
-      this._angleStack[this._angleStack.length - 1] = val;
+      this._renderer._angleStack[this._renderer._angleStack.length - 1] = val;
     },
   },
   scale_factor: {
     get: function () {
-      return this._scaleStack.slice(-1)[0];
+      return this._renderer?._scaleStack.slice(-1)[0];
     },
     set: function (val) {
       if (Array.isArray(val))
-        this._scaleStack[this._scaleStack.length - 1].set(...val);
-      else this._scaleStack[this._scaleStack.length - 1].set(val);
+        this._renderer._scaleStack[this._renderer._scaleStack.length - 1].set(
+          ...val
+        );
+      else
+        this._renderer._scaleStack[this._renderer._scaleStack.length - 1].set(
+          val
+        );
       this.scale(this.scale_factor);
     },
   },
   shear: {
     get: function () {
-      const [lastShear] = this._shearStack.slice(-1);
-      return lastShear;
+      return this._renderer?._shearStack.slice(-1)[0];
     },
     set: function (val) {
       if (Array.isArray(val))
-        this._shearStack[this._shearStack.length - 1].set(...val);
-      else this._shearStack[this._shearStack.length - 1].set(val);
+        this._renderer._shearStack[this._renderer._shearStack.length - 1].set(
+          ...val
+        );
+      else
+        this._renderer._shearStack[this._renderer._shearStack.length - 1].set(
+          val
+        );
       this.shearX(this.shear.x);
       this.shearY(this.shear.y);
     },
@@ -135,10 +145,10 @@ p5.prototype._defineProperties({
 });
 
 p5.prototype.registerMethod("pre", function () {
-  this._setProperty("_anchorStack", [this.anchor]);
+  this._renderer._anchorStack = [this.anchor];
   this.translate(this.anchor);
   this.angle_vector = this.angle_vector;
-  this._setProperty("_angleStack", [this.angle_vector.copy()]);
+  this._renderer._angleStack = [this.angle_vector.copy()];
   this.scale_factor = this.scale_factor;
-  this._setProperty("_scaleStack", [this.scale_factor.copy()]);
+  this._renderer._scaleStack = [this.scale_factor.copy()];
 });
