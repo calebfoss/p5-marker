@@ -356,9 +356,12 @@ export class PositionedFunction extends P5Function {
   }
   setParamsFromOverloads() {
     super.setParamsFromOverloads();
+    //  If el has transform attrs but not anchor
     if (
-      (this.hasAttr("angle") || this.hasAttr("scaling")) &&
-      !this.hasAttr("anchor")
+      !this.hasAttr("anchor") &&
+      (this.hasAttr("angle") ||
+        this.hasAttr("scale_factor") ||
+        this.hasAttr("shear"))
     )
       this.setAnchorToXY();
   }
