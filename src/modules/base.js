@@ -75,6 +75,7 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
       [this.settings, this.vars, this.logic] = this.parseAttributes();
+      if (this.hasAttr("anchor")) this.anchorFirst();
     }
     static addTab(line) {
       return line.length && this.isBlock ? "\t" + line : line;
