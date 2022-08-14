@@ -41,6 +41,35 @@ const attrIsLogic = (val) => {
   return logicNames.includes(val);
 };
 
+class AttrParseUtil {
+  static {
+    const notObjProp = "(?<![\\.a-z0-9$_])";
+    const legalVarName = "[a-z$_][a-z0-9$_]*(?=$|[^:a-z0-9$_])";
+    const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
+    const varName = new RegExp(
+      notObjProp + legalVarName + notProceededByOpenString,
+      "gi"
+    );
+    this.regex = {
+      notObjProp,
+      legalVarName,
+      notProceededByOpenString,
+      varName,
+    };
+  }
+  static allQuotesMatched(str) {
+    const quoteExps = [/"/g, /'/g, /`/g];
+    for (const i in quoteExps) {
+      const matches = str.match(quoteExps[i]);
+      if (matches && matches.length % 2 !== 0) return false;
+      return true;
+    }
+  }
+  static stripWhitespace(str) {
+    return str.replace(/\s/g, "");
+  }
+}
+
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
     constructor() {
@@ -59,30 +88,22 @@ const P5Extension = (baseClass) =>
     }
     attrEvals = new Map();
     setupEvalFn(attr) {
-      const quoteExps = [/"/g, /'/g, /`/g];
-      for (const i in quoteExps) {
-        const matches = attr.value.match(quoteExps[i]);
-        if (matches && matches.length % 2 !== 0) {
-          console.error(
-            `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
-              `attribute has an open string. Check that each string has a beginning and end character.`
-          );
-          return;
+      const attrJsStr = attr.value;
+      //  TODO - catch improperly ordered quote marks: "foo'var"'
+      if (AttrParseUtil.allQuotesMatched(attrJsStr) === false)
+        console.error(
+          `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
+            `attribute has an open string. Check that each string has a beginning and end character.`
+        );
+      const attrVarsReplaced = AttrParseUtil.stripWhitespace(attrJsStr).replace(
+        AttrParseUtil.regex.varName,
+        (varName) => {
+          if (globalThis.hasOwnProperty(varName)) return varName;
+          if (this.constructor.isP5(varName)) return "_p5Inst." + varName;
+          if (this.isPersistent(varName)) return "_persistent." + varName;
+          return "_assigned." + varName;
         }
-      }
-      const notObjProp = "(?<![\\.a-z0-9$_])";
-      const isLegalVarName = "[a-z$_][a-z0-9$_]*(?=$|[^:a-z0-9$_])";
-      const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
-      const matchVarNames = new RegExp(
-        notObjProp + isLegalVarName + notProceededByOpenString,
-        "gi"
       );
-      const attrVarsReplaced = attr.value.replace(matchVarNames, (varName) => {
-        if (globalThis.hasOwnProperty(varName)) return varName;
-        if (this.constructor.isP5(varName)) return "_p5Inst." + varName;
-        if (this.isPersistent(varName)) return "_persistent." + varName;
-        return "_assigned." + varName;
-      });
       const evalFnName = `${this.constructor.name}_${attr.name.replace(
         /\./g,
         "_"
