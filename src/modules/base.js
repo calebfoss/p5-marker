@@ -43,16 +43,25 @@ const attrIsLogic = (val) => {
 
 class AttrParseUtil {
   static {
-    const notObjProp = "(?<![\\.a-z0-9$_])";
-    const legalVarName = "[a-z$_][a-z0-9$_]*(?=$|[^:a-z0-9$_])";
+    const legalVarName = "[a-z$_][a-z0-9$_]*\\b(?!\\s*:)";
+    const notObjProp = "(?!s*:[^{]*})";
+    const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
+    const notNewKeyword = "(?<!\\bnew\\b)";
     const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
     const varName = new RegExp(
-      notObjProp + legalVarName + notProceededByOpenString,
+      notObjProp +
+        legalVarName +
+        notObjProp +
+        notBoolean +
+        notNewKeyword +
+        notProceededByOpenString,
       "gi"
     );
     this.regex = {
-      notObjProp,
       legalVarName,
+      notObjProp,
+      notBoolean,
+      notNewKeyword,
       notProceededByOpenString,
       varName,
     };
@@ -64,9 +73,6 @@ class AttrParseUtil {
       if (matches && matches.length % 2 !== 0) return false;
       return true;
     }
-  }
-  static stripWhitespace(str) {
-    return str.replace(/\s/g, "");
   }
 }
 
@@ -96,7 +102,7 @@ const P5Extension = (baseClass) =>
           `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
-      const attrVarsReplaced = AttrParseUtil.stripWhitespace(attrJsStr).replace(
+      const attrVarsReplaced = attrJsStr.replace(
         AttrParseUtil.regex.varName,
         (varName) => {
           if (globalThis.hasOwnProperty(varName)) return varName;
