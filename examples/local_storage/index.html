@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <!-- https://p5js.org/reference/#/p5/storeItem -->
+    <canvas
+      width="100"
+      height="100"
+      is="p-sketch"
+      background_color="255"
+      my_text="storage.my_text || ''"
+    >
+      <p-text
+        content="my_text"
+        x="width/2"
+        y="height/2"
+        text_size="40"
+      ></p-text>
+      <p-_ show_if="key_down" my_text="key">
+        <p-_ storage.my_text="my_text"></p-_>
+      </p-_>
+    </canvas>
+  </body>
+</html>
