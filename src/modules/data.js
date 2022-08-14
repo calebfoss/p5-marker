@@ -1,6 +1,7 @@
 p5.prototype._defineSnakeAlias(
   "createStringDict",
   "createNumberDict",
+  "matchAll",
   "splitTokens"
 );
 p5.prototype.storage = {};
