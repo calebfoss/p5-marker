@@ -14,14 +14,16 @@
       background_color="220"
       animate="false"
     >
-      <p-rect
+      <p-_
         x="0"
         y="0"
         w="width/10"
         h="height/10"
         change="{x: x + width / 10}"
         repeat_until="x >= width"
-      ><p-rect change="{y: y + height / 10}" repeat_until="y >= height"></p-rect>
+      >
+      <p-rect change="{y: y + height / 10}" repeat_until="y >= height">
+      </p-rect>
     </canvas>
   </body>
 </html>
