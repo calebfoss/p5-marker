@@ -46,15 +46,16 @@ const attrIsLogic = (val) => {
 
 class AttrParseUtil {
   static {
-    const legalVarName = "[a-z$_][a-z0-9$_]*\\b(?!\\s*:)";
-    const notObjProp = "(?!s*:[^{]*})";
+    const notExistingObjProp = "(?<!\\.)";
+    const legalVarName = "\\b[a-z$_][a-z0-9$_]*\\b(?!\\s*:)";
+    const notNewObjProp = "(?!s*:[^{]*})";
     const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
     const notNewKeyword = "(?<!\\bnew\\b)";
     const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
     const varName = new RegExp(
-      notObjProp +
+      notExistingObjProp +
         legalVarName +
-        notObjProp +
+        notExistingObjProp +
         notBoolean +
         notNewKeyword +
         notProceededByOpenString,
@@ -62,7 +63,8 @@ class AttrParseUtil {
     );
     this.regex = {
       legalVarName,
-      notObjProp,
+      notExistingObjProp,
+      notNewObjProp,
       notBoolean,
       notNewKeyword,
       notProceededByOpenString,
