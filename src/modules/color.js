@@ -1,5 +1,7 @@
 import { P5Function } from "./base.js";
 
+p5.prototype._defineSnakeAlias("lerpColor");
+
 p5.prototype.NONE = "none";
 
 class ColorFunction extends P5Function {
