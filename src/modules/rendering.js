@@ -16,8 +16,8 @@ p5.prototype._defineProperties({
     },
   },
   set_webgl_attr: {
-    set: function (val) {
-      this.setAttributes(val);
+    set: function () {
+      this.setAttributes(...arguments);
     },
   },
 });
