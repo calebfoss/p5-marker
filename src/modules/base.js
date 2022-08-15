@@ -398,6 +398,15 @@ p5.prototype.assignCanvas = function (c, r) {
   this.resizeCanvas(c.width, c.height);
 };
 
+p5.prototype.assets = {};
+
+p5.prototype.loadAssets = function () {
+  const assetElements = document.querySelectorAll("p-asset");
+  assetElements.forEach(
+    (el) => (this.assets[el.getAttribute("name")] = el.load(this))
+  );
+};
+
 registerElements(
   class _ extends P5Element {
     constructor() {
@@ -424,19 +433,21 @@ registerElements(
 
         const canvas = this;
 
-        const sketch = (p5Inst) => {
+        const sketch = (pInst) => {
           const persistent = {};
 
-          p5Inst.setup = function () {
+          pInst.preload = pInst.loadAssets;
+
+          pInst.setup = function () {
             const renderer = canvas.hasAttr("renderer")
-              ? canvas.evalAttr(p5Inst, {}, {}, "renderer")
+              ? canvas.evalAttr(pInst, {}, {}, "renderer")
               : null;
-            p5Inst.assignCanvas(canvas, renderer);
-            canvas.assignAttrVals(p5Inst, persistent, {});
+            pInst.assignCanvas(canvas, renderer);
+            canvas.assignAttrVals(pInst, persistent, {});
           };
 
-          p5Inst.draw = function () {
-            canvas.drawChildren(p5Inst, persistent, {});
+          pInst.draw = function () {
+            canvas.drawChildren(pInst, persistent, {});
           };
         };
         new p5(sketch);
@@ -483,6 +494,18 @@ registerElements(
           renderToCanvas = null;
         }
       );
+    }
+  },
+  class Asset extends HTMLElement {
+    constructor() {
+      super();
+    }
+    static loadFns = { image: "loadImage", font: "loadFont" };
+    static elementName = "p-asset";
+    load(pInst) {
+      const loadFn = Asset.loadFns[this.getAttribute("type")];
+      const path = this.getAttribute("path");
+      return pInst[loadFn](path);
     }
   }
 );
