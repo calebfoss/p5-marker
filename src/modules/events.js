@@ -1,6 +1,6 @@
 import { defineProperties, defineSnakeAlias, wrapMethod } from "./base";
 
-defineSnakeAlias("deviceOrientation", "turnAxis");
+defineSnakeAlias("deviceOrientation", "turnAxis", "keyIsDown");
 
 //  TODO - test on mobile device
 p5.prototype.device_moved = false;
