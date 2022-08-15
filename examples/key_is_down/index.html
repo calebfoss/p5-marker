@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <!-- https://p5js.org/reference/#/p5/keyIsDown -->
+    <canvas width="512" height="512" is="p-sketch" x="100" y="100">
+      <p-clear></p-clear>
+      <p-ellipse w="50" h="50" fill_color="[255, 0, 0]">
+        <p-_ show_if="key_is_down(LEFT_ARROW)" x="x - 5"></p-_>
+        <p-_ show_if="key_is_down(RIGHT_ARROW)" x="x + 5"></p-_>
+        <p-_ show_if="key_is_down(UP_ARROW)" y="y - 5"></p-_>
+        <p-_ show_if="key_is_down(DOWN_ARROW)" y="y + 5"></p-_>
+      </p-ellipse>
+    </canvas>
+  </body>
+</html>
