@@ -220,7 +220,7 @@ const P5Extension = (baseClass) =>
     }
     drawIteration(p, persistent, assigned) {
       const { WHILE, WHILE_NOT } = logicKeys;
-      this.renderToCanvas?.(p, assigned);
+      this.renderToCanvas?.(p, persistent, assigned);
       this.drawChildren(p, persistent, assigned);
       const changeObj = this.hasAttr("change")
         ? this.evalAttr(p, persistent, assigned, "change")
@@ -287,8 +287,10 @@ export class P5Function extends P5Element {
     super();
     this.overloads = overloads;
   }
-  renderToCanvas(p, assigned) {
-    const args = this.params.map((p) => assigned[p]);
+  renderToCanvas(p, persistent, assigned) {
+    const args = this.params.map((p) =>
+      this.isPersistent(p) ? persistent[p] : assigned[p]
+    );
     p[this.fnName](...args);
   }
   get fnName() {
