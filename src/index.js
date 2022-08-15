@@ -9,6 +9,7 @@ import "./modules/math";
 import "./modules/rendering";
 import "./modules/transform";
 import "./modules/events";
+import "./modules/image";
 import "./modules/typography";
 
 //  Create an HTML element for every class from modules
