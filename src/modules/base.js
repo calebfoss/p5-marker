@@ -484,14 +484,5 @@ registerElements(
         }
       );
     }
-  },
-  class Update extends P5Element {
-    constructor() {
-      super();
-      if (this.parentElement.hasAttribute("cond")) {
-        this.vars.push("cond");
-        this.cond = this.parentElement.getAttribute("cond");
-      }
-    }
   }
 );
