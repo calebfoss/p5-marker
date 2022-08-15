@@ -1,6 +1,6 @@
-import { wrapP5PrototypeMethod } from "./base";
+import { defineProperties, defineSnakeAlias, wrapMethod } from "./base";
 
-p5.prototype._defineSnakeAlias("deviceOrientation", "turnAxis");
+defineSnakeAlias("deviceOrientation", "turnAxis");
 
 //  TODO - test on mobile device
 p5.prototype.device_moved = false;
@@ -28,7 +28,7 @@ p5.prototype.touch_moved = false;
 p5.prototype.touch_ended = false;
 
 p5.prototype._startAngleZ;
-wrapP5PrototypeMethod(
+wrapMethod(
   "_handleMotion",
   (base) =>
     function () {
@@ -37,7 +37,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_onmousedown",
   (base) =>
     function (e) {
@@ -46,7 +46,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_ondbclick",
   (base) =>
     function (e) {
@@ -55,7 +55,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_onmousemove",
   (base) =>
     function (e) {
@@ -64,7 +64,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_onwheel",
   (base) =>
     function (e) {
@@ -73,7 +73,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_onkeyup",
   (base) =>
     function (e) {
@@ -83,7 +83,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_onkeydown",
   (base) =>
     function (e) {
@@ -92,7 +92,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_ontouchbase",
   (base) =>
     function (e) {
@@ -101,7 +101,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_ontouchmove",
   (base) =>
     function (e) {
@@ -110,7 +110,7 @@ wrapP5PrototypeMethod(
     }
 );
 
-wrapP5PrototypeMethod(
+wrapMethod(
   "_ontouchend",
   (base) =>
     function (e) {
@@ -145,7 +145,7 @@ p5.prototype.registerMethod("post", function () {
 p5.prototype._moveThreshold = 0.5;
 p5.prototype._shakeThreshold = 30;
 
-p5.prototype._defineProperties({
+defineProperties({
   //  TODO - test on mobile device
   device_acceleration: {
     get: function () {

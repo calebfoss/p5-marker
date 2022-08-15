@@ -1,4 +1,6 @@
-p5.prototype._defineProperties({
+import { defineProperties } from "./base";
+
+defineProperties({
   angle_mode: {
     get: function () {
       return this._angleMode;

@@ -1,6 +1,6 @@
-import { P5Function, PositionedFunction } from "./base";
+import { defineProperties, PositionedFunction, registerElements } from "./base";
 
-p5.prototype._defineProperties({
+defineProperties({
   text_size: {
     get: function () {
       return this._renderer?._textSize;
@@ -11,7 +11,7 @@ p5.prototype._defineProperties({
   },
 });
 
-p5.prototype._registerElements(
+registerElements(
   class Text extends PositionedFunction {
     constructor() {
       super(["content, x, y, [x2], [y2]"]);

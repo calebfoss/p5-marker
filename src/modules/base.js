@@ -1,33 +1,36 @@
 import { camelToSnake, pascalToCamel, pascalToKebab } from "../caseConvert";
 
 p5.prototype._customElements = [];
-p5.prototype._registerElements = function () {
-  p5.prototype._customElements.push(...arguments);
-};
 
-p5.prototype._defineProperties = function (obj) {
+export function registerElements() {
+  p5.prototype._customElements.push(...arguments);
+}
+
+export function defineProperties(obj) {
   for (const p in obj) {
     p5.prototype[p] = {};
   }
   Object.defineProperties(p5.prototype, obj);
-};
+}
 
-export const wrapP5PrototypeMethod = (methodName, wrapper) =>
+export const wrapMethod = (methodName, wrapper) =>
   (p5.prototype[methodName] = wrapper(p5.prototype[methodName]));
 
-p5.prototype._createFriendlyGlobalFunctionBinderBase =
-  p5.prototype._createFriendlyGlobalFunctionBinder;
-p5.prototype._createFriendlyGlobalFunctionBinder = function (options = {}) {
-  return (prop, value) => {
-    const descriptor = Object.getOwnPropertyDescriptor(p5.prototype, prop);
-    const globalObject = options.globalObject || window;
-    if (typeof descriptor === "undefined" || descriptor.writable)
-      return this._createFriendlyGlobalFunctionBinderBase(options)(prop, value);
-    return Object.defineProperty(globalObject, prop, descriptor);
-  };
-};
+wrapMethod(
+  "_createFriendlyGlobalFunctionBinder",
+  (base) =>
+    function (options = {}) {
+      return (prop, value) => {
+        const descriptor = Object.getOwnPropertyDescriptor(p5.prototype, prop);
+        const globalObject = options.globalObject || window;
+        if (typeof descriptor === "undefined" || descriptor.writable)
+          return base.call(this, options)(prop, value);
+        return Object.defineProperty(globalObject, prop, descriptor);
+      };
+    }
+);
 
-p5.prototype._defineSnakeAlias = (...propNames) =>
+export const defineSnakeAlias = (...propNames) =>
   propNames.forEach(
     (propName) =>
       (p5.prototype[camelToSnake(propName)] = p5.prototype[propName])
@@ -393,7 +396,7 @@ p5.prototype.assignCanvas = function (c, r) {
   this.resizeCanvas(c.width, c.height);
 };
 
-p5.prototype._registerElements(
+registerElements(
   class _ extends P5Element {
     constructor() {
       super();

@@ -1,6 +1,11 @@
-import { P5Function } from "./base.js";
+import {
+  defineSnakeAlias,
+  defineProperties,
+  P5Function,
+  registerElements,
+} from "./base.js";
 
-p5.prototype._defineSnakeAlias("lerpColor");
+defineSnakeAlias("lerpColor");
 
 p5.prototype.NONE = "none";
 
@@ -29,7 +34,7 @@ const transparent = p5.prototype.color.call(
 );
 p5.prototype.setErase = p5.prototype.erase;
 p5.prototype._backgroundColor = transparent;
-p5.prototype._defineProperties({
+defineProperties({
   background_color: {
     get: function () {
       return this._backgroundColor;
@@ -79,7 +84,7 @@ p5.prototype._defineProperties({
   },
 });
 
-p5.prototype._registerElements(
+registerElements(
   class Clear extends P5Function {
     constructor() {
       super(["", "r, g, b, a"]);

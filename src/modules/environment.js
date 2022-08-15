@@ -1,6 +1,11 @@
-import { P5Function } from "./base";
+import {
+  defineProperties,
+  P5Function,
+  registerElements,
+  wrapMethod,
+} from "./base";
 
-p5.prototype._registerElements(
+registerElements(
   class Describe extends P5Function {
     constructor() {
       super(["text, [display]"]);
@@ -31,11 +36,14 @@ p5.prototype._registerElements(
 p5.prototype._setCursor = p5.prototype.cursor;
 
 p5.prototype.window_resized = false;
-p5.prototype._onresizebase = p5.prototype._onresize;
-p5.prototype._onresize = function (e) {
-  this._onresizebase(e);
-  this._setProperty("window_resized", true);
-};
+wrapMethod(
+  "_onresize",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("window_resized", true);
+    }
+);
 
 p5.prototype.registerMethod("post", function () {
   this._setProperty("window_resized", false);
@@ -45,7 +53,7 @@ p5.prototype._fullscreen = p5.prototype.fullscreen;
 p5.prototype._width = p5.prototype.width;
 p5.prototype._height = p5.prototype.height;
 
-p5.prototype._defineProperties({
+defineProperties({
   cursor: {
     get: function () {
       return this.canvas?.style.cursor;

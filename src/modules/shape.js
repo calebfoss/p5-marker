@@ -1,6 +1,11 @@
-import { P5Function, PositionedFunction } from "./base.js";
+import {
+  defineProperties,
+  P5Function,
+  PositionedFunction,
+  registerElements,
+} from "./base.js";
 
-p5.prototype._registerElements(
+registerElements(
   class Arc extends PositionedFunction {
     constructor() {
       super(["x, y, w, h, start, stop, [mode], [detail], image, [a]"]);
@@ -173,7 +178,7 @@ p5.prototype.curvePoint = pointTangentOverload(p5.prototype.curvePoint);
 p5.prototype.curveTangent = pointTangentOverload(p5.prototype.curveTangent);
 p5.prototype.yesSmooth = p5.prototype.smooth;
 
-p5.prototype._defineProperties({
+defineProperties({
   ellipse_mode: {
     get: function () {
       return this._renderer?._ellipseMode;

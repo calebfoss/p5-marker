@@ -1,4 +1,6 @@
-p5.prototype._defineSnakeAlias(
+import { defineSnakeAlias } from "./base";
+
+defineSnakeAlias(
   "createStringDict",
   "createNumberDict",
   "matchAll",

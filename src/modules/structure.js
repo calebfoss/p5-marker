@@ -1,4 +1,6 @@
-p5.prototype._defineProperties({
+import { defineProperties } from "./base";
+
+defineProperties({
   animate: {
     get: function () {
       return this.isLooping();

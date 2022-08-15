@@ -1,6 +1,8 @@
-p5.prototype._defineSnakeAlias("createCanvas", "createGraphics");
+import { defineProperties, defineSnakeAlias } from "./base";
 
-p5.prototype._defineProperties({
+defineSnakeAlias("createCanvas", "createGraphics");
+
+defineProperties({
   blend_mode: {
     get: function () {
       if (this._renderer?.isP3D) return this.curBlendMode;

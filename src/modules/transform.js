@@ -1,3 +1,5 @@
+import { defineProperties, wrapMethod } from "./base";
+
 const defaultAnchor = p5.prototype.createVector();
 const defaultAngle = p5.prototype.createVector();
 const defaultShear = p5.prototype.createVector(1, 1);
@@ -15,27 +17,33 @@ const wrap = function (renderer) {
 };
 p5.Renderer = wrap(p5.Renderer);
 
-p5.prototype._pushBase = p5.prototype.push;
-p5.prototype.push = function () {
-  this._renderer._anchorStack.push(defaultAnchor.copy());
-  this._renderer._angleStack.push(defaultAngle.copy());
-  this._renderer._scaleStack.push(defaultScale.copy());
-  this._renderer._shearStack.push(defaultShear.copy());
-  this._pushBase();
-};
+wrapMethod(
+  "push",
+  (base) =>
+    function () {
+      this._renderer._anchorStack.push(defaultAnchor.copy());
+      this._renderer._angleStack.push(defaultAngle.copy());
+      this._renderer._scaleStack.push(defaultScale.copy());
+      this._renderer._shearStack.push(defaultShear.copy());
+      base.call(this);
+    }
+);
 
-p5.prototype._popBase = p5.prototype.pop;
-p5.prototype.pop = function () {
-  this._renderer._anchorStack.pop();
-  this._renderer._angleStack.pop();
-  this._renderer._scaleStack.pop();
-  this._renderer._shearStack.pop();
-  this._popBase();
-};
+wrapMethod(
+  "pop",
+  (base) =>
+    function () {
+      this._renderer._anchorStack.pop();
+      this._renderer._angleStack.pop();
+      this._renderer._scaleStack.pop();
+      this._renderer._shearStack.pop();
+      base.call(this);
+    }
+);
 
 p5.prototype.RESET = "reset";
 
-p5.prototype._defineProperties({
+defineProperties({
   anchor: {
     get: function () {
       return this._renderer?._anchorStack[
