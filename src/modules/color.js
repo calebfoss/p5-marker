@@ -33,15 +33,16 @@ const transparent = p5.prototype.color.call(
   0
 );
 p5.prototype.setErase = p5.prototype.erase;
-p5.prototype._backgroundColor = transparent;
+p5.prototype._background = transparent;
 defineProperties({
-  background_color: {
+  canvas_background: {
     get: function () {
-      return this._backgroundColor;
+      return this._background;
     },
     set: function (val) {
-      if (val === this.NONE) this._backgroundColor = transparent;
-      else this._backgroundColor = this.color(val);
+      if (val === this.NONE) this._background = transparent;
+      if (val instanceof p5.Image) this._background = val;
+      else this._background = this.color(val);
     },
   },
   color_mode: {
@@ -99,5 +100,5 @@ registerElements(
 );
 
 p5.prototype.registerMethod("pre", function () {
-  this.background(this.background_color);
+  this.background(this.canvas_background);
 });
