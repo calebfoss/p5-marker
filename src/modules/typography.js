@@ -1,6 +1,6 @@
 import {
-  defineProperties,
   defineRendererGetterSetters,
+  defineSnakeAlias,
   PositionedFunction,
   registerElements,
 } from "./base";
@@ -9,8 +9,12 @@ defineRendererGetterSetters(
   "textAlign",
   "textLeading",
   "textSize",
-  "textStyle"
+  "textStyle",
+  "textWrap",
+  "textFont"
 );
+
+defineSnakeAlias("textAscent", "textDescent");
 
 registerElements(
   class Text extends PositionedFunction {
