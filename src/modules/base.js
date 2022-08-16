@@ -210,19 +210,22 @@ const P5Extension = (baseClass) =>
     }
     drawIteration(p, persistent, assigned) {
       const { WHILE, WHILE_NOT } = logicKeys;
-      this.renderToCanvas?.(p, persistent, assigned);
-      this.drawChildren(p, persistent, assigned);
-      const changeObj = this.hasAttr("change")
-        ? this.evalAttr(p, persistent, assigned, "change")
-        : {};
-      const updated = { ...assigned, ...changeObj };
-      const whileCond =
-        this.logic === WHILE && this.evalAttr(p, persistent, assigned, WHILE);
-      const whileNotCond =
-        this.logic === WHILE_NOT &&
-        this.evalAttr(p, persistent, assigned, WHILE_NOT) === false;
-      this.endRender?.(p, updated);
-      if (whileCond || whileNotCond) this.drawIteration(p, persistent, updated);
+      let repeat = true;
+      while (repeat) {
+        this.renderToCanvas?.(p, persistent, assigned);
+        this.drawChildren(p, persistent, assigned);
+        const changeObj = this.hasAttr("change")
+          ? this.evalAttr(p, persistent, assigned, "change")
+          : {};
+        assigned = { ...assigned, ...changeObj };
+        const whileCond =
+          this.logic === WHILE && this.evalAttr(p, persistent, assigned, WHILE);
+        const whileNotCond =
+          this.logic === WHILE_NOT &&
+          this.evalAttr(p, persistent, assigned, WHILE_NOT) === false;
+        this.endRender?.(p, assigned);
+        repeat = whileCond || whileNotCond;
+      }
     }
     drawChildren(p, persistent, assigned) {
       for (let c = 0; c < this.children.length; c++) {
