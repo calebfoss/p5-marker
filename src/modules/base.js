@@ -82,6 +82,14 @@ class AttrParseUtil {
       return true;
     }
   }
+  static replaceVarNames(el, str) {
+    return str.replace(AttrParseUtil.regex.varName, (varName) => {
+      if (globalThis.hasOwnProperty(varName)) return varName;
+      if (P5Element.isP5(varName)) return "_pInst." + varName;
+      if (el.isPersistent(varName)) return "_persistent." + varName;
+      return "_assigned." + varName;
+    });
+  }
 }
 
 const P5Extension = (baseClass) =>
@@ -110,21 +118,20 @@ const P5Extension = (baseClass) =>
           `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
-      const attrVarsReplaced = attrJsStr.replace(
-        AttrParseUtil.regex.varName,
-        (varName) => {
-          if (globalThis.hasOwnProperty(varName)) return varName;
-          if (this.constructor.isP5(varName)) return "_p5Inst." + varName;
-          if (this.isPersistent(varName)) return "_persistent." + varName;
-          return "_assigned." + varName;
-        }
+      const attrNameVarsReplaced = AttrParseUtil.replaceVarNames(
+        this,
+        attr.name
+      );
+      const attrValueVarsReplaced = AttrParseUtil.replaceVarNames(
+        this,
+        attrJsStr
       );
       const evalFnName = `${this.constructor.name}_${attr.name.replace(
-        /\./g,
+        /[^a-z0-9]/g,
         "_"
       )}`;
-      const fnHeader = `return function ${evalFnName}(_p5Inst, _persistent, _assigned) {`;
-      const fnBody = `return ${attrVarsReplaced};\n};`;
+      const fnHeader = `return function ${evalFnName}(_pInst, _persistent, _assigned) {`;
+      const fnBody = `return ${attrNameVarsReplaced} = ${attrValueVarsReplaced};\n};`;
       const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
       const evalFn = new Function(fnStr)();
       this.attrEvals.set(attr.name, evalFn);
@@ -162,36 +169,19 @@ const P5Extension = (baseClass) =>
         .flat()
         .map((line) => "//\t" + line);
     }
-    evalAttr(p5Inst, persistent, assigned, attrName) {
+    evalAttr(pInst, persistent, assigned, attrName) {
       const evalFn = this.attrEvals.get(attrName);
       if (typeof evalFn !== "function")
         return console.error(
           `${this.constructor.elementName} couldn't get ${attrName}`
         );
-      return evalFn(p5Inst, persistent, assigned);
+      return evalFn(pInst, persistent, assigned);
     }
     assignAttrVals(p, persistent, inherited) {
       const assigned = Object.assign({}, inherited);
       const vars = this.vars.concat(this.settings);
       for (let i = 0; i < vars.length; i++) {
-        const attrName = vars[i];
-        const propNames = attrName.split(".");
-        const [basePropName] = propNames;
-        const val = this.evalAttr(p, persistent, inherited, attrName);
-        const modifyProperty = (obj, propNameArray) => {
-          let target = obj;
-          const propCount = propNameArray.length;
-          for (let i = 0; i < propCount - 1; i++) {
-            target = p[propNames[i]];
-          }
-          const [lastProp] = propNames.slice(-1);
-          target[lastProp] = val;
-        };
-        if (P5Element.isP5(basePropName)) {
-          modifyProperty(p, propNames);
-        } else if (this.isPersistent(basePropName)) {
-          modifyProperty(persistent, propNames);
-        } else assigned[attrName] = val;
+        this.evalAttr(p, persistent, assigned, vars[i]);
       }
       return assigned;
     }
