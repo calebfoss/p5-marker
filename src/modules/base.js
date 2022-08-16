@@ -407,12 +407,17 @@ p5.prototype.assignCanvas = function (c, r) {
 
 p5.prototype.assets = {};
 
-p5.prototype.loadAssets = function () {
-  const assetElements = document.querySelectorAll("p-asset");
-  assetElements.forEach(
-    (el) => (this.assets[el.getAttribute("name")] = el.load(this))
+p5.prototype.loadAssets = async function () {
+  const assetElements = Array.from(document.querySelectorAll("p-asset"));
+  const pInst = this;
+  const promises = assetElements.map((el) => el.load(pInst));
+  const results = await Promise.all(promises);
+  results.forEach(
+    (result, i) => (this.assets[assetElements[i].getAttribute("name")] = result)
   );
+  this._decrementPreload();
 };
+p5.prototype.registerPreloadMethod("loadAssets", p5.prototype);
 
 registerElements(
   class _ extends P5Element {
@@ -443,7 +448,7 @@ registerElements(
         const sketch = (pInst) => {
           const persistent = {};
 
-          pInst.preload = pInst.loadAssets;
+          pInst.preload = () => pInst.loadAssets();
 
           pInst.setup = function () {
             const renderer = canvas.hasAttr("renderer")
@@ -518,10 +523,12 @@ registerElements(
       get: "httpGet",
     };
     static elementName = "p-asset";
-    load(pInst) {
+    async load(pInst) {
+      if (this.data) return this.data;
       const loadFn = Asset.loadFns[this.getAttribute("type").toLowerCase()];
       const path = this.getAttribute("path");
-      return pInst[loadFn](path);
+      this.data = await pInst[loadFn](path);
+      return this.data;
     }
   }
 );
