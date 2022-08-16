@@ -41,7 +41,7 @@ defineProperties({
     },
     set: function (val) {
       if (val === this.NONE) this._background = transparent;
-      if (val instanceof p5.Image) this._background = val;
+      else if (val instanceof p5.Image) this._background = val;
       else this._background = this.color(val);
     },
   },
