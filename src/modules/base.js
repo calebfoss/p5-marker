@@ -43,8 +43,9 @@ export const defineRendererGetterSetters = (...methodNames) =>
         get: function () {
           return this._renderer?.[`_${methodName}`];
         },
-        set: function () {
-          this[methodName](...arguments);
+        set: function (val) {
+          if (Array.isArray(val)) this[methodName](...val);
+          else this[methodName](val);
         },
       },
     })
