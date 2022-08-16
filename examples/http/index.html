@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="../../node_modules/p5/lib/p5.js"></script>
+    <script src="../../dist/p-dash.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <!-- https://p5js.org/reference/#/p5/httpGet -->
+    <p-asset
+      type="get"
+      path="https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&limit=1&orderby=time"
+      name="earthquakes"
+    ></p-asset>
+    <canvas
+      width="400"
+      height="400"
+      is="p-sketch"
+      canvas_background="200"
+      animate="false"
+      log="assets.earthquakes"
+    >
+      <p-_ earthquake="assets.earthquakes.features[0]">
+        <p-_
+          earthquake_mag="earthquake.properties.mag"
+          earthquake_name="earthquake.properties.place"
+        >
+          <p-ellipse
+            x="width/2"
+            y="height/2"
+            w="earthquake_mag * 10"
+            h="earthquake_mag * 10"
+          >
+            <p-text
+              content="earthquake_name"
+              x="0"
+              y="height - 30"
+              x2="width"
+              y2="30"
+              text_align="CENTER"
+            ></p-text>
+          </p-ellipse>
+        </p-_>
+      </p-_>
+    </canvas>
+  </body>
+</html>
