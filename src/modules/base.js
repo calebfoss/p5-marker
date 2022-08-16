@@ -493,10 +493,19 @@ registerElements(
     constructor() {
       super();
     }
-    static loadFns = { image: "loadImage", font: "loadFont" };
+    static loadFns = {
+      image: "loadImage",
+      font: "loadFont",
+      json: "loadJSON",
+      strings: "loadStrings",
+      table: "loadTable",
+      xml: "loadXML",
+      bytes: "loadBytes",
+      get: "httpGet",
+    };
     static elementName = "p-asset";
     load(pInst) {
-      const loadFn = Asset.loadFns[this.getAttribute("type")];
+      const loadFn = Asset.loadFns[this.getAttribute("type").toLowerCase()];
       const path = this.getAttribute("path");
       return pInst[loadFn](path);
     }
