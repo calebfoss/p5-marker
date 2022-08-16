@@ -9,7 +9,7 @@ defineSnakeAlias("lerpColor");
 
 p5.prototype.NONE = "none";
 
-class ColorFunction extends P5Function {
+export class ColorFunction extends P5Function {
   constructor(overloads) {
     overloads = [
       "v1, v2, v3, [alpha]",

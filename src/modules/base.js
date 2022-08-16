@@ -522,6 +522,7 @@ registerElements(
       xml: "loadXML",
       bytes: "loadBytes",
       get: "httpGet",
+      shader: "loadShader",
     };
     static elementName = "p-asset";
     async load(pInst) {

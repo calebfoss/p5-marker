@@ -12,6 +12,7 @@ import "./modules/events";
 import "./modules/image";
 import "./modules/io";
 import "./modules/typography";
+import "./modules/3d";
 
 //  Create an HTML element for every class from modules
 (() => {
