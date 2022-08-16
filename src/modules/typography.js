@@ -1,15 +1,16 @@
-import { defineProperties, PositionedFunction, registerElements } from "./base";
+import {
+  defineProperties,
+  defineRendererGetterSetters,
+  PositionedFunction,
+  registerElements,
+} from "./base";
 
-defineProperties({
-  text_size: {
-    get: function () {
-      return this._renderer?._textSize;
-    },
-    set: function () {
-      this.textSize(...arguments);
-    },
-  },
-});
+defineRendererGetterSetters(
+  "textAlign",
+  "textLeading",
+  "textSize",
+  "textStyle"
+);
 
 registerElements(
   class Text extends PositionedFunction {

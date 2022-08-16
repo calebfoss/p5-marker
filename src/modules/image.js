@@ -1,6 +1,6 @@
 import {
   defineProperties,
-  defineSnakeAlias,
+  defineRendererGetterSetters,
   PositionedFunction,
   registerElements,
 } from "./base";
@@ -16,6 +16,8 @@ registerElements(
   }
 );
 
+defineRendererGetterSetters("imageMode");
+
 defineProperties({
   canvas_pixels: {
     get: function () {
@@ -25,14 +27,6 @@ defineProperties({
     set: function (px) {
       this.pixels = px;
       this.updatePixels();
-    },
-  },
-  image_mode: {
-    get: function () {
-      return this._renderer?.image_mode;
-    },
-    set: function (val) {
-      this.imageMode(val);
     },
   },
   image_tint: {

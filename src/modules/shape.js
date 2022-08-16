@@ -1,5 +1,6 @@
 import {
   defineProperties,
+  defineRendererGetterSetters,
   P5Function,
   PositionedFunction,
   registerElements,
@@ -178,23 +179,9 @@ p5.prototype.curvePoint = pointTangentOverload(p5.prototype.curvePoint);
 p5.prototype.curveTangent = pointTangentOverload(p5.prototype.curveTangent);
 p5.prototype.yesSmooth = p5.prototype.smooth;
 
+defineRendererGetterSetters("ellipseMode", "rectMode", "curveTightness");
+
 defineProperties({
-  ellipse_mode: {
-    get: function () {
-      return this._renderer?._ellipseMode;
-    },
-    set: function (val) {
-      this.ellipseMode(val);
-    },
-  },
-  rect_mode: {
-    get: function () {
-      return this._renderer?._rectMode;
-    },
-    set: function (val) {
-      this.rectMode(val);
-    },
-  },
   smooth: {
     get: function () {
       if (this._renderer?.isP3D)
@@ -247,14 +234,6 @@ defineProperties({
     },
     set: function (val) {
       this.curveDetail(val);
-    },
-  },
-  curve_tightness: {
-    get: function () {
-      return this._renderer?._curveTightness;
-    },
-    set: function (val) {
-      this.curveTightness(val);
     },
   },
 });

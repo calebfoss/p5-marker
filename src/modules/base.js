@@ -35,6 +35,20 @@ export const defineSnakeAlias = (...propNames) =>
     (propName) =>
       (p5.prototype[camelToSnake(propName)] = p5.prototype[propName])
   );
+
+export const defineRendererGetterSetters = (...methodNames) =>
+  methodNames.forEach((methodName) =>
+    defineProperties({
+      [camelToSnake(methodName)]: {
+        get: function () {
+          return this._renderer?.[`_${methodName}`];
+        },
+        set: function () {
+          this[methodName](...arguments);
+        },
+      },
+    })
+  );
 const logicKeys = {
   IF: "show_if",
   ELSE: "else_show",
