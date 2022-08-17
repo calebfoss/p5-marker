@@ -192,7 +192,7 @@ const P5Extension = (baseClass) =>
     }
     assignAttrVals(p, persistent, inherited) {
       const assigned = Object.assign({}, inherited);
-      const vars = this.vars.concat(this.settings);
+      const vars = this.settings.concat(this.vars);
       for (let i = 0; i < vars.length; i++) {
         this.evalAttr(p, persistent, assigned, vars[i]);
       }
@@ -373,10 +373,12 @@ export class PositionedFunction extends P5Function {
     const y = this.getAttr(yParam) || this.getInheritedAttr(yParam);
     const anchorVal = `[${x}, ${y}]`;
     this.setAttr("anchor", anchorVal);
-    this.setAttr(this.params[0], 0);
-    this.setAttr(this.params[1], 0);
+    this.setAttr(xParam, 0);
+    this.setAttr(yParam, 0);
     this.settings.unshift("anchor");
     const anchorAttr = this.attributes["anchor"];
+    this.setupEvalFn(this.attributes[xParam]);
+    this.setupEvalFn(this.attributes[yParam]);
     this.setupEvalFn(anchorAttr);
   }
   setParamsFromOverloads() {
