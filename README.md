@@ -38,7 +38,7 @@ function draw() {
 }
 ```
 
-Given the simplicity of the resulting image, I think there are a suprising number of concepts that need to be introduced in order to produce it. Without intentional code organization, I think it's quite easy to loose track of which styling/transformations will affect which things on the canvas.
+Given the simplicity of the resulting image, I think there are a suprising number of concepts that need to be introduced in order to produce it. Without intentional code organization, I think it's quite easy to lose track of which styling/transformations will affect which things on the canvas.
 
 Here's how to produce that same example in Marker:
 
