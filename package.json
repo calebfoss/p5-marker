@@ -1,17 +1,23 @@
 {
-  "name": "p-dash",
+  "name": "p5-marker",
   "version": "0.0.0",
   "description": "A p5 add-on with custom html elements to create sketches declaratively.",
-  "main": "dist/p-dash.js",
+  "main": "dist/p5.marker.js",
+  "min": "dist/p5.marker.min.js",
+  "targets": {
+    "min": {
+      "optimize": true
+    }
+  },
   "source": "src/index.js",
   "directories": {
     "example": "example"
   },
   "scripts": {
-    "build": "npx parcel build && node utils/addBuildComment.mjs",
+    "build": "npx parcel build --no-source-maps && node utils/addBuildComment.mjs ",
     "docs": "npx jsdoc -c docs/jsdoc.json dist -r",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "npx parcel watch"
+    "watch": "npx parcel watch --no-source-maps"
   },
   "keywords": [
     "creative",
@@ -25,5 +31,9 @@
     "jsdoc": "^3.6.11",
     "p5": "x",
     "parcel": "latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calebfoss/p5-marker.git"
   }
 }
