@@ -111,8 +111,6 @@ const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
     constructor() {
       super();
-      [this.settings, this.vars, this.logic] = this.parseAttributes();
-      if (this.hasAttr("anchor")) this.anchorFirst();
     }
     static addTab(line) {
       return line.length && this.isBlock ? "\t" + line : line;
@@ -257,7 +255,9 @@ const P5Extension = (baseClass) =>
       return p5.prototype.hasOwnProperty(name);
     }
     parseAttributes() {
-      return Array.from(this.attributes).reduce(
+      [this.settings, this.vars, this.logic] = Array.from(
+        this.attributes
+      ).reduce(
         ([s, v, l], { name: attr }) => {
           if (P5Element.isP5(attr)) return [s.concat(attr), v, l];
           if (attrIsLogic(attr)) {
@@ -273,6 +273,7 @@ const P5Extension = (baseClass) =>
         },
         [[], [], null]
       );
+      if (this.hasAttr("anchor")) this.anchorFirst();
     }
     isPersistent(attrName) {
       if (this instanceof HTMLCanvasElement) return this.hasAttr(attrName);
@@ -426,48 +427,51 @@ registerElements(
       super();
     }
   },
-  class Sketch extends P5Extension(HTMLCanvasElement) {
+  class Canvas extends P5Extension(HTMLCanvasElement) {
     constructor() {
       super();
-      //  Remove 'is' attribute from vars
-      this.vars = this.vars.filter((v) => v !== "is");
-
-      const setupElement = (el) => {
-        el.setupEvalFns?.();
-        el.setParamsFromOverloads?.();
-        for (let i = 0; i < el.children.length; i++) {
-          const child = el.children.item(i);
-          setupElement(child);
-        }
-      };
-
-      const runCode = () => {
-        setupElement(this);
-
-        const canvas = this;
-
-        const sketch = (pInst) => {
-          const persistent = {};
-
-          pInst.preload = () => pInst.loadAssets();
-
-          pInst.setup = function () {
-            const renderer = canvas.hasAttr("renderer")
-              ? canvas.evalAttr(pInst, {}, {}, "renderer")
-              : null;
-            pInst.assignCanvas(canvas, renderer);
-            canvas.assignAttrVals(pInst, persistent, {});
-          };
-
-          pInst.draw = function () {
-            canvas.drawChildren(pInst, persistent, {});
-          };
-        };
-        new p5(sketch);
-      };
-      window.addEventListener("customElementsDefined", runCode);
+      window.addEventListener("customElementsDefined", this.runCode.bind(this));
     }
     static constructorOptions = { extends: "canvas" };
+    parseAttributes() {
+      super.parseAttributes();
+      //  Remove 'is' attribute from vars
+      this.vars = this.vars.filter((v) => v !== "is");
+    }
+    runCode() {
+      Canvas.setupElement(this);
+
+      const canvas = this;
+
+      const sketch = (pInst) => {
+        const persistent = {};
+
+        pInst.preload = () => pInst.loadAssets();
+
+        pInst.setup = function () {
+          const renderer = canvas.hasAttr("renderer")
+            ? canvas.evalAttr(pInst, {}, {}, "renderer")
+            : null;
+          pInst.assignCanvas(canvas, renderer);
+          canvas.assignAttrVals(pInst, persistent, {});
+        };
+
+        pInst.draw = function () {
+          canvas.drawChildren(pInst, persistent, {});
+        };
+      };
+      new p5(sketch);
+    }
+    static setupElement = (el) => {
+      el.parseAttributes?.();
+      el.setupEvalFns?.();
+      el.setParamsFromOverloads?.();
+      for (let i = 0; i < el.children.length; i++) {
+        const child = el.children.item(i);
+        Canvas.setupElement(child);
+      }
+    };
+
     varInitialized(varName) {
       if (this.vars.includes(varName)) return true;
       return super.varInitialized(varName);
@@ -532,5 +536,51 @@ registerElements(
       this.data = await pInst[loadFn](path);
       return this.data;
     }
+  },
+  class Sketch extends HTMLLinkElement {
+    constructor() {
+      super();
+      this.loadXML(this.href);
+    }
+    static constructorOptions = { extends: "link" };
+    convertElement(xmlEl) {
+      const xmlTag = xmlEl.tagName;
+      if (xmlTag === "canvas")
+        return document.createElement("canvas", { is: "p-canvas" });
+      return document.createElement(`p-${xmlTag}`);
+    }
+    convertAllElements(xmlEl, parent = document.body) {
+      const pEl = this.convertElement(xmlEl);
+      this.copyAttributes(xmlEl, pEl);
+      parent.appendChild(pEl);
+      for (let i = 0; i < xmlEl.children.length; i++) {
+        this.convertAllElements(xmlEl.children[i], pEl);
+      }
+    }
+    convertXML(e) {
+      const xml = e.target.response.documentElement;
+      this.convertAllElements(xml);
+      document.querySelectorAll("canvas").forEach((canvas) => canvas.runCode());
+    }
+    copyAttributes(orig, copy) {
+      const attrs = orig.attributes;
+      for (let i = 0; i < attrs.length; i++) {
+        const attr = attrs[i];
+        copy.setAttribute(attr.name, attr.value);
+      }
+    }
+    loadXML(path) {
+      if (!path)
+        return console.error(
+          "p-sketch element is missing required path attribute"
+        );
+      const request = new XMLHttpRequest();
+      request.open("GET", path);
+      request.responseType = "document";
+      request.overrideMimeType("text/xml");
+      request.addEventListener("load", this.convertXML.bind(this));
+      request.send();
+    }
+    static elementName = "p-sketch";
   }
 );
