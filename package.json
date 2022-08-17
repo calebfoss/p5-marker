@@ -14,10 +14,10 @@
     "example": "example"
   },
   "scripts": {
-    "build": "npx parcel build --no-source-maps && node utils/addBuildComment.mjs ",
+    "build": "npx parcel build && node utils/addBuildComment.mjs ",
     "docs": "npx jsdoc -c docs/jsdoc.json dist -r",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "npx parcel watch --no-source-maps"
+    "watch": "npx parcel watch"
   },
   "keywords": [
     "creative",
