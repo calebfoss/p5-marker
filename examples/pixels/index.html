@@ -15,16 +15,16 @@
       animate="false"
       stroke_color="NONE"
     >
-      <p-_ i="0" repeat="[UNTIL,  i === 1000]" change="{i: i + 1}">
+      <p-_ i="0" repeat="UNTIL,  i === 1000" change="{i: i + 1}">
         <p-circle
           x="random(width)"
           y="random(height)"
           d="40"
-          fill_color="[random(255), random(255), random(255)]"
+          fill_color="random(255), random(255), random(255)"
         ></p-circle>
       </p-_>
       <p-_ pix="canvas_pixels">
-        <p-_ p="0" repeat="[UNTIL,  p >= pix.length]" change="{p: p + 4}">
+        <p-_ p="0" repeat="UNTIL,  p >= pix.length" change="{p: p + 4}">
           <p-_ pix[p]="0"></p-_>
         </p-_>
         <p-_ canvas_pixels="pix"></p-_>

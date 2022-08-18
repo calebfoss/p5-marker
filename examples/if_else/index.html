@@ -11,7 +11,7 @@
       width="400"
       height="400"
       is="p-canvas"
-      anchor="[width/2, height/2]"
+      anchor="width/2, height/2"
       stroke_color="NONE"
       canvas_background="200"
     >
@@ -20,21 +20,21 @@
         x="0"
         y="0"
         d="width"
-        show="[IF, frame_count < 60]"
+        show="IF, frame_count < 60"
       ></p-circle>
       <p-circle
         fill_color="'yellow'"
         x="0"
         y="0"
         d="width"
-        show="[ELSE, frame_count < 120]"
+        show="ELSE, frame_count < 120"
       ></p-circle>
       <p-circle
         fill_color="'green'"
         x="0"
         y="0"
         d="width"
-        show="[ELSE]"
+        show="ELSE"
       ></p-circle>
     </canvas>
   </body>

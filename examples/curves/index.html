@@ -11,12 +11,12 @@
       width="400"
       height="400"
       is="p-canvas"
-      canvas_background="[200, 160, 240]"
+      canvas_background="200, 160, 240"
       animate="false"
     >
       <p-_
         x_base="0"
-        repeat="[WHILE,  x_base < width]"
+        repeat="WHILE,  x_base < width"
         change="{x_base: x_base + width / 10}"
       >
         <p-curve
@@ -32,11 +32,11 @@
           fill_color="NONE"
         >
           <p-_
-            stroke_color="[60, 180, 20]"
-            fill_color="[20, 60, 180]"
+            stroke_color="60, 180, 20"
+            fill_color="20, 60, 180"
             stroke_weight="4"
             t="0"
-            repeat="[WHILE,  t < 1]"
+            repeat="WHILE,  t < 1"
             change="{t: t + 0.1}"
           >
             <p-_

@@ -15,15 +15,15 @@
       angle_mode="DEGREES"
     >
       <p-box angle_y="frame_count" angle_x="30"></p-box>
-      <p-sphere anchor="[-width/4, -height/4]" angle_z="frame_count"></p-sphere>
+      <p-sphere anchor="-width/4, -height/4" angle_z="frame_count"></p-sphere>
       <p-cylinder radius="height" angle_y="frame_count * -0.25"></p-cylinder>
       <p-ellipsoid
-        anchor="[width/4, -height/4]"
+        anchor="width/4, -height/4"
         angle_z="-frame_count"
         radius_x="width/8"
         radius_y="height/16"
       ></p-ellipsoid>
-      <p-torus anchor="[0, height/4]" angle_x="frame_count"></p-torus>
+      <p-torus anchor="0, height/4" angle_x="frame_count"></p-torus>
     </canvas>
   </body>
 </html>

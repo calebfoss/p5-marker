@@ -56,12 +56,12 @@ Here's how to produce that same example in Marker:
     y="height/2"
     s="200"
     rect_mode="CENTER"
-    fill_color="[180, 40, 20]"
+    fill_color="180, 40, 20"
     angle="square_angle"
     square_angle="square_angle + 1"
   />
 
-  <circle x="width/2" y="height * 0.75" d="100" fill_color="[20, 60, 180]" />
+  <circle x="width/2" y="height * 0.75" d="100" fill_color="20, 60, 180" />
 </canvas>
 ```
 
@@ -126,7 +126,7 @@ Attribute values are evaluated as JavaScript, and you can reference attributes f
 Attributes can be set to multiple values as an array.
 
 ```
-<square x="25" y="25" s="50" fill_color="[180, 40, 20]">
+<square x="25" y="25" s="50" fill_color="180, 40, 20">
   <circle d="25" />
 </square>
 <circle x="75" y="25" d="50" />
@@ -145,8 +145,8 @@ p5.js functions that return a value, rather than render something to the canvas,
     x="25"
     y="25"
     s="50"
-    fill_color="[180, 40, 20]"
-    stroke_color="[200, 200, 100]"
+    fill_color="180, 40, 20"
+    stroke_color="200, 200, 100"
     stroke_weight="4"
   >
   <circle d="25" fill_color="lerp_color(fill_color, stroke_color, 0.5)" />

@@ -6,6 +6,8 @@ export class AttrParseUtil {
     const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
     const notNewKeyword = "(?<!\\bnew\\b)";
     const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
+    const unenclosedList =
+      /^[^[{\(]*?(?:(?:\[.*?])*(?:{.*?})*(?:\(.*?\))*)*,.*$/gi;
     const varName = new RegExp(
       notExistingObjProp +
         legalVarName +
@@ -22,6 +24,7 @@ export class AttrParseUtil {
       notBoolean,
       notNewKeyword,
       notProceededByOpenString,
+      unenclosedList,
       varName,
     };
   }
@@ -33,9 +36,9 @@ export class AttrParseUtil {
       return true;
     }
   }
-  static isP5(name) {
-    return p5.prototype.hasOwnProperty(name);
-  }
+  static encloseList = (str) =>
+    str.replace(AttrParseUtil.regex.unenclosedList, "[$&]");
+  static isP5 = (name) => p5.prototype.hasOwnProperty(name);
   static replaceVarNames(el, str) {
     return str.replace(AttrParseUtil.regex.varName, (varName) => {
       if (globalThis.hasOwnProperty(varName)) return varName;
