@@ -33,8 +33,8 @@ export class AttrParseUtil {
     for (const i in quoteExps) {
       const matches = str.match(quoteExps[i]);
       if (matches && matches.length % 2 !== 0) return false;
-      return true;
     }
+    return true;
   }
   static encloseList = (str) =>
     str.replace(AttrParseUtil.regex.unenclosedList, "[$&]");
