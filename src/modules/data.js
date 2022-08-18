@@ -1,4 +1,4 @@
-import { defineSnakeAlias } from "./base";
+import { defineSnakeAlias } from "../utils/p5Modifiers";
 
 defineSnakeAlias(
   "createStringDict",

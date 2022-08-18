@@ -1,9 +1,9 @@
 import {
   defineRendererGetterSetters,
   defineSnakeAlias,
-  PositionedFunction,
   registerElements,
-} from "./base";
+} from "../utils/p5Modifiers";
+import { PositionedFunction } from "./core";
 
 defineRendererGetterSetters(
   "textAlign",

@@ -1,4 +1,8 @@
-import { defineProperties, defineSnakeAlias, wrapMethod } from "./base";
+import {
+  defineProperties,
+  defineSnakeAlias,
+  wrapMethod,
+} from "../utils/p5Modifiers";
 
 defineSnakeAlias("deviceOrientation", "turnAxis", "keyIsDown");
 

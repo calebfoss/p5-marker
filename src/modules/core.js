@@ -1,20 +1,8 @@
-import { camelToSnake, pascalToCamel, pascalToKebab } from "../caseConvert";
+import { pascalToCamel, pascalToKebab } from "../utils/caseConvert";
+import { AttrParseUtil } from "../utils/attrParse";
+import { registerElements, wrapMethod } from "../utils/p5Modifiers";
 
 p5.prototype._customElements = [];
-
-export function registerElements() {
-  p5.prototype._customElements.push(...arguments);
-}
-
-export function defineProperties(obj) {
-  for (const p in obj) {
-    p5.prototype[p] = {};
-  }
-  Object.defineProperties(p5.prototype, obj);
-}
-
-export const wrapMethod = (methodName, wrapper) =>
-  (p5.prototype[methodName] = wrapper(p5.prototype[methodName]));
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -30,26 +18,6 @@ wrapMethod(
     }
 );
 
-export const defineSnakeAlias = (...propNames) =>
-  propNames.forEach(
-    (propName) =>
-      (p5.prototype[camelToSnake(propName)] = p5.prototype[propName])
-  );
-
-export const defineRendererGetterSetters = (...methodNames) =>
-  methodNames.forEach((methodName) =>
-    defineProperties({
-      [camelToSnake(methodName)]: {
-        get: function () {
-          return this._renderer?.[`_${methodName}`];
-        },
-        set: function (val) {
-          if (Array.isArray(val)) this[methodName](...val);
-          else this[methodName](val);
-        },
-      },
-    })
-  );
 const logicKeys = {
   IF: "show_if",
   ELSE: "else_show",
@@ -61,51 +29,6 @@ const attrIsLogic = (val) => {
   const logicNames = Object.values(logicKeys);
   return logicNames.includes(val);
 };
-
-class AttrParseUtil {
-  static {
-    const notExistingObjProp = "(?<!\\.)";
-    const legalVarName = "\\b[a-z$_][a-z0-9$_]*\\b(?!\\s*:)";
-    const notNewObjProp = "(?!s*:[^{]*})";
-    const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
-    const notNewKeyword = "(?<!\\bnew\\b)";
-    const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
-    const varName = new RegExp(
-      notExistingObjProp +
-        legalVarName +
-        notExistingObjProp +
-        notBoolean +
-        notNewKeyword +
-        notProceededByOpenString,
-      "gi"
-    );
-    this.regex = {
-      legalVarName,
-      notExistingObjProp,
-      notNewObjProp,
-      notBoolean,
-      notNewKeyword,
-      notProceededByOpenString,
-      varName,
-    };
-  }
-  static allQuotesMatched(str) {
-    const quoteExps = [/"/g, /'/g, /`/g];
-    for (const i in quoteExps) {
-      const matches = str.match(quoteExps[i]);
-      if (matches && matches.length % 2 !== 0) return false;
-      return true;
-    }
-  }
-  static replaceVarNames(el, str) {
-    return str.replace(AttrParseUtil.regex.varName, (varName) => {
-      if (globalThis.hasOwnProperty(varName)) return varName;
-      if (P5Element.isP5(varName)) return "_pInst." + varName;
-      if (el.isPersistent(varName)) return "_persistent." + varName;
-      return "_assigned." + varName;
-    });
-  }
-}
 
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
@@ -251,15 +174,12 @@ const P5Extension = (baseClass) =>
     get html() {
       return this.outerHTML.replace(this.innerHTML, "");
     }
-    static isP5(name) {
-      return p5.prototype.hasOwnProperty(name);
-    }
     parseAttributes() {
       [this.settings, this.vars, this.logic] = Array.from(
         this.attributes
       ).reduce(
         ([s, v, l], { name: attr }) => {
-          if (P5Element.isP5(attr)) return [s.concat(attr), v, l];
+          if (AttrParseUtil.isP5(attr)) return [s.concat(attr), v, l];
           if (attrIsLogic(attr)) {
             if (l !== null) {
               console.error(

@@ -1,4 +1,4 @@
-import { defineProperties } from "./base";
+import { defineProperties } from "../utils/p5Modifiers";
 
 defineProperties({
   animate: {

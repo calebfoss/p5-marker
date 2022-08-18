@@ -1,4 +1,4 @@
-import { defineProperties, defineSnakeAlias } from "./base";
+import { defineProperties, defineSnakeAlias } from "../utils/p5Modifiers";
 
 defineSnakeAlias("createCanvas", "createGraphics");
 

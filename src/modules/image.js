@@ -1,9 +1,9 @@
 import {
   defineProperties,
   defineRendererGetterSetters,
-  PositionedFunction,
   registerElements,
-} from "./base";
+} from "../utils/p5Modifiers";
+import { PositionedFunction } from "./core";
 
 registerElements(
   class Image extends PositionedFunction {

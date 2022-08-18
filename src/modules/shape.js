@@ -1,10 +1,9 @@
 import {
   defineProperties,
   defineRendererGetterSetters,
-  P5Function,
-  PositionedFunction,
   registerElements,
-} from "./base.js";
+} from "../utils/p5Modifiers";
+import { P5Function, PositionedFunction } from "./core";
 
 registerElements(
   class Arc extends PositionedFunction {

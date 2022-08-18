@@ -2,8 +2,8 @@ import {
   defineProperties,
   defineSnakeAlias,
   registerElements,
-  P5Function,
-} from "./base";
+} from "../utils/p5Modifiers";
+import { P5Function } from "./core";
 import { ColorFunction } from "./color";
 
 p5.prototype._orbitControl = { on: false, sensitivity: [] };

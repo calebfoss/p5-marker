@@ -1,9 +1,9 @@
 import {
   defineProperties,
-  P5Function,
   registerElements,
   wrapMethod,
-} from "./base";
+} from "../utils/p5Modifiers";
+import { P5Function } from "../modules/core";
 
 registerElements(
   class Describe extends P5Function {

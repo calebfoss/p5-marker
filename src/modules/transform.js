@@ -1,4 +1,4 @@
-import { defineProperties, wrapMethod } from "./base";
+import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
 const defaultAnchor = p5.prototype.createVector();
 const defaultAngle = p5.prototype.createVector();

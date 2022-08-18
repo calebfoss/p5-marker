@@ -1,4 +1,4 @@
-import "./modules/base";
+import "./modules/core";
 import "./modules/environment";
 import "./modules/color";
 import "./modules/shape";

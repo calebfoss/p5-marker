@@ -1,4 +1,4 @@
-import { defineProperties, defineSnakeAlias, wrapMethod } from "./base";
+import { defineProperties, defineSnakeAlias } from "../utils/p5Modifiers";
 
 defineSnakeAlias("createWriter");
 

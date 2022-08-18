@@ -1,9 +1,9 @@
 import {
   defineSnakeAlias,
   defineProperties,
-  P5Function,
   registerElements,
-} from "./base.js";
+} from "../utils/p5Modifiers";
+import { P5Function } from "./core";
 
 defineSnakeAlias("lerpColor");
 
