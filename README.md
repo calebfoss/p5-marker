@@ -134,7 +134,7 @@ Attributes can be set to multiple values, separated by commas.
 
 ![Red square with small red circle over its upper left corner and large white circle over its upper right corner](img/childExample3.png)
 
-## Functions
+### Functions
 
 Functions are called within attribute values to calculate a value.
 
