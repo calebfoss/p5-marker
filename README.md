@@ -6,7 +6,7 @@ A [p5.js](https://p5js.org) wrapper for sketching declaratively in XML
 
 As a creative coding instructor, I have noticed a few things that beginners often find counterintuitive.
 
-Take this exampe:
+Take this example:
 
 ![a large rotating red square with a small blue circle in front of it](img/rotatingRedSquareWithBlueCircle.gif)
 
@@ -38,7 +38,7 @@ function draw() {
 }
 ```
 
-Given the simplicity of the resulting image, I think there are a suprising number of concepts that need to be introduced in order to produce it. Without intentional code organization, I think it's quite easy to lose track of which styling/transformations will affect which things on the canvas.
+Given the simplicity of the resulting image, I think there are a surprising number of concepts that need to be introduced in order to produce it. Without intentional code organization, I think it's quite easy to lose track of which styling/transformations will affect which things on the canvas.
 
 Here's how to produce that same example in Marker:
 
