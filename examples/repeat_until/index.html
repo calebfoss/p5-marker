@@ -20,9 +20,9 @@
         w="width/10"
         h="height/10"
         change="{x: x + width / 10}"
-        repeat_until="x >= width"
+        repeat="[UNTIL, x >= width]"
       >
-      <p-rect change="{y: y + height / 10}" repeat_until="y >= height">
+      <p-rect change="{y: y + height / 10}" repeat="[UNTIL, y >= height]">
       </p-rect>
     </canvas>
   </body>

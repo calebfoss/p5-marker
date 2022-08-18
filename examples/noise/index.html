@@ -9,7 +9,7 @@
   <body>
     <canvas width="100" height="100" is="p-canvas" canvas_background="220">
       <p-_ pix="canvas_pixels" noise_seed="frame_count">
-        <p-_ i="0" repeat_while="i < pix.length" change="{i: i + 4}">
+        <p-_ i="0" repeat="[WHILE,  i < pix.length]" change="{i: i + 4}">
           <p-_ x="(i / 4) % width" y="floor(i / (width * 4))">
             <p-_ n="noise(x * 0.01, y * 0.01) * 255">
               <p-_ pix[i]="n" pix[i+1]="n" pix[i+2]="n"></p-_>

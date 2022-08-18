@@ -20,15 +20,8 @@ wrapMethod(
 
 p5.prototype.IF = p5.prototype.WHEN = "if";
 p5.prototype.ELSE = "else";
-const logicKeys = {
-  WHILE: "repeat_while",
-  WHILE_NOT: "repeat_until",
-};
-
-const attrIsLogic = (val) => {
-  const logicNames = Object.values(logicKeys);
-  return logicNames.includes(val);
-};
+p5.prototype.WHILE = "while";
+p5.prototype.UNTIL = "until";
 
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
@@ -77,17 +70,13 @@ const P5Extension = (baseClass) =>
       this.attrEvals.set(attr.name, evalFn);
     }
     setupEvalFns() {
-      const { WHILE, WHILE_NOT } = logicKeys;
-      if (
-        (this.logic === WHILE || this.logic === WHILE_NOT) &&
-        !this.hasAttr("change")
-      ) {
+      if (this.hasAttr("repeat") && !this.hasAttr("change")) {
         console.error(
-          `It looks like a ${this.constructor.elementName} has a ${this.logic} attribute ` +
-            `but does not have a change attribute. The change attribute is required to ` +
-            `prevent infinite loops`
+          `It looks like a ${this.constructor.elementName} has a repeat attribute ` +
+            "but does not have a change attribute. The change attribute is required to " +
+            "prevent infinite loops."
         );
-        this.removeAttribute(this.logic);
+        this.removeAttribute("repeat");
       }
       const { attributes } = this;
       for (let i = 0; i < attributes.length; i++) {
@@ -130,7 +119,7 @@ const P5Extension = (baseClass) =>
       p.pop();
     }
     drawIteration(p, persistent, assigned) {
-      const { WHILE, WHILE_NOT } = logicKeys;
+      const { WHILE } = p5.prototype;
       let repeat = true;
       while (repeat) {
         this.renderToCanvas?.(p, persistent, assigned);
@@ -139,13 +128,18 @@ const P5Extension = (baseClass) =>
           ? this.evalAttr(p, persistent, assigned, "change")
           : {};
         assigned = { ...assigned, ...changeObj };
-        const whileCond =
-          this.logic === WHILE && this.evalAttr(p, persistent, assigned, WHILE);
-        const whileNotCond =
-          this.logic === WHILE_NOT &&
-          this.evalAttr(p, persistent, assigned, WHILE_NOT) === false;
+        if (this.hasAttr("repeat")) {
+          const [key, ...conditions] = this.evalAttr(
+            p,
+            persistent,
+            assigned,
+            "repeat"
+          );
+          repeat = (key === WHILE) === conditions.every((c) => c);
+        } else {
+          repeat = false;
+        }
         this.endRender?.(p, assigned);
-        repeat = whileCond || whileNotCond;
       }
     }
     drawChildren(p, persistent, assigned) {
