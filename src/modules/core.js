@@ -18,13 +18,13 @@ wrapMethod(
     }
 );
 
+p5.prototype.IF = p5.prototype.WHEN = "if";
+p5.prototype.ELSE = "else";
 const logicKeys = {
-  IF: "show_if",
-  ELSE: "else_show",
-  ELSE_IF: "else_show_if",
   WHILE: "repeat_while",
   WHILE_NOT: "repeat_until",
 };
+
 const attrIsLogic = (val) => {
   const logicNames = Object.values(logicKeys);
   return logicNames.includes(val);
@@ -38,14 +38,18 @@ const P5Extension = (baseClass) =>
     static addTab(line) {
       return line.length && this.isBlock ? "\t" + line : line;
     }
-    anchorFirst() {
-      const anchorIndex = this.settings.indexOf("anchor");
-      this.settings = ["anchor"].concat(
-        this.settings.slice(0, anchorIndex),
-        this.settings.slice(anchorIndex + 1)
-      );
-    }
     attrEvals = new Map();
+    get attrNames() {
+      let anchorIndex = -1;
+      const names = Array.from(this.attributes).map(({ name }, i) => {
+        if (name === "anchor") anchorIndex = i;
+        return name;
+      });
+      if (anchorIndex <= 0) return names;
+      return ["anchor"]
+        .concat(names.slice(0, anchorIndex))
+        .concat(names.slice(anchorIndex + 1));
+    }
     setupEvalFn(attr) {
       const attrJsStr = attr.value;
       //  TODO - catch improperly ordered quote marks: "foo'var"'
@@ -107,38 +111,19 @@ const P5Extension = (baseClass) =>
     }
     evalAttr(pInst, persistent, assigned, attrName) {
       const evalFn = this.attrEvals.get(attrName);
-      if (typeof evalFn !== "function")
-        return console.error(
-          `${this.constructor.elementName} couldn't get ${attrName}`
-        );
+      if (typeof evalFn !== "function") return;
       return evalFn(pInst, persistent, assigned);
     }
     assignAttrVals(p, persistent, inherited) {
       const assigned = Object.assign({}, inherited);
-      const vars = this.settings.concat(this.vars);
-      for (let i = 0; i < vars.length; i++) {
-        this.evalAttr(p, persistent, assigned, vars[i]);
+      const { attrNames } = this;
+      for (let i = 0; i < attrNames.length; i++) {
+        this.evalAttr(p, persistent, assigned, attrNames[i]);
       }
       return assigned;
     }
     draw(p, persistent, inherited) {
-      const { IF, ELSE, ELSE_IF } = logicKeys;
-      if (
-        this.logic === IF &&
-        this.evalAttr(p, persistent, inherited, IF) === false
-      )
-        return;
-      const prevSib = this.previousElementSibling;
-      if (
-        (this.logic === ELSE || this.logic === ELSE_IF) &&
-        prevSib.evalAttr(p, persistent, inherited, prevSib.logic)
-      )
-        return;
-      if (
-        this.logic === ELSE_IF &&
-        this.evalAttr(p, persistent, inherited, ELSE_IF) === false
-      )
-        return;
+      if (this.showSelf(p, persistent, inherited) === false) return;
       p.push();
       const assigned = this.assignAttrVals(p, persistent, inherited);
       this.drawIteration(p, persistent, assigned);
@@ -174,30 +159,51 @@ const P5Extension = (baseClass) =>
     get html() {
       return this.outerHTML.replace(this.innerHTML, "");
     }
-    parseAttributes() {
-      [this.settings, this.vars, this.logic] = Array.from(
-        this.attributes
-      ).reduce(
-        ([s, v, l], { name: attr }) => {
-          if (AttrParseUtil.isP5(attr)) return [s.concat(attr), v, l];
-          if (attrIsLogic(attr)) {
-            if (l !== null) {
-              console.error(
-                `${this.constructor.elementName} has ${l} and ${attr} attributes, but can have only one.`
-              );
-              return [s, v, l];
-            }
-            return [s, v.concat(attr), attr];
-          }
-          return [s, v.concat(attr), l];
-        },
-        [[], [], null]
-      );
-      if (this.hasAttr("anchor")) this.anchorFirst();
-    }
     isPersistent(attrName) {
       if (this instanceof HTMLCanvasElement) return this.hasAttr(attrName);
       return this.parentElement?.isPersistent?.(attrName);
+    }
+    rootCondition(
+      p,
+      persistent,
+      inherited,
+      caller = this,
+      sib = this.previousElementSibling
+    ) {
+      if (sib.hasAttr("show") === false) {
+        console.error(
+          `${caller.constructor.elementName} has a show attribute` +
+            `with an ELSE key, but none of its previous siblings have an IF key. ` +
+            "Elements with an ELSE key only work if a previous sibling has an IF key."
+        );
+        return true;
+      }
+      const [key, ...conditions] = sib.evalAttr(
+        p,
+        persistent,
+        inherited,
+        "show"
+      );
+      const allTrue = conditions.every((c) => c);
+      if (allTrue) return true;
+      if (key !== p5.prototype.IF)
+        return this.rootCondition(
+          p,
+          persistent,
+          inherited,
+          caller,
+          sib.previousElementSibling
+        );
+    }
+    showSelf(p, persistent, inherited) {
+      const { IF } = p5.prototype;
+      if (this.hasAttr("show") === false) return true;
+      const attrVal = this.evalAttr(p, persistent, inherited, "show");
+      const [key, ...conditions] = Array.isArray(attrVal) ? attrVal : [attrVal];
+      const allTrue = conditions.every((c) => c);
+      if (allTrue === false) return false;
+      if (key === IF) return true;
+      return !this.rootCondition(p, persistent, inherited);
     }
     varInitialized(varName) {
       const [obj, ...props] = varName.split(".");
@@ -237,12 +243,12 @@ export class P5Function extends P5Element {
     let overloadMatch = false;
     //  Start with overloads with most parameters
     overloads.reverse();
-    if (overloads.length === 0) return [[], this.vars];
+    if (overloads.length === 0) return (this.params = []);
     for (const i in overloads) {
       const overloadParams = overloads[i].split(",").map((s) => s.trim());
       overloadMatch = overloadParams.every(
         (p) =>
-          this.vars.includes(p) ||
+          this.attrNames.includes(p) ||
           this.varInitialized(p) ||
           isOptional(p) ||
           p === ""
@@ -256,7 +262,7 @@ export class P5Function extends P5Element {
           const optional = isOptional(overloadParams[i]);
           const p = overloadParams[i].replaceAll(/\[|\]/g, "");
           //  If param defined on this element, add it to filtered params
-          if (this.vars.includes(p))
+          if (this.attrNames.includes(p))
             return filterParams(overloadParams, filteredParams.concat(p), ++i);
           //  If not defined on this element and optional, return filtered params
           if (optional) return filteredParams;
@@ -295,7 +301,6 @@ export class PositionedFunction extends P5Function {
     this.setAttr("anchor", anchorVal);
     this.setAttr(xParam, 0);
     this.setAttr(yParam, 0);
-    this.settings.unshift("anchor");
     const anchorAttr = this.attributes["anchor"];
     this.setupEvalFn(this.attributes[xParam]);
     this.setupEvalFn(this.attributes[yParam]);
@@ -355,10 +360,9 @@ registerElements(
       window.addEventListener("customElementsDefined", this.runCode.bind(this));
     }
     static constructorOptions = { extends: "canvas" };
-    parseAttributes() {
-      super.parseAttributes();
-      //  Remove 'is' attribute from vars
-      this.vars = this.vars.filter((v) => v !== "is");
+    get attrNames() {
+      //  Remove 'is' and 'style' from attrNames
+      return super.attrNames.filter((v) => v !== "is" && v != "style");
     }
     runCode() {
       Canvas.setupElement(this);
@@ -395,7 +399,7 @@ registerElements(
     };
 
     varInitialized(varName) {
-      if (this.vars.includes(varName)) return true;
+      if (this.attrNames.includes(varName)) return true;
       return super.varInitialized(varName);
     }
   },
@@ -412,17 +416,9 @@ registerElements(
         class extends P5Function {
           constructor() {
             super([attributes]);
-            const addAttribute = (obj, arr, attr) => {
-              arr.push(attr);
-              obj.setAttr(attr, custom.getAttr(attr));
-            };
-            custom.settings.forEach((s) =>
-              addAttribute(this, this.settings, s)
+            Array.from(custom.attributes).forEach((a) =>
+              this.setAttr(a.name, a.value)
             );
-            custom.vars.forEach((v) => {
-              if (v !== "name" && v != "attributes")
-                addAttribute(this, this.vars, v);
-            });
             const childClones = Array.from(custom.children).map((child) =>
               child.cloneNode(true)
             );

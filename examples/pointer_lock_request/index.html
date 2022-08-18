@@ -8,8 +8,8 @@
   </head>
   <body>
     <canvas width="100" height="100" is="p-canvas" canvas_background="220">
-      <p-_ show_if="mouse_down" pointer_lock_request="true"></p-_>
-      <p-_ show_if="pointer_lock_request">
+      <p-_ show="[IF, mouse_down]" pointer_lock_request="true"></p-_>
+      <p-_ show="[IF, pointer_lock_request]">
         <p-circle
           anchor="[width/2, height/2]"
           x="moved_x"
