@@ -71,11 +71,13 @@ For folks who want a foundation to build towards more complex imperative program
 
 My target audience for Marker are folks focused on creative work, rather than learning programming concepts.
 
+## Syntax
+
+Attribute values are evaluated as JavaScript, so JS syntax applies.
+
+All names are written in snake case, which looks_like_this: all lowercase with words separated by underscores. This is because DOM attributes are case insensitive.
+
 ## Core concepts
-
-### Case
-
-Marker uses snake case, which looks_like_this, meaning names are written in all lowercase with words separated by underscores.
 
 ### Elements
 
@@ -113,7 +115,7 @@ Attributes are passed down to an element's children.
 
 ![a square with upper left corner at (100, 100) and size 50 and a circle with its center at the same position with diameter 25](img/childExample.png)
 
-Attribute values are evaluated as JavaScript, and you can reference attributes from parents (grandparents, etc.).
+You can reference attributes from parents (grandparents, etc.).
 
 ```
 <square x="25" y="25" s="50">
