@@ -2,6 +2,7 @@
   "name": "p5-marker",
   "version": "0.0.0",
   "description": "A p5 add-on with custom html elements to create sketches declaratively.",
+  "type": "module",
   "main": "dist/p5.marker.js",
   "min": "dist/p5.marker.min.js",
   "targets": {
@@ -16,7 +17,7 @@
   "scripts": {
     "build": "npx parcel build && node utils/addBuildComment.mjs ",
     "docs": "npx jsdoc -c docs/jsdoc.json dist -r",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run build && npx mocha -r esm ./unit_tests",
     "watch": "npx parcel watch"
   },
   "keywords": [
@@ -28,7 +29,11 @@
   "author": "Caleb Foss",
   "license": "MIT",
   "devDependencies": {
+    "chai": "x",
+    "esm": "^3.2.25",
     "jsdoc": "^3.6.11",
+    "marker": "./src/index.js",
+    "mocha": "x",
     "p5": "x",
     "parcel": "latest"
   },
