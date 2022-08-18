@@ -2,6 +2,16 @@
 
 A [p5.js](https://p5js.org) wrapper for sketching declaratively in XML
 
+## Contents
+
+- [Motivation](#motivation)
+- [Syntax](#syntax)
+- [Core Concepts](#core-concepts)
+  - [Elements](#elements)
+  - [Attributes](#attributes)
+  - [Functions](#functions)
+- [API](#api)
+
 ## Motivation
 
 As a creative coding instructor, I have noticed a few things that beginners often find counterintuitive.
