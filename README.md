@@ -123,7 +123,7 @@ Attribute values are evaluated as JavaScript, and you can reference attributes f
 
 ![a square with upper left corner at (100, 100) and size 50 and a circle with its center 50 pixels to right of the square's upper left corner with diameter 25](img/childExample2.png)
 
-Attributes can be set to multiple values as an array.
+Attributes can be set to multiple values, separated by commas.
 
 ```
 <square x="25" y="25" s="50" fill_color="180, 40, 20">
