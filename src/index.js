@@ -1,3 +1,4 @@
+"use strict";
 import "./modules/core";
 import "./modules/environment";
 import "./modules/color";
