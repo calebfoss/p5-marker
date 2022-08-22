@@ -1,39 +1,4 @@
-import {
-  defineProperties,
-  registerElements,
-  wrapMethod,
-} from "../utils/p5Modifiers";
-import { P5Function } from "../modules/core";
-
-registerElements(
-  class Describe extends P5Function {
-    constructor() {
-      super(["text, [display]"]);
-    }
-  },
-  class DescribeElement extends P5Function {
-    constructor() {
-      super(["name, text, [display]"]);
-    }
-  },
-  class TextOutput extends P5Function {
-    constructor() {
-      super(["[display]"]);
-    }
-  },
-  class GridOutput extends P5Function {
-    constructor() {
-      super(["[display]"]);
-    }
-  },
-  class FrameRate extends P5Function {
-    constructor() {
-      super(["", "fps"]);
-    }
-  }
-);
-
-p5.prototype._setCursor = p5.prototype.cursor;
+import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
 p5.prototype.window_resized = false;
 wrapMethod(
@@ -52,6 +17,72 @@ p5.prototype.registerMethod("post", function () {
 p5.prototype._fullscreen = p5.prototype.fullscreen;
 p5.prototype._width = p5.prototype.width;
 p5.prototype._height = p5.prototype.height;
+
+p5.prototype._createDescriptionContainer = function () {
+  const cnvId = this.canvas.id;
+  const descriptionContainer = document.createElement("div");
+  descriptionContainer.setAttribute("id", `${cnvId}_Description`);
+  descriptionContainer.setAttribute("role", "region");
+  descriptionContainer.setAttribute("aria-label", "Canvas Description");
+  const p = document.createElement("p");
+  p.setAttribute("id", `${cnvId}_fallbackDesc`);
+  descriptionContainer.append(p);
+  this.canvas.append(descriptionContainer);
+  return descriptionContainer;
+};
+
+wrapMethod(
+  "_describeHTML",
+  (base) =>
+    function (type, text) {
+      const cnvId = this.canvas.id;
+      const describeId = `#${cnvId}_Description`;
+      if (type === "fallback" && !this.dummyDOM.querySelector(describeId)) {
+        const fallback = this._createDescriptionContainer().querySelector(
+          `#${cnvId}_fallbackDesc`
+        );
+        fallback.innerHTML = text;
+      } else {
+        base.call(this, type, text);
+      }
+    }
+);
+
+wrapMethod(
+  "_describeElementHTML",
+  (base) =>
+    function (type, name, text) {
+      const cnvId = this.canvas.id;
+      if (
+        type === "fallback" &&
+        !this.dummyDOM.querySelector(`#${cnvId}_Description`)
+      ) {
+        this._createDescriptionContainer();
+      }
+      base.call(this, type, name, text);
+    }
+);
+
+wrapMethod(
+  "_createOutput",
+  (base) =>
+    function (type, display) {
+      const cnvId = this.canvas.id;
+      if (!this.dummyDOM) {
+        this.dummyDOM = document.getElementById(cnvId).parentNode;
+      }
+      if (
+        (type === "textOutput" || type === "gridOutput") &&
+        !this.dummyDOM.querySelector(`#${cnvId}accessibleOutput${display}`)
+      )
+        this._createDescriptionContainer();
+      base.call(this, type, display);
+    }
+);
+
+p5.prototype.registerMethod("post", function () {
+  if (this.text_output || this.grid_output) this._updateAccsOutput();
+});
 
 defineProperties({
   cursor_type: {
@@ -110,12 +141,13 @@ defineProperties({
       return this.windowHeight;
     },
   },
-  fullscreen: {
+  grid_output: {
     get: function () {
-      return this._fullscreen();
+      return this._accessibleOutputs.grid;
     },
     set: function (val) {
-      this._fullscreen(val);
+      if (val) this.gridOutput(val);
+      else this.gridOutput();
     },
   },
   pixel_density: {
@@ -124,6 +156,14 @@ defineProperties({
     },
     set: function (val) {
       this.pixelDensity(val);
+    },
+  },
+  description: {
+    get: function () {
+      return this.sketch_description;
+    },
+    set: function (val) {
+      this.describeElement(...val);
     },
   },
   display_density: {
@@ -171,6 +211,31 @@ defineProperties({
   log: {
     set: function (val) {
       this.print(val);
+    },
+  },
+  sketch_description: {
+    get: function () {
+      const cnvId = this.canvas.id;
+      const descContainer = this.dummyDOM.querySelector(
+        `#${cnvId}_Description`
+      );
+      if (descContainer) return descContainer;
+      const labelContainer = this.dummyDOM.querySelector(`#${cnvId}_Label`);
+      return labelContainer;
+    },
+
+    set: function (val) {
+      if (Array.isArray(val)) this.describe(...val);
+      else this.describe(val);
+    },
+  },
+  text_output: {
+    get: function () {
+      return this._accessibleOutputs.text;
+    },
+    set: function (val) {
+      if (val === true) this.textOutput();
+      else this.textOutput(val);
     },
   },
 });
