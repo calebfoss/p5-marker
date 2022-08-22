@@ -175,23 +175,27 @@ Here is some temporary documentation to get started with Marker coming from p5.j
 
 #### Attributes
 
-| Name            | p5 equivalent                                                    | notes                      | example |
-| --------------- | ---------------------------------------------------------------- | -------------------------- | ------- |
-| log             | [print](https://p5js.org/reference/#/p5/print)                   |                            |         |
-| frame_count     | [frameCount](https://p5js.org/reference/#/p5/frameCount)         | read only                  |         |
-| delta_time      | [deltaTime](https://p5js.org/reference/#/p5/deltaTime)           | read only                  |
-| focused         | [focused](https://p5js.org/reference/#/p5/focused)               | unchanged                  |         |
-| cursor          | [cursor](https://p5js.org/reference/#/p5/cursor)                 | for noCursor() set to NONE |
-| display_width   | [displayWidth](https://p5js.org/reference/#/p5/displayWidth)     |
-| display_height  | [displayHeight](https://p5js.org/reference/#/p5/windowHeight)    |
-| window_width    | [windowWidth](https://p5js.org/reference/#/p5/windowWidth)       |
-| window_height   | [windowHeight](https://p5js.org/reference/#/p5/windowHeight)     |
-| window_resized  | [windowResized](https://p5js.org/reference/#/p5/windowResized)   | boolean instead of event   |
-| width           | [width](https://p5js.org/reference/#/p5/width)                   | resizes canvas when set    |
-| height          | [height](https://p5js.org/reference/#/p5/height)                 | resizes canvas when set    |
-| fullscreen      | [fullscreen](https://p5js.org/reference/#/p5/fullscreen)         |
-| pixel_density   | [pixelDensity](https://p5js.org/reference/#/p5/pixelDensity)     |
-| display_density | [displayDensity](https://p5js.org/reference/#/p5/displayDensity) |
-| url             | [getURL](https://p5js.org/reference/#/getURL)                    | read only                  |
-| url_path        | [getURLPath](https://p5js.org/reference/#/getURLPath)            | read only                  |
-| url_params      | [getURLParams](https://p5js.org/reference/#/getURLParams)        | read only                  |
+| Name               | p5 equivalent                                                      | notes                      | example                                              |
+| ------------------ | ------------------------------------------------------------------ | -------------------------- | ---------------------------------------------------- |
+| sketch_description | [describe](https://p5js.org/reference/#/p5/describe)               |                            | https://editor.p5js.org/p5.marker/sketches/AQI3rpdM2 |
+| description        | [describeElement](https://p5js.org/reference/#/p5/describeElement) |                            | https://editor.p5js.org/p5.marker/sketches/Bdvm9mDn9 |
+| text_output        | [textOutput](https://p5js.org/reference/#/p5/textOutput)           |                            | https://editor.p5js.org/p5.marker/sketches/ICfy887zX |
+| grid_output        | [gridOutput](https://p5js.org/reference/#/p5/gridOutput)           |                            | https://editor.p5js.org/p5.marker/sketches/BUDM-xKT9 |
+| log                | [print](https://p5js.org/reference/#/p5/print)                     |                            |                                                      |
+| frame_count        | [frameCount](https://p5js.org/reference/#/p5/frameCount)           | read-only                  |                                                      |
+| delta_time         | [deltaTime](https://p5js.org/reference/#/p5/deltaTime)             | read-only                  |
+| focused            | [focused](https://p5js.org/reference/#/p5/focused)                 |                            |                                                      |
+| cursor_type        | [cursor](https://p5js.org/reference/#/p5/cursor)                   | for noCursor() set to NONE |
+| display_width      | [displayWidth](https://p5js.org/reference/#/p5/displayWidth)       | read-only                  |
+| display_height     | [displayHeight](https://p5js.org/reference/#/p5/windowHeight)      | read-only                  |
+| window_width       | [windowWidth](https://p5js.org/reference/#/p5/windowWidth)         | read-only                  |
+| window_height      | [windowHeight](https://p5js.org/reference/#/p5/windowHeight)       | read-only                  |
+| window_resized     | [windowResized](https://p5js.org/reference/#/p5/windowResized)     | boolean instead of event   |
+| width              | [width](https://p5js.org/reference/#/p5/width)                     | resizes canvas when set    |
+| height             | [height](https://p5js.org/reference/#/p5/height)                   | resizes canvas when set    |
+| fullscreen         | [fullscreen](https://p5js.org/reference/#/p5/fullscreen)           |
+| pixel_density      | [pixelDensity](https://p5js.org/reference/#/p5/pixelDensity)       |
+| display_density    | [displayDensity](https://p5js.org/reference/#/p5/displayDensity)   | read-only                  |
+| url                | [getURL](https://p5js.org/reference/#/getURL)                      | read-only                  |
+| url_path           | [getURLPath](https://p5js.org/reference/#/getURLPath)              | read-only                  |
+| url_params         | [getURLParams](https://p5js.org/reference/#/getURLParams)          | read-only                  |
