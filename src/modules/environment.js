@@ -79,6 +79,27 @@ defineProperties({
       return this.displayHeight;
     },
   },
+  frame_count: {
+    get: function () {
+      return this.frameCount;
+    },
+  },
+  frame_rate: {
+    get: function () {
+      return this._frameRate;
+    },
+    set: function (val) {
+      this.frameRate(val);
+    },
+  },
+  fullscreen: {
+    get: function () {
+      return this._fullscreen();
+    },
+    set: function (val) {
+      this._fullscreen(val);
+    },
+  },
   window_width: {
     get: function () {
       return this.windowWidth;
