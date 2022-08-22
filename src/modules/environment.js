@@ -146,8 +146,8 @@ defineProperties({
       return this._accessibleOutputs.grid;
     },
     set: function (val) {
-      if (val) this.gridOutput(val);
-      else this.gridOutput();
+      if (val === true) this.gridOutput();
+      else this.gridOutput(val);
     },
   },
   pixel_density: {
