@@ -142,7 +142,7 @@ const P5Extension = (baseClass) =>
     }
     drawChildren(p, persistent, assigned) {
       for (let c = 0; c < this.children.length; c++) {
-        this.children[c].draw(p, persistent, assigned);
+        this.children[c].draw?.(p, persistent, assigned);
       }
     }
     static get elementName() {
@@ -314,6 +314,11 @@ export class PositionedFunction extends P5Function {
 p5.prototype.assignCanvas = function (c, r) {
   this.noCanvas();
   const mainDiv = document.querySelector("main");
+  let index = 0;
+  if (typeof c.id === "undefined") {
+    while (document.querySelector(`p5MarkerCanvas${index}`)) index++;
+  }
+  c.id = `p5MarkerCanvas${index}`;
   if (mainDiv.children.length === 0) mainDiv.remove();
   if (r === this.WEBGL) {
     this._setProperty("_renderer", new p5.RendererGL(c, this, true));
