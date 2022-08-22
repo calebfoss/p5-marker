@@ -153,19 +153,14 @@ Functions are called within attribute values to calculate a value.
 p5.js functions that return a value, rather than render something to the canvas, have a snake case alias.
 
 ```
-<square
-    x="25"
-    y="25"
-    s="50"
-    fill_color="180, 40, 20"
-    stroke_color="200, 200, 100"
-    stroke_weight="4"
-  >
-  <circle d="25" fill_color="lerp_color(fill_color, stroke_color, 0.5)" />
-</square>
+<canvas width="100" height="100" canvas_background="255">
+  <square x="25" y="25" s="50" fill_color="0">
+    <circle d="25" fill_color="lerp_color(fill_color, canvas_background, 0.5)"/>
+  </square>
+</canvas>
 ```
 
-![a red square with yellow outline and an orange circle with yellow outline over the square's upper left corner](img/childExample4.png)
+![a black square and a gray circle over the square's upper left corner](img/childExample4.png)
 
 ## API
 
