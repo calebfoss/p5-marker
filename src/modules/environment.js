@@ -54,18 +54,14 @@ p5.prototype._width = p5.prototype.width;
 p5.prototype._height = p5.prototype.height;
 
 defineProperties({
-  cursor: {
+  cursor_type: {
     get: function () {
       return this.canvas?.style.cursor;
     },
     set: function (val) {
-      if (Array.isArray(val)) this._setCursor(...val);
-      else this._setCursor(val);
-    },
-  },
-  frame_count: {
-    get: function () {
-      return this.frameCount;
+      if (val === this.NONE) this.noCursor();
+      else if (Array.isArray(val)) this.cursor(...val);
+      else this.cursor(val);
     },
   },
   delta_time: {
