@@ -1,8 +1,8 @@
 export class AttrParseUtil {
   static {
     const notExistingObjProp = "(?<!\\.)";
-    const legalVarName = "\\b[a-z$_][a-z0-9$_]*\\b(?!\\s*:)";
-    const notNewObjProp = "(?!s*:[^{]*})";
+    const legalVarName = "\\b[a-z$_][a-z0-9$_]*\\b";
+    const notNewObjProp = "(?:(?!\\s*:)|(?<=\\?[^,]*))";
     const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
     const notNewKeyword = "(?<!\\bnew\\b)";
     const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
@@ -11,7 +11,7 @@ export class AttrParseUtil {
     const varName = new RegExp(
       notExistingObjProp +
         legalVarName +
-        notExistingObjProp +
+        notNewObjProp +
         notBoolean +
         notNewKeyword +
         notProceededByOpenString,
