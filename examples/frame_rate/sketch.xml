@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<canvas width="400" height="400" canvas_background="220" y="0">
+    <text content="int(frame_rate)" x="20" y="y + 1" text_size="40" text_align="LEFT, TOP">
+        <_ show="IF, y >= height" y="0" frame_rate="frame_rate/2" />
+    </text>
+</canvas>
