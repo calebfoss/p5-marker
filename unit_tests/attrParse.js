@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { AttrParseUtil } from "../src/utils/attrParse.js";
 
 describe("AttrParseUtil", () => {
-  const { allQuotesMatched, encloseList } = AttrParseUtil;
+  const { allQuotesMatched, encloseList, replaceVarNames } = AttrParseUtil;
   const quoteTests = [
     "'a'bc",
     "a'b'c",
@@ -27,6 +27,15 @@ describe("AttrParseUtil", () => {
   });
   it("should not wrap this in brackets", (done) => {
     expect(encloseList("[a,b,c]")).to.equal("[a,b,c]");
+    done();
+  });
+
+  it("should filter out object property names but allow ternary operators", (done) => {
+    expect(
+      "{prop: val1, prop: val2 === val3 ? val4 : val5}".match(
+        AttrParseUtil.regex.varName
+      )
+    ).deep.to.equal(["val1", "val2", "val3", "val4", "val5"]);
     done();
   });
 });
