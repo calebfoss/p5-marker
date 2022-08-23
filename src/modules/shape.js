@@ -8,7 +8,7 @@ import { P5Function, PositionedFunction } from "./core";
 registerElements(
   class Arc extends PositionedFunction {
     constructor() {
-      super(["x, y, w, h, start, stop, [mode], [detail], image, [a]"]);
+      super(["x, y, w, h, start, stop, [mode], [detail], [a]"]);
     }
   },
   class Ellipse extends PositionedFunction {
