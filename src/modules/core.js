@@ -180,7 +180,7 @@ const P5Extension = (baseClass) =>
       caller = this,
       sib = this.previousElementSibling
     ) {
-      if (sib.hasAttr("show") === false) {
+      if (!sib || sib.hasAttr("show") === false) {
         console.error(
           `${caller.constructor.elementName} has a show attribute` +
             `with an ELSE key, but none of its previous siblings have an IF key. ` +
@@ -205,11 +205,11 @@ const P5Extension = (baseClass) =>
           sib.previousElementSibling
         );
     }
-    showSelf(p, persistent, inherited) {
+    showSelf(p, persistent, inherited, assigned) {
+      const { show } = assigned;
       const { IF } = p5.prototype;
-      if (this.hasAttr("show") === false) return true;
-      const attrVal = this.evalAttr(p, persistent, inherited, "show");
-      const [key, ...conditions] = Array.isArray(attrVal) ? attrVal : [attrVal];
+      if (typeof show === "boolean") return show;
+      const [key, ...conditions] = Array.isArray(show) ? show : [show];
       const allTrue = conditions.every((c) => c);
       if (allTrue === false) return false;
       if (key === IF) return true;
