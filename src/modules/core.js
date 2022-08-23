@@ -265,19 +265,9 @@ export class P5Function extends P5Element {
         };
         this.params = filterParams(overloadParams);
         return;
-      }
+      } else if (i === overloads.length - 1)
+        this.params = overloadParams.filter((param) => !isOptional(param));
     }
-    console.error(
-      `${
-        this.constructor.elementName
-      } has the following attributes: ${Array.from(this.attributes)
-        .map(({ name }) => name)
-        .join(", ")}\n` +
-        `but it must have one of the following combinations of attributes:\n${overloads.join(
-          "\n"
-        )}\n\n` +
-        this.outerHTML
-    );
   }
 }
 
@@ -378,9 +368,44 @@ registerElements(
           pInst.assignCanvas(canvas, renderer);
           canvas.assignAttrVals(pInst, persistent, {});
         };
+        const defaults = {
+          x: 0,
+          x1: 0,
+          x2: 0,
+          x3: 100,
+          x4: 100,
+          cx: 0,
+          y: 0,
+          y1: 0,
+          y2: 100,
+          y3: 100,
+          y4: 0,
+          cy: 0,
+          z: 0,
+          w: 100,
+          h: 100,
+          d: 100,
+          s: 100,
+          start: 0,
+          stop: pInst.PI,
+          vector: pInst.createVector(),
+          v1: 255,
+          v2: 255,
+          v3: 255,
+          rx: 1,
+          ry: 1,
+          rz: -1,
+          img: pInst.createImage(100, 100),
+          content: "",
+          show: true,
+          repeat: false,
+        };
+        Object.getOwnPropertyNames(persistent).forEach(
+          (name) => delete defaults[name]
+        );
 
         pInst.draw = function () {
-          canvas.drawChildren(pInst, persistent, {});
+          canvas.drawChildren(pInst, persistent, defaults);
         };
       };
       new p5(sketch);
