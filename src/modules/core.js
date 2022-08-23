@@ -236,7 +236,7 @@ export class P5Function extends P5Element {
     //  Start with overloads with most parameters
     overloads.reverse();
     if (overloads.length === 0) return (this.params = []);
-    for (const i in overloads) {
+    for (let i = 0; i < overloads.length; i++) {
       const overloadParams = overloads[i].split(",").map((s) => s.trim());
       overloadMatch = overloadParams.every(
         (p) =>
