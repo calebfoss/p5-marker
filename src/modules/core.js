@@ -110,9 +110,9 @@ const P5Extension = (baseClass) =>
       return assigned;
     }
     draw(p, persistent, inherited) {
-      if (this.showSelf(p, persistent, inherited) === false) return;
       p.push();
       const assigned = this.assignAttrVals(p, persistent, inherited);
+      if (this.showSelf(p, persistent, inherited, assigned) === false) return;
       this.drawIteration(p, persistent, assigned);
       p.pop();
     }
