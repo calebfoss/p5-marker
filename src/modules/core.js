@@ -109,6 +109,27 @@ const P5Extension = (baseClass) =>
       }
       return assigned;
     }
+    change(p, persistent, assigned) {
+      const change = this.evalAttr(p, persistent, assigned, "change");
+      let changed = false;
+      const assignProp = (obj, prop) => {
+        if (prop in obj) {
+          changed ||= obj[prop] !== change[prop];
+          obj[prop] = change[prop];
+          return true;
+        }
+        return false;
+      };
+      for (const prop in change) {
+        assignProp(assigned, prop) ||
+          assignProp(persistent, prop) ||
+          assignProp(p, prop) ||
+          console.error(
+            `${this.constructor.elementName}'s change attribute has a prop called ${prop} that is unknown`
+          );
+      }
+      return changed;
+    }
     draw(p, persistent, inherited) {
       p.push();
       const assigned = this.assignAttrVals(p, persistent, inherited);
@@ -122,11 +143,10 @@ const P5Extension = (baseClass) =>
       while (repeat) {
         this.renderToCanvas?.(p, persistent, assigned);
         this.drawChildren(p, persistent, assigned);
-        const changeObj = this.hasAttr("change")
-          ? this.evalAttr(p, persistent, assigned, "change")
-          : {};
-        assigned = { ...assigned, ...changeObj };
-        if (this.hasAttr("repeat")) {
+        const changed = this.change(p, persistent, assigned);
+        if (!changed) repeat = false;
+        else if (typeof assigned.repeat === "boolean") repeat = assigned.repeat;
+        else {
           const [key, ...conditions] = this.evalAttr(
             p,
             persistent,
@@ -134,8 +154,6 @@ const P5Extension = (baseClass) =>
             "repeat"
           );
           repeat = (key === WHILE) === conditions.every((c) => c);
-        } else {
-          repeat = false;
         }
         this.endRender?.(p, assigned);
       }
