@@ -1,6 +1,10 @@
 import { pascalToCamel, pascalToKebab } from "../utils/caseConvert";
 import { AttrParseUtil } from "../utils/attrParse";
-import { registerElements, wrapMethod } from "../utils/p5Modifiers";
+import {
+  registerElements,
+  wrapMethod,
+  defineProperties,
+} from "../utils/p5Modifiers";
 
 p5.prototype._customElements = [];
 
@@ -22,6 +26,48 @@ p5.prototype.IF = p5.prototype.WHEN = "if";
 p5.prototype.ELSE = "else";
 p5.prototype.WHILE = "while";
 p5.prototype.UNTIL = "until";
+
+p5.prototype.assignCanvas = function (c, r) {
+  this.noCanvas();
+  const mainDiv = document.querySelector("main");
+  let index = 0;
+  if (typeof c.id === "undefined") {
+    while (document.querySelector(`p5MarkerCanvas${index}`)) index++;
+  }
+  c.id = `p5MarkerCanvas${index}`;
+  if (mainDiv.children.length === 0) mainDiv.remove();
+  if (r === this.WEBGL) {
+    this._setProperty("_renderer", new p5.RendererGL(c, this, true));
+  } else {
+    //P2D mode
+    this._setProperty("_renderer", new p5.Renderer2D(c, this, true));
+  }
+  this._renderer._applyDefaults();
+  this._setProperty("_elements", [this._renderer]);
+  this.resizeCanvas(c.width, c.height);
+};
+
+p5.prototype.assets = {};
+
+p5.prototype.loadAssets = async function () {
+  const assetElements = Array.from(document.querySelectorAll("p-asset"));
+  const pInst = this;
+  const promises = assetElements.map((el) => el.load(pInst));
+  const results = await Promise.all(promises);
+  results.forEach(
+    (result, i) => (this.assets[assetElements[i].getAttribute("name")] = result)
+  );
+  this._decrementPreload();
+};
+p5.prototype.registerPreloadMethod("loadAssets", p5.prototype);
+
+defineProperties({
+  object_assign: {
+    set: function ([target, ...sources]) {
+      Object.assign(target, ...sources);
+    },
+  },
+});
 
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
@@ -333,40 +379,6 @@ export class PositionedFunction extends P5Function {
       this.setAnchorToXY();
   }
 }
-
-p5.prototype.assignCanvas = function (c, r) {
-  this.noCanvas();
-  const mainDiv = document.querySelector("main");
-  let index = 0;
-  if (typeof c.id === "undefined") {
-    while (document.querySelector(`p5MarkerCanvas${index}`)) index++;
-  }
-  c.id = `p5MarkerCanvas${index}`;
-  if (mainDiv.children.length === 0) mainDiv.remove();
-  if (r === this.WEBGL) {
-    this._setProperty("_renderer", new p5.RendererGL(c, this, true));
-  } else {
-    //P2D mode
-    this._setProperty("_renderer", new p5.Renderer2D(c, this, true));
-  }
-  this._renderer._applyDefaults();
-  this._setProperty("_elements", [this._renderer]);
-  this.resizeCanvas(c.width, c.height);
-};
-
-p5.prototype.assets = {};
-
-p5.prototype.loadAssets = async function () {
-  const assetElements = Array.from(document.querySelectorAll("p-asset"));
-  const pInst = this;
-  const promises = assetElements.map((el) => el.load(pInst));
-  const results = await Promise.all(promises);
-  results.forEach(
-    (result, i) => (this.assets[assetElements[i].getAttribute("name")] = result)
-  );
-  this._decrementPreload();
-};
-p5.prototype.registerPreloadMethod("loadAssets", p5.prototype);
 
 registerElements(
   class _ extends P5Element {

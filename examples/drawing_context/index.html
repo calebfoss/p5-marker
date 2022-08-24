@@ -15,13 +15,12 @@
       canvas_background="200"
       animate="false"
     >
-      <!-- TODO more elegant solution? -->
       <p-ellipse
         x="width / 2"
         y="height / 2"
         w="50"
         h="50"
-        _="Object.assign(drawing_context, {shadowOffsetX: 5, shadowOffsetY: -5, shadowBlur: 10, shadowColor: 'black'})"
+        object_assign="drawing_context, {shadowOffsetX: 5, shadowOffsetY: -5, shadowBlur: 10, shadowColor: 'black'}"
       ></p-ellipse>
     </canvas>
   </body>
