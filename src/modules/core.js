@@ -105,7 +105,20 @@ const P5Extension = (baseClass) =>
       const assigned = Object.assign({}, inherited);
       const { attrNames } = this;
       for (let i = 0; i < attrNames.length; i++) {
-        this.evalAttr(p, persistent, assigned, attrNames[i]);
+        const attrName = attrNames[i];
+        const val = this.evalAttr(p, persistent, assigned, attrName);
+        //  Setting canvas width or height resets the drawing context
+        //  Only set the attribute if it's not one of those
+        if (assigned.debug_attributes === false) continue;
+        if (
+          this instanceof HTMLCanvasElement &&
+          (attrName !== "width" || attrName !== "height")
+        )
+          continue;
+        this.setAttr(
+          attrName,
+          typeof val === "object" ? JSON.stringify(val) : val
+        );
       }
       return assigned;
     }
@@ -114,8 +127,10 @@ const P5Extension = (baseClass) =>
       let changed = false;
       const assignProp = (obj, prop) => {
         if (prop in obj) {
-          changed ||= obj[prop] !== change[prop];
-          obj[prop] = change[prop];
+          const changeVal = change[prop];
+          changed ||= obj[prop] !== changeVal;
+          obj[prop] = changeVal;
+          if (assigned.debug_attributes) this.setAttr(prop, changeVal);
           return true;
         }
         return false;
@@ -417,6 +432,7 @@ registerElements(
           content: "",
           show: true,
           repeat: false,
+          debug_attributes: true,
         };
         Object.getOwnPropertyNames(persistent).forEach(
           (name) => delete defaults[name]
