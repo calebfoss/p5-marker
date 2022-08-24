@@ -1,6 +1,6 @@
 export class AttrParseUtil {
   static {
-    const notExistingObjProp = "(?<!\\.)";
+    const notExistingObjProp = "(?<![^\\.]\\.)";
     const legalVarName = "\\b[a-z$_][a-z0-9$_]*\\b";
     const notNewObjProp = "(?:(?!\\s*:)|(?<=\\?[^,]*))";
     const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
