@@ -102,7 +102,7 @@ const P5Extension = (baseClass) =>
         this,
         attrJsStr
       );
-      const varValue = AttrParseUtil.encloseList(attrValueVarsReplaced);
+      const varValue = AttrParseUtil.enclose(attrValueVarsReplaced);
       const evalFnName = `${this.constructor.name}_${attr.name.replace(
         /[^a-z0-9]/g,
         "_"
@@ -161,6 +161,8 @@ const P5Extension = (baseClass) =>
           (attrName !== "width" || attrName !== "height")
         )
           continue;
+        //  Brackets will throw a 'not a valid attribute name' error
+        if (attrName.match(/[\[\]]/)) continue;
         this.setAttr(
           attrName,
           typeof val === "object" ? JSON.stringify(val) : val

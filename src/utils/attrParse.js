@@ -6,8 +6,6 @@ export class AttrParseUtil {
     const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
     const notNewKeyword = "(?<!\\bnew\\b)";
     const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
-    const unenclosedList =
-      /^[^[{\(]*?(?:(?:\[.*?])*(?:{.*?})*(?:\(.*?\))*)*,.*$/gi;
     const varName = new RegExp(
       notExistingObjProp +
         legalVarName +
@@ -24,7 +22,6 @@ export class AttrParseUtil {
       notBoolean,
       notNewKeyword,
       notProceededByOpenString,
-      unenclosedList,
       varName,
     };
   }
@@ -36,8 +33,16 @@ export class AttrParseUtil {
     }
     return true;
   }
-  static encloseList = (str) =>
-    str.replace(AttrParseUtil.regex.unenclosedList, "[$&]");
+  static enclose = (str) => {
+    const strMinusStrings = str.replace(/(["'`]).*?\1/gi, "");
+    const items = strMinusStrings.split(/(?<!{[^}]*),/gi);
+    const isObject = items.some((item) => item.match(/^[^\?\{]*:/gi));
+    if (items.length === 1 && !isObject) return str;
+    const isUnenclosed = str.match(/^[^\(]*[,:]/gi) !== null;
+    if (!isUnenclosed) return str;
+    if (isObject) return `{${str}}`;
+    return `[${str}]`;
+  };
   static isP5 = (name) => p5.prototype.hasOwnProperty(name);
   static replaceVarNames(el, str) {
     return str.replace(AttrParseUtil.regex.varName, (varName) => {
