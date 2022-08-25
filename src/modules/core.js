@@ -74,85 +74,6 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
     }
-    static addTab(line) {
-      return line.length && this.isBlock ? "\t" + line : line;
-    }
-    attrEvals = new Map();
-    get attrNames() {
-      let anchorIndex = -1;
-      const names = Array.from(this.attributes).map(({ name }, i) => {
-        if (name === "anchor") anchorIndex = i;
-        return name;
-      });
-      if (anchorIndex <= 0) return names;
-      return ["anchor"]
-        .concat(names.slice(0, anchorIndex))
-        .concat(names.slice(anchorIndex + 1));
-    }
-    setupEvalFn(attr) {
-      const attrJsStr = attr.value;
-      //  TODO - catch improperly ordered quote marks: "foo'var"'
-      if (AttrParseUtil.allQuotesMatched(attrJsStr) === false)
-        console.error(
-          `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
-            `attribute has an open string. Check that each string has a beginning and end character.`
-        );
-      const varName = AttrParseUtil.replaceVarNames(this, attr.name);
-      const attrValueVarsReplaced = AttrParseUtil.replaceVarNames(
-        this,
-        attrJsStr
-      );
-      const varValue = AttrParseUtil.enclose(attrValueVarsReplaced);
-      const evalFnName = `${this.constructor.name}_${attr.name.replace(
-        /[^a-z0-9]/g,
-        "_"
-      )}`;
-      const fnHeader = `return function ${evalFnName}(_pInst, _persistent, _assigned) {`;
-      const fnBody = `return ${varName} = ${varValue};\n};`;
-      const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
-      const evalFn = new Function(fnStr)();
-      this.attrEvals.set(attr.name, evalFn);
-    }
-    setupEvalFns() {
-      if (this.hasAttr("repeat") && !this.hasAttr("change")) {
-        console.error(
-          `It looks like a ${this.constructor.elementName} has a repeat attribute ` +
-            "but does not have a change attribute. The change attribute is required to " +
-            "prevent infinite loops."
-        );
-        this.removeAttribute("repeat");
-      }
-      const { attributes } = this;
-      for (let i = 0; i < attributes.length; i++) {
-        this.setupEvalFn(attributes[i]);
-      }
-    }
-    getInheritedAttr(attrName) {
-      if (this instanceof HTMLCanvasElement) return;
-      if (this.parentElement.hasAttr(attrName))
-        return this.parentElement.getAttr(attrName);
-      return this.parentElement.getInheritedAttr(attrName);
-    }
-    getAttr = this.getAttribute;
-    hasAttr = this.hasAttribute;
-    setAttr = this.setAttribute;
-    get comments() {
-      return this.html
-        .split(/(?:\r\n|\r|\n)/)
-        .map((line) => line.match(/.{1,80}/g))
-        .flat()
-        .map((line) => "//\t" + line);
-    }
-    evalAttr(pInst, persistent, assigned, attrName) {
-      if (this.attrEvals.has(attrName)) {
-        const evalFn = this.attrEvals.get(attrName);
-        return evalFn(pInst, persistent, assigned);
-      }
-      if (attrName in assigned) return assigned[attrName];
-      if (attrName in persistent) return persistent[attrName];
-      if (attrName in pInst) return pInst[attrName];
-      return;
-    }
     assignAttrVals(p, persistent, inherited) {
       const assigned = Object.assign({}, inherited);
       const { attrNames } = this;
@@ -175,6 +96,18 @@ const P5Extension = (baseClass) =>
         );
       }
       return assigned;
+    }
+    attrEvals = new Map();
+    get attrNames() {
+      let anchorIndex = -1;
+      const names = Array.from(this.attributes).map(({ name }, i) => {
+        if (name === "anchor") anchorIndex = i;
+        return name;
+      });
+      if (anchorIndex <= 0) return names;
+      return ["anchor"]
+        .concat(names.slice(0, anchorIndex))
+        .concat(names.slice(anchorIndex + 1));
     }
     change(p, persistent, assigned) {
       const change = this.evalAttr(p, persistent, assigned, "change");
@@ -207,6 +140,11 @@ const P5Extension = (baseClass) =>
       this.drawIteration(p, persistent, assigned);
       p.pop();
     }
+    drawChildren(p, persistent, assigned) {
+      for (let c = 0; c < this.children.length; c++) {
+        this.children[c].draw?.(p, persistent, assigned);
+      }
+    }
     drawIteration(p, persistent, assigned) {
       const { WHILE } = p5.prototype;
       let repeat = true;
@@ -228,13 +166,34 @@ const P5Extension = (baseClass) =>
         this.endRender?.(p, assigned);
       }
     }
-    drawChildren(p, persistent, assigned) {
-      for (let c = 0; c < this.children.length; c++) {
-        this.children[c].draw?.(p, persistent, assigned);
-      }
-    }
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
+    }
+    evalAttr(pInst, persistent, assigned, attrName) {
+      if (this.attrEvals.has(attrName)) {
+        const evalFn = this.attrEvals.get(attrName);
+        return evalFn(pInst, persistent, assigned);
+      }
+      if (attrName in assigned) return assigned[attrName];
+      if (attrName in persistent) return persistent[attrName];
+      if (attrName in pInst) return pInst[attrName];
+      return;
+    }
+    getInheritedAttr(attrName) {
+      if (this instanceof HTMLCanvasElement) return;
+      if (this.parentElement.hasAttr(attrName))
+        return this.parentElement.getAttr(attrName);
+      return this.parentElement.getInheritedAttr(attrName);
+    }
+    getAttr = this.getAttribute;
+    hasAttr = this.hasAttribute;
+    setAttr = this.setAttribute;
+    get comments() {
+      return this.html
+        .split(/(?:\r\n|\r|\n)/)
+        .map((line) => line.match(/.{1,80}/g))
+        .flat()
+        .map((line) => "//\t" + line);
     }
     get html() {
       return this.outerHTML.replace(this.innerHTML, "");
@@ -274,6 +233,44 @@ const P5Extension = (baseClass) =>
           caller,
           sib.previousElementSibling
         );
+    }
+    setupEvalFn(attr) {
+      const attrJsStr = attr.value;
+      //  TODO - catch improperly ordered quote marks: "foo'var"'
+      if (AttrParseUtil.allQuotesMatched(attrJsStr) === false)
+        console.error(
+          `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
+            `attribute has an open string. Check that each string has a beginning and end character.`
+        );
+      const varName = AttrParseUtil.replaceVarNames(this, attr.name);
+      const attrValueVarsReplaced = AttrParseUtil.replaceVarNames(
+        this,
+        attrJsStr
+      );
+      const varValue = AttrParseUtil.enclose(attrValueVarsReplaced);
+      const evalFnName = `${this.constructor.name}_${attr.name.replace(
+        /[^a-z0-9]/g,
+        "_"
+      )}`;
+      const fnHeader = `return function ${evalFnName}(_pInst, _persistent, _assigned) {`;
+      const fnBody = `return ${varName} = ${varValue};\n};`;
+      const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
+      const evalFn = new Function(fnStr)();
+      this.attrEvals.set(attr.name, evalFn);
+    }
+    setupEvalFns() {
+      if (this.hasAttr("repeat") && !this.hasAttr("change")) {
+        console.error(
+          `It looks like a ${this.constructor.elementName} has a repeat attribute ` +
+            "but does not have a change attribute. The change attribute is required to " +
+            "prevent infinite loops."
+        );
+        this.removeAttribute("repeat");
+      }
+      const { attributes } = this;
+      for (let i = 0; i < attributes.length; i++) {
+        this.setupEvalFn(attributes[i]);
+      }
     }
     showSelf(p, persistent, inherited, show) {
       const { IF } = p5.prototype;
