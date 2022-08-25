@@ -74,26 +74,30 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
     }
+    assignAttrVal(p, persistent, assigned, attrName) {
+      const val = this.evalAttr(p, persistent, assigned, attrName);
+      //  Setting canvas width or height resets the drawing context
+      //  Only set the attribute if it's not one of those
+      if (assigned.debug_attributes === false) return val;
+      if (
+        this instanceof HTMLCanvasElement &&
+        (attrName !== "width" || attrName !== "height")
+      )
+        return val;
+      //  Brackets will throw a 'not a valid attribute name' error
+      if (attrName.match(/[\[\]]/)) return val;
+      this.setAttr(
+        attrName,
+        typeof val === "object" ? JSON.stringify(val) : val
+      );
+      return val;
+    }
     assignAttrVals(p, persistent, inherited) {
       const assigned = Object.assign({}, inherited);
       const { attrNames } = this;
       for (let i = 0; i < attrNames.length; i++) {
         const attrName = attrNames[i];
-        const val = this.evalAttr(p, persistent, assigned, attrName);
-        //  Setting canvas width or height resets the drawing context
-        //  Only set the attribute if it's not one of those
-        if (assigned.debug_attributes === false) continue;
-        if (
-          this instanceof HTMLCanvasElement &&
-          (attrName !== "width" || attrName !== "height")
-        )
-          continue;
-        //  Brackets will throw a 'not a valid attribute name' error
-        if (attrName.match(/[\[\]]/)) continue;
-        this.setAttr(
-          attrName,
-          typeof val === "object" ? JSON.stringify(val) : val
-        );
+        this.assignAttrVal(p, persistent, assigned, attrName);
       }
       return assigned;
     }
@@ -110,7 +114,7 @@ const P5Extension = (baseClass) =>
         .concat(names.slice(anchorIndex + 1));
     }
     change(p, persistent, assigned) {
-      const change = this.evalAttr(p, persistent, assigned, "change");
+      const change = this.assignAttrVal(p, persistent, assigned, "change");
       let changed = false;
       const assignProp = (obj, prop) => {
         if (prop in obj) {
@@ -133,7 +137,7 @@ const P5Extension = (baseClass) =>
       return changed;
     }
     draw(p, persistent, inherited) {
-      const show = this.evalAttr(p, persistent, inherited, "show");
+      const show = this.assignAttrVal(p, persistent, inherited, "show");
       if (this.showSelf(p, persistent, inherited, show) === false) return;
       p.push();
       const assigned = this.assignAttrVals(p, persistent, inherited);
@@ -155,7 +159,7 @@ const P5Extension = (baseClass) =>
         if (!changed) repeat = false;
         else if (typeof assigned.repeat === "boolean") repeat = assigned.repeat;
         else {
-          const [key, ...conditions] = this.evalAttr(
+          const [key, ...conditions] = this.assignAttrVal(
             p,
             persistent,
             assigned,
