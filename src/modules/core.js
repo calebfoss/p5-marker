@@ -128,9 +128,10 @@ const P5Extension = (baseClass) =>
       }
     }
     getInheritedAttr(attrName) {
+      if (this instanceof HTMLCanvasElement) return;
       if (this.parentElement.hasAttr(attrName))
         return this.parentElement.getAttr(attrName);
-      return this.parentElement.getInheritedAttr();
+      return this.parentElement.getInheritedAttr(attrName);
     }
     getAttr = this.getAttribute;
     hasAttr = this.hasAttribute;
