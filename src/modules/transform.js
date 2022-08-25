@@ -105,6 +105,11 @@ defineProperties({
     },
     set: function (val) {
       this._renderer._angleStack[this._renderer._angleStack.length - 1] = val;
+      if (this._renderer.isP3D) {
+        this.rotateX(this.angle_x);
+        this.rotateY(this.angle_y);
+        this.rotateZ(this.angle_z);
+      } else this.rotate(this.angle);
     },
   },
   scale_factor: {
