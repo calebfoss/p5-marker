@@ -2,7 +2,7 @@ import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
 const defaultAnchor = p5.prototype.createVector();
 const defaultAngle = p5.prototype.createVector();
-const defaultShear = p5.prototype.createVector(1, 1);
+const defaultShear = p5.prototype.createVector();
 const defaultScale = p5.prototype.createVector(1, 1, 1);
 const wrap = function (renderer) {
   function wrappedRenderer() {
