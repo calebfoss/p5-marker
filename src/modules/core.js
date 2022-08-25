@@ -298,11 +298,11 @@ export class P5Function extends P5Element {
     super();
     this.overloads = overloads;
   }
-  renderToCanvas(p, persistent, assigned) {
-    const args = this.params.map((p) =>
-      this.isPersistent(p) ? persistent[p] : assigned[p]
+  renderToCanvas(pInst, persistent, assigned) {
+    const args = this.params.map((param) =>
+      param in assigned ? assigned[param] : persistent[param]
     );
-    p[this.fnName](...args);
+    pInst[this.fnName](...args);
   }
   get fnName() {
     return pascalToCamel(this.constructor.name);
