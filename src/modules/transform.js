@@ -51,8 +51,6 @@ defineProperties({
       ];
     },
     set: function (val) {
-      this.pop();
-      this.push();
       if (Array.isArray(val))
         this._renderer._anchorStack[this._renderer._anchorStack.length - 1].set(
           ...val
