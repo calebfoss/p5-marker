@@ -84,12 +84,17 @@ const P5Extension = (baseClass) =>
         (attrName !== "width" || attrName !== "height")
       )
         return val;
+
       //  Brackets will throw a 'not a valid attribute name' error
       if (attrName.match(/[\[\]]/)) return val;
-      this.setAttr(
-        attrName,
-        typeof val === "object" ? JSON.stringify(val) : val
-      );
+
+      const valToString = (v) => {
+        if (v instanceof p5.Color) return v.toString(p.color_mode);
+        if (typeof v === "object") return JSON.stringify(v);
+        if (typeof v?.toString === "undefined") return v;
+        return v.toString();
+      };
+      this.setAttr(attrName, valToString(val));
       return val;
     }
     assignAttrVals(p, persistent, inherited) {
@@ -456,6 +461,7 @@ registerElements(
           content: "",
           show: true,
           repeat: false,
+          change: {},
           debug_attributes: true,
         };
 
