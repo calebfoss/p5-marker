@@ -200,9 +200,10 @@ const P5Extension = (baseClass) =>
       return changed;
     }
     draw(p, persistent, inherited) {
+      const show = this.evalAttr(p, persistent, inherited, "show");
+      if (this.showSelf(p, persistent, inherited, show) === false) return;
       p.push();
       const assigned = this.assignAttrVals(p, persistent, inherited);
-      if (this.showSelf(p, persistent, inherited, assigned) === false) return;
       this.drawIteration(p, persistent, assigned);
       p.pop();
     }
@@ -274,8 +275,7 @@ const P5Extension = (baseClass) =>
           sib.previousElementSibling
         );
     }
-    showSelf(p, persistent, inherited, assigned) {
-      const { show } = assigned;
+    showSelf(p, persistent, inherited, show) {
       const { IF } = p5.prototype;
       if (typeof show === "boolean") return show;
       const [key, ...conditions] = Array.isArray(show) ? show : [show];
