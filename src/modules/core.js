@@ -144,9 +144,14 @@ const P5Extension = (baseClass) =>
         .map((line) => "//\t" + line);
     }
     evalAttr(pInst, persistent, assigned, attrName) {
-      const evalFn = this.attrEvals.get(attrName);
-      if (typeof evalFn !== "function") return;
-      return evalFn(pInst, persistent, assigned);
+      if (this.attrEvals.has(attrName)) {
+        const evalFn = this.attrEvals.get(attrName);
+        return evalFn(pInst, persistent, assigned);
+      }
+      if (attrName in assigned) return assigned[attrName];
+      if (attrName in persistent) return persistent[attrName];
+      if (attrName in pInst) return pInst[attrName];
+      return;
     }
     assignAttrVals(p, persistent, inherited) {
       const assigned = Object.assign({}, inherited);
