@@ -417,6 +417,9 @@ registerElements(
             : null;
           pInst.assignCanvas(canvas, renderer);
           canvas.assignAttrVals(pInst, persistent, {});
+          Object.getOwnPropertyNames(persistent).forEach(
+            (name) => delete defaults[name]
+          );
         };
         const defaults = {
           x: 0,
@@ -451,9 +454,6 @@ registerElements(
           repeat: false,
           debug_attributes: true,
         };
-        Object.getOwnPropertyNames(persistent).forEach(
-          (name) => delete defaults[name]
-        );
 
         pInst.draw = function () {
           canvas.drawChildren(pInst, persistent, defaults);
