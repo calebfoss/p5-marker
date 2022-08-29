@@ -109,14 +109,25 @@ const P5Extension = (baseClass) =>
     attrEvals = new Map();
     get attrNames() {
       let anchorIndex = -1;
-      const names = Array.from(this.attributes).map(({ name }, i) => {
-        if (name === "anchor") anchorIndex = i;
-        return name;
-      });
-      if (anchorIndex <= 0) return names;
-      return ["anchor"]
-        .concat(names.slice(0, anchorIndex))
-        .concat(names.slice(anchorIndex + 1));
+      let debugIndex = -1;
+      const orderedNames = Array.from(this.attributes).reduce(
+        (names, { name }, i) => {
+          if (name === "anchor") {
+            anchorIndex = i;
+            return names
+              .slice(0, debugIndex)
+              .concat("anchor")
+              .concat(names.slice(debugIndex + 1));
+          }
+          if (name === "debug_attributes") {
+            debugIndex = i;
+            return ["debug_attributes"].concat(names);
+          }
+          return names.concat(name);
+        },
+        []
+      );
+      return orderedNames;
     }
     change(p, persistent, assigned) {
       const change = this.assignAttrVal(p, persistent, assigned, "change");
