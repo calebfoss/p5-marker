@@ -60,11 +60,24 @@ p5.prototype.loadAssets = async function () {
   this._decrementPreload();
 };
 p5.prototype.registerPreloadMethod("loadAssets", p5.prototype);
-
+p5.prototype._debug_attributes = true;
 defineProperties({
   object_assign: {
     set: function ([target, ...sources]) {
       Object.assign(target, ...sources);
+    },
+  },
+  debug_attributes: {
+    get: function () {
+      return this._debug_attributes;
+    },
+    set: function (val) {
+      const valType = typeof val;
+      if (typeof val === "boolean") this._debug_attributes = val;
+      else
+        console.error(
+          `debug_attributes was set to a value of type ${valType} but may only be set to a boolean true/false value.`
+        );
     },
   },
 });
@@ -78,7 +91,7 @@ const P5Extension = (baseClass) =>
       const val = this.evalAttr(p, persistent, assigned, attrName);
       //  Setting canvas width or height resets the drawing context
       //  Only set the attribute if it's not one of those
-      if (assigned.debug_attributes === false) return val;
+      if (p.debug_attributes === false) return val;
       if (
         this instanceof HTMLCanvasElement &&
         (attrName !== "width" || attrName !== "height")
@@ -137,7 +150,7 @@ const P5Extension = (baseClass) =>
           const changeVal = change[prop];
           changed ||= obj[prop] !== changeVal;
           obj[prop] = changeVal;
-          if (assigned.debug_attributes) this.setAttr(prop, changeVal);
+          if (p.debug_attributes) this.setAttr(prop, changeVal);
           return true;
         }
         return false;
@@ -473,7 +486,6 @@ registerElements(
           show: true,
           repeat: false,
           change: {},
-          debug_attributes: true,
         };
 
         pInst.draw = function () {
