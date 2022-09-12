@@ -418,6 +418,30 @@ export class PositionedFunction extends P5Function {
   }
 }
 
+p5.prototype._defineCustomElement = function (pCustomEl) {
+  const name = pCustomEl.getAttr("name");
+  customElements.define(
+    `p-${name}`,
+    class extends P5Element {
+      constructor() {
+        super();
+      }
+      setDefaults() {
+        Array.from(pCustomEl.attributes).forEach(
+          (a) => this.hasAttr(a.name) === false && this.setAttr(a.name, a.value)
+        );
+        const childClones = Array.from(pCustomEl.children).map((child) =>
+          child.cloneNode(true)
+        );
+        this.prepend(...childClones);
+        this.setupEvalFns();
+      }
+      static elementName = name;
+      renderToCanvas = null;
+    }
+  );
+};
+
 registerElements(
   class _ extends P5Element {
     constructor() {
@@ -509,32 +533,10 @@ registerElements(
       return super.varInitialized(varName);
     }
   },
-  class Custom extends P5Function {
+  class Custom extends P5Element {
     constructor() {
-      super(["name, [attributes]"]);
-      if (this.getAttr("name").slice(0, 2) !== "p-")
-        this.setAttr("name", "p-" + this.getAttr("name"));
-      const name = this.getAttr("name");
-      const attributes = this.getAttr("attributes");
-      const custom = this;
-      customElements.define(
-        this.getAttr("name"),
-        class extends P5Function {
-          constructor() {
-            super([attributes]);
-            Array.from(custom.attributes).forEach((a) =>
-              this.setAttr(a.name, a.value)
-            );
-            const childClones = Array.from(custom.children).map((child) =>
-              child.cloneNode(true)
-            );
-            this.prepend(...childClones);
-            this.setupEvalFns();
-          }
-          static elementName = name;
-          renderToCanvas = null;
-        }
-      );
+      super();
+      if (this.attributes.length) p5.prototype._defineCustomElement(this);
     }
   },
   class Asset extends HTMLElement {
@@ -567,15 +569,19 @@ registerElements(
       this.loadXML(this.href);
     }
     static constructorOptions = { extends: "link" };
+
     convertElement(xmlEl) {
       const xmlTag = xmlEl.tagName;
-      if (xmlTag === "canvas")
-        return document.createElement("canvas", { is: "p-canvas" });
-      return document.createElement(`p-${xmlTag}`);
+      const pEl =
+        xmlTag === "canvas"
+          ? document.createElement("canvas", { is: "p-canvas" })
+          : document.createElement(`p-${xmlTag}`);
+      this.copyAttributes(xmlEl, pEl);
+      if (xmlTag === "custom") p5.prototype._defineCustomElement(pEl);
+      return pEl;
     }
     convertAllElements(xmlEl, parent = document.body) {
       const pEl = this.convertElement(xmlEl);
-      this.copyAttributes(xmlEl, pEl);
       parent.appendChild(pEl);
       for (let i = 0; i < xmlEl.children.length; i++) {
         this.convertAllElements(xmlEl.children[i], pEl);
