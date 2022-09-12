@@ -87,8 +87,8 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
     }
-    assignAttrVal(p, persistent, assigned, attrName) {
-      const val = this.evalAttr(p, persistent, assigned, attrName);
+    assignAttrVal(p, persistent, assigned, attrName, thisArg) {
+      const val = this.evalAttr(p, persistent, assigned, attrName, thisArg);
       //  Setting canvas width or height resets the drawing context
       //  Only set the attribute if it's not one of those
       if (p.debug_attributes === false) return val;
@@ -111,13 +111,40 @@ const P5Extension = (baseClass) =>
       return val;
     }
     assignAttrVals(p, persistent, inherited) {
-      const assigned = Object.assign({}, inherited);
+      const thisProxy = new Proxy(this, {
+        get(target, prop) {
+          return target.evalAttr(p, persistent, assigned, prop);
+        },
+        set(target, prop, val) {
+          const propOwnerName = AttrParseUtil.getOwnerName(target, prop);
+          const assignmentFn = target.#assignmentFn(propOwnerName, prop, val);
+          target.attrEvals.set(prop, assignmentFn);
+          target.assignAttrVal(p, persistent, assigned, prop);
+        },
+      });
+      const assigned = Object.assign({}, inherited, {
+        this_element: thisProxy,
+        parent_element: inherited.this_element,
+      });
+
       const { attrNames } = this;
       for (let i = 0; i < attrNames.length; i++) {
         const attrName = attrNames[i];
-        this.assignAttrVal(p, persistent, assigned, attrName);
+        this.assignAttrVal(p, persistent, assigned, attrName, thisProxy);
       }
       return assigned;
+    }
+    #assignmentFn(ownerName, propName, val) {
+      switch (ownerName) {
+        case "pInst":
+          return (pInst) => (pInst[propName] = val);
+        case "persistent":
+          return (_, persistent) => (persistent[propName] = val);
+        case "assigned":
+          return (_, __, assigned) => (assigned[propName] = val);
+        default:
+          return () => (propName = val);
+      }
     }
     attrEvals = new Map();
     get attrNames() {
@@ -165,17 +192,32 @@ const P5Extension = (baseClass) =>
       }
       return changed;
     }
-    draw(p, persistent, inherited) {
-      const show = this.assignAttrVal(p, persistent, inherited, "show");
-      if (this.showSelf(p, persistent, inherited, show) === false) return;
-      p.push();
-      const assigned = this.assignAttrVals(p, persistent, inherited);
-      this.drawIteration(p, persistent, assigned);
-      p.pop();
+    draw(pInst, persistent, inherited) {
+      pInst.push();
+      const assigned = this.assignAttrVals(pInst, persistent, inherited);
+      this.drawIteration(pInst, persistent, assigned);
+      pInst.pop();
     }
-    drawChildren(p, persistent, assigned) {
+    drawChildren(pInst, persistent, assigned) {
+      let showElse = false;
       for (let c = 0; c < this.children.length; c++) {
-        this.children[c].draw?.(p, persistent, assigned);
+        const child = this.children[c];
+        if (child.hasAttr("show")) {
+          const show = child.assignAttrVal(pInst, persistent, assigned, "show");
+          if (Array.isArray(show)) {
+            const [key, ...conditions] = show;
+            if (key === p5.prototype.ELSE) {
+              if (!showElse || conditions.some((c) => c === false)) continue;
+            } else if (conditions.some((c) => c === false)) {
+              showElse = true;
+              continue;
+            }
+          } else if (show == false) {
+            continue;
+          }
+        }
+        child.draw?.(pInst, persistent, assigned);
+        showElse = false;
       }
     }
     drawIteration(p, persistent, assigned) {
@@ -202,10 +244,10 @@ const P5Extension = (baseClass) =>
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
     }
-    evalAttr(pInst, persistent, assigned, attrName) {
+    evalAttr(pInst, persistent, assigned, attrName, thisArg) {
       if (this.attrEvals.has(attrName)) {
         const evalFn = this.attrEvals.get(attrName);
-        return evalFn(pInst, persistent, assigned);
+        return evalFn.call(thisArg, pInst, persistent, assigned);
       }
       if (attrName in assigned) return assigned[attrName];
       if (attrName in persistent) return persistent[attrName];
@@ -235,6 +277,7 @@ const P5Extension = (baseClass) =>
       if (this instanceof HTMLCanvasElement) return this.hasAttr(attrName);
       return this.parentElement?.isPersistent?.(attrName);
     }
+    // TODO - fix else when prev sibling changed inherited
     rootCondition(
       p,
       persistent,
@@ -519,6 +562,7 @@ registerElements(
       new p5(sketch);
     }
     static setupElement = (el) => {
+      el.setDefaults?.();
       el.parseAttributes?.();
       el.setupEvalFns?.();
       el.setParamsFromOverloads?.();
