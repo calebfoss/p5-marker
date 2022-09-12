@@ -43,13 +43,70 @@ export class AttrParseUtil {
     if (isObject) return `{${str}}`;
     return `[${str}]`;
   };
+  static escapes = { LESS_THAN: "<", GREATER_THAN: ">", AND: "&&" };
   static isP5 = (name) => p5.prototype.hasOwnProperty(name);
-  static replaceVarNames(el, str) {
-    return str.replace(AttrParseUtil.regex.varName, (varName) => {
-      if (globalThis.hasOwnProperty(varName)) return varName;
-      if (AttrParseUtil.isP5(varName)) return "_pInst." + varName;
-      if (el.isPersistent(varName)) return "_persistent." + varName;
-      return "_assigned." + varName;
-    });
+  static keywords = [
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "export",
+    "extends",
+    "false",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "new",
+    "null",
+    "return",
+    "static",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+  ];
+  static getOwnerName(el, prop) {
+    if (
+      AttrParseUtil.keywords.includes(prop) ||
+      prop in AttrParseUtil.escapes ||
+      prop in globalThis
+    )
+      return "none";
+    if (AttrParseUtil.isP5(prop)) return "pInst";
+    if (el.isPersistent(prop)) return "persistent";
+    return "assigned";
+  }
+  static getPrefix(el, prop) {
+    const ownerName = AttrParseUtil.getOwnerName(el, prop);
+    if (ownerName === "none") return "";
+    else return `_${ownerName}.`;
+  }
+  static replacePropName(el, prop) {
+    if (prop in AttrParseUtil.escapes) return AttrParseUtil.escapes[prop];
+    return AttrParseUtil.getPrefix(el, prop) + prop;
+  }
+  static replacePropNames(el, str) {
+    return str.replace(AttrParseUtil.regex.varName, (prop) =>
+      AttrParseUtil.replacePropName(el, prop)
+    );
   }
 }
