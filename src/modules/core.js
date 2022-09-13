@@ -202,22 +202,21 @@ const P5Extension = (baseClass) =>
       let showElse = false;
       for (let c = 0; c < this.children.length; c++) {
         const child = this.children[c];
-        if (child.hasAttr("show")) {
-          const show = child.assignAttrVal(pInst, persistent, assigned, "show");
-          if (Array.isArray(show)) {
-            const [key, ...conditions] = show;
-            if (key === p5.prototype.ELSE) {
-              if (!showElse || conditions.some((c) => c === false)) continue;
-            } else if (conditions.some((c) => c === false)) {
-              showElse = true;
-              continue;
-            }
-          } else if (show == false) {
-            continue;
-          }
+        const [showKey, showVal] = child.showLogicBool(
+          pInst,
+          persistent,
+          assigned
+        );
+        if (
+          showVal === true &&
+          (showKey === p5.prototype.IF ||
+            (showKey === p5.prototype.ELSE && showElse === true))
+        ) {
+          child.draw?.(pInst, persistent, assigned);
+          showElse = false;
+        } else if (showKey === p5.prototype.IF) {
+          showElse = true;
         }
-        child.draw?.(pInst, persistent, assigned);
-        showElse = false;
       }
     }
     drawIteration(p, persistent, assigned) {
@@ -348,14 +347,16 @@ const P5Extension = (baseClass) =>
         this.setupEvalFn(attributes[i]);
       }
     }
-    showSelf(p, persistent, inherited, show) {
-      const { IF } = p5.prototype;
-      if (typeof show === "boolean") return show;
-      const [key, ...conditions] = Array.isArray(show) ? show : [show];
-      const allTrue = conditions.every((c) => c);
-      if (allTrue === false) return false;
-      if (key === IF) return true;
-      return !this.rootCondition(p, persistent, inherited);
+    showLogicBool(pInst, persistent, assigned) {
+      const show = this.hasAttribute("show")
+        ? this.assignAttrVal(pInst, persistent, { ...assigned }, "show")
+        : assigned.show;
+      if (Array.isArray(show)) {
+        const [logic, ...conditions] = show;
+        const bool = conditions.every((c) => c);
+        return [logic, bool];
+      } else if (typeof show === "string") return [show, true];
+      else if (typeof show === "boolean") return [p5.prototype.IF, show];
     }
     varInitialized(varName) {
       const [obj, ...props] = varName.split(".");
@@ -550,7 +551,7 @@ registerElements(
           rz: -1,
           img: pInst.createImage(100, 100),
           content: "",
-          show: true,
+          show: [p5.prototype.IF, true],
           repeat: false,
           change: {},
         };
