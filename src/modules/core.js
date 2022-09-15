@@ -276,39 +276,6 @@ const P5Extension = (baseClass) =>
       if (this instanceof HTMLCanvasElement) return this.hasAttr(attrName);
       return this.parentElement?.isPersistent?.(attrName);
     }
-    // TODO - fix else when prev sibling changed inherited
-    rootCondition(
-      p,
-      persistent,
-      inherited,
-      caller = this,
-      sib = this.previousElementSibling
-    ) {
-      if (!sib || sib.hasAttr("show") === false) {
-        console.error(
-          `${caller.constructor.elementName} has a show attribute` +
-            `with an ELSE key, but none of its previous siblings have an IF key. ` +
-            "Elements with an ELSE key only work if a previous sibling has an IF key."
-        );
-        return true;
-      }
-      const [key, ...conditions] = sib.evalAttr(
-        p,
-        persistent,
-        inherited,
-        "show"
-      );
-      const allTrue = conditions.every((c) => c);
-      if (allTrue) return true;
-      if (key !== p5.prototype.IF)
-        return this.rootCondition(
-          p,
-          persistent,
-          inherited,
-          caller,
-          sib.previousElementSibling
-        );
-    }
     setupEvalFn(attr) {
       const attrJsStr = attr.value;
       //  TODO - catch improperly ordered quote marks: "foo'var"'
