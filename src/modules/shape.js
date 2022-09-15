@@ -79,8 +79,8 @@ registerElements(
       super([""]);
     }
     fnName = "beginContour";
-    endRender(p) {
-      p.endContour();
+    endRender() {
+      this.pInst.endContour();
     }
   },
   class Shape extends PositionedFunction {
@@ -88,9 +88,9 @@ registerElements(
       super(["[kind]"]);
     }
     fnName = "beginShape";
-    endRender(p, assigned) {
-      if (assigned.hasOwnProperty("mode")) p.endShape(assigned.mode);
-      else p.endShape();
+    endRender(assigned) {
+      if (assigned.hasOwnProperty("mode")) this.pInst.endShape(assigned.mode);
+      else this.pInst.endShape();
     }
   },
   class Vertex extends P5Function {
