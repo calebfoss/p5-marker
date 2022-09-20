@@ -171,14 +171,25 @@ p5.prototype.registerMethod("pre", function () {
   this.shear = shear;
 });
 
-const identityMatrixValues = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+const identityMatrix = new DOMMatrix([
+  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+]);
+
+p5.prototype._transform_point = function (originalPoint, transMatrix) {
+  const pixelDensityMatrix = new DOMMatrix(identityMatrix).scale(
+    this.pixel_density
+  );
+  const scaledMatrix = transMatrix.multiply(pixelDensityMatrix);
+  const transformedPoint = scaledMatrix.transformPoint(originalPoint);
+  return transformedPoint;
+};
 
 p5.prototype.untransform_point = function (x, y, z) {
   const originalPoint = new DOMPoint(x, y, z);
-  const pixelDensityMatrix = new DOMMatrix(
-    identityMatrixValues.map((v) => v / this.pixel_density)
-  );
-  const scaledMatrix = this.transform_matrix.multiply(pixelDensityMatrix);
-  const transformedPoint = originalPoint.matrixTransform(scaledMatrix);
-  return transformedPoint;
+  return this._transform_point(originalPoint, this.transform_matrix);
+};
+
+p5.prototype.transform_point = function (x, y, z) {
+  const originalPoint = new DOMPoint(x, y, z);
+  return this._transform_point(originalPoint, this.transform_matrix.inverse());
 };
