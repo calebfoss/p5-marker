@@ -32,7 +32,6 @@
     "chai": "x",
     "esm": "^3.2.25",
     "jsdoc": "^3.6.11",
-    "marker": "./src/index.js",
     "mocha": "x",
     "p5": "x",
     "parcel": "latest"
