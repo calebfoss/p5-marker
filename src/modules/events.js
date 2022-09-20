@@ -247,6 +247,21 @@ defineProperties({
       return this.pmouseY;
     },
   },
+  mouse_trans_pos: {
+    get: function () {
+      return this.transform_point(this.mouse_pos_x, this.mouse_pos_y);
+    },
+  },
+  mouse_trans_pos_x: {
+    get: function () {
+      return this.mouse_trans_pos.x;
+    },
+  },
+  mouse_trans_pos_y: {
+    get: function () {
+      return this.mouse_trans_pos.y;
+    },
+  },
   mouse_wheel: {
     get: function () {
       return this._mouseWheel;
