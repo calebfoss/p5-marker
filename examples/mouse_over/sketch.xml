@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<canvas width="400" height="400" canvas_background="220" angle_mode="DEGREES">
+    <circle
+        anchor="200, 200"
+        x="100"
+        angle="frame_count"
+        trans_mouse="transform_point(mouse_pos_x, mouse_pos_y)"
+        fill_color="this_element.mouse_over ? 'green' : 'red'"> </circle>
+</canvas>
