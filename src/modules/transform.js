@@ -170,3 +170,15 @@ p5.prototype.registerMethod("pre", function () {
   this._renderer._shearStack = [shear];
   this.shear = shear;
 });
+
+const identityMatrixValues = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+
+p5.prototype.untransform_point = function (x, y, z) {
+  const originalPoint = new DOMPoint(x, y, z);
+  const pixelDensityMatrix = new DOMMatrix(
+    identityMatrixValues.map((v) => v / this.pixel_density)
+  );
+  const scaledMatrix = this.transform_matrix.multiply(pixelDensityMatrix);
+  const transformedPoint = originalPoint.matrixTransform(scaledMatrix);
+  return transformedPoint;
+};
