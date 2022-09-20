@@ -103,7 +103,6 @@ const P5Extension = (baseClass) =>
 
       const valToString = (v) => {
         if (v instanceof p5.Color) return v.toString(this.pInst.color_mode);
-        if (typeof v === "object") return JSON.stringify(v);
         if (typeof v?.toString === "undefined") return v;
         return v.toString();
       };
@@ -111,8 +110,9 @@ const P5Extension = (baseClass) =>
       return val;
     }
     assignAttrVals(persistent, inherited) {
-      const thisProxy = new Proxy(this, {
+      this.proxy = new Proxy(this, {
         get(target, prop) {
+          if (prop in target) return target[prop];
           return target.evalAttr(persistent, assigned, prop);
         },
         set(target, prop, val) {
@@ -123,14 +123,14 @@ const P5Extension = (baseClass) =>
         },
       });
       const assigned = Object.assign({}, inherited, {
-        this_element: thisProxy,
+        this_element: this.proxy,
         parent_element: inherited.this_element,
       });
 
       const { attrNames } = this;
       for (let i = 0; i < attrNames.length; i++) {
         const attrName = attrNames[i];
-        this.assignAttrVal(persistent, assigned, attrName, thisProxy);
+        this.assignAttrVal(persistent, assigned, attrName, this.proxy);
       }
       return assigned;
     }
@@ -326,6 +326,7 @@ const P5Extension = (baseClass) =>
         return [logic, bool];
       } else if (typeof show === "string") return [show, true];
       else if (typeof show === "boolean") return [p5.prototype.IF, show];
+      return [p5.prototype.IF, false];
     }
     varInitialized(varName) {
       const [obj, ...props] = varName.split(".");
