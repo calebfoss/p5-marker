@@ -21,10 +21,15 @@ registerElements(
       super(["x, y, d"]);
     }
     get mouse_over() {
-      const { dist, mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, d } = this.proxy;
-      const mouse_dist = dist(mouse_trans_pos_x, mouse_trans_pos_y, x, y);
-      return mouse_dist < d / 2;
+      this.pInst.collide_point_circle(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        d
+      );
     }
   },
   class Line extends PositionedFunction {
