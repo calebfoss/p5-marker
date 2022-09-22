@@ -14,6 +14,7 @@ import "./modules/image";
 import "./modules/io";
 import "./modules/typography";
 import "./modules/3d";
+import "./modules/collide";
 
 //  Create an HTML element for every class from modules
 (() => {
