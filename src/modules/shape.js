@@ -41,6 +41,17 @@ registerElements(
     constructor() {
       super(["x, y, [z]", "coordinate_vector"]);
     }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, stroke_weight } = this.proxy;
+      return this.pInst.collide_point_circle(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        stroke_weight
+      );
+    }
   },
   class Quad extends PositionedFunction {
     constructor() {
