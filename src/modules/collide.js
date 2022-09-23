@@ -12,6 +12,64 @@ p5.prototype.collide_debug = function (debugMode) {
   _collideDebug = debugMode;
 };
 
+p5.prototype.collider_type = {
+  point: "point",
+  circle: "circle",
+  ellipse: "ellipse",
+  rect: "rect",
+  line: "line",
+  arc: "arc",
+  triangle: "triangle",
+  poly: "poly",
+};
+
+p5.prototype._element_collision_args = function (el) {
+  const { proxy: p } = el;
+  const { collider_type: ct } = this;
+  switch (el.collider) {
+    case ct.point:
+      return [p.x, p.y];
+    case ct.circle:
+      return [p.x, p.y, p.d];
+    case ct.ellipse:
+      return [p.x, p.y, p.w, p.h];
+    case ct.rect:
+      const w = p.w || p.s;
+      const h = p.h || p.s;
+      return [p.x, p.y, w, h];
+    case ct.line:
+      return [p.x1, p.y1, p.x2, p.y2];
+    case ct.arc:
+      console.assert(
+        p.w === p.h,
+        "mouse_over currently only works for arc's with equal width and height."
+      );
+      const arcRadius = p.w / 2;
+      const arcAngle = p.stop_angle - p.start_angle;
+      const arcRotation = p.start_angle + arcAngle / 2;
+      return [p.x, p.y, arcRadius, arcRotation, arcAngle];
+    case ct.triangle:
+      return [p.x1, p.y1, p.x2, p.y2, p.x3, p.y3];
+    case ct.poly:
+      return [p.vertices];
+  }
+};
+
+p5.prototype.collide_elements = function (elementA, elementB) {
+  const { collider: colliderA } = elementA;
+  const { collider: colliderB } = elementB;
+  const argsA = this._element_collision_args(elementA);
+  const argsB = this._element_collision_args(elementB);
+  const fnNameForward = `collide_${colliderA}_${colliderB}`;
+  if (fnNameForward in this) return this[fnNameForward](...argsA, ...argsB);
+  const fnNameBackward = `collide_${colliderB}_${colliderA}`;
+  if (fnNameBackward in this) return this[fnNameBackward](...argsB, ...argsA);
+  console.warn(
+    `Collision check between ${colliderA} and ${colliderB} has not been implemented`
+  );
+  return false;
+};
+
 /*~++~+~+~++~+~++~++~+~+~ 2D ~+~+~++~+~++~+~+~+~+~+~+~+~+~+~+*/
 
 p5.prototype.collide_rect_rect = function (x, y, w, h, x2, y2, w2, h2) {
@@ -194,8 +252,8 @@ p5.prototype.collide_point_line_vector = function (point, p1, p2, buffer) {
 p5.prototype.collide_line_circle = function (x1, y1, x2, y2, cx, cy, diameter) {
   // is either end INSIDE the circle?
   // if so, return true immediately
-  var inside1 = this.collidePointCircle(x1, y1, cx, cy, diameter);
-  var inside2 = this.collidePointCircle(x2, y2, cx, cy, diameter);
+  var inside1 = this.collide_point_circle(x1, y1, cx, cy, diameter);
+  var inside2 = this.collide_point_circle(x2, y2, cx, cy, diameter);
   if (inside1 || inside2) return true;
 
   // get length of the line
@@ -212,7 +270,7 @@ p5.prototype.collide_line_circle = function (x1, y1, x2, y2, cx, cy, diameter) {
 
   // is this point actually on the line segment?
   // if so keep going, but if not, return false
-  var onSegment = this.collidePointLine(closestX, closestY, x1, y1, x2, y2);
+  var onSegment = this.collide_point_line(closestX, closestY, x1, y1, x2, y2);
   if (!onSegment) return false;
 
   // draw a debug circle at the closest point on the line
@@ -332,8 +390,8 @@ p5.prototype.collide_line_rect = function (
   var left, right, top, bottom, intersection;
 
   if (calcIntersection) {
-    left = this.collideLineLine(x1, y1, x2, y2, rx, ry, rx, ry + rh, true);
-    right = this.collideLineLine(
+    left = this.collide_line_line(x1, y1, x2, y2, rx, ry, rx, ry + rh, true);
+    right = this.collide_line_line(
       x1,
       y1,
       x2,
@@ -344,8 +402,8 @@ p5.prototype.collide_line_rect = function (
       ry + rh,
       true
     );
-    top = this.collideLineLine(x1, y1, x2, y2, rx, ry, rx + rw, ry, true);
-    bottom = this.collideLineLine(
+    top = this.collide_line_line(x1, y1, x2, y2, rx, ry, rx + rw, ry, true);
+    bottom = this.collide_line_line(
       x1,
       y1,
       x2,
@@ -364,10 +422,19 @@ p5.prototype.collide_line_rect = function (
     };
   } else {
     //return booleans
-    left = this.collideLineLine(x1, y1, x2, y2, rx, ry, rx, ry + rh);
-    right = this.collideLineLine(x1, y1, x2, y2, rx + rw, ry, rx + rw, ry + rh);
-    top = this.collideLineLine(x1, y1, x2, y2, rx, ry, rx + rw, ry);
-    bottom = this.collideLineLine(
+    left = this.collide_line_line(x1, y1, x2, y2, rx, ry, rx, ry + rh);
+    right = this.collide_line_line(
+      x1,
+      y1,
+      x2,
+      y2,
+      rx + rw,
+      ry,
+      rx + rw,
+      ry + rh
+    );
+    top = this.collide_line_line(x1, y1, x2, y2, rx, ry, rx + rw, ry);
+    bottom = this.collide_line_line(
       x1,
       y1,
       x2,
@@ -464,7 +531,7 @@ p5.prototype.collide_circle_poly = function (
     var vn = vertices[next]; // n for "next"
 
     // check for collision between the circle and a line formed between the two vertices
-    var collision = this.collideLineCircle(
+    var collision = this.collide_line_circle(
       vc.x,
       vc.y,
       vn.x,
@@ -478,7 +545,7 @@ p5.prototype.collide_circle_poly = function (
 
   // test if the center of the circle is inside the polygon
   if (interior === true) {
-    var centerInside = this.collidePointPoly(cx, cy, vertices);
+    var centerInside = this.collide_point_poly(cx, cy, vertices);
     if (centerInside) return true;
   }
 
@@ -519,7 +586,7 @@ p5.prototype.collide_rect_poly = function (rx, ry, rw, rh, vertices, interior) {
     var vn = vertices[next]; // n for "next"
 
     // check against all four sides of the rectangle
-    var collision = this.collideLineRect(
+    var collision = this.collide_line_rect(
       vc.x,
       vc.y,
       vn.x,
@@ -533,7 +600,7 @@ p5.prototype.collide_rect_poly = function (rx, ry, rw, rh, vertices, interior) {
 
     // optional: test if the rectangle is INSIDE the polygon note that this iterates all sides of the polygon again, so only use this if you need to
     if (interior === true) {
-      var inside = this.collidePointPoly(rx, ry, vertices);
+      var inside = this.collide_point_poly(rx, ry, vertices);
       if (inside) return true;
     }
   }
@@ -568,7 +635,7 @@ p5.prototype.collide_line_poly = function (x1, y1, x2, y2, vertices) {
     var y4 = vertices[next].y;
 
     // do a Line/Line comparison if true, return 'true' immediately and stop testing (faster)
-    var hit = this.collideLineLine(x1, y1, x2, y2, x3, y3, x4, y4);
+    var hit = this.collide_line_line(x1, y1, x2, y2, x3, y3, x4, y4);
     if (hit) {
       return true;
     }
@@ -599,14 +666,14 @@ p5.prototype.collide_poly_poly = function (p1, p2, interior) {
     var vn = p1[next]; // n for "next"
 
     //use these two points (a line) to compare to the other polygon's vertices using polyLine()
-    var collision = this.collideLinePoly(vc.x, vc.y, vn.x, vn.y, p2);
+    var collision = this.collide_line_poly(vc.x, vc.y, vn.x, vn.y, p2);
     if (collision) return true;
 
     //check if the either polygon is INSIDE the other
     if (interior === true) {
-      collision = this.collidePointPoly(p2[0].x, p2[0].y, p1);
+      collision = this.collide_point_poly(p2[0].x, p2[0].y, p1);
       if (collision) return true;
-      collision = this.collidePointPoly(p1[0].x, p1[0].y, p2);
+      collision = this.collide_point_poly(p1[0].x, p1[0].y, p2);
       if (collision) return true;
     }
   }
