@@ -105,6 +105,21 @@ registerElements(
         "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
       ]);
     }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x1, y1, x2, y2, x3, y3, x4, y4 } = this.proxy;
+      const vectorArray = [
+        this.pInst.createVector(x1, y1),
+        this.pInst.createVector(x2, y2),
+        this.pInst.createVector(x3, y3),
+        this.pInst.createVector(x4, y4),
+      ];
+      return this.pInst.collide_point_poly(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        vectorArray
+      );
+    }
   },
   class Rect extends PositionedFunction {
     constructor() {
