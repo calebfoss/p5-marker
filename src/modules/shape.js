@@ -128,6 +128,18 @@ registerElements(
         "x, y, w, h, [detail_x], [detail_y]",
       ]);
     }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, w, h } = this.proxy;
+      return this.pInst.collide_point_rect(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        w,
+        h
+      );
+    }
   },
   class Square extends PositionedFunction {
     constructor() {
