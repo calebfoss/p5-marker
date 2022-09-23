@@ -202,6 +202,7 @@ const P5Extension = (baseClass) =>
       let showElse = false;
       for (let c = 0; c < this.children.length; c++) {
         const child = this.children[c];
+        if (child instanceof P5Element === false) continue;
         const [showKey, showVal] = child.showLogicBool(persistent, assigned);
         if (
           showVal === true &&
