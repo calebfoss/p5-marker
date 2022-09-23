@@ -123,6 +123,8 @@ defineProperties({
         );
       else
         this._renderer._scaleStack[this._renderer._scaleStack.length - 1].set(
+          val,
+          val,
           val
         );
       this.scale(this.scale_factor);
