@@ -8,7 +8,28 @@ import { P5Function, PositionedFunction } from "./core";
 registerElements(
   class Arc extends PositionedFunction {
     constructor() {
-      super(["x, y, w, h, start, stop, [mode], [detail], [a]"]);
+      super(["x, y, w, h, start_angle, stop_angle, [mode], [detail], [a]"]);
+    }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, w, h, start_angle, stop_angle } = this.proxy;
+      console.assert(
+        w === h,
+        "mouse_over currently only works for arc's with equal width and height."
+      );
+      const arcRadius = w / 2;
+      const arcAngle = stop_angle - start_angle;
+      const arcRotation = start_angle + arcAngle / 2;
+
+      return this.pInst.collide_point_arc(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        arcRadius,
+        arcRotation,
+        arcAngle
+      );
     }
   },
   class Ellipse extends PositionedFunction {
