@@ -192,6 +192,9 @@ const P5Extension = (baseClass) =>
       }
       return changed;
     }
+    colliding_with(el) {
+      return this.pInst.collide_elements(this, el);
+    }
     draw(persistent, inherited) {
       this.pInst.push();
       const assigned = this.assignAttrVals(persistent, inherited);
