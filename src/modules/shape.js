@@ -163,6 +163,20 @@ registerElements(
       const overloads = ["x1, y1, x2, y2, x3, y3"];
       super(overloads);
     }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x1, y1, x2, y2, x3, y3 } = this.proxy;
+      return this.pInst.collide_point_triangle(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x1,
+        y1,
+        x2,
+        y2,
+        x3,
+        y3
+      );
+    }
   },
   class Bezier extends PositionedFunction {
     constructor() {
