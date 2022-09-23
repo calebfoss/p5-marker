@@ -673,7 +673,7 @@ p5.prototype.collide_point_point = function (x, y, x2, y2, buffer) {
 p5.prototype.collide_point_point_vector = function (p1, p2, buffer) {
   return p5.prototype.collide_point_point(p1.x, p1.y, p2.x, p2.y, buffer);
 };
-
+//  TODO - accommodate arcs with unequal width and height
 p5.prototype.collide_point_arc = function (
   px,
   py,
