@@ -93,11 +93,13 @@ export class AttrParseUtil {
       return "none";
     if (AttrParseUtil.isP5(prop)) return "pInst";
     if (el.isPersistent(prop)) return "persistent";
+    if (prop in el) return "this";
     return "assigned";
   }
   static getPrefix(el, prop) {
     const ownerName = AttrParseUtil.getOwnerName(el, prop);
     if (ownerName === "none") return "";
+    if (ownerName === "this") return "this.";
     else return `_${ownerName}.`;
   }
   static replacePropName(el, prop) {
