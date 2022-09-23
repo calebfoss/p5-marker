@@ -36,6 +36,18 @@ registerElements(
     constructor() {
       super(["x, y, w, [h]", "x, y, w, h, [detail]"]);
     }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, w, h } = this.proxy;
+      return this.pInst.collide_point_ellipse(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        w,
+        h
+      );
+    }
   },
   class Circle extends PositionedFunction {
     constructor() {
