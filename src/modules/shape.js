@@ -53,6 +53,7 @@ registerElements(
     constructor() {
       super(["x, y, d"]);
     }
+    collider = p5.prototype.collider_type.circle;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, d } = this.proxy;
@@ -69,6 +70,7 @@ registerElements(
     constructor() {
       super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
     }
+    collider = p5.prototype.collider_type.line;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x1, y1, x2, y2 } = this.proxy;
@@ -86,6 +88,7 @@ registerElements(
     constructor() {
       super(["x, y, [z]", "coordinate_vector"]);
     }
+    collider = p5.prototype.collider_type.line;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, stroke_weight } = this.proxy;
@@ -105,20 +108,23 @@ registerElements(
         "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
       ]);
     }
+    collider = p5.prototype.collider_type.poly;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      return this.pInst.collide_point_poly(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        this.vertices
+      );
+    }
+    get vertices() {
       const { x1, y1, x2, y2, x3, y3, x4, y4 } = this.proxy;
-      const vectorArray = [
+      return [
         this.pInst.createVector(x1, y1),
         this.pInst.createVector(x2, y2),
         this.pInst.createVector(x3, y3),
         this.pInst.createVector(x4, y4),
       ];
-      return this.pInst.collide_point_poly(
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
-        vectorArray
-      );
     }
   },
   class Rect extends PositionedFunction {
@@ -128,6 +134,7 @@ registerElements(
         "x, y, w, h, [detail_x], [detail_y]",
       ]);
     }
+    collider = p5.prototype.collider_type.rect;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, w, h } = this.proxy;
@@ -145,6 +152,7 @@ registerElements(
     constructor() {
       super(["x, y, s, [tl], [tr], [br], [bl]"]);
     }
+    collider = p5.prototype.collider_type.rect;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, s } = this.proxy;
@@ -163,6 +171,7 @@ registerElements(
       const overloads = ["x1, y1, x2, y2, x3, y3"];
       super(overloads);
     }
+    collider = p5.prototype.collider_type.poly;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x1, y1, x2, y2, x3, y3 } = this.proxy;
@@ -176,6 +185,14 @@ registerElements(
         x3,
         y3
       );
+    }
+    get vertices() {
+      const { x1, y1, x2, y2, x3, y3 } = this.proxy;
+      return [
+        this.pInst.createVector(x1, y1),
+        this.pInst.createVector(x2, y2),
+        this.pInst.createVector(x3, y3),
+      ];
     }
   },
   class Bezier extends PositionedFunction {
