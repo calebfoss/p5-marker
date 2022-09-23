@@ -56,7 +56,7 @@ registerElements(
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, d } = this.proxy;
-      this.pInst.collide_point_circle(
+      return this.pInst.collide_point_circle(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         x,
