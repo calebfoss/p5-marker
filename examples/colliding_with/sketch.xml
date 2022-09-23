@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<canvas width="400" height="400" canvas_background="220">
+    <circle x="mouse_pos_x" y="mouse_pos_y" stroke_weight="4" fill_color="NONE" highlight="color(255, 255, 0, 128)">
+        <square x="25" y="25" fill_color="colliding_with(parent_element) ? highlight : NONE"></square>
+        <triangle x1="150" y1="25" x2="150" y2="125" x3="250" y3="125" fill_color="colliding_with(parent_element) ? highlight : NONE"></triangle>
+        <circle x="325" y="75" fill_color="colliding_with(parent_element) ? highlight : NONE"></circle>
+        <rect x="25" y="150" w="200" h="100" fill_color="colliding_with(parent_element) ? highlight : NONE"></rect>
+        <quad x1="275" y1="150" x2="375" y2="200" x3="275" y3="250" x4="250" y4="225" fill_color="colliding_with(parent_element) ? highlight : NONE"></quad>
+        <line x1="25" y1="275" x2="375" y2="300" stroke_color="colliding_with(parent_element) ? highlight : 0"></line>
+    </circle>
+
+</canvas>
