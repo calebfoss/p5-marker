@@ -145,6 +145,18 @@ registerElements(
     constructor() {
       super(["x, y, s, [tl], [tr], [br], [bl]"]);
     }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, s } = this.proxy;
+      return this.pInst.collide_point_rect(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        s,
+        s
+      );
+    }
   },
   class Triangle extends PositionedFunction {
     constructor() {
