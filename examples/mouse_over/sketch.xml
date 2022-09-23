@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas width="400" height="400" canvas_background="220" angle_mode="DEGREES">
-    <circle anchor="200, 200" x="100" angle="frame_count" fill_color="this_element.mouse_over ? 'green' : 'red'"></circle>
+    <circle anchor="200, 200" x="100" angle="frame_count" fill_color="mouse_over ? 'green' : 'red'"></circle>
 </canvas>
