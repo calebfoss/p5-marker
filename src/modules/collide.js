@@ -156,7 +156,7 @@ p5.prototype.collide_point_rect_vector = function (point, p1, sz) {
     sz.y
   );
 };
-
+//  TODO - Accommodate lines with higher stroke_weight
 p5.prototype.collide_point_line = function (px, py, x1, y1, x2, y2, buffer) {
   // get distance from the point to the two ends of the line
   var d1 = this.dist(px, py, x1, y1);

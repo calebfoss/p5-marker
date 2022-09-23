@@ -69,6 +69,18 @@ registerElements(
     constructor() {
       super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
     }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x1, y1, x2, y2 } = this.proxy;
+      return this.pInst.collide_point_line(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x1,
+        y1,
+        x2,
+        y2
+      );
+    }
   },
   class Point extends PositionedFunction {
     constructor() {
