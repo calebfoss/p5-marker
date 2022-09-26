@@ -36,6 +36,7 @@ registerElements(
     constructor() {
       super(["x, y, w, [h]", "x, y, w, h, [detail]"]);
     }
+    collider = p5.prototype.collider_type.ellipse;
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, w, h } = this.proxy;
