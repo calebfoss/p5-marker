@@ -126,11 +126,12 @@ const P5Extension = (baseClass) =>
         this_element: this.proxy,
         parent_element: inherited.this_element,
       });
-
-      const { attrNames } = this;
-      for (let i = 0; i < attrNames.length; i++) {
-        const attrName = attrNames[i];
+      const { orderedAttributeNames } = this;
+      for (let i = 0; i < orderedAttributeNames.length; i++) {
+        const attrName = orderedAttributeNames[i];
         this.assignAttrVal(persistent, assigned, attrName, this.proxy);
+        if (i === this.transformDoneIndex)
+          this.transform_matrix = this.pInst.transform_matrix;
       }
       return assigned;
     }
@@ -147,28 +148,6 @@ const P5Extension = (baseClass) =>
       }
     }
     attrEvals = new Map();
-    get attrNames() {
-      let anchorIndex = -1;
-      let debugIndex = -1;
-      const orderedNames = Array.from(this.attributes).reduce(
-        (names, { name }, i) => {
-          if (name === "anchor") {
-            anchorIndex = i;
-            return names
-              .slice(0, debugIndex)
-              .concat("anchor")
-              .concat(names.slice(debugIndex + 1));
-          }
-          if (name === "debug_attributes") {
-            debugIndex = i;
-            return ["debug_attributes"].concat(names);
-          }
-          return names.concat(name);
-        },
-        []
-      );
-      return orderedNames;
-    }
     change(persistent, assigned) {
       const change = this.assignAttrVal(persistent, assigned, "change");
       let changed = false;
@@ -275,6 +254,31 @@ const P5Extension = (baseClass) =>
       if (this instanceof HTMLCanvasElement) return this.hasAttr(attrName);
       return this.parentElement?.isPersistent?.(attrName);
     }
+    get orderedAttributeNames() {
+      this.transformDoneIndex = 0;
+      return Array.from(this.attributes)
+        .sort(({ name }) => {
+          switch (name) {
+            case "debug_attributes":
+              this.transformDoneIndex++;
+              return 0;
+            case "anchor":
+              this.transformDoneIndex++;
+              return 1;
+            case "angle":
+            case "angle_x":
+            case "angle_y":
+            case "angle_z":
+            case "scale_factor":
+            case "shear":
+              this.transformDoneIndex++;
+              return 2;
+            default:
+              return 3;
+          }
+        })
+        .map(({ name }) => name);
+    }
     #pInst = null;
     get pInst() {
       return this.#pInst;
@@ -375,11 +379,12 @@ export class P5Function extends P5Element {
       const overloadParams = overloads[i].split(",").map((s) => s.trim());
       overloadMatch = overloadParams.every(
         (p) =>
-          this.attrNames.includes(p) ||
+          this.orderedAttributeNames.includes(p) ||
           this.varInitialized(p) ||
           isOptional(p) ||
           p === ""
       );
+
       //  If matched overload found
       if (overloadMatch) {
         //  Filter params recursively
@@ -389,7 +394,7 @@ export class P5Function extends P5Element {
           const optional = isOptional(overloadParams[i]);
           const p = overloadParams[i].replaceAll(/\[|\]/g, "");
           //  If param defined on this element, add it to filtered params
-          if (this.attrNames.includes(p))
+          if (this.orderedAttributeNames.includes(p))
             return filterParams(overloadParams, filteredParams.concat(p), ++i);
           //  If not defined on this element and optional, return filtered params
           if (optional) return filteredParams;
@@ -472,9 +477,11 @@ registerElements(
       window.addEventListener("customElementsDefined", this.runCode.bind(this));
     }
     static constructorOptions = { extends: "canvas" };
-    get attrNames() {
+    get orderedAttributeNames() {
       //  Remove 'is' and 'style' from attrNames
-      return super.attrNames.filter((v) => v !== "is" && v != "style");
+      return super.orderedAttributeNames.filter(
+        (v) => v !== "is" && v != "style"
+      );
     }
     runCode() {
       const canvas = this;
@@ -548,7 +555,7 @@ registerElements(
     };
 
     varInitialized(varName) {
-      if (this.attrNames.includes(varName)) return true;
+      if (this.orderedAttributeNames.includes(varName)) return true;
       return super.varInitialized(varName);
     }
   },
