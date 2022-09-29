@@ -23,43 +23,11 @@ p5.prototype.collider_type = {
   poly: "poly",
 };
 
-p5.prototype._element_collision_args = function (el) {
-  const { proxy: p } = el;
-  const { collider_type: ct } = this;
-  switch (el.collider) {
-    case ct.point:
-      return [p.x, p.y];
-    case ct.circle:
-      return [p.x, p.y, p.d];
-    case ct.ellipse:
-      return [p.x, p.y, p.w, p.h];
-    case ct.rect:
-      const w = p.w || p.s;
-      const h = p.h || p.s;
-      return [p.x, p.y, w, h];
-    case ct.line:
-      return [p.x1, p.y1, p.x2, p.y2];
-    case ct.arc:
-      console.assert(
-        p.w === p.h,
-        "mouse_over currently only works for arc's with equal width and height."
-      );
-      const arcRadius = p.w / 2;
-      const arcAngle = p.stop_angle - p.start_angle;
-      const arcRotation = p.start_angle + arcAngle / 2;
-      return [p.x, p.y, arcRadius, arcRotation, arcAngle];
-    case ct.triangle:
-      return [p.x1, p.y1, p.x2, p.y2, p.x3, p.y3];
-    case ct.poly:
-      return [p.vertices];
-  }
-};
-
 p5.prototype.collide_elements = function (elementA, elementB) {
   const { collider: colliderA } = elementA;
   const { collider: colliderB } = elementB;
-  const argsA = this._element_collision_args(elementA);
-  const argsB = this._element_collision_args(elementB);
+  const argsA = elementA.collision_args;
+  const argsB = elementB.collision_args;
   const fnNameForward = `collide_${colliderA}_${colliderB}`;
   if (fnNameForward in this) return this[fnNameForward](...argsA, ...argsB);
   const fnNameBackward = `collide_${colliderB}_${colliderA}`;

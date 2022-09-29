@@ -37,6 +37,16 @@ registerElements(
       super(["x, y, w, [h]", "x, y, w, h, [detail]"]);
     }
     collider = p5.prototype.collider_type.ellipse;
+    get collision_args() {
+      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      const { w } = this.proxy;
+      const { h } = this.proxy.h || w;
+      return [x, y, w, h];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, w, h } = this.proxy;
@@ -55,6 +65,15 @@ registerElements(
       super(["x, y, d"]);
     }
     collider = p5.prototype.collider_type.circle;
+    get collision_args() {
+      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      const { d } = this.proxy;
+      return [x, y, d];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, d } = this.proxy;
@@ -72,6 +91,19 @@ registerElements(
       super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
     }
     collider = p5.prototype.collider_type.line;
+    get collision_args() {
+      const originalStart = new DOMPoint(this.proxy.x1, this.proxy.y1);
+      const { x: x1, y: y1 } = this.pInst._transform_point_matrix(
+        originalStart,
+        this.transform_matrix
+      );
+      const originalEnd = new DOMPoint(this.proxy.x2, this.proxy.y2);
+      const { x: x2, y: y2 } = this.pInst._transform_point_matrix(
+        originalEnd,
+        this.transform_matrix
+      );
+      return [x1, y1, x2, y2];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x1, y1, x2, y2 } = this.proxy;
@@ -90,6 +122,14 @@ registerElements(
       super(["x, y, [z]", "coordinate_vector"]);
     }
     collider = p5.prototype.collider_type.line;
+    get collision_args() {
+      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      return [x, y];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, stroke_weight } = this.proxy;
@@ -110,6 +150,18 @@ registerElements(
       ]);
     }
     collider = p5.prototype.collider_type.poly;
+    get collision_args() {
+      return [
+        this.vertices.map((v) => {
+          const originalPoint = new DOMPoint(v.x, v.y);
+          const { x, y } = this.pInst._transform_point_matrix(
+            originalPoint,
+            this.transform_matrix
+          );
+          return this.pInst.createVector(x, y);
+        }),
+      ];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       return this.pInst.collide_point_poly(
@@ -136,6 +188,16 @@ registerElements(
       ]);
     }
     collider = p5.prototype.collider_type.rect;
+    get collision_args() {
+      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      const { w } = this.proxy;
+      const h = this.proxy.h;
+      return [x, y, w, h];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, w, h } = this.proxy;
@@ -154,6 +216,16 @@ registerElements(
       super(["x, y, s, [tl], [tr], [br], [bl]"]);
     }
     collider = p5.prototype.collider_type.rect;
+    get collision_args() {
+      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      const { s: w } = this.proxy;
+      const h = w;
+      return [x, y, w, h];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, s } = this.proxy;
@@ -173,6 +245,18 @@ registerElements(
       super(overloads);
     }
     collider = p5.prototype.collider_type.poly;
+    get collision_args() {
+      return [
+        this.vertices.map((v) => {
+          const originalPoint = new DOMPoint(v.x, v.y);
+          const { x, y } = this.pInst._transform_point_matrix(
+            originalPoint,
+            this.transform_matrix
+          );
+          return this.pInst.createVector(x, y);
+        }),
+      ];
+    }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x1, y1, x2, y2, x3, y3 } = this.proxy;
