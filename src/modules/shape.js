@@ -131,14 +131,21 @@ registerElements(
       return [x, y];
     }
     get mouse_over() {
-      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x, y, stroke_weight } = this.proxy;
+      const {
+        x,
+        y,
+        stroke_weight,
+        pixel_density,
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+      } = this.proxy;
+      const d = stroke_weight * pixel_density * 0.5;
       return this.pInst.collide_point_circle(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         x,
         y,
-        stroke_weight
+        d
       );
     }
   },
