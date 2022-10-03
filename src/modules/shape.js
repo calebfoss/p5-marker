@@ -5,6 +5,27 @@ import {
 } from "../utils/p5Modifiers";
 import { P5Function, PositionedFunction } from "./core";
 
+const transformVertexFn = (el) => (v) => {
+  const originalPoint = new DOMPoint(v.x, v.y);
+  const { x, y } = el.pInst._transform_point_matrix(
+    originalPoint,
+    el.transform_matrix
+  );
+  return el.pInst.createVector(x, y);
+};
+
+const vertexElement = class Vertex extends P5Function {
+  constructor() {
+    super(["x, y", "x, y, [z]", "x, y, [z], [u], [v]"]);
+  }
+};
+
+const quadraticVertexElement = class QuadraticVertex extends vertexElement {
+  constructor() {
+    super(["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"]);
+  }
+};
+
 registerElements(
   class Arc extends PositionedFunction {
     constructor() {
@@ -43,8 +64,9 @@ registerElements(
         originalPoint,
         this.transform_matrix
       );
-      const { w } = this.proxy;
-      const { h } = this.proxy.h || w;
+      const { pixel_density } = this.pInst;
+      const { w } = this.proxy * pixel_density;
+      const { h } = this.proxy.h * pixel_density || w;
       return [x, y, w, h];
     }
     get mouse_over() {
@@ -71,7 +93,7 @@ registerElements(
         originalPoint,
         this.transform_matrix
       );
-      const { d } = this.proxy;
+      const d = this.proxy.d * this.pInst.pow(this.pInst.pixel_density, 2);
       return [x, y, d];
     }
     get mouse_over() {
@@ -121,14 +143,16 @@ registerElements(
     constructor() {
       super(["x, y, [z]", "coordinate_vector"]);
     }
-    collider = p5.prototype.collider_type.line;
+    collider = p5.prototype.collider_type.circle;
     get collision_args() {
       const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
       const { x, y } = this.pInst._transform_point_matrix(
         originalPoint,
         this.transform_matrix
       );
-      return [x, y];
+      const { stroke_weight, pixel_density } = this.pInst;
+      const d = stroke_weight * this.pInst.pow(pixel_density, 2);
+      return [x, y, d];
     }
     get mouse_over() {
       const {
@@ -139,7 +163,7 @@ registerElements(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
       } = this.proxy;
-      const d = stroke_weight * pixel_density * 0.5;
+      const d = stroke_weight * this.pInst.pow(pixel_density, 2);
       return this.pInst.collide_point_circle(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
@@ -158,16 +182,7 @@ registerElements(
     }
     collider = p5.prototype.collider_type.poly;
     get collision_args() {
-      return [
-        this.vertices.map((v) => {
-          const originalPoint = new DOMPoint(v.x, v.y);
-          const { x, y } = this.pInst._transform_point_matrix(
-            originalPoint,
-            this.transform_matrix
-          );
-          return this.pInst.createVector(x, y);
-        }),
-      ];
+      return [this.vertices.map(transformVertexFn(this))];
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
@@ -201,8 +216,9 @@ registerElements(
         originalPoint,
         this.transform_matrix
       );
-      const { w } = this.proxy;
-      const h = this.proxy.h;
+      const { pixel_density } = this.pInst;
+      const w = this.proxy.w * this.pInst.pow(pixel_density, 2);
+      const h = this.proxy.h * this.pInst.pow(pixel_density, 2);
       return [x, y, w, h];
     }
     get mouse_over() {
@@ -229,7 +245,9 @@ registerElements(
         originalPoint,
         this.transform_matrix
       );
-      const { s: w } = this.proxy;
+      const { pixel_density } = this.pInst;
+      const { s } = this.proxy;
+      const w = s * this.pInst.pow(pixel_density, 2);
       const h = w;
       return [x, y, w, h];
     }
@@ -253,16 +271,7 @@ registerElements(
     }
     collider = p5.prototype.collider_type.poly;
     get collision_args() {
-      return [
-        this.vertices.map((v) => {
-          const originalPoint = new DOMPoint(v.x, v.y);
-          const { x, y } = this.pInst._transform_point_matrix(
-            originalPoint,
-            this.transform_matrix
-          );
-          return this.pInst.createVector(x, y);
-        }),
-      ];
+      return [this.vertices.map(transformVertexFn(this))];
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
@@ -316,27 +325,42 @@ registerElements(
     constructor() {
       super(["[kind]"]);
     }
+    collider = p5.prototype.collider_type.poly;
+    get collision_args() {
+      return [this.vertices.map(transformVertexFn(this))];
+    }
     fnName = "beginShape";
     endRender(assigned) {
       if (assigned.hasOwnProperty("mode")) this.pInst.endShape(assigned.mode);
       else this.pInst.endShape();
     }
-  },
-  class Vertex extends P5Function {
-    constructor() {
-      super(["x, y", "x, y, [z]", "x, y, [z], [u], [v]"]);
+    get vertices() {
+      const arrayFromChildren = (el) => {
+        const ca = Array.from(el.children);
+        return ca.concat(ca.map(arrayFromChildren)).flat();
+      };
+      const childArray = arrayFromChildren(this);
+      const vertexChildren = childArray.filter(
+        (el) => el instanceof vertexElement && el.proxy
+      );
+      const vertices = vertexChildren.map((el) => {
+        if (el instanceof quadraticVertexElement) {
+          const { x3, y3 } = el.proxy;
+          return this.pInst.createVector(x3, y3);
+        }
+        const { x, y } = el.proxy;
+        return this.pInst.createVector(x, y);
+      });
+      return vertices.concat(vertices.slice(0));
     }
   },
-  class CurveVertex extends P5Function {
+  vertexElement,
+  class CurveVertex extends vertexElement {
     constructor() {
       super(["x, y", "x, y, [z]"]);
     }
   },
-  class QuadraticVertex extends P5Function {
-    constructor() {
-      super(["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"]);
-    }
-  },
+  quadraticVertexElement,
   class Normal extends P5Function {
     constructor() {
       super(["vector", "x, y, z"]);
