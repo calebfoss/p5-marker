@@ -82,6 +82,12 @@ defineProperties({
   },
 });
 
+const attributePriorities = new Map(
+  ["debug_attributes", "anchor", "angle", "scale_factor", "shear"].map(
+    (name, index) => [name, index]
+  )
+);
+
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
     constructor() {
@@ -257,26 +263,11 @@ const P5Extension = (baseClass) =>
     get orderedAttributeNames() {
       this.transformDoneIndex = 0;
       return Array.from(this.attributes)
-        .sort(({ name }) => {
-          switch (name) {
-            case "debug_attributes":
-              this.transformDoneIndex++;
-              return 0;
-            case "anchor":
-              this.transformDoneIndex++;
-              return 1;
-            case "angle":
-            case "angle_x":
-            case "angle_y":
-            case "angle_z":
-            case "scale_factor":
-            case "shear":
-              this.transformDoneIndex++;
-              return 2;
-            default:
-              return 3;
-          }
-        })
+        .sort(
+          ({ name: a }, { name: b }) =>
+            (attributePriorities.get(a) || attributePriorities.size) -
+            (attributePriorities.get(b) || attributePriorities.size)
+        )
         .map(({ name }) => name);
     }
     #pInst = null;
