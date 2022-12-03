@@ -278,6 +278,7 @@ const P5Extension = (baseClass) =>
       this.#pInst = pInst;
     }
     setupEvalFn(attr) {
+      //  The attribute's value will be modified, then run as JS
       const attrJsStr = attr.value;
       //  TODO - catch improperly ordered quote marks: "foo'var"'
       if (AttrParseUtil.allQuotesMatched(attrJsStr) === false)
@@ -285,7 +286,7 @@ const P5Extension = (baseClass) =>
           `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
-      const varName = AttrParseUtil.replacePropNames(this, attr.name);
+      const varName = AttrParseUtil.replacePropName(this, attr.name);
       const attrValueVarsReplaced = AttrParseUtil.replacePropNames(
         this,
         attrJsStr
