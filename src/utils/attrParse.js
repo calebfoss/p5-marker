@@ -92,7 +92,7 @@ export class AttrParseUtil {
     )
       return "none";
     if (AttrParseUtil.isP5(prop)) return "pInst";
-    if (el.isPersistent(prop)) return "persistent";
+    if (el.isPersistent(prop)) return "pInst.canvas.state";
     if (prop in el) return "this";
     return "inherited";
   }

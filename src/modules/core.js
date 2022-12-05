@@ -209,7 +209,7 @@ const P5Extension = (baseClass) =>
     callAttributeUpdater(inherited, attrName, thisArg) {
       if (this.updateFunctions.has(attrName)) {
         const evalFn = this.updateFunctions.get(attrName);
-        return evalFn.call(thisArg, this.pInst, this.persistent, inherited);
+        return evalFn.call(thisArg, this.pInst, inherited);
       }
       if (attrName in inherited) return inherited[attrName];
       if (attrName in this.persistent) return this.persistent[attrName];
@@ -281,7 +281,7 @@ const P5Extension = (baseClass) =>
         /[^a-z0-9]/g,
         "_"
       )}`;
-      const fnHeader = `return function ${evalFnName}(_pInst, _persistent, _inherited) {`;
+      const fnHeader = `return function ${evalFnName}(_pInst, _inherited) {`;
       //  TODO Fix this mess
       const fnBody =
         owner === "inherited" && !attr.name.includes(".")
