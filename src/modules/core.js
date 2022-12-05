@@ -238,14 +238,17 @@ const P5Extension = (baseClass) =>
       return this.parentElement?.isPersistent?.(attrName);
     }
     get orderedAttributeNames() {
-      this.transformDoneIndex = 0;
-      return Array.from(this.attributes)
+      const ordered = Array.from(this.attributes)
         .sort(
           ({ name: a }, { name: b }) =>
             (attributePriorities.get(a) || attributePriorities.size) -
             (attributePriorities.get(b) || attributePriorities.size)
         )
         .map(({ name }) => name);
+      this.transformDoneIndex =
+        ordered.findLastIndex((attrName) => attributePriorities.has(attrName)) +
+        1;
+      return ordered;
     }
     get persistent() {
       return this.#pInst.canvas.proxy;
