@@ -90,11 +90,31 @@ const attributePriorities = new Map(
 
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
+    #pInst;
+    #state = {};
+    state = new Proxy(this, {
+      get(target, prop) {
+        return target.#state[prop];
+      },
+      set(target, prop, val) {
+        const propOwnerName = AttrParseUtil.getOwnerName(target, prop);
+        const assignmentFn = target.#assignmentFn(propOwnerName, prop, val);
+        target.updateFunctions.set(prop, assignmentFn);
+        target.updateAttribute(persistent, assigned, prop);
+      },
+    });
+    updateFunctions = new Map();
+
     constructor() {
       super();
     }
-    assignAttrVal(persistent, assigned, attrName, thisArg) {
-      const val = this.evalAttr(persistent, assigned, attrName, thisArg);
+    updateAttribute(persistent, assigned, attrName, thisArg) {
+      const val = this.callAttributeUpdater(
+        persistent,
+        assigned,
+        attrName,
+        thisArg
+      );
       //  Setting canvas width or height resets the drawing context
       //  Only set the attribute if it's not one of those
       if (this.pInst.debug_attributes === false) return val;
@@ -115,31 +135,20 @@ const P5Extension = (baseClass) =>
       this.setAttr(attrName, valToString(val));
       return val;
     }
-    assignAttrVals(persistent, inherited) {
-      this.proxy = new Proxy(this, {
-        get(target, prop) {
-          if (prop in target) return target[prop];
-          return target.evalAttr(persistent, assigned, prop);
-        },
-        set(target, prop, val) {
-          const propOwnerName = AttrParseUtil.getOwnerName(target, prop);
-          const assignmentFn = target.#assignmentFn(propOwnerName, prop, val);
-          target.attrEvals.set(prop, assignmentFn);
-          target.assignAttrVal(persistent, assigned, prop);
-        },
-      });
+    updateState(persistent, inherited) {
       const assigned = Object.assign({}, inherited, {
-        this_element: this.proxy,
+        this_element: this,
         parent_element: inherited.this_element,
       });
       const { orderedAttributeNames } = this;
       for (let i = 0; i < orderedAttributeNames.length; i++) {
-        const attrName = orderedAttributeNames[i];
-        this.assignAttrVal(persistent, assigned, attrName, this.proxy);
         if (i === this.transformDoneIndex)
           this.transform_matrix = this.pInst.transform_matrix;
+        const attrName = orderedAttributeNames[i];
+        this.updateAttribute(persistent, assigned, attrName, this);
       }
-      return assigned;
+      this.#state = assigned;
+      return this.#state;
     }
     #assignmentFn(ownerName, propName, val) {
       switch (ownerName) {
@@ -153,9 +162,8 @@ const P5Extension = (baseClass) =>
           return () => (propName = val);
       }
     }
-    attrEvals = new Map();
     change(persistent, assigned) {
-      const change = this.assignAttrVal(persistent, assigned, "change");
+      const change = this.updateAttribute(persistent, assigned, "change");
       let changed = false;
       const assignProp = (obj, prop) => {
         if (prop in obj) {
@@ -182,7 +190,7 @@ const P5Extension = (baseClass) =>
     }
     draw(persistent, inherited) {
       this.pInst.push();
-      const assigned = this.assignAttrVals(persistent, inherited);
+      const assigned = this.updateState(persistent, inherited);
       this.drawIteration(persistent, assigned);
       this.pInst.pop();
     }
@@ -214,7 +222,7 @@ const P5Extension = (baseClass) =>
         if (!changed) repeat = false;
         else if (typeof assigned.repeat === "boolean") repeat = assigned.repeat;
         else {
-          const [key, ...conditions] = this.assignAttrVal(
+          const [key, ...conditions] = this.updateAttribute(
             persistent,
             assigned,
             "repeat"
@@ -227,9 +235,9 @@ const P5Extension = (baseClass) =>
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
     }
-    evalAttr(persistent, assigned, attrName, thisArg) {
-      if (this.attrEvals.has(attrName)) {
-        const evalFn = this.attrEvals.get(attrName);
+    callAttributeUpdater(persistent, assigned, attrName, thisArg) {
+      if (this.updateFunctions.has(attrName)) {
+        const evalFn = this.updateFunctions.get(attrName);
         return evalFn.call(thisArg, this.pInst, persistent, assigned);
       }
       if (attrName in assigned) return assigned[attrName];
@@ -270,7 +278,6 @@ const P5Extension = (baseClass) =>
         )
         .map(({ name }) => name);
     }
-    #pInst = null;
     get pInst() {
       return this.#pInst;
     }
@@ -303,7 +310,7 @@ const P5Extension = (baseClass) =>
       const fnBody = `return ${varName} = ${varValue};\n};`;
       const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
       const evalFn = new Function(fnStr)();
-      this.attrEvals.set(attr.name, evalFn);
+      this.updateFunctions.set(attr.name, evalFn);
     }
     setupEvalFns() {
       if (this.hasAttr("repeat") && !this.hasAttr("change")) {
@@ -321,7 +328,7 @@ const P5Extension = (baseClass) =>
     }
     showLogicBool(persistent, assigned) {
       const show = this.hasAttribute("show")
-        ? this.assignAttrVal(persistent, { ...assigned }, "show")
+        ? this.updateAttribute(persistent, { ...assigned }, "show")
         : assigned.show;
       if (Array.isArray(show)) {
         const [logic, ...conditions] = show;
@@ -489,10 +496,10 @@ registerElements(
 
         pInst.setup = function () {
           const renderer = canvas.hasAttr("renderer")
-            ? canvas.evalAttr({}, {}, "renderer")
+            ? canvas.callAttributeUpdater({}, {}, "renderer")
             : null;
           pInst.assignCanvas(canvas, renderer);
-          canvas.assignAttrVals(persistent, {});
+          canvas.updateState(persistent, {});
           Object.getOwnPropertyNames(persistent).forEach(
             (name) => delete defaults[name]
           );
