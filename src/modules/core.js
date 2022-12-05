@@ -97,10 +97,8 @@ const P5Extension = (baseClass) =>
         return target.#state[prop];
       },
       set(target, prop, val) {
-        const propOwnerName = AttrParseUtil.getOwnerName(target, prop);
-        const assignmentFn = target.#assignmentFn(propOwnerName, prop, val);
-        target.updateFunctions.set(prop, assignmentFn);
-        target.updateAttribute(persistent, assigned, prop);
+        target.updateFunctions.set(prop, () => val);
+        target.#state[prop] = val;
       },
     });
     updateFunctions = new Map();
@@ -155,8 +153,8 @@ const P5Extension = (baseClass) =>
           return (pInst) => (pInst[propName] = val);
         case "persistent":
           return (_, persistent) => (persistent[propName] = val);
-        case "assigned":
-          return (_, __, assigned) => (assigned[propName] = val);
+        case "inherited":
+          return (_, __, inherited) => (inherited[propName] = val);
         default:
           return () => (propName = val);
       }
@@ -307,8 +305,9 @@ const P5Extension = (baseClass) =>
         "_"
       )}`;
       const fnHeader = `return function ${evalFnName}(_pInst, _persistent, _inherited) {`;
+      //  TODO Fix this mess
       const fnBody =
-        owner === "inherited"
+        owner === "inherited" && !attr.name.includes(".")
           ? `return ${varValue};\n}`
           : `return ${varName} = ${varValue};\n};`;
       const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
