@@ -159,7 +159,7 @@ const P5Extension = (baseClass) =>
           return () => (propName = val);
       }
     }
-    change(persistent, assigned) {
+    applyChange(persistent, assigned) {
       const change = this.updateAttribute(persistent, assigned, "change");
       let changed = false;
       const assignProp = (obj, prop) => {
@@ -215,7 +215,7 @@ const P5Extension = (baseClass) =>
       while (repeat) {
         this.renderToCanvas?.(persistent, assigned);
         this.drawChildren(persistent, assigned);
-        const changed = this.change(persistent, assigned);
+        const changed = this.applyChange(persistent, assigned);
         if (!changed) repeat = false;
         else if (typeof assigned.repeat === "boolean") repeat = assigned.repeat;
         else {
