@@ -92,8 +92,9 @@ const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
     #pInst;
     #state = {};
-    state = new Proxy(this, {
+    proxy = new Proxy(this, {
       get(target, prop) {
+        if (prop in target) return target[prop];
         return target.#state[prop];
       },
       set(target, prop, val) {
@@ -247,10 +248,10 @@ const P5Extension = (baseClass) =>
         .map(({ name }) => name);
     }
     get persistent() {
-      return this.#pInst.canvas.state;
+      return this.#pInst.canvas.proxy;
     }
     get parent_element() {
-      return this.parentElement;
+      return this.parentElement.proxy;
     }
     get pInst() {
       return this.#pInst;
@@ -319,7 +320,7 @@ const P5Extension = (baseClass) =>
       return [p5.prototype.IF, false];
     }
     get this_element() {
-      return this.state;
+      return this.proxy;
     }
     varInitialized(varName) {
       const [obj, ...props] = varName.split(".");
