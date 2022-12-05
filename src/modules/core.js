@@ -125,7 +125,7 @@ const P5Extension = (baseClass) =>
         if (typeof v?.toString === "undefined") return v;
         return v.toString();
       };
-      this.setAttr(attrName, valToString(val));
+      this.setAttribute(attrName, valToString(val));
       return val;
     }
     updateState(inherited) {
@@ -145,7 +145,7 @@ const P5Extension = (baseClass) =>
           const changeVal = change[prop];
           changed ||= obj[prop] !== changeVal;
           obj[prop] = changeVal;
-          if (this.pInst.debug_attributes) this.setAttr(prop, changeVal);
+          if (this.pInst.debug_attributes) this.setAttribute(prop, changeVal);
           return true;
         }
         return false;
@@ -218,13 +218,10 @@ const P5Extension = (baseClass) =>
     }
     getInheritedAttr(attrName) {
       if (this instanceof HTMLCanvasElement) return;
-      if (this.parentElement.hasAttr(attrName))
-        return this.parentElement.getAttr(attrName);
+      if (this.parentElement.hasAttribute(attrName))
+        return this.parentElement.getAttribute(attrName);
       return this.parentElement.getInheritedAttr(attrName);
     }
-    getAttr = this.getAttribute;
-    hasAttr = this.hasAttribute;
-    setAttr = this.setAttribute;
     get comments() {
       return this.html
         .split(/(?:\r\n|\r|\n)/)
@@ -236,7 +233,7 @@ const P5Extension = (baseClass) =>
       return this.outerHTML.replace(this.innerHTML, "");
     }
     isPersistent(attrName) {
-      if (this instanceof HTMLCanvasElement) return this.hasAttr(attrName);
+      if (this instanceof HTMLCanvasElement) return this.hasAttribute(attrName);
       return this.parentElement?.isPersistent?.(attrName);
     }
     get orderedAttributeNames() {
@@ -292,7 +289,7 @@ const P5Extension = (baseClass) =>
       this.updateFunctions.set(attr.name, evalFn);
     }
     setupEvalFns() {
-      if (this.hasAttr("repeat") && !this.hasAttr("change")) {
+      if (this.hasAttribute("repeat") && !this.hasAttribute("change")) {
         console.error(
           `It looks like a ${this.constructor.elementName} has a repeat attribute ` +
             "but does not have a change attribute. The change attribute is required to " +
@@ -405,12 +402,12 @@ export class PositionedFunction extends P5Function {
   }
   setAnchorToXY() {
     const [xParam, yParam] = this.params.slice(0, 2);
-    const x = this.getAttr(xParam) || this.getInheritedAttr(xParam);
-    const y = this.getAttr(yParam) || this.getInheritedAttr(yParam);
+    const x = this.getAttribute(xParam) || this.getInheritedAttr(xParam);
+    const y = this.getAttribute(yParam) || this.getInheritedAttr(yParam);
     const anchorVal = `[${x}, ${y}]`;
-    this.setAttr("anchor", anchorVal);
-    this.setAttr(xParam, 0);
-    this.setAttr(yParam, 0);
+    this.setAttribute("anchor", anchorVal);
+    this.setAttribute(xParam, 0);
+    this.setAttribute(yParam, 0);
     const anchorAttr = this.attributes["anchor"];
     this.setupEvalFn(this.attributes[xParam]);
     this.setupEvalFn(this.attributes[yParam]);
@@ -420,17 +417,17 @@ export class PositionedFunction extends P5Function {
     super.setParamsFromOverloads();
     //  If el has transform attrs but not anchor
     if (
-      !this.hasAttr("anchor") &&
-      (this.hasAttr("angle") ||
-        this.hasAttr("scale_factor") ||
-        this.hasAttr("shear"))
+      !this.hasAttribute("anchor") &&
+      (this.hasAttribute("angle") ||
+        this.hasAttribute("scale_factor") ||
+        this.hasAttribute("shear"))
     )
       this.setAnchorToXY();
   }
 }
 
 p5.prototype._defineCustomElement = function (pCustomEl) {
-  const name = pCustomEl.getAttr("name");
+  const name = pCustomEl.getAttribute("name");
   customElements.define(
     `p-${name}`,
     class extends P5Element {
@@ -439,7 +436,9 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
       }
       setDefaults() {
         Array.from(pCustomEl.attributes).forEach(
-          (a) => this.hasAttr(a.name) === false && this.setAttr(a.name, a.value)
+          (a) =>
+            this.hasAttribute(a.name) === false &&
+            this.setAttribute(a.name, a.value)
         );
         const childClones = Array.from(pCustomEl.children).map((child) =>
           child.cloneNode(true)
@@ -480,7 +479,7 @@ registerElements(
         pInst.preload = () => pInst.loadAssets();
 
         pInst.setup = function () {
-          const renderer = canvas.hasAttr("renderer")
+          const renderer = canvas.hasAttribute("renderer")
             ? canvas.callAttributeUpdater({}, "renderer")
             : null;
           pInst.assignCanvas(canvas, renderer);
