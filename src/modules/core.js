@@ -137,18 +137,6 @@ const P5Extension = (baseClass) =>
       this.#state = assigned;
       return this.#state;
     }
-    #assignmentFn(ownerName, propName, val) {
-      switch (ownerName) {
-        case "pInst":
-          return (pInst) => (pInst[propName] = val);
-        case "persistent":
-          return (_, persistent) => (persistent[propName] = val);
-        case "inherited":
-          return (_, __, inherited) => (inherited[propName] = val);
-        default:
-          return () => (propName = val);
-      }
-    }
     applyChange(assigned) {
       const change = this.updateAttribute(assigned, "change");
       let changed = false;
