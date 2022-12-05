@@ -281,11 +281,8 @@ const P5Extension = (baseClass) =>
     get pInst() {
       return this.#pInst;
     }
-    set pInst(pInst) {
-      this.#pInst = pInst;
-    }
     setup(pInst) {
-      this.pInst = pInst;
+      this.#pInst = pInst;
     }
     setupEvalFn(attr) {
       //  The attribute's value will be modified, then run as JS
@@ -545,7 +542,7 @@ registerElements(
       new p5(sketch);
     }
     static setupElement = (el, pInst) => {
-      el.pInst = pInst;
+      el.setup(pInst);
       el.setDefaults?.();
       el.setupEvalFns?.();
       el.setParamsFromOverloads?.();
