@@ -140,11 +140,8 @@ const P5Extension = (baseClass) =>
         this_element: this,
         parent_element: inherited.this_element,
       });
-      const { orderedAttributeNames } = this;
-      for (let i = 0; i < orderedAttributeNames.length; i++) {
-        if (i === this.transformDoneIndex)
-          this.transform_matrix = this.pInst.transform_matrix;
-        const attrName = orderedAttributeNames[i];
+      const updaters = this.updateFunctions.entries();
+      for (const [attrName, updateFunction] of updaters) {
         this.updateAttribute(persistent, assigned, attrName, this);
       }
       this.#state = assigned;
@@ -318,9 +315,13 @@ const P5Extension = (baseClass) =>
         );
         this.removeAttribute("repeat");
       }
-      const { attributes } = this;
-      for (let i = 0; i < attributes.length; i++) {
-        this.setupEvalFn(attributes[i]);
+      const { orderedAttributeNames, transformDoneIndex } = this;
+      for (let i = 0; i < orderedAttributeNames.length; i++) {
+        if (i === transformDoneIndex)
+          this.updateFunctions.set("transform_matrix", function () {
+            this.transform_matrix = this.pInst.transform_matrix;
+          });
+        this.setupEvalFn(this.attributes[orderedAttributeNames[i]]);
       }
     }
     showLogicBool(persistent, assigned) {
@@ -378,7 +379,7 @@ export class P5Function extends P5Element {
       const overloadParams = overloads[i].split(",").map((s) => s.trim());
       overloadMatch = overloadParams.every(
         (p) =>
-          this.orderedAttributeNames.includes(p) ||
+          this.hasAttribute(p) ||
           this.varInitialized(p) ||
           isOptional(p) ||
           p === ""
@@ -393,7 +394,7 @@ export class P5Function extends P5Element {
           const optional = isOptional(overloadParams[i]);
           const p = overloadParams[i].replaceAll(/\[|\]/g, "");
           //  If param defined on this element, add it to filtered params
-          if (this.orderedAttributeNames.includes(p))
+          if (this.hasAttribute(p))
             return filterParams(overloadParams, filteredParams.concat(p), ++i);
           //  If not defined on this element and optional, return filtered params
           if (optional) return filteredParams;
@@ -553,7 +554,7 @@ registerElements(
     };
 
     varInitialized(varName) {
-      if (this.orderedAttributeNames.includes(varName)) return true;
+      if (this.hasAttribute(varName)) return true;
       return super.varInitialized(varName);
     }
   },
