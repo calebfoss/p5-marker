@@ -108,10 +108,10 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
     }
-    updateAttribute(persistent, assigned, attrName, thisArg) {
+    updateAttribute(persistent, inherited, attrName, thisArg) {
       const val = this.callAttributeUpdater(
         persistent,
-        assigned,
+        inherited,
         attrName,
         thisArg
       );
@@ -136,13 +136,15 @@ const P5Extension = (baseClass) =>
       return val;
     }
     updateState(persistent, inherited) {
-      const assigned = Object.assign({}, inherited, {
-        this_element: this,
-        parent_element: inherited.this_element,
-      });
+      const assigned = Object.assign({}, inherited);
       const updaters = this.updateFunctions.entries();
       for (const [attrName, updateFunction] of updaters) {
-        this.updateAttribute(persistent, assigned, attrName, this);
+        assigned[attrName] = this.updateAttribute(
+          persistent,
+          inherited,
+          attrName,
+          this
+        );
       }
       this.#state = assigned;
       return this.#state;
@@ -232,12 +234,12 @@ const P5Extension = (baseClass) =>
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
     }
-    callAttributeUpdater(persistent, assigned, attrName, thisArg) {
+    callAttributeUpdater(persistent, inherited, attrName, thisArg) {
       if (this.updateFunctions.has(attrName)) {
         const evalFn = this.updateFunctions.get(attrName);
-        return evalFn.call(thisArg, this.pInst, persistent, assigned);
+        return evalFn.call(thisArg, this.pInst, persistent, inherited);
       }
-      if (attrName in assigned) return assigned[attrName];
+      if (attrName in inherited) return inherited[attrName];
       if (attrName in persistent) return persistent[attrName];
       if (attrName in this.pInst) return this.pInst[attrName];
       return;
@@ -275,6 +277,9 @@ const P5Extension = (baseClass) =>
         )
         .map(({ name }) => name);
     }
+    get parent_element() {
+      return this.parentElement;
+    }
     get pInst() {
       return this.#pInst;
     }
@@ -290,6 +295,7 @@ const P5Extension = (baseClass) =>
           `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
+      const owner = AttrParseUtil.getOwnerName(this, attr.name);
       const varName = AttrParseUtil.replacePropName(this, attr.name);
       const attrValueVarsReplaced = AttrParseUtil.replacePropNames(
         this,
@@ -300,8 +306,11 @@ const P5Extension = (baseClass) =>
         /[^a-z0-9]/g,
         "_"
       )}`;
-      const fnHeader = `return function ${evalFnName}(_pInst, _persistent, _assigned) {`;
-      const fnBody = `return ${varName} = ${varValue};\n};`;
+      const fnHeader = `return function ${evalFnName}(_pInst, _persistent, _inherited) {`;
+      const fnBody =
+        owner === "inherited"
+          ? `return ${varValue};\n}`
+          : `return ${varName} = ${varValue};\n};`;
       const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
       const evalFn = new Function(fnStr)();
       this.updateFunctions.set(attr.name, evalFn);
@@ -324,10 +333,10 @@ const P5Extension = (baseClass) =>
         this.setupEvalFn(this.attributes[orderedAttributeNames[i]]);
       }
     }
-    showLogicBool(persistent, assigned) {
+    showLogicBool(persistent, inherited) {
       const show = this.hasAttribute("show")
-        ? this.updateAttribute(persistent, { ...assigned }, "show")
-        : assigned.show;
+        ? this.updateAttribute(persistent, { ...inherited }, "show")
+        : inherited.show;
       if (Array.isArray(show)) {
         const [logic, ...conditions] = show;
         const bool = conditions.every((c) => c);
@@ -335,6 +344,9 @@ const P5Extension = (baseClass) =>
       } else if (typeof show === "string") return [show, true];
       else if (typeof show === "boolean") return [p5.prototype.IF, show];
       return [p5.prototype.IF, false];
+    }
+    get this_element() {
+      return this.state;
     }
     varInitialized(varName) {
       const [obj, ...props] = varName.split(".");

@@ -94,7 +94,7 @@ export class AttrParseUtil {
     if (AttrParseUtil.isP5(prop)) return "pInst";
     if (el.isPersistent(prop)) return "persistent";
     if (prop in el) return "this";
-    return "assigned";
+    return "inherited";
   }
   static getPrefix(el, prop) {
     const ownerName = AttrParseUtil.getOwnerName(el, prop);
