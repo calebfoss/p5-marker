@@ -97,6 +97,10 @@ const P5Extension = (baseClass) =>
         if (prop in target) return target[prop];
         return target.#state[prop];
       },
+      has(target, prop) {
+        if (prop in target) return true;
+        return prop in target.#state;
+      },
       set(target, prop, val) {
         target.updateFunctions.set(prop, () => val);
         target.#state[prop] = val;
@@ -138,8 +142,8 @@ const P5Extension = (baseClass) =>
       this.#state = assigned;
       return this.#state;
     }
-    applyChange(assigned) {
-      const change = this.updateAttribute(assigned, "change");
+    applyChange() {
+      const change = this.updateAttribute(this.#state, "change", this);
       let changed = false;
       const assignProp = (obj, prop) => {
         if (prop in obj) {
@@ -152,12 +156,14 @@ const P5Extension = (baseClass) =>
         return false;
       };
       for (const prop in change) {
-        assignProp(assigned, prop) ||
+        assignProp(this.#state, prop) ||
           assignProp(this.persistent, prop) ||
           assignProp(this.pInst, prop) ||
           console.error(
             `${this.constructor.elementName}'s change attribute has a prop called ${prop} that is unknown`
           );
+
+        this.#state[prop] = change[prop];
       }
       return changed;
     }
@@ -166,8 +172,8 @@ const P5Extension = (baseClass) =>
     }
     draw(inherited) {
       this.pInst.push();
-      const assigned = this.updateState(inherited);
-      this.drawIteration(assigned);
+      this.updateState(inherited);
+      this.#drawIteration();
       this.pInst.pop();
     }
     drawChildren(assigned) {
@@ -188,20 +194,24 @@ const P5Extension = (baseClass) =>
         }
       }
     }
-    drawIteration(assigned) {
+    #drawIteration() {
       const { WHILE } = p5.prototype;
       let repeat = true;
       while (repeat) {
-        this.renderToCanvas?.(assigned);
-        this.drawChildren(assigned);
-        const changed = this.applyChange(assigned);
+        this.renderToCanvas?.();
+        this.drawChildren(this.#state);
+        const changed = this.applyChange(this.#state);
         if (!changed) repeat = false;
-        else if (typeof assigned.repeat === "boolean") repeat = assigned.repeat;
+        else if (typeof this.#state.repeat === "boolean")
+          repeat = this.#state.repeat;
         else {
-          const [key, ...conditions] = this.updateAttribute(assigned, "repeat");
+          const [key, ...conditions] = this.updateAttribute(
+            this.#state,
+            "repeat"
+          );
           repeat = (key === WHILE) === conditions.every((c) => c);
         }
-        this.endRender?.(assigned);
+        this.endRender?.(this.#state);
       }
     }
     static get elementName() {
@@ -342,9 +352,9 @@ export class P5Function extends P5Element {
     super();
     this.overloads = overloads;
   }
-  renderToCanvas(assigned) {
+  renderToCanvas() {
     const args = this.params.map((param) =>
-      param in assigned ? assigned[param] : this.persistent[param]
+      param in this.proxy ? this.proxy[param] : this.persistent[param]
     );
     this.pInst[this.fnName](...args);
   }
