@@ -149,6 +149,7 @@ defineProperties({
   },
   transform_matrix: {
     get: function () {
+      if (this._renderer.isP3D) return this._renderer.uMVMatrix;
       return this.drawingContext?.getTransform();
     },
     set: function (val) {
