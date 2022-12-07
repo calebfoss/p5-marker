@@ -82,11 +82,16 @@ defineProperties({
   },
 });
 
-const attributePriorities = new Map(
-  ["debug_attributes", "anchor", "angle", "scale_factor", "shear"].map(
-    (name, index) => [name, index]
-  )
-);
+const attributePriorities = [
+  "debug_attributes",
+  "anchor",
+  "angle",
+  "scale_factor",
+  "shear",
+  "_default",
+  "repeat",
+  "change",
+];
 
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
@@ -112,7 +117,9 @@ const P5Extension = (baseClass) =>
       super();
     }
     updateAttribute(inherited, attrName, thisArg) {
-      const val = this.callAttributeUpdater(inherited, attrName, thisArg);
+      if (attrName === "repeat" || attrName === "change")
+        inherited = this.#state;
+      const val = this.#callAttributeUpdater(inherited, attrName, thisArg);
       //  Setting canvas width or height resets the drawing context
       //  Only set the attribute if it's not one of those
       if (this.pInst.debug_attributes === false) return val;
@@ -134,16 +141,19 @@ const P5Extension = (baseClass) =>
       return val;
     }
     updateState(inherited) {
-      const assigned = Object.assign({}, inherited);
+      this.#state = Object.assign({}, inherited);
       const updaters = this.updateFunctions.entries();
       for (const [attrName, updateFunction] of updaters) {
-        assigned[attrName] = this.updateAttribute(inherited, attrName, this);
+        this.#state[attrName] = this.updateAttribute(inherited, attrName, this);
       }
-      this.#state = assigned;
       return this.#state;
     }
     applyChange() {
-      const change = this.updateAttribute(this.#state, "change", this);
+      const change = (this.#state.change = this.updateAttribute(
+        this.#state,
+        "change",
+        this
+      ));
       let changed = false;
       const assignProp = (obj, prop) => {
         if (prop in obj) {
@@ -173,7 +183,37 @@ const P5Extension = (baseClass) =>
     draw(inherited) {
       this.pInst.push();
       this.updateState(inherited);
-      this.#drawIteration();
+      const { WHILE } = p5.prototype;
+      let repeat = true;
+      while (repeat) {
+        this.renderToCanvas?.();
+        this.drawChildren(this.#state);
+        repeat = this.#state.repeat;
+        const { change } = this.#state;
+        if (Array.isArray(repeat)) {
+          const [key, ...conditions] = this.updateAttribute(
+            this.#state,
+            "repeat"
+          );
+          repeat = (key === WHILE) === conditions.every((c) => c);
+        }
+        if (repeat) {
+          this.pInst.pop();
+          this.pInst.push();
+          const updaters = this.updateFunctions.entries();
+          for (const [attrName, updater] of updaters) {
+            if (attrName in change === false)
+              this.#state[attrName] = this.updateAttribute(
+                inherited,
+                attrName,
+                this
+              );
+          }
+          const changed = this.applyChange();
+          if (!changed) repeat = false;
+        }
+        this.endRender?.(this.#state);
+      }
       this.pInst.pop();
     }
     drawChildren(assigned) {
@@ -194,30 +234,11 @@ const P5Extension = (baseClass) =>
         }
       }
     }
-    #drawIteration() {
-      const { WHILE } = p5.prototype;
-      let repeat = true;
-      while (repeat) {
-        this.renderToCanvas?.();
-        this.drawChildren(this.#state);
-        const changed = this.applyChange(this.#state);
-        if (!changed) repeat = false;
-        else if (typeof this.#state.repeat === "boolean")
-          repeat = this.#state.repeat;
-        else {
-          const [key, ...conditions] = this.updateAttribute(
-            this.#state,
-            "repeat"
-          );
-          repeat = (key === WHILE) === conditions.every((c) => c);
-        }
-        this.endRender?.(this.#state);
-      }
-    }
+
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
     }
-    callAttributeUpdater(inherited, attrName, thisArg) {
+    #callAttributeUpdater(inherited, attrName, thisArg) {
       if (this.updateFunctions.has(attrName)) {
         const evalFn = this.updateFunctions.get(attrName);
         return evalFn.call(thisArg, this.pInst, inherited);
@@ -251,13 +272,16 @@ const P5Extension = (baseClass) =>
       const ordered = Array.from(this.attributes)
         .sort(
           ({ name: a }, { name: b }) =>
-            (attributePriorities.get(a) || attributePriorities.size) -
-            (attributePriorities.get(b) || attributePriorities.size)
+            (attributePriorities.indexOf(a) + 1 ||
+              attributePriorities.indexOf("_default")) -
+            (attributePriorities.indexOf(b) + 1 ||
+              attributePriorities.indexOf("_default"))
         )
         .map(({ name }) => name);
       this.transformDoneIndex =
-        ordered.findLastIndex((attrName) => attributePriorities.has(attrName)) +
-        1;
+        ordered.findLastIndex((attrName) =>
+          attributePriorities.includes(attrName)
+        ) + 1;
       return ordered;
     }
     get persistent() {
@@ -458,7 +482,6 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
           child.cloneNode(true)
         );
         this.prepend(...childClones);
-        this.setupEvalFns();
       }
       static elementName = name;
       renderToCanvas = null;
@@ -493,11 +516,10 @@ registerElements(
         pInst.preload = () => pInst.loadAssets();
 
         pInst.setup = function () {
-          const renderer = canvas.hasAttribute("renderer")
-            ? canvas.callAttributeUpdater({}, "renderer")
-            : null;
+          const renderer = pInst[canvas.getAttribute("renderer")];
           pInst.assignCanvas(canvas, renderer);
           const initialState = canvas.updateState({});
+
           Object.getOwnPropertyNames(initialState).forEach(
             (name) => delete defaults[name]
           );
