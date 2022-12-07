@@ -38,7 +38,7 @@ export class AttrParseUtil {
     const items = strMinusStrings.split(/(?<!{[^}]*),/gi);
     const isObject = items.some((item) => item.match(/^[^\?\{]*:/gi));
     if (items.length === 1 && !isObject) return str;
-    const isUnenclosed = str.match(/^[^\(]*[,:]/gi) !== null;
+    const isUnenclosed = str.match(/(?<!\([^\)]*)(?<!{[^}]*)[,:]/gi) !== null;
     if (!isUnenclosed) return str;
     if (isObject) return `{${str}}`;
     return `[${str}]`;
