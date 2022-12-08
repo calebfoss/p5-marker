@@ -20,7 +20,7 @@ const vertexElement = class Vertex extends P5Function {
   }
 };
 
-const quadraticVertexElement = class QuadraticVertex extends vertexElement {
+const quadraticVertexElement = class QuadraticVertex extends P5Function {
   constructor() {
     super(["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"]);
   }
