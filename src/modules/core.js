@@ -306,7 +306,9 @@ const P5Extension = (baseClass) =>
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
       const owner = AttrParseUtil.getOwnerName(this, attr.name);
-      const varName = AttrParseUtil.replacePropName(this, attr.name);
+      //  This is plural because there may be a prop name within
+      //  Ex:  myArray[i]
+      const varName = AttrParseUtil.replacePropNames(this, attr.name);
       const attrValueVarsReplaced = AttrParseUtil.replacePropNames(
         this,
         attrJsStr
