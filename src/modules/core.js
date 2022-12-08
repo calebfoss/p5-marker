@@ -348,7 +348,7 @@ const P5Extension = (baseClass) =>
     }
     showLogicBool(inherited) {
       const show = this.hasAttribute("show")
-        ? this.updateAttribute({ ...inherited }, "show")
+        ? this.updateAttribute(inherited, "show", this)
         : inherited.show;
       if (Array.isArray(show)) {
         const [logic, ...conditions] = show;
