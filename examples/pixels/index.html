@@ -24,9 +24,9 @@
           fill_color="random(255), random(255), random(255)"
         ></p-circle>
       </p-_>
-      <p-_ pix="canvas_pixels">
+      <p-_ pix="canvas_pixels" pix_holder="this_element">
         <p-_ p="0" repeat="UNTIL,  p >= pix.length" change="p: p + 4">
-          <p-_ pix[p]="0"></p-_>
+          <p-_ pix_holder.pix[p]="0"></p-_>
         </p-_>
         <p-_ canvas_pixels="pix"></p-_>
       </p-_>
