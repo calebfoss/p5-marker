@@ -1,7 +1,7 @@
 {
   "name": "p5-marker",
   "version": "0.0.0",
-  "description": "A p5 add-on with custom html elements to create sketches declaratively.",
+  "description": "A p5 add-on to create sketches declaratively with XML",
   "type": "module",
   "main": "dist/p5.marker.js",
   "min": "dist/p5.marker.min.js",
