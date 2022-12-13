@@ -116,7 +116,7 @@ const P5Extension = (baseClass) =>
     constructor() {
       super();
     }
-    updateAttribute(inherited, attrName, thisArg) {
+    #updateAttribute(inherited, attrName, thisArg) {
       if (attrName === "repeat" || attrName === "change")
         inherited = this.#state;
       const val = this.#callAttributeUpdater(inherited, attrName, thisArg);
@@ -144,12 +144,16 @@ const P5Extension = (baseClass) =>
       this.#state = Object.assign({}, inherited);
       const updaters = this.updateFunctions.entries();
       for (const [attrName, updateFunction] of updaters) {
-        this.#state[attrName] = this.updateAttribute(inherited, attrName, this);
+        this.#state[attrName] = this.#updateAttribute(
+          inherited,
+          attrName,
+          this
+        );
       }
       return this.#state;
     }
-    applyChange() {
-      const change = (this.#state.change = this.updateAttribute(
+    #applyChange() {
+      const change = (this.#state.change = this.#updateAttribute(
         this.#state,
         "change",
         this
@@ -191,7 +195,7 @@ const P5Extension = (baseClass) =>
         repeat = this.#state.repeat;
         const { change } = this.#state;
         if (Array.isArray(repeat)) {
-          const [key, ...conditions] = this.updateAttribute(
+          const [key, ...conditions] = this.#updateAttribute(
             this.#state,
             "repeat"
           );
@@ -203,13 +207,13 @@ const P5Extension = (baseClass) =>
           const updaters = this.updateFunctions.entries();
           for (const [attrName, updater] of updaters) {
             if (attrName in change === false)
-              this.#state[attrName] = this.updateAttribute(
+              this.#state[attrName] = this.#updateAttribute(
                 inherited,
                 attrName,
                 this
               );
           }
-          const changed = this.applyChange();
+          const changed = this.#applyChange();
           if (!changed) repeat = false;
         }
         this.endRender?.(this.#state);
@@ -254,14 +258,14 @@ const P5Extension = (baseClass) =>
         return this.parentElement.getAttribute(attrName);
       return this.parentElement.getInheritedAttr(attrName);
     }
-    get comments() {
-      return this.html
+    get #comments() {
+      return this.#html
         .split(/(?:\r\n|\r|\n)/)
         .map((line) => line.match(/.{1,80}/g))
         .flat()
         .map((line) => "//\t" + line);
     }
-    get html() {
+    get #html() {
       return this.outerHTML.replace(this.innerHTML, "");
     }
     isPersistent(attrName) {
@@ -324,7 +328,7 @@ const P5Extension = (baseClass) =>
         owner === "inherited" && !attr.name.includes(".")
           ? `return ${varValue};\n}`
           : `return ${varName} = ${varValue};\n};`;
-      const fnStr = [fnHeader, ...this.comments, fnBody].join("\n");
+      const fnStr = [fnHeader, ...this.#comments, fnBody].join("\n");
       const evalFn = new Function(fnStr)();
       this.updateFunctions.set(attr.name, evalFn);
     }
@@ -348,7 +352,7 @@ const P5Extension = (baseClass) =>
     }
     showLogicBool(inherited) {
       const show = this.hasAttribute("show")
-        ? this.updateAttribute(inherited, "show", this)
+        ? this.#updateAttribute(inherited, "show", this)
         : inherited.show;
       if (Array.isArray(show)) {
         const [logic, ...conditions] = show;
@@ -391,7 +395,6 @@ export class P5Function extends P5Element {
   get fnStr() {
     return `${this.fnName}(${this.params.join(", ")});`;
   }
-
   setParamsFromOverloads() {
     const { overloads } = this;
     //  Check every required parameter has an attribute
@@ -440,7 +443,7 @@ export class PositionedFunction extends P5Function {
   constructor(overloads) {
     super(overloads);
   }
-  setAnchorToXY() {
+  #setAnchorToXY() {
     const [xParam, yParam] = this.params.slice(0, 2);
     const x = this.getAttribute(xParam) || this.getInheritedAttr(xParam);
     const y = this.getAttribute(yParam) || this.getInheritedAttr(yParam);
@@ -462,7 +465,7 @@ export class PositionedFunction extends P5Function {
         this.hasAttribute("scale_factor") ||
         this.hasAttribute("shear"))
     )
-      this.setAnchorToXY();
+      this.#setAnchorToXY();
   }
 }
 
