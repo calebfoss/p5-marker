@@ -1,30 +1,29 @@
+const notExistingObjProp = "(?<![^\\.]\\.)";
+const legalVarName = "\\b[a-z$_][a-z0-9$_]*\\b";
+const notNewObjProp = "(?:(?!\\s*:)|(?<=\\?[^,]*))";
+const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
+const notNewKeyword = "(?<!\\bnew\\b)";
+const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
+const varName = new RegExp(
+  notExistingObjProp +
+    legalVarName +
+    notNewObjProp +
+    notBoolean +
+    notNewKeyword +
+    notProceededByOpenString,
+  "gi"
+);
+
 export class AttrParseUtil {
-  static {
-    const notExistingObjProp = "(?<![^\\.]\\.)";
-    const legalVarName = "\\b[a-z$_][a-z0-9$_]*\\b";
-    const notNewObjProp = "(?:(?!\\s*:)|(?<=\\?[^,]*))";
-    const notBoolean = "(?<!\\btrue\\b)(?<!\\bfalse\\b)";
-    const notNewKeyword = "(?<!\\bnew\\b)";
-    const notProceededByOpenString = "(?=(?:[^\"'`](?:([\"'`]).*\\1)*)*$)";
-    const varName = new RegExp(
-      notExistingObjProp +
-        legalVarName +
-        notNewObjProp +
-        notBoolean +
-        notNewKeyword +
-        notProceededByOpenString,
-      "gi"
-    );
-    this.regex = {
-      legalVarName,
-      notExistingObjProp,
-      notNewObjProp,
-      notBoolean,
-      notNewKeyword,
-      notProceededByOpenString,
-      varName,
-    };
-  }
+  static regex = {
+    legalVarName,
+    notExistingObjProp,
+    notNewObjProp,
+    notBoolean,
+    notNewKeyword,
+    notProceededByOpenString,
+    varName,
+  };
   static allQuotesMatched(str) {
     const quoteExps = [/"/g, /'/g, /`/g];
     for (const i in quoteExps) {
