@@ -15,7 +15,7 @@ import { P5Function, PositionedFunction } from "./core";
     return el.pInst.createVector(x, y);
   };
   /**
-   * Draw an arc to the screen. If called with only x, y, w, h, start and stop
+   * Draws an arc to the screen. If called with only x, y, w, h, start and stop
    * the arc will be drawn and filled as an open pie segment. If a mode
    * parameter is provided, the arc will be filled like an open semi-circle
    * (OPEN), a closed semi-circle (CHORD), or as a closed pie segment (PIE).
@@ -66,6 +66,24 @@ import { P5Function, PositionedFunction } from "./core";
       );
     }
   }
+  /**
+   * Draws an ellipse (oval) to the screen. By default, the first two
+   * parameters set the location of the center of the ellipse, and the third
+   * and fourth parameters set the shape's width and height. If no height is
+   * specified, the value of width is used for both the width and height. If a
+   * negative height or width is specified, the absolute value is taken.
+   *
+   * An ellipse with equal width and height is a circle. The origin may be
+   * changed with the ellipseMode() function.
+   * @element ellipse
+   * @attr {Number} x - x-coordinate of the center of the ellipse
+   * @attr {Number} y - y-coordinate of the center of the ellipse
+   * @attr {Number} w - width of the ellipse
+   * @attr {Number} h - height of the ellipse
+   * @attr {Integer} detail - For WEBGL mode only. This is to specify the
+   * number of vertices that makes up the perimeter of the ellipse. Default
+   * value is 25. Won't draw a stroke for a detail of more than 50.
+   */
   class Ellipse extends PositionedFunction {
     constructor() {
       super(["x, y, w, [h]", "x, y, w, h, [detail]"]);
