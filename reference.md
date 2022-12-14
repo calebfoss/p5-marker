@@ -35,7 +35,7 @@ for adjusting attributes for child elements.
 
 # canvas
 
-The <canvas> element is a rectangular area of the window for rendering
+The `<canvas>` element is a rectangular area of the window for rendering
 imagery. All child elements are rendered to the canvas. Width, height
 canvas_background, and all custom attributes are persistent; if a child
 element changes the value of any of these attributes, the change will
@@ -83,7 +83,7 @@ time.
 
 # custom
 
-The <custom> element generates a new element from a combination of existing
+The `<custom>` element generates a new element from a combination of existing
 elements. This element should be placed outside the <canvas> element. The name attribute defines the name of the new element. For
 example, if name is set to "my-element," <my-element>
 
@@ -156,7 +156,7 @@ example, if name is set to "my-element," <my-element>
 # p-sketch
 
 This HTML element loads an XML sketch file. This should be added to the
-index.html file as a <link> element with the attributes is="p-sketch" and
+index.html file as a `<link>` element with the attributes is="p-sketch" and
 href="[PATH TO XML FILE]".
 
 ## Example
