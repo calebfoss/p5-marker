@@ -20,11 +20,11 @@ import "./modules/collide";
 (() => {
   const customElementsDefined = new Event("customElementsDefined");
   const { _customElements: elements } = p5.prototype;
-  for (const i in elements) {
+  for (const element of elements) {
     customElements.define(
-      elements[i].elementName,
-      elements[i],
-      elements[i].constructorOptions
+      element.elementName,
+      element,
+      element.constructorOptions
     );
   }
   dispatchEvent(customElementsDefined);
