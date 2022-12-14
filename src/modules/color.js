@@ -85,19 +85,20 @@ defineProperties({
   },
 });
 
-registerElements(
+(() => {
   class Clear extends P5Function {
     constructor() {
       super(["", "r, g, b, a"]);
     }
-  },
+  }
   class PaintBucket extends ColorFunction {
     constructor() {
       super(["colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"]);
     }
     fnName = "background";
   }
-);
+  registerElements(Clear, PaintBucket);
+})();
 
 p5.prototype.registerMethod("pre", function () {
   this.background(this.canvas_background);

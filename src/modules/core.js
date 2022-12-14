@@ -517,123 +517,121 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
         );
         this.prepend(...childClones);
       }
-      static elementName = name;
+
       renderToCanvas = null;
     }
   );
 };
-
-/**
- * The blank <_> element renders nothing to the canvas. This is useful
- * for adjusting attributes for child elements.
- * @element _
- */
-class _ extends P5Element {
-  static elementName = "p-_";
-  constructor() {
-    super();
-  }
-}
-
-/**
- * The <canvas> element is a rectangular area of the window for rendering
- * imagery. All child elements are rendered to the canvas. Width, height
- * canvas_background, and all custom attributes are persistent; if a child
- * element changes the value of any of these attributes, the change will
- * remain in the next frame. This can be used to animate attributes over
- * time.
- * @element canvas
- * @attr {Number} width - Width of the canvas in pixels
- * @attr {Number} height - Height of the canvas in pixels
- * @attr {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image, [Number]} canvas_background - Sets the background that is rendered at the start of each frame. This may be a color or an image.
- */
-class Canvas extends P5Extension(HTMLCanvasElement) {
-  static elementName = "p-canvas";
-  constructor() {
-    super();
-    window.addEventListener("customElementsDefined", this.runCode.bind(this));
-  }
-  static constructorOptions = { extends: "canvas" };
-  get orderedAttributeNames() {
-    //  Remove 'is' and 'style' from attrNames
-    return super.orderedAttributeNames.filter(
-      (v) => v !== "is" && v != "style"
-    );
-  }
-  runCode() {
-    const canvas = this;
-
-    const sketch = (pInst) => {
-      Canvas.setupElement(canvas, pInst);
-
-      pInst.preload = () => pInst.loadAssets();
-
-      pInst.setup = function () {
-        const renderer = pInst[canvas.getAttribute("renderer")];
-        pInst.assignCanvas(canvas, renderer);
-        const initialState = canvas.updateState({});
-
-        Object.getOwnPropertyNames(initialState).forEach(
-          (name) => delete defaults[name]
-        );
-      };
-      const defaults = {
-        x: 0,
-        x1: 0,
-        x2: 0,
-        x3: 100,
-        x4: 100,
-        cx: 0,
-        y: 0,
-        y1: 0,
-        y2: 100,
-        y3: 100,
-        y4: 0,
-        cy: 0,
-        z: 0,
-        w: 100,
-        h: 100,
-        d: 100,
-        s: 100,
-        start_angle: 0,
-        stop_angle: pInst.PI,
-        vector: pInst.createVector(),
-        v1: 255,
-        v2: 255,
-        v3: 255,
-        rx: 1,
-        ry: 1,
-        rz: -1,
-        img: pInst.createImage(100, 100),
-        content: "",
-        show: [p5.prototype.IF, true],
-        repeat: false,
-        change: {},
-      };
-
-      pInst.draw = function () {
-        canvas.drawChildren(defaults);
-      };
-    };
-    new p5(sketch);
-  }
-  static setupElement = (el, pInst) => {
-    el.setup(pInst);
-    el.setDefaults?.();
-    el.setupEvalFns?.();
-    el.setParamsFromOverloads?.();
-    for (let i = 0; i < el.children.length; i++) {
-      const child = el.children.item(i);
-      Canvas.setupElement(child, pInst);
+(() => {
+  /**
+   * The blank <_> element renders nothing to the canvas. This is useful
+   * for adjusting attributes for child elements.
+   * @element _
+   */
+  class _ extends P5Element {
+    constructor() {
+      super();
     }
-  };
-
-  varInitialized(varName) {
-    if (this.hasAttribute(varName)) return true;
-    return super.varInitialized(varName);
   }
-}
-/**
+
+  /**
+   * The <canvas> element is a rectangular area of the window for rendering
+   * imagery. All child elements are rendered to the canvas. Width, height
+   * canvas_background, and all custom attributes are persistent; if a child
+   * element changes the value of any of these attributes, the change will
+   * remain in the next frame. This can be used to animate attributes over
+   * time.
+   * @element canvas
+   * @attr {Number} width - Width of the canvas in pixels
+   * @attr {Number} height - Height of the canvas in pixels
+   * @attr {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image, [Number]} canvas_background - Sets the background that is rendered at the start of each frame. This may be a color or an image.
+   */
+  class Canvas extends P5Extension(HTMLCanvasElement) {
+    constructor() {
+      super();
+      window.addEventListener("customElementsDefined", this.runCode.bind(this));
+    }
+    static constructorOptions = { extends: "canvas" };
+    get orderedAttributeNames() {
+      //  Remove 'is' and 'style' from attrNames
+      return super.orderedAttributeNames.filter(
+        (v) => v !== "is" && v != "style"
+      );
+    }
+    runCode() {
+      const canvas = this;
+
+      const sketch = (pInst) => {
+        Canvas.setupElement(canvas, pInst);
+
+        pInst.preload = () => pInst.loadAssets();
+
+        pInst.setup = function () {
+          const renderer = pInst[canvas.getAttribute("renderer")];
+          pInst.assignCanvas(canvas, renderer);
+          const initialState = canvas.updateState({});
+
+          Object.getOwnPropertyNames(initialState).forEach(
+            (name) => delete defaults[name]
+          );
+        };
+        const defaults = {
+          x: 0,
+          x1: 0,
+          x2: 0,
+          x3: 100,
+          x4: 100,
+          cx: 0,
+          y: 0,
+          y1: 0,
+          y2: 100,
+          y3: 100,
+          y4: 0,
+          cy: 0,
+          z: 0,
+          w: 100,
+          h: 100,
+          d: 100,
+          s: 100,
+          start_angle: 0,
+          stop_angle: pInst.PI,
+          vector: pInst.createVector(),
+          v1: 255,
+          v2: 255,
+          v3: 255,
+          rx: 1,
+          ry: 1,
+          rz: -1,
+          img: pInst.createImage(100, 100),
+          content: "",
+          show: [p5.prototype.IF, true],
+          repeat: false,
+          change: {},
+        };
+
+        pInst.draw = function () {
+          canvas.drawChildren(defaults);
+        };
+      };
+      new p5(sketch);
+    }
+    static setupElement = (el, pInst) => {
+      el.setup(pInst);
+      el.setDefaults?.();
+      el.setupEvalFns?.();
+      el.setParamsFromOverloads?.();
+      for (let i = 0; i < el.children.length; i++) {
+        const child = el.children.item(i);
+        Canvas.setupElement(child, pInst);
+      }
+    };
+
+    varInitialized(varName) {
+      if (this.hasAttribute(varName)) return true;
+      return super.varInitialized(varName);
+    }
+  }
+  /**
  * The <custom> element generates a new element from a combination of existing
  * elements. This element should be placed outside the <canvas> element. The name attribute defines the name of the new element. For
  * example, if name is set to "my-element," <my-element>
@@ -671,106 +669,105 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     </canvas>
 </_>
  */
-class Custom extends P5Element {
-  static elementName = "p-custom";
-  constructor() {
-    super();
-    if (this.attributes.length) p5.prototype._defineCustomElement(this);
-  }
-}
-class Asset extends HTMLElement {
-  static elementName = "p-asset";
-  constructor() {
-    super();
-  }
-  static loadFns = {
-    image: "loadImage",
-    font: "loadFont",
-    json: "loadJSON",
-    strings: "loadStrings",
-    table: "loadTable",
-    xml: "loadXML",
-    bytes: "loadBytes",
-    get: "httpGet",
-    shader: "loadShader",
-  };
-  static elementName = "p-asset";
-  async load(pInst) {
-    if (this.data) return this.data;
-    const loadFn = Asset.loadFns[this.getAttribute("type").toLowerCase()];
-    const path = this.getAttribute("path");
-    this.data = await pInst[loadFn](path);
-    return this.data;
-  }
-}
-/**
- * This HTML element loads an XML sketch file. This should be added to the
- * index.html file as a <link> element with the attributes is="p-sketch" and
- * href="[PATH TO XML FILE]".
- * @element p-sketch
- * @example
- * <!DOCTYPE html>
- * <html lang="en">
- * <head>
- *   <script src="p5.js"></script>
- *   <script src="p5.marker.js" defer></script>
- *   <link rel="stylesheet" type="text/css" href="style.css" />
- *   <link href="sketch.xml" is="p-sketch" />
- *   <meta charset="utf-8" />
- * </head>
- * <body></body>
- * </html>
- */
-class Sketch extends HTMLLinkElement {
-  static elementName = "p-sketch";
-  constructor() {
-    super();
-    this.loadXML(this.href);
-  }
-  static constructorOptions = { extends: "link" };
-
-  convertElement(xmlEl) {
-    const xmlTag = xmlEl.tagName;
-    const pEl =
-      xmlTag === "canvas"
-        ? document.createElement("canvas", { is: "p-canvas" })
-        : document.createElement(`p-${xmlTag}`);
-    this.copyAttributes(xmlEl, pEl);
-    if (xmlTag === "custom") p5.prototype._defineCustomElement(pEl);
-    return pEl;
-  }
-  convertAllElements(xmlEl, parent = document.body) {
-    const pEl = this.convertElement(xmlEl);
-    parent.appendChild(pEl);
-    for (let i = 0; i < xmlEl.children.length; i++) {
-      this.convertAllElements(xmlEl.children[i], pEl);
+  class Custom extends P5Element {
+    constructor() {
+      super();
+      if (this.attributes.length) p5.prototype._defineCustomElement(this);
     }
   }
-  convertXML(e) {
-    const xml = e.target.response.documentElement;
-    this.convertAllElements(xml);
-    document.querySelectorAll("canvas").forEach((canvas) => canvas.runCode());
-  }
-  copyAttributes(orig, copy) {
-    const attrs = orig.attributes;
-    for (let i = 0; i < attrs.length; i++) {
-      const attr = attrs[i];
-      copy.setAttribute(attr.name, attr.value);
+  class Asset extends HTMLElement {
+    static elementName = "p-asset";
+    constructor() {
+      super();
+    }
+    static loadFns = {
+      image: "loadImage",
+      font: "loadFont",
+      json: "loadJSON",
+      strings: "loadStrings",
+      table: "loadTable",
+      xml: "loadXML",
+      bytes: "loadBytes",
+      get: "httpGet",
+      shader: "loadShader",
+    };
+
+    async load(pInst) {
+      if (this.data) return this.data;
+      const loadFn = Asset.loadFns[this.getAttribute("type").toLowerCase()];
+      const path = this.getAttribute("path");
+      this.data = await pInst[loadFn](path);
+      return this.data;
     }
   }
-  loadXML(path) {
-    if (!path)
-      return console.error(
-        "p-sketch element is missing required path attribute"
-      );
-    const request = new XMLHttpRequest();
-    request.open("GET", path);
-    request.responseType = "document";
-    request.overrideMimeType("text/xml");
-    request.addEventListener("load", this.convertXML.bind(this));
-    request.send();
-  }
-  static elementName = "p-sketch";
-}
+  /**
+   * This HTML element loads an XML sketch file. This should be added to the
+   * index.html file as a <link> element with the attributes is="p-sketch" and
+   * href="[PATH TO XML FILE]".
+   * @element p-sketch
+   * @example
+   * <!DOCTYPE html>
+   * <html lang="en">
+   * <head>
+   *   <script src="p5.js"></script>
+   *   <script src="p5.marker.js" defer></script>
+   *   <link rel="stylesheet" type="text/css" href="style.css" />
+   *   <link href="sketch.xml" is="p-sketch" />
+   *   <meta charset="utf-8" />
+   * </head>
+   * <body></body>
+   * </html>
+   */
+  class Sketch extends HTMLLinkElement {
+    static elementName = "p-sketch";
+    constructor() {
+      super();
+      this.loadXML(this.href);
+    }
+    static constructorOptions = { extends: "link" };
 
-registerElements(_, Canvas, Custom, Asset, Sketch);
+    convertElement(xmlEl) {
+      const xmlTag = xmlEl.tagName;
+      const pEl =
+        xmlTag === "canvas"
+          ? document.createElement("canvas", { is: "p-canvas" })
+          : document.createElement(`p-${xmlTag}`);
+      this.copyAttributes(xmlEl, pEl);
+      if (xmlTag === "custom") p5.prototype._defineCustomElement(pEl);
+      return pEl;
+    }
+    convertAllElements(xmlEl, parent = document.body) {
+      const pEl = this.convertElement(xmlEl);
+      parent.appendChild(pEl);
+      for (let i = 0; i < xmlEl.children.length; i++) {
+        this.convertAllElements(xmlEl.children[i], pEl);
+      }
+    }
+    convertXML(e) {
+      const xml = e.target.response.documentElement;
+      this.convertAllElements(xml);
+      document.querySelectorAll("canvas").forEach((canvas) => canvas.runCode());
+    }
+    copyAttributes(orig, copy) {
+      const attrs = orig.attributes;
+      for (let i = 0; i < attrs.length; i++) {
+        const attr = attrs[i];
+        copy.setAttribute(attr.name, attr.value);
+      }
+    }
+    loadXML(path) {
+      if (!path)
+        return console.error(
+          "p-sketch element is missing required path attribute"
+        );
+      const request = new XMLHttpRequest();
+      request.open("GET", path);
+      request.responseType = "document";
+      request.overrideMimeType("text/xml");
+      request.addEventListener("load", this.convertXML.bind(this));
+      request.send();
+    }
+  }
+
+  registerElements(_, Canvas, Custom, Asset, Sketch);
+})();

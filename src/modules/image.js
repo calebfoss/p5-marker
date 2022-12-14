@@ -5,7 +5,7 @@ import {
 } from "../utils/p5Modifiers";
 import { PositionedFunction } from "./core";
 
-registerElements(
+(() => {
   class Image extends PositionedFunction {
     constructor() {
       super([
@@ -14,7 +14,8 @@ registerElements(
       ]);
     }
   }
-);
+  registerElements(Image);
+})();
 
 defineRendererGetterSetters("imageMode");
 

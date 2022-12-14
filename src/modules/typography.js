@@ -16,10 +16,11 @@ defineRendererGetterSetters(
 
 defineSnakeAlias("textAscent", "textDescent");
 
-registerElements(
+(() => {
   class Text extends PositionedFunction {
     constructor() {
       super(["content, x, y, [x2], [y2]"]);
     }
   }
-);
+  registerElements(Text);
+})();
