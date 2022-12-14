@@ -107,11 +107,14 @@ const P5Extension = (baseClass) =>
         return prop in target.#state;
       },
       set(target, prop, val) {
-        target.updateFunctions.set(prop, () => val);
+        target.#updateFunctions.set(prop, () => val);
         target.#state[prop] = val;
       },
     });
-    updateFunctions = new Map();
+    /**
+     * @private
+     */
+    #updateFunctions = new Map();
 
     constructor() {
       super();
@@ -142,7 +145,7 @@ const P5Extension = (baseClass) =>
     }
     updateState(inherited) {
       this.#state = Object.assign({}, inherited);
-      const updaters = this.updateFunctions.entries();
+      const updaters = this.#updateFunctions.entries();
       for (const [attrName, updateFunction] of updaters) {
         this.#state[attrName] = this.#updateAttribute(
           inherited,
@@ -204,7 +207,7 @@ const P5Extension = (baseClass) =>
         if (repeat) {
           this.pInst.pop();
           this.pInst.push();
-          const updaters = this.updateFunctions.entries();
+          const updaters = this.#updateFunctions.entries();
           for (const [attrName, updater] of updaters) {
             if (attrName in change === false)
               this.#state[attrName] = this.#updateAttribute(
@@ -242,9 +245,12 @@ const P5Extension = (baseClass) =>
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
     }
+    /**
+     * @private
+     */
     #callAttributeUpdater(inherited, attrName, thisArg) {
-      if (this.updateFunctions.has(attrName)) {
-        const evalFn = this.updateFunctions.get(attrName);
+      if (this.#updateFunctions.has(attrName)) {
+        const evalFn = this.#updateFunctions.get(attrName);
         return evalFn.call(thisArg, this.pInst, inherited);
       }
       if (attrName in inherited) return inherited[attrName];
@@ -330,7 +336,7 @@ const P5Extension = (baseClass) =>
           : `return ${varName} = ${varValue};\n};`;
       const fnStr = [fnHeader, ...this.#comments, fnBody].join("\n");
       const evalFn = new Function(fnStr)();
-      this.updateFunctions.set(attr.name, evalFn);
+      this.#updateFunctions.set(attr.name, evalFn);
     }
     setupEvalFns() {
       if (this.hasAttribute("repeat") && !this.hasAttribute("change")) {
@@ -344,7 +350,7 @@ const P5Extension = (baseClass) =>
       const { orderedAttributeNames, transformDoneIndex } = this;
       for (let i = 0; i < orderedAttributeNames.length; i++) {
         if (i === transformDoneIndex)
-          this.updateFunctions.set("transform_matrix", function () {
+          this.#updateFunctions.set("transform_matrix", function () {
             this.transform_matrix = this.pInst.transform_matrix;
           });
         this.setupEvalFn(this.attributes[orderedAttributeNames[i]]);
