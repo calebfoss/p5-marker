@@ -14,7 +14,32 @@ import { P5Function, PositionedFunction } from "./core";
     );
     return el.pInst.createVector(x, y);
   };
-
+  /**
+   * Draw an arc to the screen. If called with only x, y, w, h, start and stop
+   * the arc will be drawn and filled as an open pie segment. If a mode
+   * parameter is provided, the arc will be filled like an open semi-circle
+   * (OPEN), a closed semi-circle (CHORD), or as a closed pie segment (PIE).
+   * The origin may be changed with the ellipseMode() function.
+   *
+   * The arc is always drawn clockwise from wherever start falls to wherever
+   * stop falls on the ellipse. Adding or subtracting TWO_PI to either angle
+   * does not change where they fall. If both start and stop fall at the same
+   * place, a full ellipse will be drawn. Be aware that the y-axis increases in
+   * the downward direction, therefore angles are measured clockwise from the
+   * positive x-direction ("3 o'clock").
+   * @element arc
+   * @attr {Number} x - x-coordinate of the arc's ellipse
+   * @attr {Number} y - y-coordinate of the arc's ellipse
+   * @attr {Number} w - width of the arc's ellipse by default (affected by ellipse_mode)
+   * @attr {Number} h - height of the arc's ellipse by default (affected by ellipse_mode)
+   * @attr {Number} start - angle to start the arc, specified in radians
+   * @attr {Number} stop - angle to stop the arc, specified in radians
+   * @attr {Constant} mode - determines the way of drawing the arc. either
+   * CHORD, PIE or OPEN.
+   * @attr {Integer} detail - optional parameter for WebGL mode only. This is
+   * to specify the number of vertices that makes up the perimeter of the arc.
+   * Default value is 25. Won't draw a stroke for a detail of more than 50.
+   */
   class Arc extends PositionedFunction {
     constructor() {
       super(["x, y, w, h, start_angle, stop_angle, [mode], [detail], [a]"]);
