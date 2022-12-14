@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "npx parcel build && node utils/addBuildComment.mjs ",
-    "docs": "npx jsdoc -c docs/jsdoc.json dist -r",
+    "docs": "npx web-component-analyzer src --outFile reference.md",
     "test": "npm run build && npx mocha -r esm ./unit_tests",
     "watch": "npx parcel watch"
   },
@@ -29,6 +29,7 @@
   "author": "Caleb Foss",
   "license": "MIT",
   "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.6.6",
     "chai": "x",
     "esm": "^3.2.25",
     "jsdoc": "^3.6.11",
