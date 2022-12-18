@@ -3,7 +3,7 @@ import {
   defineRendererGetterSetters,
   registerElements,
 } from "../utils/p5Modifiers";
-import { P5Function, PositionedFunction } from "./core";
+import { P5Function, P5Function } from "./core";
 
 (() => {
   const transformVertexFn = (el) => (v) => {
@@ -40,7 +40,7 @@ import { P5Function, PositionedFunction } from "./core";
    * to specify the number of vertices that makes up the perimeter of the arc.
    * Default value is 25. Won't draw a stroke for a detail of more than 50.
    */
-  class Arc extends PositionedFunction {
+  class Arc extends P5Function {
     constructor() {
       super(["x, y, w, h, start_angle, stop_angle, [mode], [detail], [a]"]);
     }
@@ -84,7 +84,7 @@ import { P5Function, PositionedFunction } from "./core";
    * number of vertices that makes up the perimeter of the ellipse. Default
    * value is 25. Won't draw a stroke for a detail of more than 50.
    */
-  class Ellipse extends PositionedFunction {
+  class Ellipse extends P5Function {
     constructor() {
       super(["x, y, w, [h]", "x, y, w, h, [detail]"]);
     }
@@ -113,7 +113,7 @@ import { P5Function, PositionedFunction } from "./core";
       );
     }
   }
-  class Circle extends PositionedFunction {
+  class Circle extends P5Function {
     constructor() {
       super(["x, y, d"]);
     }
@@ -139,7 +139,7 @@ import { P5Function, PositionedFunction } from "./core";
       );
     }
   }
-  class Line extends PositionedFunction {
+  class Line extends P5Function {
     constructor() {
       super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
     }
@@ -170,7 +170,7 @@ import { P5Function, PositionedFunction } from "./core";
       );
     }
   }
-  class Point extends PositionedFunction {
+  class Point extends P5Function {
     constructor() {
       super(["x, y, [z]", "coordinate_vector"]);
     }
@@ -204,7 +204,7 @@ import { P5Function, PositionedFunction } from "./core";
       );
     }
   }
-  class Quad extends PositionedFunction {
+  class Quad extends P5Function {
     constructor() {
       super([
         "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
@@ -233,7 +233,7 @@ import { P5Function, PositionedFunction } from "./core";
       ];
     }
   }
-  class Rect extends PositionedFunction {
+  class Rect extends P5Function {
     constructor() {
       super([
         "x, y, w, [h], [tl], [tr], [br], [bl]",
@@ -265,7 +265,7 @@ import { P5Function, PositionedFunction } from "./core";
       );
     }
   }
-  class Square extends PositionedFunction {
+  class Square extends P5Function {
     constructor() {
       super(["x, y, s, [tl], [tr], [br], [bl]"]);
     }
@@ -295,7 +295,7 @@ import { P5Function, PositionedFunction } from "./core";
       );
     }
   }
-  class Triangle extends PositionedFunction {
+  class Triangle extends P5Function {
     constructor() {
       const overloads = ["x1, y1, x2, y2, x3, y3"];
       super(overloads);
@@ -327,7 +327,7 @@ import { P5Function, PositionedFunction } from "./core";
       ];
     }
   }
-  class Bezier extends PositionedFunction {
+  class Bezier extends P5Function {
     constructor() {
       super([
         "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -335,7 +335,7 @@ import { P5Function, PositionedFunction } from "./core";
       ]);
     }
   }
-  class Curve extends PositionedFunction {
+  class Curve extends P5Function {
     constructor() {
       super([
         "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -343,7 +343,7 @@ import { P5Function, PositionedFunction } from "./core";
       ]);
     }
   }
-  class Contour extends PositionedFunction {
+  class Contour extends P5Function {
     constructor() {
       super([""]);
     }
@@ -352,7 +352,7 @@ import { P5Function, PositionedFunction } from "./core";
       this.pInst.endContour();
     }
   }
-  class Shape extends PositionedFunction {
+  class Shape extends P5Function {
     constructor() {
       super(["[kind]"]);
     }

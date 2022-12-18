@@ -3,10 +3,10 @@ import {
   defineRendererGetterSetters,
   registerElements,
 } from "../utils/p5Modifiers";
-import { PositionedFunction } from "./core";
+import { P5Function } from "./core";
 
 (() => {
-  class Image extends PositionedFunction {
+  class Image extends P5Function {
     constructor() {
       super([
         "img, x, y, [w], [h]",

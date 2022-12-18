@@ -458,36 +458,6 @@ export class P5Function extends P5Element {
   }
 }
 
-export class PositionedFunction extends P5Function {
-  constructor(overloads) {
-    super(overloads);
-  }
-  #setAnchorToXY() {
-    const [xParam, yParam] = this.params.slice(0, 2);
-    const x = this.getAttribute(xParam) || this.getInheritedAttr(xParam);
-    const y = this.getAttribute(yParam) || this.getInheritedAttr(yParam);
-    const anchorVal = `[${x}, ${y}]`;
-    this.setAttribute("anchor", anchorVal);
-    this.setAttribute(xParam, 0);
-    this.setAttribute(yParam, 0);
-    const anchorAttr = this.attributes["anchor"];
-    this.setupEvalFn(this.attributes[xParam]);
-    this.setupEvalFn(this.attributes[yParam]);
-    this.setupEvalFn(anchorAttr);
-  }
-  setParamsFromOverloads() {
-    super.setParamsFromOverloads();
-    //  If el has transform attrs but not anchor
-    if (
-      !this.hasAttribute("anchor") &&
-      (this.hasAttribute("angle") ||
-        this.hasAttribute("scale_factor") ||
-        this.hasAttribute("shear"))
-    )
-      this.#setAnchorToXY();
-  }
-}
-
 p5.prototype._defineCustomElement = function (pCustomEl) {
   const name = pCustomEl.getAttribute("name");
   customElements.define(

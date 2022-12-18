@@ -3,7 +3,7 @@ import {
   defineSnakeAlias,
   registerElements,
 } from "../utils/p5Modifiers";
-import { PositionedFunction } from "./core";
+import { P5Function } from "./core";
 
 defineRendererGetterSetters(
   "textAlign",
@@ -17,7 +17,7 @@ defineRendererGetterSetters(
 defineSnakeAlias("textAscent", "textDescent");
 
 (() => {
-  class Text extends PositionedFunction {
+  class Text extends P5Function {
     constructor() {
       super(["content, x, y, [x2], [y2]"]);
     }
