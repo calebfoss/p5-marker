@@ -324,8 +324,17 @@ const P5Extension = (baseClass) =>
     }
     setup(pInst) {
       this.#pInst = pInst;
+      this.setDefaults?.();
+      this.#setupEvalFns?.();
+      this.setParamsFromOverloads?.();
+      for (const child of this.children) {
+        child.setup(pInst);
+      }
     }
-    setupEvalFn(attr) {
+    /**
+     * @private
+     */
+    #setupEvalFn(attr) {
       //  The attribute's value will be modified, then run as JS
       const attrJsStr = attr.value;
       //  TODO - catch improperly ordered quote marks: "foo'var"'
@@ -357,7 +366,10 @@ const P5Extension = (baseClass) =>
       const evalFn = new Function(fnStr)();
       this.#updateFunctions.set(attr.name, evalFn);
     }
-    setupEvalFns() {
+    /**
+     * @private
+     */
+    #setupEvalFns() {
       if (this.hasAttribute("repeat") && !this.hasAttribute("change")) {
         console.error(
           `It looks like a ${this.constructor.elementName} has a repeat attribute ` +
@@ -372,7 +384,7 @@ const P5Extension = (baseClass) =>
           this.#updateFunctions.set("transform_matrix", function () {
             this.transform_matrix = this.pInst.transform_matrix;
           });
-        this.setupEvalFn(this.attributes[orderedAttributeNames[i]]);
+        this.#setupEvalFn(this.attributes[orderedAttributeNames[i]]);
       }
     }
     get this_element() {
@@ -516,7 +528,7 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
       const canvas = this;
 
       const sketch = (pInst) => {
-        Canvas.setupElement(canvas, pInst);
+        canvas.setup(pInst);
 
         pInst.preload = () => pInst.loadAssets();
 
@@ -569,17 +581,6 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
       };
       new p5(sketch);
     }
-    static setupElement = (el, pInst) => {
-      el.setup(pInst);
-      el.setDefaults?.();
-      el.setupEvalFns?.();
-      el.setParamsFromOverloads?.();
-      for (let i = 0; i < el.children.length; i++) {
-        const child = el.children.item(i);
-        Canvas.setupElement(child, pInst);
-      }
-    };
-
     varInitialized(varName) {
       if (this.hasAttribute(varName)) return true;
       return super.varInitialized(varName);
