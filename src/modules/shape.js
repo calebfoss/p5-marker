@@ -146,6 +146,19 @@ import { P5Function, P5Function } from "./core";
       );
     }
   }
+  /**
+   * Draws a line (a direct path between two points) to the screen. This width
+   * can be modified by using the stroke_weight attribute. A line cannot be
+   * filled, therefore the fill_color attribute will not affect the color of a
+   * line. So to color a line, use the stroke_color attribute.
+   * @element line
+   * @attr {Number} x1 - x-coordinate of the first point
+   * @attr {Number} y1 - y-coordinate of the first point
+   * @attr {Number} x2 - x-coordinate of the second point
+   * @attr {Number} y2 - y-coordinate of the second point
+   * @attr {Number} z1 - z-coordinate of the first point (WEBGL mode)
+   * @attr {Number} z2 - z-coordinate of the second point (WEBGL mode)
+   */
   class Line extends P5Function {
     constructor() {
       super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
