@@ -1,25 +1,25 @@
-# _
+# \_
 
-The blank <_> element renders nothing to the canvas. This is useful
+The blank <\_> element renders nothing to the canvas. This is useful
 for adjusting attributes for child elements.
 
 **Mixins:** P5Extension
 
 ## Properties
 
-| Property                | Modifiers | Type    | Default                                          |
-|-------------------------|-----------|---------|--------------------------------------------------|
-| `orderedAttributeNames` | readonly  | `array` |                                                  |
-| `pInst`                 | readonly  |         |                                                  |
-| `parent_element`        | readonly  |         |                                                  |
-| `persistent`            | readonly  |         |                                                  |
-| `proxy`                 |           | `this`  | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`  |                                                  |
+| Property                | Modifiers | Type    | Default                                                                                                                                                                                                                                                                                                                                 |
+| ----------------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `orderedAttributeNames` | readonly  | `array` |                                                                                                                                                                                                                                                                                                                                         |
+| `pInst`                 | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `parent_element`        | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `persistent`            | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `proxy`                 |           | `this`  | "new Proxy(this, {\n get(target, prop) {\n if (prop in target) return target[prop];\n return target.#state[prop];\n },\n has(target, prop) {\n if (prop in target) return true;\n return prop in target.#state;\n },\n set(target, prop, val) {\n target.#updateFunctions.set(prop, () => val);\n target.#state[prop] = val;\n },\n })" |
+| `this_element`          | readonly  | `this`  |                                                                                                                                                                                                                                                                                                                                         |
 
 ## Methods
 
 | Method             | Type                       |
-|--------------------|----------------------------|
+| ------------------ | -------------------------- |
 | `colliding_with`   | `(el: any): any`           |
 | `draw`             | `(inherited: any): void`   |
 | `drawChildren`     | `(assigned: any): void`    |
@@ -31,7 +31,6 @@ for adjusting attributes for child elements.
 | `showLogicBool`    | `(inherited: any): any[]`  |
 | `updateState`      | `(inherited: any): object` |
 | `varInitialized`   | `(varName: any): any`      |
-
 
 # canvas
 
@@ -46,27 +45,27 @@ time.
 
 ## Attributes
 
-| Attribute           | Type                                             | Description                                      |
-|---------------------|--------------------------------------------------|--------------------------------------------------|
+| Attribute           | Type                                                                                       | Description                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | `canvas_background` | `p5.Color\|String\|Number, [Number]\|Number, Number, Number, [Number]\|p5.Image, [Number]` | Sets the background that is rendered at the start of each frame. This may be a color or an image. |
-| `height`            | `Number`                                         | Height of the canvas in pixels                   |
-| `width`             | `Number`                                         | Width of the canvas in pixels                    |
+| `height`            | `Number`                                                                                   | Height of the canvas in pixels                                                                    |
+| `width`             | `Number`                                                                                   | Width of the canvas in pixels                                                                     |
 
 ## Properties
 
-| Property                | Modifiers | Type    | Default                                          |
-|-------------------------|-----------|---------|--------------------------------------------------|
-| `orderedAttributeNames` | readonly  | `array` |                                                  |
-| `pInst`                 | readonly  |         |                                                  |
-| `parent_element`        | readonly  |         |                                                  |
-| `persistent`            | readonly  |         |                                                  |
-| `proxy`                 |           | `this`  | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`  |                                                  |
+| Property                | Modifiers | Type    | Default                                                                                                                                                                                                                                                                                                                                 |
+| ----------------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `orderedAttributeNames` | readonly  | `array` |                                                                                                                                                                                                                                                                                                                                         |
+| `pInst`                 | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `parent_element`        | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `persistent`            | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `proxy`                 |           | `this`  | "new Proxy(this, {\n get(target, prop) {\n if (prop in target) return target[prop];\n return target.#state[prop];\n },\n has(target, prop) {\n if (prop in target) return true;\n return prop in target.#state;\n },\n set(target, prop, val) {\n target.#updateFunctions.set(prop, () => val);\n target.#state[prop] = val;\n },\n })" |
+| `this_element`          | readonly  | `this`  |                                                                                                                                                                                                                                                                                                                                         |
 
 ## Methods
 
 | Method             | Type                       |
-|--------------------|----------------------------|
+| ------------------ | -------------------------- |
 | `colliding_with`   | `(el: any): any`           |
 | `draw`             | `(inherited: any): void`   |
 | `drawChildren`     | `(assigned: any): void`    |
@@ -79,7 +78,6 @@ time.
 | `showLogicBool`    | `(inherited: any): any[]`  |
 | `updateState`      | `(inherited: any): object` |
 | `varInitialized`   | `(varName: any): any`      |
-
 
 # custom
 
@@ -119,7 +117,7 @@ example, if name is set to "my-element," <my-element>
          repeat="WHILE,  center_x LESS_THAN width * 1.25"
      ></cloud>
      <_ cloud_x="cloud_x + 0.25">
-         <_ show="IF, cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>
+         <_ on="cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>
      </_>
  </canvas>
 </_>
@@ -127,19 +125,19 @@ example, if name is set to "my-element," <my-element>
 
 ## Properties
 
-| Property                | Modifiers | Type    | Default                                          |
-|-------------------------|-----------|---------|--------------------------------------------------|
-| `orderedAttributeNames` | readonly  | `array` |                                                  |
-| `pInst`                 | readonly  |         |                                                  |
-| `parent_element`        | readonly  |         |                                                  |
-| `persistent`            | readonly  |         |                                                  |
-| `proxy`                 |           | `this`  | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`  |                                                  |
+| Property                | Modifiers | Type    | Default                                                                                                                                                                                                                                                                                                                                 |
+| ----------------------- | --------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `orderedAttributeNames` | readonly  | `array` |                                                                                                                                                                                                                                                                                                                                         |
+| `pInst`                 | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `parent_element`        | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `persistent`            | readonly  |         |                                                                                                                                                                                                                                                                                                                                         |
+| `proxy`                 |           | `this`  | "new Proxy(this, {\n get(target, prop) {\n if (prop in target) return target[prop];\n return target.#state[prop];\n },\n has(target, prop) {\n if (prop in target) return true;\n return prop in target.#state;\n },\n set(target, prop, val) {\n target.#updateFunctions.set(prop, () => val);\n target.#state[prop] = val;\n },\n })" |
+| `this_element`          | readonly  | `this`  |                                                                                                                                                                                                                                                                                                                                         |
 
 ## Methods
 
 | Method             | Type                       |
-|--------------------|----------------------------|
+| ------------------ | -------------------------- |
 | `colliding_with`   | `(el: any): any`           |
 | `draw`             | `(inherited: any): void`   |
 | `drawChildren`     | `(assigned: any): void`    |
@@ -152,7 +150,6 @@ example, if name is set to "my-element," <my-element>
 | `updateState`      | `(inherited: any): object` |
 | `varInitialized`   | `(varName: any): any`      |
 
-
 # p-sketch
 
 This HTML element loads an XML sketch file. This should be added to the
@@ -164,27 +161,26 @@ href="[PATH TO XML FILE]".
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <script src="p5.js"></script>
-  <script src="p5.marker.js" defer></script>
-  <link rel="stylesheet" type="text/css" href="style.css" />
-  <link href="sketch.xml" is="p-sketch" />
-  <meta charset="utf-8" />
-</head>
-<body></body>
+  <head>
+    <script src="p5.js"></script>
+    <script src="p5.marker.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link href="sketch.xml" is="p-sketch" />
+    <meta charset="utf-8" />
+  </head>
+  <body></body>
 </html>
 ```
 
 ## Methods
 
 | Method               | Type                                       |
-|----------------------|--------------------------------------------|
+| -------------------- | ------------------------------------------ |
 | `convertAllElements` | `(xmlEl: any, parent?: HTMLElement): void` |
 | `convertElement`     | `(xmlEl: any): HTMLElement`                |
 | `convertXML`         | `(e: any): void`                           |
 | `copyAttributes`     | `(orig: any, copy: any): void`             |
 | `loadXML`            | `(path: any): void`                        |
-
 
 # arc
 
@@ -205,36 +201,36 @@ positive x-direction ("3 o'clock").
 
 ## Attributes
 
-| Attribute | Type       | Description                                      |
-|-----------|------------|--------------------------------------------------|
+| Attribute | Type       | Description                                                                                                                                                                                                |
+| --------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `detail`  | `Integer`  | optional parameter for WebGL mode only. This is<br />to specify the number of vertices that makes up the perimeter of the arc.<br />Default value is 25. Won't draw a stroke for a detail of more than 50. |
-| `h`       | `Number`   | height of the arc's ellipse by default (affected by ellipse_mode) |
-| `mode`    | `Constant` | determines the way of drawing the arc. either<br />CHORD, PIE or OPEN. |
-| `start`   | `Number`   | angle to start the arc, specified in radians     |
-| `stop`    | `Number`   | angle to stop the arc, specified in radians      |
-| `w`       | `Number`   | width of the arc's ellipse by default (affected by ellipse_mode) |
-| `x`       | `Number`   | x-coordinate of the arc's ellipse                |
-| `y`       | `Number`   | y-coordinate of the arc's ellipse                |
+| `h`       | `Number`   | height of the arc's ellipse by default (affected by ellipse_mode)                                                                                                                                          |
+| `mode`    | `Constant` | determines the way of drawing the arc. either<br />CHORD, PIE or OPEN.                                                                                                                                     |
+| `start`   | `Number`   | angle to start the arc, specified in radians                                                                                                                                                               |
+| `stop`    | `Number`   | angle to stop the arc, specified in radians                                                                                                                                                                |
+| `w`       | `Number`   | width of the arc's ellipse by default (affected by ellipse_mode)                                                                                                                                           |
+| `x`       | `Number`   | x-coordinate of the arc's ellipse                                                                                                                                                                          |
+| `y`       | `Number`   | y-coordinate of the arc's ellipse                                                                                                                                                                          |
 
 ## Properties
 
-| Property                | Modifiers | Type     | Default                                          |
-|-------------------------|-----------|----------|--------------------------------------------------|
-| `fnName`                | readonly  |          |                                                  |
-| `fnStr`                 | readonly  | `string` |                                                  |
-| `mouse_over`            | readonly  |          |                                                  |
-| `orderedAttributeNames` | readonly  | `array`  |                                                  |
-| `overloads`             |           |          | "overloads"                                      |
-| `pInst`                 | readonly  |          |                                                  |
-| `parent_element`        | readonly  |          |                                                  |
-| `persistent`            | readonly  |          |                                                  |
-| `proxy`                 |           | `this`   | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`   |                                                  |
+| Property                | Modifiers | Type     | Default                                                                                                                                                                                                                                                                                                                                 |
+| ----------------------- | --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fnName`                | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `fnStr`                 | readonly  | `string` |                                                                                                                                                                                                                                                                                                                                         |
+| `mouse_over`            | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `orderedAttributeNames` | readonly  | `array`  |                                                                                                                                                                                                                                                                                                                                         |
+| `overloads`             |           |          | "overloads"                                                                                                                                                                                                                                                                                                                             |
+| `pInst`                 | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `parent_element`        | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `persistent`            | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `proxy`                 |           | `this`   | "new Proxy(this, {\n get(target, prop) {\n if (prop in target) return target[prop];\n return target.#state[prop];\n },\n has(target, prop) {\n if (prop in target) return true;\n return prop in target.#state;\n },\n set(target, prop, val) {\n target.#updateFunctions.set(prop, () => val);\n target.#state[prop] = val;\n },\n })" |
+| `this_element`          | readonly  | `this`   |                                                                                                                                                                                                                                                                                                                                         |
 
 ## Methods
 
 | Method                   | Type                       |
-|--------------------------|----------------------------|
+| ------------------------ | -------------------------- |
 | `#setAnchorToXY`         | `(): void`                 |
 | `colliding_with`         | `(el: any): any`           |
 | `draw`                   | `(inherited: any): void`   |
@@ -249,7 +245,6 @@ positive x-direction ("3 o'clock").
 | `showLogicBool`          | `(inherited: any): any[]`  |
 | `updateState`            | `(inherited: any): object` |
 | `varInitialized`         | `(varName: any): any`      |
-
 
 # ellipse
 
@@ -266,35 +261,35 @@ changed with the ellipseMode() function.
 
 ## Attributes
 
-| Attribute | Type      | Description                                      |
-|-----------|-----------|--------------------------------------------------|
+| Attribute | Type      | Description                                                                                                                                                                                 |
+| --------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `detail`  | `Integer` | For WEBGL mode only. This is to specify the<br />number of vertices that makes up the perimeter of the ellipse. Default<br />value is 25. Won't draw a stroke for a detail of more than 50. |
-| `h`       | `Number`  | height of the ellipse                            |
-| `w`       | `Number`  | width of the ellipse                             |
-| `x`       | `Number`  | x-coordinate of the center of the ellipse        |
-| `y`       | `Number`  | y-coordinate of the center of the ellipse        |
+| `h`       | `Number`  | height of the ellipse                                                                                                                                                                       |
+| `w`       | `Number`  | width of the ellipse                                                                                                                                                                        |
+| `x`       | `Number`  | x-coordinate of the center of the ellipse                                                                                                                                                   |
+| `y`       | `Number`  | y-coordinate of the center of the ellipse                                                                                                                                                   |
 
 ## Properties
 
-| Property                | Modifiers | Type     | Default                                          |
-|-------------------------|-----------|----------|--------------------------------------------------|
-| `collider`              |           |          | "ellipse"                                        |
-| `collision_args`        | readonly  |          |                                                  |
-| `fnName`                | readonly  |          |                                                  |
-| `fnStr`                 | readonly  | `string` |                                                  |
-| `mouse_over`            | readonly  |          |                                                  |
-| `orderedAttributeNames` | readonly  | `array`  |                                                  |
-| `overloads`             |           |          | "overloads"                                      |
-| `pInst`                 | readonly  |          |                                                  |
-| `parent_element`        | readonly  |          |                                                  |
-| `persistent`            | readonly  |          |                                                  |
-| `proxy`                 |           | `this`   | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`   |                                                  |
+| Property                | Modifiers | Type     | Default                                                                                                                                                                                                                                                                                                                                 |
+| ----------------------- | --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `collider`              |           |          | "ellipse"                                                                                                                                                                                                                                                                                                                               |
+| `collision_args`        | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `fnName`                | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `fnStr`                 | readonly  | `string` |                                                                                                                                                                                                                                                                                                                                         |
+| `mouse_over`            | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `orderedAttributeNames` | readonly  | `array`  |                                                                                                                                                                                                                                                                                                                                         |
+| `overloads`             |           |          | "overloads"                                                                                                                                                                                                                                                                                                                             |
+| `pInst`                 | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `parent_element`        | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `persistent`            | readonly  |          |                                                                                                                                                                                                                                                                                                                                         |
+| `proxy`                 |           | `this`   | "new Proxy(this, {\n get(target, prop) {\n if (prop in target) return target[prop];\n return target.#state[prop];\n },\n has(target, prop) {\n if (prop in target) return true;\n return prop in target.#state;\n },\n set(target, prop, val) {\n target.#updateFunctions.set(prop, () => val);\n target.#state[prop] = val;\n },\n })" |
+| `this_element`          | readonly  | `this`   |                                                                                                                                                                                                                                                                                                                                         |
 
 ## Methods
 
 | Method                   | Type                       |
-|--------------------------|----------------------------|
+| ------------------------ | -------------------------- |
 | `#setAnchorToXY`         | `(): void`                 |
 | `colliding_with`         | `(el: any): any`           |
 | `draw`                   | `(inherited: any): void`   |

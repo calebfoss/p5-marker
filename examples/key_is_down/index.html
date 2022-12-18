@@ -11,10 +11,10 @@
     <canvas width="512" height="512" is="p-canvas" x="100" y="100">
       <p-clear></p-clear>
       <p-ellipse w="50" h="50" fill_color="255, 0, 0">
-        <p-_ show="IF, key_is_down(LEFT_ARROW)" x="x - 5"></p-_>
-        <p-_ show="IF, key_is_down(RIGHT_ARROW)" x="x + 5"></p-_>
-        <p-_ show="IF, key_is_down(UP_ARROW)" y="y - 5"></p-_>
-        <p-_ show="IF, key_is_down(DOWN_ARROW)" y="y + 5"></p-_>
+        <p-_ on="key_is_down(LEFT_ARROW)" x="x - 5"></p-_>
+        <p-_ on="key_is_down(RIGHT_ARROW)" x="x + 5"></p-_>
+        <p-_ on="key_is_down(UP_ARROW)" y="y - 5"></p-_>
+        <p-_ on="key_is_down(DOWN_ARROW)" y="y + 5"></p-_>
       </p-ellipse>
     </canvas>
   </body>

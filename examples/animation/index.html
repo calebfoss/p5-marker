@@ -22,10 +22,10 @@
           square_pos_x="square_pos_x + square_speed_x"
           square_pos_y="square_pos_y + square_speed_y"
         ></p-_>
-        <p-_ show="IF, square_pos_x > width || square_pos_x < 0">
+        <p-_ on="square_pos_x > width || square_pos_x < 0">
           <p-_ square_speed_x="-square_speed_x"></p-_>
         </p-_>
-        <p-_ show="IF, square_pos_y > height || square_pos_y < 0">
+        <p-_ on="square_pos_y > height || square_pos_y < 0">
           <p-_ square_speed_y="-square_speed_y"></p-_>
         </p-_>
       </p-square>

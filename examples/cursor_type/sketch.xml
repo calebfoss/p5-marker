@@ -2,15 +2,15 @@
 <canvas width="100" height="100" canvas_background="220" fill_color="NONE">
     <!-- https://p5js.org/reference/#/p5/cursor -->
     <rect w="width/2" h="height/2">
-        <_ show="parent_element.mouse_over" cursor_type="CROSS"></_>
+        <_ on="parent_element.mouse_over" cursor_type="CROSS"></_>
         <rect x="width/2">
-            <_ show="parent_element.mouse_over" cursor_type="'progress'"></_>
+            <_ on="parent_element.mouse_over" cursor_type="'progress'"></_>
         </rect>
         <rect y="height/2">
-            <_ show="parent_element.mouse_over" cursor_type="'https://avatars0.githubusercontent.com/u/1617169?s=16'"></_>
+            <_ on="parent_element.mouse_over" cursor_type="'https://avatars0.githubusercontent.com/u/1617169?s=16'"></_>
         </rect>
         <rect x="width/2" y="height/2">
-            <_ show="parent_element.mouse_over" cursor_type="'grab'"></_>
+            <_ on="parent_element.mouse_over" cursor_type="'grab'"></_>
         </rect>
     </rect>
 </canvas>

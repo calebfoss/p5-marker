@@ -22,8 +22,6 @@ wrapMethod(
     }
 );
 
-p5.prototype.IF = p5.prototype.WHEN = "if";
-p5.prototype.ELSE = "else";
 p5.prototype.WHILE = "while";
 p5.prototype.UNTIL = "until";
 
@@ -205,6 +203,14 @@ const P5Extension = (baseClass) =>
       return this.pInst.collide_elements(this, el);
     }
     draw(inherited) {
+      if (this.hasAttribute("on")) {
+        this.#state.on = this.#updateAttribute(
+          inherited,
+          "on",
+          this.this_element
+        );
+        if (!this.#state.on) return;
+      }
       this.pInst.push();
       this.updateState(inherited);
       const { WHILE } = p5.prototype;
@@ -241,24 +247,11 @@ const P5Extension = (baseClass) =>
       this.pInst.pop();
     }
     drawChildren(assigned) {
-      let showElse = false;
       for (let c = 0; c < this.children.length; c++) {
         const child = this.children[c];
-        if (child instanceof P5Element === false) continue;
-        const [showKey, showVal] = child.showLogicBool(assigned);
-        if (
-          showVal === true &&
-          (showKey === p5.prototype.IF ||
-            (showKey === p5.prototype.ELSE && showElse === true))
-        ) {
-          child.draw?.(assigned);
-          showElse = false;
-        } else if (showKey === p5.prototype.IF) {
-          showElse = true;
-        }
+        child.draw?.(assigned);
       }
     }
-
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
     }
@@ -323,6 +316,15 @@ const P5Extension = (baseClass) =>
     get parent_element() {
       return this.parentElement.proxy;
     }
+    get above_sibling() {
+      return this.previousElementSibling.proxy;
+    }
+    get above_siblings_off() {
+      if (this === this.parentElement.firstElementChild) return true;
+      const { above_sibling } = this;
+      if (above_sibling.on) return false;
+      return above_sibling.above_siblings_off;
+    }
     get pInst() {
       return this.#pInst;
     }
@@ -378,18 +380,6 @@ const P5Extension = (baseClass) =>
           });
         this.setupEvalFn(this.attributes[orderedAttributeNames[i]]);
       }
-    }
-    showLogicBool(inherited) {
-      const show = this.hasAttribute("show")
-        ? this.#updateAttribute(inherited, "show", this)
-        : inherited.show;
-      if (Array.isArray(show)) {
-        const [logic, ...conditions] = show;
-        const bool = conditions.every((c) => c);
-        return [logic, bool];
-      } else if (typeof show === "string") return [show, true];
-      else if (typeof show === "boolean") return [p5.prototype.IF, show];
-      return [p5.prototype.IF, false];
     }
     get this_element() {
       return this.proxy;
@@ -604,7 +594,7 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
           rz: -1,
           img: pInst.createImage(100, 100),
           content: "",
-          show: [p5.prototype.IF, true],
+          on: true,
           repeat: false,
           change: {},
         };
@@ -664,7 +654,7 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
             repeat="WHILE,  center_x LESS_THAN width * 1.25"
         ></cloud>
         <_ cloud_x="cloud_x + 0.25">
-            <_ show="IF, cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>
+            <_ on="cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>
         </_>
     </canvas>
 </_>

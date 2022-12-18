@@ -20,21 +20,21 @@
         x="0"
         y="0"
         d="width"
-        show="IF, frame_count < 60"
+        on="frame_count LESS_THAN 60"
       ></p-circle>
       <p-circle
         fill_color="'yellow'"
         x="0"
         y="0"
         d="width"
-        show="ELSE, frame_count < 120"
+        on="above_siblings_off AND frame_count LESS_THAN 120"
       ></p-circle>
       <p-circle
         fill_color="'green'"
         x="0"
         y="0"
         d="width"
-        show="ELSE"
+        on="above_siblings_off"
       ></p-circle>
     </canvas>
   </body>
