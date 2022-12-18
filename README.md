@@ -10,7 +10,7 @@ A [p5.js](https://p5js.org) wrapper for sketching declaratively in XML
   - [Elements](#elements)
   - [Attributes](#attributes)
   - [Functions](#functions)
-- [Reference](reference.md)
+- [Reference (under construction)](reference.md)
 
 ## Motivation
 
