@@ -67,10 +67,8 @@ import { P5Function, P5Function } from "./core";
     }
   }
   /**
-   * Draws an ellipse (oval) to the screen. By default, the first two
-   * parameters set the location of the center of the ellipse, and the third
-   * and fourth parameters set the shape's width and height. If no height is
-   * specified, the value of width is used for both the width and height. If a
+   * Draws an ellipse (oval) to the screen. If no height is specified, the
+   * value of width is used for both the width and height. If a
    * negative height or width is specified, the absolute value is taken.
    *
    * An ellipse with equal width and height is a circle. The origin may be
@@ -113,6 +111,15 @@ import { P5Function, P5Function } from "./core";
       );
     }
   }
+  /**
+   * Draws a circle to the screen. A circle is a simple closed shape. It is the
+   * set of all points in a plane that are at a given distance from a given
+   * point, the center.
+   * @element circle
+   * @attr {Number} x - x-coordinate of the center of the circle
+   * @attr {Number} y - y-coordinate of the center of the circle
+   * @attr {Number} d - diameter of the circle
+   */
   class Circle extends P5Function {
     constructor() {
       super(["x, y, d"]);
