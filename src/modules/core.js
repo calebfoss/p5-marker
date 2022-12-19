@@ -217,7 +217,9 @@ const P5Extension = (baseClass) =>
       let repeat = true;
       while (repeat) {
         this.renderToCanvas?.();
-        this.drawChildren(this.#state);
+        for (const child of this.children) {
+          child.draw(this.#state);
+        }
         repeat = this.#state.repeat;
         const { change } = this.#state;
         if (Array.isArray(repeat)) {
@@ -245,12 +247,6 @@ const P5Extension = (baseClass) =>
         this.endRender?.(this.#state);
       }
       this.pInst.pop();
-    }
-    drawChildren(assigned) {
-      for (let c = 0; c < this.children.length; c++) {
-        const child = this.children[c];
-        child.draw?.(assigned);
-      }
     }
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
@@ -576,7 +572,9 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
         };
 
         pInst.draw = function () {
-          canvas.drawChildren(defaults);
+          for (const child of canvas.children) {
+            child.draw(defaults);
+          }
         };
       };
       new p5(sketch);
