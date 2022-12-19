@@ -507,6 +507,19 @@ value of the previously specified radius value in the attribute list.
 
 **Mixins:** P5Extension
 
+## Attributes
+
+| Attribute | Type     | Description                    |
+|-----------|----------|--------------------------------|
+| `bl`      | `Number` | radius of bottom-left corner.  |
+| `br`      | `Number` | radius of bottom-right corner. |
+| `h`       | `Number` | height of the rectangle.       |
+| `tl`      | `Number` | radius of top-left corner.     |
+| `tr`      | `Number` | radius of top-right corner.    |
+| `w`       | `Number` | width of the rectangle.        |
+| `x`       | `Number` | x-coordinate of the rectangle. |
+| `y`       | `Number` | y-coordinate of the rectangle. |
+
 ## Properties
 
 | Property                | Modifiers | Type      | Default     | Description                                      |
@@ -554,6 +567,18 @@ respectively. An omitted corner radius attribute is set to the value of
 the previously specified radius value in the attribute list.
 
 **Mixins:** P5Extension
+
+## Attributes
+
+| Attribute | Type     | Description                    |
+|-----------|----------|--------------------------------|
+| `bl`      | `Number` | radius of bottom-left corner.  |
+| `br`      | `Number` | radius of bottom-right corner. |
+| `s`       | `Number` | side size of the square.       |
+| `tl`      | `Number` | radius of top-left corner.     |
+| `tr`      | `Number` | radius of top-right corner.    |
+| `x`       | `Number` | x-coordinate of the square.    |
+| `y`       | `Number` | y-coordinate of the square.    |
 
 ## Properties
 

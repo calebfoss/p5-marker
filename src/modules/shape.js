@@ -297,14 +297,14 @@ import { P5Function, P5Function } from "./core";
    * corners, respectively. An omitted corner radius parameter is set to the
    * value of the previously specified radius value in the attribute list.
    * @element rect
-   * @attr  {Number} x  x-coordinate of the rectangle.
-   * @attr  {Number} y  y-coordinate of the rectangle.
-   * @attr  {Number} w  width of the rectangle.
-   * @attr  {Number} h  height of the rectangle.
-   * @attr  {Number} tl radius of top-left corner.
-   * @attr  {Number} tr radius of top-right corner.
-   * @attr  {Number} br radius of bottom-right corner.
-   * @attr  {Number} bl radius of bottom-left corner.
+   * @attr  {Number} x - x-coordinate of the rectangle.
+   * @attr  {Number} y - y-coordinate of the rectangle.
+   * @attr  {Number} w - width of the rectangle.
+   * @attr  {Number} h - height of the rectangle.
+   * @attr  {Number} tl - radius of top-left corner.
+   * @attr  {Number} tr - radius of top-right corner.
+   * @attr  {Number} br - radius of bottom-right corner.
+   * @attr  {Number} bl - radius of bottom-left corner.
    */
   class Rect extends P5Function {
     constructor() {
@@ -353,13 +353,13 @@ import { P5Function, P5Function } from "./core";
    * the previously specified radius value in the attribute list.
    *
    * @element square
-   * @attr  {Number} x  x-coordinate of the square.
-   * @attr  {Number} y  y-coordinate of the square.
-   * @attr  {Number} s  side size of the square.
-   * @attr  {Number} tl radius of top-left corner.
-   * @attr  {Number} tr radius of top-right corner.
-   * @attr  {Number} br radius of bottom-right corner.
-   * @attr  {Number} bl radius of bottom-left corner.
+   * @attr  {Number} x - x-coordinate of the square.
+   * @attr  {Number} y - y-coordinate of the square.
+   * @attr  {Number} s - side size of the square.
+   * @attr  {Number} tl - radius of top-left corner.
+   * @attr  {Number} tr - radius of top-right corner.
+   * @attr  {Number} br - radius of bottom-right corner.
+   * @attr  {Number} bl - radius of bottom-left corner.
    */
   class Square extends P5Function {
     constructor() {
