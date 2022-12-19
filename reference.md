@@ -26,7 +26,7 @@ for adjusting attributes for child elements.
 | `draw`               | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
 | `isPersistent`       | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
 | `setup`              | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
-| `updateState`        | `(inherited: any): object`         |                                                  |
+| `updateState`        | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
 
 
 # canvas
@@ -70,7 +70,7 @@ time.
 | `isPersistent`       | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
 | `runCode`            | `(): void`                         |                                                  |
 | `setup`              | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
-| `updateState`        | `(inherited: any): object`         |                                                  |
+| `updateState`        | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
 
 
 # custom
@@ -138,7 +138,7 @@ example, if name is set to "my-element," <my-element>
 | `draw`               | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
 | `isPersistent`       | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
 | `setup`              | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
-| `updateState`        | `(inherited: any): object`         |                                                  |
+| `updateState`        | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
 
 
 # p-sketch
@@ -210,8 +210,7 @@ positive x-direction ("3 o'clock").
 |-------------------------|-----------|-----------|-------------|--------------------------------------------------|
 | `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
 | `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
-| `fnName`                | readonly  |           |             |                                                  |
-| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
 | `mouse_over`            | readonly  |           |             |                                                  |
 | `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
 | `overloads`             |           |           | "overloads" |                                                  |
@@ -228,10 +227,10 @@ positive x-direction ("3 o'clock").
 | `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
 | `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
 | `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
-| `renderToCanvas`         | `(): void`                         |                                                  |
-| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
 | `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
-| `updateState`            | `(inherited: any): object`         |                                                  |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
 
 
 # ellipse
@@ -263,8 +262,7 @@ changed with the ellipseMode() function.
 | `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
 | `collider`              |           |           | "ellipse"   |                                                  |
 | `collision_args`        | readonly  | `array`   |             |                                                  |
-| `fnName`                | readonly  |           |             |                                                  |
-| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
 | `mouse_over`            | readonly  |           |             |                                                  |
 | `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
 | `overloads`             |           |           | "overloads" |                                                  |
@@ -281,10 +279,10 @@ changed with the ellipseMode() function.
 | `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
 | `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
 | `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
-| `renderToCanvas`         | `(): void`                         |                                                  |
-| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
 | `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
-| `updateState`            | `(inherited: any): object`         |                                                  |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
 
 
 # circle
@@ -311,8 +309,7 @@ point, the center.
 | `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
 | `collider`              |           |           | "circle"    |                                                  |
 | `collision_args`        | readonly  | `array`   |             |                                                  |
-| `fnName`                | readonly  |           |             |                                                  |
-| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
 | `mouse_over`            | readonly  |           |             |                                                  |
 | `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
 | `overloads`             |           |           | "overloads" |                                                  |
@@ -329,10 +326,10 @@ point, the center.
 | `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
 | `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
 | `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
-| `renderToCanvas`         | `(): void`                         |                                                  |
-| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
 | `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
-| `updateState`            | `(inherited: any): object`         |                                                  |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
 
 
 # line
@@ -363,8 +360,7 @@ line. So to color a line, use the stroke_color attribute.
 | `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
 | `collider`              |           |           | "line"      |                                                  |
 | `collision_args`        | readonly  | `array`   |             |                                                  |
-| `fnName`                | readonly  |           |             |                                                  |
-| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
 | `mouse_over`            | readonly  |           |             |                                                  |
 | `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
 | `overloads`             |           |           | "overloads" |                                                  |
@@ -381,7 +377,210 @@ line. So to color a line, use the stroke_color attribute.
 | `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
 | `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
 | `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
-| `renderToCanvas`         | `(): void`                         |                                                  |
-| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
 | `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
-| `updateState`            | `(inherited: any): object`         |                                                  |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
+
+
+# point
+
+Draws a point, a coordinate in space at the dimension of one pixel. The
+color of the point is changed with the stroke_color attribute. The size of
+the point can be changed with the stroke_weight attribute.
+
+**Mixins:** P5Extension
+
+## Attributes
+
+| Attribute | Type     | Description               |
+|-----------|----------|---------------------------|
+| `x`       | `Number` | x-coordinate              |
+| `y`       | `Number` | y-coordinate              |
+| `z`       | `Number` | z-coordinate (WEBGL mode) |
+
+## Properties
+
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `collider`              |           |           | "circle"    |                                                  |
+| `collision_args`        | readonly  | `array`   |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
+
+## Methods
+
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
+
+
+# quad
+
+Draws a quad on the canvas. A quad is a quadrilateral, a four-sided
+polygon. It is similar to a rectangle, but the angles between its edges
+are not constrained to ninety degrees. The x1 and y1 attributes set the
+first vertex and the subsequent pairs should proceed clockwise or
+counter-clockwise around the defined shape. z attributes only work when
+quad() is used in WEBGL mode.
+
+**Mixins:** P5Extension
+
+## Attributes
+
+| Attribute  | Type      | Description                                      |
+|------------|-----------|--------------------------------------------------|
+| `detail_x` | `Integer` | number of segments in the x-direction (WEBGL mode) |
+| `detail_y` | `Integer` | number of segments in the y-direction (WEBGL mode) |
+| `x1`       | `Number`  | x-coordinate of the first point                  |
+| `x2`       | `Number`  | x-coordinate of the second point                 |
+| `x3`       | `Number`  | x-coordinate of the third point                  |
+| `x4`       | `Number`  | x-coordinate of the fourth point                 |
+| `y1`       | `Number`  | y-coordinate of the first point                  |
+| `y2`       | `Number`  | y-coordinate of the second point                 |
+| `y3`       | `Number`  | y-coordinate of the third point                  |
+| `y4`       | `Number`  | y-coordinate of the fourth point                 |
+| `z1`       | `Number`  | z-coordinate of the first point (WEBGL mode)     |
+| `z2`       | `Number`  | z-coordinate of the second point (WEBGL mode)    |
+| `z3`       | `Number`  | z-coordinate of the third point (WEBGL mode)     |
+| `z4`       | `Number`  | z-coordinate of the fourth point (WEBGL mode)    |
+
+## Properties
+
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `collider`              |           |           | "poly"      |                                                  |
+| `collision_args`        | readonly  | `any[][]` |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
+| `vertices`              | readonly  | `array`   |             |                                                  |
+
+## Methods
+
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
+
+
+# rect
+
+Draws a rectangle on the canvas. A rectangle is a four-sided closed shape
+with every angle at ninety degrees. By default, the x and y attributes
+set the location of the upper-left corner, w sets the width, and h sets
+the height. The way these attributes are interpreted may be changed with
+the rect_mode attribute.
+
+The tl, tr, br and bl attributes, if specified, determine
+corner radius for the top-left, top-right, lower-right and lower-left
+corners, respectively. An omitted corner radius parameter is set to the
+value of the previously specified radius value in the attribute list.
+
+**Mixins:** P5Extension
+
+## Properties
+
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `collider`              |           |           | "rect"      |                                                  |
+| `collision_args`        | readonly  | `array`   |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
+
+## Methods
+
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |
+
+
+# square
+
+Draws a square to the screen. A square is a four-sided shape with every
+angle at ninety degrees, and equal side size. This element is a special
+case of the rect element, where the width and height are the same, and the
+attribute is called "s" for side size. By default, the x and y attributes
+set the location of the upper-left corner, and s sets the side size of the
+square. The way these attributes are interpreted, may be changed with the
+rect_mode attribute.
+
+The tl, tr, br, and bl attributes, if specified, determine corner radius
+for the top-left, top-right, lower-right and lower-left corners,
+respectively. An omitted corner radius attribute is set to the value of
+the previously specified radius value in the attribute list.
+
+**Mixins:** P5Extension
+
+## Properties
+
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `collider`              |           |           | "rect"      |                                                  |
+| `collision_args`        | readonly  | `array`   |             |                                                  |
+| `fnName`                | readonly  | `string`  |             | Name of this element's render function.          |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
+
+## Methods
+
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         | Calls this element's render function with current attribute values. |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         | Sets the parameters used to call this element's render function based<br />on the overloads for that function and this element's attributes. |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: Object): object`      | Updates the values of all attributes using the provided expressions.<br /><br />**inherited**: object |

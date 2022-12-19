@@ -190,6 +190,15 @@ import { P5Function, P5Function } from "./core";
       );
     }
   }
+  /**
+   * Draws a point, a coordinate in space at the dimension of one pixel. The
+   * color of the point is changed with the stroke_color attribute. The size of
+   * the point can be changed with the stroke_weight attribute.
+   * @element point
+   * @attr {Number} x - x-coordinate
+   * @attr {Number} y - y-coordinate
+   * @attr {Number} z - z-coordinate (WEBGL mode)
+   */
   class Point extends P5Function {
     constructor() {
       super(["x, y, [z]", "coordinate_vector"]);
@@ -224,6 +233,29 @@ import { P5Function, P5Function } from "./core";
       );
     }
   }
+  /**
+   * Draws a quad on the canvas. A quad is a quadrilateral, a four-sided
+   * polygon. It is similar to a rectangle, but the angles between its edges
+   * are not constrained to ninety degrees. The x1 and y1 attributes set the
+   * first vertex and the subsequent pairs should proceed clockwise or
+   * counter-clockwise around the defined shape. z attributes only work when
+   * quad() is used in WEBGL mode.
+   * @element quad
+   * @attr {Number} x1 - x-coordinate of the first point
+   * @attr {Number} y1 - y-coordinate of the first point
+   * @attr {Number} x2 - x-coordinate of the second point
+   * @attr {Number} y2 - y-coordinate of the second point
+   * @attr {Number} x3 - x-coordinate of the third point
+   * @attr {Number} y3 - y-coordinate of the third point
+   * @attr {Number} x4 - x-coordinate of the fourth point
+   * @attr {Number} y4 - y-coordinate of the fourth point
+   * @attr {Integer} detail_x - number of segments in the x-direction (WEBGL mode)
+   * @attr {Integer} detail_y - number of segments in the y-direction (WEBGL mode)
+   * @attr {Number} z1 - z-coordinate of the first point (WEBGL mode)
+   * @attr {Number} z2 - z-coordinate of the second point (WEBGL mode)
+   * @attr {Number} z3 - z-coordinate of the third point (WEBGL mode)
+   * @attr {Number} z4 - z-coordinate of the fourth point (WEBGL mode)
+   */
   class Quad extends P5Function {
     constructor() {
       super([
@@ -253,6 +285,27 @@ import { P5Function, P5Function } from "./core";
       ];
     }
   }
+  /**
+   * Draws a rectangle on the canvas. A rectangle is a four-sided closed shape
+   * with every angle at ninety degrees. By default, the x and y attributes
+   * set the location of the upper-left corner, w sets the width, and h sets
+   * the height. The way these attributes are interpreted may be changed with
+   * the rect_mode attribute.
+   *
+   * The tl, tr, br and bl attributes, if specified, determine
+   * corner radius for the top-left, top-right, lower-right and lower-left
+   * corners, respectively. An omitted corner radius parameter is set to the
+   * value of the previously specified radius value in the attribute list.
+   * @element rect
+   * @attr  {Number} x  x-coordinate of the rectangle.
+   * @attr  {Number} y  y-coordinate of the rectangle.
+   * @attr  {Number} w  width of the rectangle.
+   * @attr  {Number} h  height of the rectangle.
+   * @attr  {Number} tl radius of top-left corner.
+   * @attr  {Number} tr radius of top-right corner.
+   * @attr  {Number} br radius of bottom-right corner.
+   * @attr  {Number} bl radius of bottom-left corner.
+   */
   class Rect extends P5Function {
     constructor() {
       super([
@@ -285,6 +338,29 @@ import { P5Function, P5Function } from "./core";
       );
     }
   }
+  /**
+   * Draws a square to the screen. A square is a four-sided shape with every
+   * angle at ninety degrees, and equal side size. This element is a special
+   * case of the rect element, where the width and height are the same, and the
+   * attribute is called "s" for side size. By default, the x and y attributes
+   * set the location of the upper-left corner, and s sets the side size of the
+   * square. The way these attributes are interpreted, may be changed with the
+   * rect_mode attribute.
+   *
+   * The tl, tr, br, and bl attributes, if specified, determine corner radius
+   * for the top-left, top-right, lower-right and lower-left corners,
+   * respectively. An omitted corner radius attribute is set to the value of
+   * the previously specified radius value in the attribute list.
+   *
+   * @element square
+   * @attr  {Number} x  x-coordinate of the square.
+   * @attr  {Number} y  y-coordinate of the square.
+   * @attr  {Number} s  side size of the square.
+   * @attr  {Number} tl radius of top-left corner.
+   * @attr  {Number} tr radius of top-right corner.
+   * @attr  {Number} br radius of bottom-right corner.
+   * @attr  {Number} bl radius of bottom-left corner.
+   */
   class Square extends P5Function {
     constructor() {
       super(["x, y, s, [tl], [tr], [br], [bl]"]);
