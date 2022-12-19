@@ -476,6 +476,9 @@ export class P5Function extends P5Element {
     super();
     this.overloads = overloads;
   }
+  /**
+   * Calls this element's render function with current attribute values.
+   */
   renderToCanvas() {
     const args = this.params.map((param) =>
       param in this.this_element
@@ -484,13 +487,17 @@ export class P5Function extends P5Element {
     );
     this.pInst[this.fnName](...args);
   }
+  /**
+   * Name of this element's render function.
+   * @type {string}
+   */
   get fnName() {
     return pascalToCamel(this.constructor.name);
   }
-  //  Create string to call function with provided arguments
-  get fnStr() {
-    return `${this.fnName}(${this.params.join(", ")});`;
-  }
+  /**
+   * Sets the parameters used to call this element's render function based
+   * on the overloads for that function and this element's attributes.
+   */
   setParamsFromOverloads() {
     const { overloads } = this;
     //  Check every required parameter has an attribute
@@ -543,6 +550,9 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
       constructor() {
         super();
       }
+      /**
+       * Sets the default values for this element's attributes.
+       */
       setDefaults() {
         Array.from(pCustomEl.attributes).forEach(
           (a) =>
