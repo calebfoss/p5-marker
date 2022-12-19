@@ -7,30 +7,26 @@ for adjusting attributes for child elements.
 
 ## Properties
 
-| Property                | Modifiers | Type    | Default                                          |
-|-------------------------|-----------|---------|--------------------------------------------------|
-| `above_sibling`         | readonly  |         |                                                  |
-| `above_siblings_off`    | readonly  |         |                                                  |
-| `orderedAttributeNames` | readonly  | `array` |                                                  |
-| `pInst`                 | readonly  |         |                                                  |
-| `parent_element`        | readonly  |         |                                                  |
-| `persistent`            | readonly  |         |                                                  |
-| `proxy`                 |           | `this`  | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`  |                                                  |
+| Property                | Modifiers | Type      | Description                                      |
+|-------------------------|-----------|-----------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `orderedAttributeNames` | readonly  | `Array`   |                                                  |
+| `pInst`                 | readonly  | `object`  | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    | This element's proxy with access to properties, methods, and attributes. |
 
 ## Methods
 
-| Method           | Type                       |
-|------------------|----------------------------|
-| `colliding_with` | `(el: any): any`           |
-| `draw`           | `(inherited: any): void`   |
-| `drawChildren`   | `(assigned: any): void`    |
-| `isPersistent`   | `(attrName: any): any`     |
-| `setup`          | `(pInst: any): void`       |
-| `setupEvalFn`    | `(attr: any): void`        |
-| `setupEvalFns`   | `(): void`                 |
-| `updateState`    | `(inherited: any): object` |
-| `varInitialized` | `(varName: any): any`      |
+| Method               | Type                               | Description                                      |
+|----------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited` | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`     | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`               | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`       | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `setup`              | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`        | `(inherited: any): object`         |                                                  |
 
 
 # canvas
@@ -54,31 +50,27 @@ time.
 
 ## Properties
 
-| Property                | Modifiers | Type    | Default                                          |
-|-------------------------|-----------|---------|--------------------------------------------------|
-| `above_sibling`         | readonly  |         |                                                  |
-| `above_siblings_off`    | readonly  |         |                                                  |
-| `orderedAttributeNames` | readonly  | `array` |                                                  |
-| `pInst`                 | readonly  |         |                                                  |
-| `parent_element`        | readonly  |         |                                                  |
-| `persistent`            | readonly  |         |                                                  |
-| `proxy`                 |           | `this`  | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`  |                                                  |
+| Property                | Modifiers | Type      | Description                                      |
+|-------------------------|-----------|-----------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `orderedAttributeNames` | readonly  | `Array`   |                                                  |
+| `pInst`                 | readonly  | `object`  | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    | This element's proxy with access to properties, methods, and attributes. |
 
 ## Methods
 
-| Method           | Type                       |
-|------------------|----------------------------|
-| `colliding_with` | `(el: any): any`           |
-| `draw`           | `(inherited: any): void`   |
-| `drawChildren`   | `(assigned: any): void`    |
-| `isPersistent`   | `(attrName: any): any`     |
-| `runCode`        | `(): void`                 |
-| `setup`          | `(pInst: any): void`       |
-| `setupEvalFn`    | `(attr: any): void`        |
-| `setupEvalFns`   | `(): void`                 |
-| `updateState`    | `(inherited: any): object` |
-| `varInitialized` | `(varName: any): any`      |
+| Method               | Type                               | Description                                      |
+|----------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited` | `(varName: any): boolean`          | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`     | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`               | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`       | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `runCode`            | `(): void`                         |                                                  |
+| `setup`              | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`        | `(inherited: any): object`         |                                                  |
 
 
 # custom
@@ -127,30 +119,26 @@ example, if name is set to "my-element," <my-element>
 
 ## Properties
 
-| Property                | Modifiers | Type    | Default                                          |
-|-------------------------|-----------|---------|--------------------------------------------------|
-| `above_sibling`         | readonly  |         |                                                  |
-| `above_siblings_off`    | readonly  |         |                                                  |
-| `orderedAttributeNames` | readonly  | `array` |                                                  |
-| `pInst`                 | readonly  |         |                                                  |
-| `parent_element`        | readonly  |         |                                                  |
-| `persistent`            | readonly  |         |                                                  |
-| `proxy`                 |           | `this`  | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`  |                                                  |
+| Property                | Modifiers | Type      | Description                                      |
+|-------------------------|-----------|-----------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `orderedAttributeNames` | readonly  | `Array`   |                                                  |
+| `pInst`                 | readonly  | `object`  | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    | This element's proxy with access to properties, methods, and attributes. |
 
 ## Methods
 
-| Method           | Type                       |
-|------------------|----------------------------|
-| `colliding_with` | `(el: any): any`           |
-| `draw`           | `(inherited: any): void`   |
-| `drawChildren`   | `(assigned: any): void`    |
-| `isPersistent`   | `(attrName: any): any`     |
-| `setup`          | `(pInst: any): void`       |
-| `setupEvalFn`    | `(attr: any): void`        |
-| `setupEvalFns`   | `(): void`                 |
-| `updateState`    | `(inherited: any): object` |
-| `varInitialized` | `(varName: any): any`      |
+| Method               | Type                               | Description                                      |
+|----------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited` | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`     | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`               | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`       | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `setup`              | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`        | `(inherited: any): object`         |                                                  |
 
 
 # p-sketch
@@ -218,36 +206,32 @@ positive x-direction ("3 o'clock").
 
 ## Properties
 
-| Property                | Modifiers | Type     | Default                                          |
-|-------------------------|-----------|----------|--------------------------------------------------|
-| `above_sibling`         | readonly  |          |                                                  |
-| `above_siblings_off`    | readonly  |          |                                                  |
-| `fnName`                | readonly  |          |                                                  |
-| `fnStr`                 | readonly  | `string` |                                                  |
-| `mouse_over`            | readonly  |          |                                                  |
-| `orderedAttributeNames` | readonly  | `array`  |                                                  |
-| `overloads`             |           |          | "overloads"                                      |
-| `pInst`                 | readonly  |          |                                                  |
-| `parent_element`        | readonly  |          |                                                  |
-| `persistent`            | readonly  |          |                                                  |
-| `proxy`                 |           | `this`   | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`   |                                                  |
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `fnName`                | readonly  |           |             |                                                  |
+| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
 
 ## Methods
 
-| Method                   | Type                       |
-|--------------------------|----------------------------|
-| `colliding_with`         | `(el: any): any`           |
-| `draw`                   | `(inherited: any): void`   |
-| `drawChildren`           | `(assigned: any): void`    |
-| `isPersistent`           | `(attrName: any): any`     |
-| `renderToCanvas`         | `(): void`                 |
-| `setParamsFromOverloads` | `(): never[] \| undefined` |
-| `setup`                  | `(pInst: any): void`       |
-| `setupEvalFn`            | `(attr: any): void`        |
-| `setupEvalFns`           | `(): void`                 |
-| `updateState`            | `(inherited: any): object` |
-| `varInitialized`         | `(varName: any): any`      |
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         |                                                  |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: any): object`         |                                                  |
 
 
 # ellipse
@@ -273,38 +257,34 @@ changed with the ellipseMode() function.
 
 ## Properties
 
-| Property                | Modifiers | Type     | Default                                          |
-|-------------------------|-----------|----------|--------------------------------------------------|
-| `above_sibling`         | readonly  |          |                                                  |
-| `above_siblings_off`    | readonly  |          |                                                  |
-| `collider`              |           |          | "ellipse"                                        |
-| `collision_args`        | readonly  |          |                                                  |
-| `fnName`                | readonly  |          |                                                  |
-| `fnStr`                 | readonly  | `string` |                                                  |
-| `mouse_over`            | readonly  |          |                                                  |
-| `orderedAttributeNames` | readonly  | `array`  |                                                  |
-| `overloads`             |           |          | "overloads"                                      |
-| `pInst`                 | readonly  |          |                                                  |
-| `parent_element`        | readonly  |          |                                                  |
-| `persistent`            | readonly  |          |                                                  |
-| `proxy`                 |           | `this`   | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`   |                                                  |
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `collider`              |           |           | "ellipse"   |                                                  |
+| `collision_args`        | readonly  | `array`   |             |                                                  |
+| `fnName`                | readonly  |           |             |                                                  |
+| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
 
 ## Methods
 
-| Method                   | Type                       |
-|--------------------------|----------------------------|
-| `colliding_with`         | `(el: any): any`           |
-| `draw`                   | `(inherited: any): void`   |
-| `drawChildren`           | `(assigned: any): void`    |
-| `isPersistent`           | `(attrName: any): any`     |
-| `renderToCanvas`         | `(): void`                 |
-| `setParamsFromOverloads` | `(): never[] \| undefined` |
-| `setup`                  | `(pInst: any): void`       |
-| `setupEvalFn`            | `(attr: any): void`        |
-| `setupEvalFns`           | `(): void`                 |
-| `updateState`            | `(inherited: any): object` |
-| `varInitialized`         | `(varName: any): any`      |
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         |                                                  |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: any): object`         |                                                  |
 
 
 # circle
@@ -325,35 +305,83 @@ point, the center.
 
 ## Properties
 
-| Property                | Modifiers | Type     | Default                                          |
-|-------------------------|-----------|----------|--------------------------------------------------|
-| `above_sibling`         | readonly  |          |                                                  |
-| `above_siblings_off`    | readonly  |          |                                                  |
-| `collider`              |           |          | "circle"                                         |
-| `collision_args`        | readonly  | `array`  |                                                  |
-| `fnName`                | readonly  |          |                                                  |
-| `fnStr`                 | readonly  | `string` |                                                  |
-| `mouse_over`            | readonly  |          |                                                  |
-| `orderedAttributeNames` | readonly  | `array`  |                                                  |
-| `overloads`             |           |          | "overloads"                                      |
-| `pInst`                 | readonly  |          |                                                  |
-| `parent_element`        | readonly  |          |                                                  |
-| `persistent`            | readonly  |          |                                                  |
-| `proxy`                 |           | `this`   | "new Proxy(this, {\n      get(target, prop) {\n        if (prop in target) return target[prop];\n        return target.#state[prop];\n      },\n      has(target, prop) {\n        if (prop in target) return true;\n        return prop in target.#state;\n      },\n      set(target, prop, val) {\n        target.#updateFunctions.set(prop, () => val);\n        target.#state[prop] = val;\n      },\n    })" |
-| `this_element`          | readonly  | `this`   |                                                  |
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `collider`              |           |           | "circle"    |                                                  |
+| `collision_args`        | readonly  | `array`   |             |                                                  |
+| `fnName`                | readonly  |           |             |                                                  |
+| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
 
 ## Methods
 
-| Method                   | Type                       |
-|--------------------------|----------------------------|
-| `colliding_with`         | `(el: any): any`           |
-| `draw`                   | `(inherited: any): void`   |
-| `drawChildren`           | `(assigned: any): void`    |
-| `isPersistent`           | `(attrName: any): any`     |
-| `renderToCanvas`         | `(): void`                 |
-| `setParamsFromOverloads` | `(): never[] \| undefined` |
-| `setup`                  | `(pInst: any): void`       |
-| `setupEvalFn`            | `(attr: any): void`        |
-| `setupEvalFns`           | `(): void`                 |
-| `updateState`            | `(inherited: any): object` |
-| `varInitialized`         | `(varName: any): any`      |
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         |                                                  |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: any): object`         |                                                  |
+
+
+# line
+
+Draws a line (a direct path between two points) to the screen. This width
+can be modified by using the stroke_weight attribute. A line cannot be
+filled, therefore the fill_color attribute will not affect the color of a
+line. So to color a line, use the stroke_color attribute.
+
+**Mixins:** P5Extension
+
+## Attributes
+
+| Attribute | Type     | Description                                   |
+|-----------|----------|-----------------------------------------------|
+| `x1`      | `Number` | x-coordinate of the first point               |
+| `x2`      | `Number` | x-coordinate of the second point              |
+| `y1`      | `Number` | y-coordinate of the first point               |
+| `y2`      | `Number` | y-coordinate of the second point              |
+| `z1`      | `Number` | z-coordinate of the first point (WEBGL mode)  |
+| `z2`      | `Number` | z-coordinate of the second point (WEBGL mode) |
+
+## Properties
+
+| Property                | Modifiers | Type      | Default     | Description                                      |
+|-------------------------|-----------|-----------|-------------|--------------------------------------------------|
+| `above_sibling`         | readonly  | `proxy`   |             | Proxy for the sibling element above this element with access to its<br />properties, methods, and attributes. |
+| `above_siblings_off`    | readonly  | `boolean` |             | True if siblings directly above this element with an "on" attribute have<br />"on" set to false. This can be used to switch between elements based on<br />conditions, similar to if/else. |
+| `collider`              |           |           | "line"      |                                                  |
+| `collision_args`        | readonly  | `array`   |             |                                                  |
+| `fnName`                | readonly  |           |             |                                                  |
+| `fnStr`                 | readonly  | `string`  |             |                                                  |
+| `mouse_over`            | readonly  |           |             |                                                  |
+| `orderedAttributeNames` | readonly  | `Array`   |             |                                                  |
+| `overloads`             |           |           | "overloads" |                                                  |
+| `pInst`                 | readonly  | `object`  |             | This element's p5 instance.                      |
+| `parent_element`        | readonly  | `proxy`   |             | Proxy for this element's parent element with access to its properties,<br />methods, and attributes. |
+| `persistent`            | readonly  | `proxy`   |             | Proxy for this element's parent canvas is a child with access to its<br />properties, methods, and attributes. |
+| `this_element`          | readonly  | `this`    |             | This element's proxy with access to properties, methods, and attributes. |
+
+## Methods
+
+| Method                   | Type                               | Description                                      |
+|--------------------------|------------------------------------|--------------------------------------------------|
+| `attributeInherited`     | `(attributeName: string): boolean` | Checks if the provided attribute name belongs to a parent element. If<br />the attribute refers to an object property, this will check for an<br />attribute with a name that matches the object.<br /><br />**attributeName**: name of the attribute to check |
+| `colliding_with`         | `(el: P5Element): boolean`         | Checks if this element is colliding with the provided other element.<br /><br />**el**: other element to check |
+| `draw`                   | `(inherited: object): void`        | Updates the element's attribute values, renders it to the canvas, and<br />calls the draw method on its children.<br /><br />**inherited**: object containing attribute values passed<br />down from parent element |
+| `isPersistent`           | `(attributeName: string): boolean` | Checks if an attribute belongs to the parent canvas of this element.<br /><br />**attributeName**: name of the attribute to check |
+| `renderToCanvas`         | `(): void`                         |                                                  |
+| `setParamsFromOverloads` | `(): never[] \| undefined`         |                                                  |
+| `setup`                  | `(pInst: p5): void`                | Sets this element up with a p5 instance and sets up its children.<br /><br />**pInst**: undefined |
+| `updateState`            | `(inherited: any): object`         |                                                  |

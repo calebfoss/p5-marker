@@ -100,7 +100,10 @@ const P5Extension = (baseClass) =>
      * @private
      */
     #state = {};
-    proxy = new Proxy(this, {
+    /**
+     * @private
+     */
+    #proxy = new Proxy(this, {
       get(target, prop) {
         if (prop in target) return target[prop];
         return target.#state[prop];
@@ -123,52 +126,28 @@ const P5Extension = (baseClass) =>
       super();
     }
     /**
-     * @private
-     * @param {*} inherited
-     * @param {*} attrName
-     * @param {*} thisArg
-     * @returns
+     * Proxy for the sibling element above this element with access to its
+     * properties, methods, and attributes.
+     * @type {proxy}
      */
-    #updateAttribute(inherited, attrName, thisArg) {
-      if (attrName === "repeat" || attrName === "change")
-        inherited = this.#state;
-      const val = this.#callAttributeUpdater(inherited, attrName, thisArg);
-      //  Setting canvas width or height resets the drawing context
-      //  Only set the attribute if it's not one of those
-      if (this.pInst.debug_attributes === false) return val;
-      if (
-        this instanceof HTMLCanvasElement &&
-        (attrName !== "width" || attrName !== "height")
-      )
-        return val;
-
-      //  Brackets will throw a 'not a valid attribute name' error
-      if (attrName.match(/[\[\]]/)) return val;
-
-      const valToString = (v) => {
-        if (v instanceof p5.Color) return v.toString(this.pInst.color_mode);
-        if (typeof v?.toString === "undefined") return v;
-        return v.toString();
-      };
-      this.setAttribute(attrName, valToString(val));
-      return val;
+    get above_sibling() {
+      return this.previousElementSibling.this_element;
     }
-    updateState(inherited) {
-      this.#state = Object.assign({}, inherited);
-      const updaters = this.#updateFunctions.entries();
-      for (const [attrName, updateFunction] of updaters) {
-        this.#state[attrName] = this.#updateAttribute(
-          inherited,
-          attrName,
-          this
-        );
-      }
-      return this.#state;
+    /**
+     * True if siblings directly above this element with an "on" attribute have
+     * "on" set to false. This can be used to switch between elements based on
+     * conditions, similar to if/else.
+     * @type {boolean}
+     */
+    get above_siblings_off() {
+      if (this === this.parentElement.firstElementChild) return true;
+      const { above_sibling } = this;
+      if (above_sibling.on) return false;
+      return above_sibling.above_siblings_off;
     }
     /**
      * @method applyChange
      * @private
-     * @returns
      */
     #applyChange() {
       const change = (this.#state.change = this.#updateAttribute(
@@ -199,9 +178,38 @@ const P5Extension = (baseClass) =>
       }
       return changed;
     }
+    /**
+     * Checks if the provided attribute name belongs to a parent element. If
+     * the attribute refers to an object property, this will check for an
+     * attribute with a name that matches the object.
+     * @param {string} attributeName - name of the attribute to check
+     * @returns {boolean} true
+     */
+    attributeInherited(attributeName) {
+      const [obj, ...props] = attributeName.split(".");
+      if (props.length) return this.attributeInherited(obj);
+      if (this.parentElement.hasAttribute(attributeName)) return true;
+      if (this.parentElement.attributeInherited)
+        return this.parentElement.attributeInherited(attributeName);
+      return false;
+    }
+    /**
+     * Checks if this element is colliding with the provided other element.
+     * @method colliding_with
+     * @param {P5Element} el - other element to check
+     * @returns {boolean} true if elements are colliding
+     */
+
     colliding_with(el) {
       return this.pInst.collide_elements(this, el);
     }
+    /**
+     * Updates the element's attribute values, renders it to the canvas, and
+     * calls the draw method on its children.
+     * @method draw
+     * @param {object} inherited - object containing attribute values passed
+     * down from parent element
+     */
     draw(inherited) {
       if (this.hasAttribute("on")) {
         this.#state.on = this.#updateAttribute(
@@ -280,10 +288,20 @@ const P5Extension = (baseClass) =>
     get #html() {
       return this.outerHTML.replace(this.innerHTML, "");
     }
-    isPersistent(attrName) {
-      if (this instanceof HTMLCanvasElement) return this.hasAttribute(attrName);
-      return this.parentElement?.isPersistent?.(attrName);
+    /**
+     * Checks if an attribute belongs to the parent canvas of this element.
+     * @method isPersistent
+     * @param {string} attributeName - name of the attribute to check
+     * @returns {boolean} true if the attribute belongs to the parent canvas
+     */
+    isPersistent(attributeName) {
+      if (this instanceof HTMLCanvasElement)
+        return this.hasAttribute(attributeName);
+      return this.parentElement?.isPersistent?.(attributeName);
     }
+    /**
+     * @type {Array}
+     */
     get orderedAttributeNames() {
       const ordered = Array.from(this.attributes)
         .sort(
@@ -300,24 +318,33 @@ const P5Extension = (baseClass) =>
         ) + 1;
       return ordered;
     }
+    /**
+     * Proxy for this element's parent canvas is a child with access to its
+     * properties, methods, and attributes.
+     * @type {proxy}
+     */
     get persistent() {
-      return this.#pInst.canvas.proxy;
+      return this.#pInst.canvas.this_element;
     }
+    /**
+     * Proxy for this element's parent element with access to its properties,
+     * methods, and attributes.
+     * @type {proxy}
+     */
     get parent_element() {
-      return this.parentElement.proxy;
+      return this.parentElement.this_element;
     }
-    get above_sibling() {
-      return this.previousElementSibling.proxy;
-    }
-    get above_siblings_off() {
-      if (this === this.parentElement.firstElementChild) return true;
-      const { above_sibling } = this;
-      if (above_sibling.on) return false;
-      return above_sibling.above_siblings_off;
-    }
+    /**
+     * This element's p5 instance.
+     * @type {object}
+     */
     get pInst() {
       return this.#pInst;
     }
+    /**
+     * Sets this element up with a p5 instance and sets up its children.
+     * @param {p5} pInst
+     */
     setup(pInst) {
       this.#pInst = pInst;
       this.setDefaults?.();
@@ -383,16 +410,54 @@ const P5Extension = (baseClass) =>
         this.#setupEvalFn(this.attributes[orderedAttributeNames[i]]);
       }
     }
+    /**
+     * This element's proxy with access to properties, methods, and attributes.
+     */
     get this_element() {
-      return this.proxy;
+      return this.#proxy;
     }
-    varInitialized(varName) {
-      const [obj, ...props] = varName.split(".");
-      if (props.length) return this.varInitialized(obj);
-      if (this.parentElement.hasAttribute(varName)) return true;
-      if (this.parentElement.varInitialized)
-        return this.parentElement.varInitialized(varName);
-      return false;
+    /**
+     * @private
+     * @param {*} inherited
+     * @param {*} attrName
+     * @param {*} thisArg
+     * @returns
+     */
+    #updateAttribute(inherited, attrName, thisArg) {
+      if (attrName === "repeat" || attrName === "change")
+        inherited = this.#state;
+      const val = this.#callAttributeUpdater(inherited, attrName, thisArg);
+      //  Setting canvas width or height resets the drawing context
+      //  Only set the attribute if it's not one of those
+      if (this.pInst.debug_attributes === false) return val;
+      if (
+        this instanceof HTMLCanvasElement &&
+        (attrName !== "width" || attrName !== "height")
+      )
+        return val;
+
+      //  Brackets will throw a 'not a valid attribute name' error
+      if (attrName.match(/[\[\]]/)) return val;
+
+      const valToString = (v) => {
+        if (v instanceof p5.Color) return v.toString(this.pInst.color_mode);
+        if (typeof v?.toString === "undefined") return v;
+        return v.toString();
+      };
+      this.setAttribute(attrName, valToString(val));
+      return val;
+    }
+    updateState(inherited) {
+      this.#state = Object.assign({}, inherited);
+      const updaters = this.#updateFunctions.entries();
+      for (const [attrName, updateFunction] of updaters) {
+        this.#state[attrName] = this.#updateAttribute(
+          inherited,
+          attrName,
+          this
+        );
+      }
+      return this.#state;
     }
   };
 
@@ -405,7 +470,9 @@ export class P5Function extends P5Element {
   }
   renderToCanvas() {
     const args = this.params.map((param) =>
-      param in this.proxy ? this.proxy[param] : this.persistent[param]
+      param in this.this_element
+        ? this.this_element[param]
+        : this.persistent[param]
     );
     this.pInst[this.fnName](...args);
   }
@@ -429,7 +496,7 @@ export class P5Function extends P5Element {
       overloadMatch = overloadParams.every(
         (p) =>
           this.hasAttribute(p) ||
-          this.varInitialized(p) ||
+          this.attributeInherited(p) ||
           isOptional(p) ||
           p === ""
       );
@@ -448,7 +515,7 @@ export class P5Function extends P5Element {
           //  If not defined on this element and optional, return filtered params
           if (optional) return filteredParams;
           //  If required and already initialized, add it to filtered params
-          if (this.varInitialized(p))
+          if (this.attributeInherited(p))
             return filterParams(overloadParams, filteredParams.concat(p), ++i);
           return filteredParams;
         };
@@ -579,9 +646,9 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
       };
       new p5(sketch);
     }
-    varInitialized(varName) {
+    attributeInherited(varName) {
       if (this.hasAttribute(varName)) return true;
-      return super.varInitialized(varName);
+      return super.attributeInherited(varName);
     }
   }
   /**

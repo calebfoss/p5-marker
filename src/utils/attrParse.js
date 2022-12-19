@@ -91,14 +91,14 @@ export class AttrParseUtil {
     )
       return "none";
     if (AttrParseUtil.isP5(prop)) return "pInst";
-    if (el.isPersistent(prop)) return "pInst.canvas.proxy";
+    if (el.isPersistent(prop)) return "this.persistent";
     if (prop in el) return "this";
     return "inherited";
   }
   static getPrefix(el, prop) {
     const ownerName = AttrParseUtil.getOwnerName(el, prop);
     if (ownerName === "none") return "";
-    if (ownerName === "this") return "this.";
+    if (ownerName.slice(0, 4) === "this") return `${ownerName}.`;
     else return `_${ownerName}.`;
   }
   static replacePropName(el, prop) {
