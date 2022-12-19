@@ -194,14 +194,36 @@ const P5Extension = (baseClass) =>
       return false;
     }
     /**
+     * @private
+     */
+    #callAttributeUpdater(inherited, attrName, thisArg) {
+      if (this.#updateFunctions.has(attrName)) {
+        const evalFn = this.#updateFunctions.get(attrName);
+        return evalFn.call(thisArg, this.pInst, inherited);
+      }
+      if (attrName in inherited) return inherited[attrName];
+      if (attrName in this.persistent) return this.persistent[attrName];
+      if (attrName in this.pInst) return this.pInst[attrName];
+      return;
+    }
+    /**
      * Checks if this element is colliding with the provided other element.
      * @method colliding_with
      * @param {P5Element} el - other element to check
      * @returns {boolean} true if elements are colliding
      */
-
     colliding_with(el) {
       return this.pInst.collide_elements(this, el);
+    }
+    /**
+     * @private
+     */
+    get #comments() {
+      return this.#html
+        .split(/(?:\r\n|\r|\n)/)
+        .map((line) => line.match(/.{1,80}/g))
+        .flat()
+        .map((line) => "//\t" + line);
     }
     /**
      * Updates the element's attribute values, renders it to the canvas, and
@@ -256,31 +278,12 @@ const P5Extension = (baseClass) =>
       }
       this.pInst.pop();
     }
+    /**
+     * Name of the HTML element generated from this class.
+     * @type {string}
+     */
     static get elementName() {
       return `p-${pascalToKebab(this.name)}`;
-    }
-    /**
-     * @private
-     */
-    #callAttributeUpdater(inherited, attrName, thisArg) {
-      if (this.#updateFunctions.has(attrName)) {
-        const evalFn = this.#updateFunctions.get(attrName);
-        return evalFn.call(thisArg, this.pInst, inherited);
-      }
-      if (attrName in inherited) return inherited[attrName];
-      if (attrName in this.persistent) return this.persistent[attrName];
-      if (attrName in this.pInst) return this.pInst[attrName];
-      return;
-    }
-    /**
-     * @private
-     */
-    get #comments() {
-      return this.#html
-        .split(/(?:\r\n|\r|\n)/)
-        .map((line) => line.match(/.{1,80}/g))
-        .flat()
-        .map((line) => "//\t" + line);
     }
     /**
      * @private
@@ -447,6 +450,11 @@ const P5Extension = (baseClass) =>
       this.setAttribute(attrName, valToString(val));
       return val;
     }
+    /**
+     * Updates the values of all attributes using the provided expressions.
+     * @param {Object} inherited - object
+     * @returns
+     */
     updateState(inherited) {
       this.#state = Object.assign({}, inherited);
       const updaters = this.#updateFunctions.entries();
