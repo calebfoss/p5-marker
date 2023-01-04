@@ -303,6 +303,10 @@ const P5Extension = (baseClass) =>
       return this.parentElement?.isPersistent?.(attributeName);
     }
     /**
+     * List of attribute names in the order in which they will be evaluated.
+     * Element attributes are not guaranteed to be in the order in which they
+     * are written. Transformation attributes are prioritized before others
+     * and use this order: anchor, angle, scale_factor, shear.
      * @type {Array}
      */
     get orderedAttributeNames() {
