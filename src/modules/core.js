@@ -1,4 +1,4 @@
-import { pascalToCamel, pascalToKebab } from "../utils/caseConvert";
+import { pascalToKebab, kebabToCamel } from "../utils/caseConvert";
 import { AttrParseUtil } from "../utils/attrParse";
 import {
   registerElements,
@@ -93,13 +93,14 @@ const attributePriorities = [
 const P5Extension = (baseClass) =>
   class P5Extension extends baseClass {
     /**
+     * This element's parent canvas.
      * @private
      */
-    #pInst;
+    #canvas;
     /**
      * @private
      */
-    #state = {};
+    #pInst;
     /**
      * @private
      */
@@ -117,6 +118,11 @@ const P5Extension = (baseClass) =>
         target.#state[prop] = val;
       },
     });
+    /**
+     * @private
+     */
+    #state = {};
+
     /**
      * @private
      */
@@ -246,7 +252,7 @@ const P5Extension = (baseClass) =>
       const { WHILE } = p5.prototype;
       let repeat = true;
       while (repeat) {
-        this.renderToCanvas?.();
+        this.render?.();
         for (const child of this.children) {
           child.draw(this.#state);
         }
@@ -331,7 +337,7 @@ const P5Extension = (baseClass) =>
      * @type {proxy}
      */
     get persistent() {
-      return this.#pInst.canvas.this_element;
+      return this.#canvas.this_element;
     }
     /**
      * Proxy for this element's parent element with access to its properties,
@@ -352,13 +358,14 @@ const P5Extension = (baseClass) =>
      * Sets this element up with a p5 instance and sets up its children.
      * @param {p5} pInst
      */
-    setup(pInst) {
+    setup(pInst, canvas) {
       this.#pInst = pInst;
+      this.#canvas = canvas;
       this.setDefaults?.();
       this.#setupEvalFns?.();
-      this.setParamsFromOverloads?.();
+      this.setupRenderFunction?.();
       for (const child of this.children) {
-        child.setup(pInst);
+        child.setup(pInst, canvas);
       }
     }
     /**
@@ -476,48 +483,36 @@ const P5Extension = (baseClass) =>
 export class P5Element extends P5Extension(HTMLElement) {}
 
 export class P5Function extends P5Element {
-  constructor(overloads) {
+  constructor(overloads, renderFunctionName) {
     super();
     this.overloads = overloads;
-  }
-  /**
-   * Calls this element's render function with current attribute values.
-   */
-  renderToCanvas() {
-    const args = this.params.map((param) =>
-      param in this.this_element
-        ? this.this_element[param]
-        : this.persistent[param]
-    );
-    this.pInst[this.fnName](...args);
-  }
-  /**
-   * Name of this element's render function.
-   * @type {string}
-   */
-  get fnName() {
-    return pascalToCamel(this.constructor.name);
+    this.renderFunctionName =
+      renderFunctionName || kebabToCamel(this.tagName.toLowerCase().slice(2));
   }
   /**
    * Sets the parameters used to call this element's render function based
    * on the overloads for that function and this element's attributes.
    */
-  setParamsFromOverloads() {
+  #getArgumentsFromOverloads() {
     const { overloads } = this;
     //  Check every required parameter has an attribute
     const isOptional = (param) => param.match(/^\[.*\]$/);
     let overloadMatch = false;
-    //  Start with overloads with most parameters
-    overloads.reverse();
-    if (overloads.length === 0) return (this.params = []);
-    for (let i = 0; i < overloads.length; i++) {
-      const overloadParams = overloads[i].split(",").map((s) => s.trim());
+    //  Split the parameters and start with overloads with most parameters
+    const overloadsSplitSorted = overloads
+      .map((o) => o.split(",").map((p) => p.trim()))
+      .sort((a, b) => a.length - b.length);
+    //  If there aren't any overloads, return an empty array
+    if (overloadsSplitSorted.length === 0) return [];
+    for (let i = 0; i < overloadsSplitSorted.length; i++) {
+      const overloadParams = overloadsSplitSorted[i];
       overloadMatch = overloadParams.every(
         (p) =>
           this.hasAttribute(p) ||
           this.attributeInherited(p) ||
           isOptional(p) ||
-          p === ""
+          p === "" ||
+          (i === overloadsSplitSorted.length - 1 && this.isPersistent(p))
       );
 
       //  If matched overload found
@@ -530,19 +525,44 @@ export class P5Function extends P5Element {
           const p = overloadParams[i].replaceAll(/\[|\]/g, "");
           //  If param defined on this element, add it to filtered params
           if (this.hasAttribute(p))
-            return filterParams(overloadParams, filteredParams.concat(p), ++i);
+            return filterParams(
+              overloadParams,
+              filteredParams.concat({ owner: this.this_element, param: p }),
+              ++i
+            );
           //  If not defined on this element and optional, return filtered params
           if (optional) return filteredParams;
+          //  If attribute is persistent, add it to filtered params
+          if (this.isPersistent(p))
+            return filterParams(
+              overloadParams,
+              filteredParams.concat({ owner: this.persistent, param: p }),
+              ++i
+            );
           //  If required and already initialized, add it to filtered params
           if (this.attributeInherited(p))
-            return filterParams(overloadParams, filteredParams.concat(p), ++i);
+            return filterParams(
+              overloadParams,
+              filteredParams.concat({ owner: this.this_element, param: p }),
+              ++i
+            );
           return filteredParams;
         };
-        this.params = filterParams(overloadParams);
-        return;
-      } else if (i === overloads.length - 1)
-        this.params = overloadParams.filter((param) => !isOptional(param));
+        return filterParams(overloadParams);
+      }
     }
+    console.error(
+      `Element ${this.tagName} does not have the required attributes to render and will be removed from the sketch`
+    );
+    this.remove();
+  }
+  setupRenderFunction() {
+    const args = this.#getArgumentsFromOverloads();
+    this.render = function () {
+      this.pInst[this.renderFunctionName](
+        ...args.map(({ param, owner }) => owner[param])
+      );
+    };
   }
 }
 
@@ -613,20 +633,7 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
       const canvas = this;
 
       const sketch = (pInst) => {
-        canvas.setup(pInst);
-
-        pInst.preload = () => pInst.loadAssets();
-
-        pInst.setup = function () {
-          const renderer = pInst[canvas.getAttribute("renderer")];
-          pInst.assignCanvas(canvas, renderer);
-          const initialState = canvas.updateState({});
-
-          Object.getOwnPropertyNames(initialState).forEach(
-            (name) => delete defaults[name]
-          );
-        };
-        const defaults = {
+        canvas.defaults = {
           x: 0,
           x1: 0,
           x2: 0,
@@ -659,18 +666,29 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
           repeat: false,
           change: {},
         };
+        pInst.preload = () => pInst.loadAssets();
 
+        pInst.setup = function () {
+          const renderer = pInst[canvas.getAttribute("renderer")];
+          canvas.setup(pInst, canvas);
+          pInst.assignCanvas(canvas, renderer);
+          const initialState = canvas.updateState({});
+          Object.getOwnPropertyNames(initialState).forEach(
+            (name) => delete canvas.defaults[name]
+          );
+        };
         pInst.draw = function () {
           for (const child of canvas.children) {
-            child.draw(defaults);
+            child.draw?.(canvas.defaults);
           }
         };
       };
       new p5(sketch);
     }
-    attributeInherited(varName) {
-      if (this.hasAttribute(varName)) return true;
-      return super.attributeInherited(varName);
+    attributeInherited(attributeName) {
+      if (this.hasAttribute(attributeName) || attributeName in this.defaults)
+        return true;
+      return super.attributeInherited(attributeName);
     }
   }
   /**

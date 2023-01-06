@@ -10,7 +10,7 @@ defineSnakeAlias("lerpColor");
 p5.prototype.NONE = "none";
 
 export class ColorFunction extends P5Function {
-  constructor(overloads) {
+  constructor(overloads, renderFunctionName) {
     overloads = [
       "v1, v2, v3, [alpha]",
       "value",
@@ -19,7 +19,7 @@ export class ColorFunction extends P5Function {
       "c",
       ...overloads,
     ];
-    super(overloads);
+    super(overloads, renderFunctionName);
   }
 }
 
@@ -93,9 +93,8 @@ defineProperties({
   }
   class PaintBucket extends ColorFunction {
     constructor() {
-      super(["colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"]);
+      super(["colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"], "background");
     }
-    fnName = "background";
   }
   registerElements(Clear, PaintBucket);
 })();

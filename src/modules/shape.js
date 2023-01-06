@@ -463,22 +463,20 @@ import { P5Function, P5Function } from "./core";
   }
   class Contour extends P5Function {
     constructor() {
-      super([""]);
+      super([""], "beginContour");
     }
-    fnName = "beginContour";
     endRender() {
       this.pInst.endContour();
     }
   }
   class Shape extends P5Function {
     constructor() {
-      super(["[kind]"]);
+      super(["[kind]"], "beginShape");
     }
     collider = p5.prototype.collider_type.poly;
     get collision_args() {
       return [this.vertices.map(transformVertexFn(this))];
     }
-    fnName = "beginShape";
     endRender(assigned) {
       if (assigned.hasOwnProperty("mode")) this.pInst.endShape(assigned.mode);
       else this.pInst.endShape();
