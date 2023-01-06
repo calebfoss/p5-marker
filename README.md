@@ -1,6 +1,8 @@
 # p5 \<marker>
 
-A [p5.js](https://p5js.org) wrapper for sketching declaratively in XML
+A [p5.js](https://p5js.org) wrapper for sketching declaratively in XML.
+
+Featuring collision detection using the [p5.collide2D](https://github.com/bmoren/p5.collide2D) library by [Ben Moren](https://github.com/bmoren).
 
 ## Contents
 
