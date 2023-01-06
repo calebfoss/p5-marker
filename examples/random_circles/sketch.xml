@@ -3,6 +3,6 @@
     <circle anchor="random(width), random(height)"
         fill_color="random(255), random(255), random(255)"
         stroke_color="NONE"
-        count="0" repeat="UNTIL, count === 100"
+        count="0" repeat="UNTIL count === 100"
         change="count: count + 1"></circle>
 </canvas>

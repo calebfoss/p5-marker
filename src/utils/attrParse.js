@@ -42,7 +42,15 @@ export class AttrParseUtil {
     if (isObject) return `{${str}}`;
     return `[${str}]`;
   };
-  static escapes = { LESS_THAN: "<", GREATER_THAN: ">", AND: "&&" };
+  static escapes = {
+    LESS_THAN: "<",
+    GREATER_THAN: ">",
+    AT_LEAST: ">=",
+    NO_MORE_THAN: "<=",
+    AND: "&&",
+    OR: "||",
+    WHILE: "",
+  };
   static isP5 = (name) => p5.prototype.hasOwnProperty(name);
   static keywords = [
     "break",
@@ -106,8 +114,10 @@ export class AttrParseUtil {
     return AttrParseUtil.getPrefix(el, prop) + prop;
   }
   static replacePropNames(el, str) {
-    return str.replace(AttrParseUtil.regex.varName, (prop) =>
-      AttrParseUtil.replacePropName(el, prop)
-    );
+    return str
+      .replace(/UNTIL(.*)/, "!($1)")
+      .replace(AttrParseUtil.regex.varName, (prop) =>
+        AttrParseUtil.replacePropName(el, prop)
+      );
   }
 }

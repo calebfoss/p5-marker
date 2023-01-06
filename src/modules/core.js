@@ -726,7 +726,7 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
  *          center_y="75"
  *          center_x="cloud_x - 40 - width * 0.25"
  *          change="center_x: center_x + width * 0.25"
- *          repeat="WHILE,  center_x LESS_THAN width * 1.25"
+ *          repeat="WHILE center_x LESS_THAN width * 1.25"
  *      ></cloud>
  *      <_ cloud_x="cloud_x + 0.25">
  *          <_ on="cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>

@@ -1,0 +1,18 @@
+<canvas
+  width="400"
+  height="400"
+  is="p-canvas"
+  canvas_background="220"
+  animate="false"
+>
+  <_
+    x="0"
+    y="0"
+    w="width/10"
+    h="height/10"
+    change="x: x + width / 10"
+    repeat="UNTIL x AT_LEAST width"
+  >
+    <rect change="y: y + height / 10" repeat="UNTIL y AT_LEAST height"></rect>
+  </_>
+</canvas>
