@@ -46,7 +46,7 @@ import { P5Function, P5Function } from "./core";
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x, y, w, h, start_angle, stop_angle } = this.proxy;
+      const { x, y, w, h, start_angle, stop_angle } = this.this_element;
       console.assert(
         w === h,
         "mouse_over currently only works for arc's with equal width and height."
@@ -88,19 +88,22 @@ import { P5Function, P5Function } from "./core";
     }
     collider = p5.prototype.collider_type.ellipse;
     get collision_args() {
-      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const originalPoint = new DOMPoint(
+        this.this_element.x,
+        this.this_element.y
+      );
       const { x, y } = this.pInst._transform_point_matrix(
         originalPoint,
         this.transform_matrix
       );
       const { pixel_density } = this.pInst;
-      const { w } = this.proxy * pixel_density;
-      const { h } = this.proxy.h * pixel_density || w;
+      const { w } = this.this_element * pixel_density;
+      const { h } = this.this_element.h * pixel_density || w;
       return [x, y, w, h];
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x, y, w, h } = this.proxy;
+      const { x, y, w, h } = this.this_element;
       return this.pInst.collide_point_ellipse(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
@@ -126,17 +129,21 @@ import { P5Function, P5Function } from "./core";
     }
     collider = p5.prototype.collider_type.circle;
     get collision_args() {
-      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const originalPoint = new DOMPoint(
+        this.this_element.x,
+        this.this_element.y
+      );
       const { x, y } = this.pInst._transform_point_matrix(
         originalPoint,
         this.transform_matrix
       );
-      const d = this.proxy.d * this.pInst.pow(this.pInst.pixel_density, 2);
+      const d =
+        this.this_element.d * this.pInst.pow(this.pInst.pixel_density, 2);
       return [x, y, d];
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x, y, d } = this.proxy;
+      const { x, y, d } = this.this_element;
       return this.pInst.collide_point_circle(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
@@ -165,12 +172,18 @@ import { P5Function, P5Function } from "./core";
     }
     collider = p5.prototype.collider_type.line;
     get collision_args() {
-      const originalStart = new DOMPoint(this.proxy.x1, this.proxy.y1);
+      const originalStart = new DOMPoint(
+        this.this_element.x1,
+        this.this_element.y1
+      );
       const { x: x1, y: y1 } = this.pInst._transform_point_matrix(
         originalStart,
         this.transform_matrix
       );
-      const originalEnd = new DOMPoint(this.proxy.x2, this.proxy.y2);
+      const originalEnd = new DOMPoint(
+        this.this_element.x2,
+        this.this_element.y2
+      );
       const { x: x2, y: y2 } = this.pInst._transform_point_matrix(
         originalEnd,
         this.transform_matrix
@@ -179,7 +192,7 @@ import { P5Function, P5Function } from "./core";
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x1, y1, x2, y2 } = this.proxy;
+      const { x1, y1, x2, y2 } = this.this_element;
       return this.pInst.collide_point_line(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
@@ -205,7 +218,10 @@ import { P5Function, P5Function } from "./core";
     }
     collider = p5.prototype.collider_type.circle;
     get collision_args() {
-      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const originalPoint = new DOMPoint(
+        this.this_element.x,
+        this.this_element.y
+      );
       const { x, y } = this.pInst._transform_point_matrix(
         originalPoint,
         this.transform_matrix
@@ -222,7 +238,7 @@ import { P5Function, P5Function } from "./core";
         pixel_density,
         mouse_trans_pos_x,
         mouse_trans_pos_y,
-      } = this.proxy;
+      } = this.this_element;
       const d = stroke_weight * this.pInst.pow(pixel_density, 2);
       return this.pInst.collide_point_circle(
         mouse_trans_pos_x,
@@ -276,7 +292,7 @@ import { P5Function, P5Function } from "./core";
       );
     }
     get vertices() {
-      const { x1, y1, x2, y2, x3, y3, x4, y4 } = this.proxy;
+      const { x1, y1, x2, y2, x3, y3, x4, y4 } = this.this_element;
       return [
         this.pInst.createVector(x1, y1),
         this.pInst.createVector(x2, y2),
@@ -315,19 +331,22 @@ import { P5Function, P5Function } from "./core";
     }
     collider = p5.prototype.collider_type.rect;
     get collision_args() {
-      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const originalPoint = new DOMPoint(
+        this.this_element.x,
+        this.this_element.y
+      );
       const { x, y } = this.pInst._transform_point_matrix(
         originalPoint,
         this.transform_matrix
       );
       const { pixel_density } = this.pInst;
-      const w = this.proxy.w * this.pInst.pow(pixel_density, 2);
-      const h = this.proxy.h * this.pInst.pow(pixel_density, 2);
+      const w = this.this_element.w * this.pInst.pow(pixel_density, 2);
+      const h = this.this_element.h * this.pInst.pow(pixel_density, 2);
       return [x, y, w, h];
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x, y, w, h } = this.proxy;
+      const { x, y, w, h } = this.this_element;
       return this.pInst.collide_point_rect(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
@@ -367,20 +386,23 @@ import { P5Function, P5Function } from "./core";
     }
     collider = p5.prototype.collider_type.rect;
     get collision_args() {
-      const originalPoint = new DOMPoint(this.proxy.x, this.proxy.y);
+      const originalPoint = new DOMPoint(
+        this.this_element.x,
+        this.this_element.y
+      );
       const { x, y } = this.pInst._transform_point_matrix(
         originalPoint,
         this.transform_matrix
       );
       const { pixel_density } = this.pInst;
-      const { s } = this.proxy;
+      const { s } = this.this_element;
       const w = s * this.pInst.pow(pixel_density, 2);
       const h = w;
       return [x, y, w, h];
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x, y, s } = this.proxy;
+      const { x, y, s } = this.this_element;
       return this.pInst.collide_point_rect(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
@@ -402,7 +424,7 @@ import { P5Function, P5Function } from "./core";
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x1, y1, x2, y2, x3, y3 } = this.proxy;
+      const { x1, y1, x2, y2, x3, y3 } = this.this_element;
       return this.pInst.collide_point_triangle(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
@@ -415,7 +437,7 @@ import { P5Function, P5Function } from "./core";
       );
     }
     get vertices() {
-      const { x1, y1, x2, y2, x3, y3 } = this.proxy;
+      const { x1, y1, x2, y2, x3, y3 } = this.this_element;
       return [
         this.pInst.createVector(x1, y1),
         this.pInst.createVector(x2, y2),
@@ -468,14 +490,14 @@ import { P5Function, P5Function } from "./core";
       };
       const childArray = arrayFromChildren(this);
       const vertexChildren = childArray.filter(
-        (el) => el instanceof Vertex && el.proxy
+        (el) => el instanceof Vertex && el.this_element
       );
       const vertices = vertexChildren.map((el) => {
         if (el instanceof QuadraticVertex) {
-          const { x3, y3 } = el.proxy;
+          const { x3, y3 } = el.this_element;
           return this.pInst.createVector(x3, y3);
         }
-        const { x, y } = el.proxy;
+        const { x, y } = el.this_element;
         return this.pInst.createVector(x, y);
       });
       return vertices.concat(vertices.slice(0));
