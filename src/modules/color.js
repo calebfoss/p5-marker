@@ -7,6 +7,9 @@ p5.prototype.NONE = "none";
 
 export class ColorFunction extends P5Function {
   constructor(overloads, renderFunctionName) {
+    /**
+     * @private
+     */
     overloads = [
       "v1, v2, v3, [alpha]",
       "value",

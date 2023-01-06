@@ -479,13 +479,20 @@ export class P5Element extends P5Extension(HTMLElement) {}
 export class P5Function extends P5Element {
   constructor(overloads, renderFunctionName) {
     super();
+    /**
+     * @private
+     */
     this.overloads = overloads;
+    /**
+     * @private
+     */
     this.renderFunctionName =
       renderFunctionName || kebabToCamel(this.tagName.toLowerCase().slice(2));
   }
   /**
    * Sets the parameters used to call this element's render function based
    * on the overloads for that function and this element's attributes.
+   * @private
    */
   #getArgumentsFromOverloads() {
     const { overloads } = this;
@@ -550,6 +557,9 @@ export class P5Function extends P5Element {
     );
     this.remove();
   }
+  /**
+   * @private
+   */
   setupRenderFunction() {
     const args = this.#getArgumentsFromOverloads();
     this.render = function () {
