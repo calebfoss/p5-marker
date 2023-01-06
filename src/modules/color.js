@@ -1,8 +1,4 @@
-import {
-  defineSnakeAlias,
-  defineProperties,
-  registerElements,
-} from "../utils/p5Modifiers";
+import { defineSnakeAlias, defineProperties } from "../utils/p5Modifiers";
 import { P5Function } from "./core";
 
 defineSnakeAlias("lerpColor");
@@ -85,19 +81,19 @@ defineProperties({
   },
 });
 
-(() => {
-  class Clear extends P5Function {
-    constructor() {
-      super(["", "r, g, b, a"]);
-    }
+class Clear extends P5Function {
+  constructor() {
+    super(["", "r, g, b, a"]);
   }
-  class PaintBucket extends ColorFunction {
-    constructor() {
-      super(["colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"], "background");
-    }
+}
+customElements.define("p-clear", Clear);
+
+class PaintBucket extends ColorFunction {
+  constructor() {
+    super(["colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"], "background");
   }
-  registerElements(Clear, PaintBucket);
-})();
+}
+customElements.define("p-paint-bucket", PaintBucket);
 
 p5.prototype.registerMethod("pre", function () {
   this.background(this.canvas_background);

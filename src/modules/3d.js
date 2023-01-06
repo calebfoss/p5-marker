@@ -1,8 +1,4 @@
-import {
-  defineProperties,
-  defineSnakeAlias,
-  registerElements,
-} from "../utils/p5Modifiers";
+import { defineProperties, defineSnakeAlias } from "../utils/p5Modifiers";
 import { P5Function } from "./core";
 import { ColorFunction } from "./color";
 
@@ -145,49 +141,52 @@ defineProperties({
 
 defineSnakeAlias("createShader", "createCamera");
 
-registerElements(
-  class AmbientLight extends ColorFunction {
-    constructor() {
-      super([]);
-    }
-  },
-  class DirectionalLight extends P5Function {
-    constructor() {
-      super([
-        "v1, v2, v3, x, y, z",
-        "v1, v2, v3, direction",
-        "color, x, y, z",
-        "color, direction",
-      ]);
-    }
-  },
-  class PointLight extends P5Function {
-    constructor() {
-      super([
-        "v1, v2, v3, x, y, z",
-        "v1, v2, v3, position",
-        "color, x, y, z",
-        "color, position",
-      ]);
-    }
-  },
-  class Lights extends P5Function {
-    constructor() {
-      super([""]);
-    }
-  },
-  class SpotLight extends P5Function {
-    constructor() {
-      super([
-        "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",
-        "color, position, direction, [angle], [concentration]",
-        "v1, v2, v3, position, direction, [angle], [concentration]",
-        "color, x, y, z, direction, [angle], [concentration]",
-        "color, position, rx, ry, rz, [angle], [concentration]",
-        "v1, v2, v3, x, y, z, direction, [angle], [concentration]",
-        "v1, v2, v3, position, rx, ry, rz, [angle], [concentration]",
-        "color, x, y, z, rx, ry, rz, [angle], [concentration]",
-      ]);
-    }
+class AmbientLight extends ColorFunction {
+  constructor() {
+    super([]);
   }
-);
+}
+customElements.define("p-ambient-light", AmbientLight);
+class DirectionalLight extends P5Function {
+  constructor() {
+    super([
+      "v1, v2, v3, x, y, z",
+      "v1, v2, v3, direction",
+      "color, x, y, z",
+      "color, direction",
+    ]);
+  }
+}
+customElements.define("p-directional-light", DirectionalLight);
+class PointLight extends P5Function {
+  constructor() {
+    super([
+      "v1, v2, v3, x, y, z",
+      "v1, v2, v3, position",
+      "color, x, y, z",
+      "color, position",
+    ]);
+  }
+}
+customElements.define("p-point-light", PointLight);
+class Lights extends P5Function {
+  constructor() {
+    super([""]);
+  }
+}
+customElements.define("p-lights", Lights);
+class SpotLight extends P5Function {
+  constructor() {
+    super([
+      "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",
+      "color, position, direction, [angle], [concentration]",
+      "v1, v2, v3, position, direction, [angle], [concentration]",
+      "color, x, y, z, direction, [angle], [concentration]",
+      "color, position, rx, ry, rz, [angle], [concentration]",
+      "v1, v2, v3, x, y, z, direction, [angle], [concentration]",
+      "v1, v2, v3, position, rx, ry, rz, [angle], [concentration]",
+      "color, x, y, z, rx, ry, rz, [angle], [concentration]",
+    ]);
+  }
+}
+customElements.define("p-spot-light", SpotLight);

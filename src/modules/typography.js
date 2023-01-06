@@ -1,7 +1,6 @@
 import {
   defineRendererGetterSetters,
   defineSnakeAlias,
-  registerElements,
 } from "../utils/p5Modifiers";
 import { P5Function } from "./core";
 
@@ -16,11 +15,9 @@ defineRendererGetterSetters(
 
 defineSnakeAlias("textAscent", "textDescent");
 
-(() => {
-  class Text extends P5Function {
-    constructor() {
-      super(["content, x, y, [x2], [y2]"]);
-    }
+class Text extends P5Function {
+  constructor() {
+    super(["content, x, y, [x2], [y2]"]);
   }
-  registerElements(Text);
-})();
+}
+customElements.define("p-text", Text);

@@ -1,21 +1,18 @@
 import {
   defineProperties,
   defineRendererGetterSetters,
-  registerElements,
 } from "../utils/p5Modifiers";
 import { P5Function } from "./core";
 
-(() => {
-  class Image extends P5Function {
-    constructor() {
-      super([
-        "img, x, y, [w], [h]",
-        "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
-      ]);
-    }
+class Image extends P5Function {
+  constructor() {
+    super([
+      "img, x, y, [w], [h]",
+      "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
+    ]);
   }
-  registerElements(Image);
-})();
+}
+customElements.define("p-image", Image);
 
 defineRendererGetterSetters("imageMode");
 

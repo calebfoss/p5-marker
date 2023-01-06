@@ -1,9 +1,5 @@
 import { camelToSnake } from "./caseConvert";
 
-export function registerElements() {
-  p5.prototype._customElements.push(...arguments);
-}
-
 export function defineProperties(obj) {
   for (const p in obj) {
     p5.prototype[p] = {};
