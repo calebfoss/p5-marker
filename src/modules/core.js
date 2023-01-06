@@ -794,39 +794,36 @@ class Sketch extends HTMLLinkElement {
   static elementName = "p-sketch";
   constructor() {
     super();
-    this.loadXML(this.href);
+    this.#loadXML(this.href);
   }
-
-  convertElement(xmlEl) {
+  #convertElement(xmlEl) {
     const xmlTag = xmlEl.tagName;
-    const pEl =
-      xmlTag === "canvas"
-        ? document.createElement("canvas", { is: "p-canvas" })
-        : document.createElement(`p-${xmlTag}`);
-    this.copyAttributes(xmlEl, pEl);
+    const createElementArguments = this.#xmlTagToCreateElementArguments(xmlTag);
+    const pEl = document.createElement(...createElementArguments);
+    this.#copyAttributes(xmlEl, pEl);
     if (xmlTag === "custom") p5.prototype._defineCustomElement(pEl);
     return pEl;
   }
-  convertAllElements(xmlEl, parent = document.body) {
-    const pEl = this.convertElement(xmlEl);
+  #convertAllElements(xmlEl, parent = document.body) {
+    const pEl = this.#convertElement(xmlEl);
     parent.appendChild(pEl);
     for (let i = 0; i < xmlEl.children.length; i++) {
-      this.convertAllElements(xmlEl.children[i], pEl);
+      this.#convertAllElements(xmlEl.children[i], pEl);
     }
   }
-  convertXML(e) {
+  #convertXML(e) {
     const xml = e.target.response.documentElement;
-    this.convertAllElements(xml);
+    this.#convertAllElements(xml);
     document.querySelectorAll("canvas").forEach((canvas) => canvas.runCode());
   }
-  copyAttributes(orig, copy) {
+  #copyAttributes(orig, copy) {
     const attrs = orig.attributes;
     for (let i = 0; i < attrs.length; i++) {
       const attr = attrs[i];
       copy.setAttribute(attr.name, attr.value);
     }
   }
-  loadXML(path) {
+  #loadXML(path) {
     if (!path)
       return console.error(
         "p-sketch element is missing required path attribute"
@@ -835,8 +832,13 @@ class Sketch extends HTMLLinkElement {
     request.open("GET", path);
     request.responseType = "document";
     request.overrideMimeType("text/xml");
-    request.addEventListener("load", this.convertXML.bind(this));
+    request.addEventListener("load", this.#convertXML.bind(this));
     request.send();
+  }
+  #xmlTagToCreateElementArguments(xmlTag) {
+    if (xmlTag.slice(0, 2) === "p-") return [xmlTag];
+    if (xmlTag === "canvas") return [xmlTag, { is: "p-canvas" }];
+    return ["p-" + xmlTag];
   }
 }
 customElements.define("p-sketch", Sketch, { extends: "link" });
