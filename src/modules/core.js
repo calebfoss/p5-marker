@@ -690,7 +690,8 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
  * elements. This element should be placed outside the <canvas> element. The name attribute defines the name of the new element. For
  * example, if name is set to "my-element," <my-element>
  * @element custom
- * @example
+ * @example Clouds
+ * ```html
  * <_>
  *  <custom name="cloud" attributes="center_x, center_y" stroke_color="NONE">
  *      <_ anchor="center_x, center_y" d="40">
@@ -708,20 +709,21 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
  *      width="400"
  *      height="400"
  *      is="canvas"
-        canvas_background="100, 140, 200"
-        cloud_x="0"
-    >
-        <cloud
-            center_y="75"
-            center_x="cloud_x - 40 - width * 0.25"
-            change="center_x: center_x + width * 0.25"
-            repeat="WHILE,  center_x LESS_THAN width * 1.25"
-        ></cloud>
-        <_ cloud_x="cloud_x + 0.25">
-            <_ on="cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>
-        </_>
-    </canvas>
-</_>
+ *      canvas_background="100, 140, 200"
+ *      cloud_x="0"
+ *  >
+ *      <cloud
+ *          center_y="75"
+ *          center_x="cloud_x - 40 - width * 0.25"
+ *          change="center_x: center_x + width * 0.25"
+ *          repeat="WHILE,  center_x LESS_THAN width * 1.25"
+ *      ></cloud>
+ *      <_ cloud_x="cloud_x + 0.25">
+ *          <_ on="cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>
+ *      </_>
+ *  </canvas>
+ * </_>
+ * ```
  */
 class Custom extends P5Element {
   constructor() {
@@ -763,7 +765,8 @@ customElements.define("p-asset", Asset);
  * index.html file as a `<link>` element with the attributes is="p-sketch" and
  * href="[PATH TO XML FILE]".
  * @element p-sketch
- * @example
+ * @example Add a sketch to html
+ * ```html
  * <!DOCTYPE html>
  * <html lang="en">
  * <head>
@@ -775,6 +778,7 @@ customElements.define("p-asset", Asset);
  * </head>
  * <body></body>
  * </html>
+ * ```
  */
 class Sketch extends HTMLLinkElement {
   static elementName = "p-sketch";

@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "npx parcel build && node utils/addBuildComment.mjs ",
-    "docs": "npx web-component-analyzer src --outFile reference.md",
+    "docs": "npx cem analyze --globs src --outdir docs",
     "test": "npm run build && npx mocha -r esm ./unit_tests",
     "watch": "npx parcel watch"
   },
@@ -29,7 +29,8 @@
   "author": "Caleb Foss",
   "license": "MIT",
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "^0.6.6",
+    "@custom-elements-manifest/analyzer": "^0.5.7",
+    "cem-plugin-jsdoc-example": "^0.0.9",
     "chai": "x",
     "esm": "^3.2.25",
     "jsdoc": "^3.6.11",
@@ -40,5 +41,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/calebfoss/p5-marker.git"
-  }
+  },
+  "customElements": "docs/custom-elements.json"
 }
