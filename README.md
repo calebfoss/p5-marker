@@ -16,6 +16,7 @@ Featuring collision detection using the [p5.collide2D](https://github.com/bmoren
   - [Conditions](#conditions)
   - [Branching](#branching)
   - [Iteration](#iteration)
+- [Getting Started](#getting-started)
 - [Reference (under construction)](https://p5-marker-docs.glitch.me)
 
 ## Motivation
@@ -239,3 +240,9 @@ in the change attributes value (e.g. change="x: x + 1").
 ```
 
 ![a grid of white rectangles outlined in black](img/iterationExample1.png)
+
+## Getting Started
+
+### p5 Editor
+
+Sign in to the [p5 editor](https://editor.p5js.org). Open the [empty example](https://editor.p5js.org/p5-marker/sketches/NyMiMkbAH), and click File > Duplicate.
