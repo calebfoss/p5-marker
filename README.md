@@ -12,6 +12,10 @@ Featuring collision detection using the [p5.collide2D](https://github.com/bmoren
   - [Elements](#elements)
   - [Attributes](#attributes)
   - [Functions](#functions)
+- [Logic](#logic)
+  - [Conditions](#conditions)
+  - [Branching](#branching)
+  - [Iteration](#iteration)
 - [Reference (under construction)](https://p5-marker-docs.glitch.me)
 
 ## Motivation
@@ -162,3 +166,76 @@ p5.js functions that return a value, rather than render something to the canvas,
 ```
 
 ![a black square and a gray circle over the square's upper left corner](img/childExample4.png)
+
+## Logic
+
+### Conditions
+
+Because pointy brackets (< >) and ampersands (&) may not be used in an XML attribute's value, Marker uses the following
+escape sequences instead:
+|escape sequence|replaces
+|--|--
+|LESS_THAN|<
+|NO_MORE_THAN|<=
+|AT_LEAST|>=
+|GREATER_THAN|>
+|AND|&&
+|OR|\|\|
+
+### Branching
+
+The "on" attribute is evaluated before any other attributes. If and only if its value is true, the element's other attributes will be evaluated, the element will be rendered, and the element's children will be evaluated and rendered.
+
+The above_siblings_off property is true if the siblings directly above the element either have "on" set to false or do not have an "on" attribute. This may be used to switch between sibling elements based on conditions, similar to if/else.
+
+```
+  <circle
+    fill_color="'red'"
+    x="0"
+    y="0"
+    d="width"
+    on="frame_count LESS_THAN 60"
+  ></circle>
+  <circle
+    fill_color="'yellow'"
+    x="0"
+    y="0"
+    d="width"
+    on="above_siblings_off AND frame_count LESS_THAN 120"
+  ></circle>
+  <circle
+    fill_color="'green'"
+    x="0"
+    y="0"
+    d="width"
+    on="above_siblings_off"
+  ></circle>
+```
+
+### Iteration
+
+Elements and their children can be iterated using two attributes in combination: "repeat" and "change".
+
+Repeat's value is a boolean evaluated with each iteration. If the value is true, the element and its
+children will be iterated again. The WHILE and UNTIL escapes can be used to improve legibility
+(e.g. repeat="WHILE x LESS_THAN width" or repeat="UNTIL x AT_LEAST width"). UNTIL is the equivalent of
+wrapping the proceeding condition with !(). WHILE serves no programmatic purpose.
+
+Change's value is an object literal. Each property key is the name of an attribute, and the corresponding
+value represents what that attribute will be set to with each iteration. The curly brackets may be omitted
+in the change attributes value (e.g. change="x: x + 1").
+
+```
+<_
+    x="0"
+    y="0"
+    w="width/10"
+    h="height/10"
+    change="x: x + width / 10"
+    repeat="UNTIL x >= width"
+  >
+    <rect change="y: y + height / 10" repeat="UNTIL y >= height"></rect>
+  </_>
+```
+
+![a grid of white rectangles outlined in black](img/iterationExample1.png)
