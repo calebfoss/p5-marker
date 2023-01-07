@@ -4,38 +4,8 @@
     <script src="../../node_modules/p5/lib/p5.js"></script>
     <script src="../../dist/p5.marker.js" defer></script>
     <link rel="stylesheet" type="text/css" href="style.css" />
+    <link href="sketch.xml" is="p-sketch" />
     <meta charset="utf-8" />
   </head>
-  <body>
-    <canvas
-      width="400"
-      height="400"
-      is="p-canvas"
-      anchor="width/2, height/2"
-      stroke_color="NONE"
-      canvas_background="200"
-    >
-      <p-circle
-        fill_color="'red'"
-        x="0"
-        y="0"
-        d="width"
-        on="frame_count LESS_THAN 60"
-      ></p-circle>
-      <p-circle
-        fill_color="'yellow'"
-        x="0"
-        y="0"
-        d="width"
-        on="above_siblings_off AND frame_count LESS_THAN 120"
-      ></p-circle>
-      <p-circle
-        fill_color="'green'"
-        x="0"
-        y="0"
-        d="width"
-        on="above_siblings_off"
-      ></p-circle>
-    </canvas>
-  </body>
+  <body></body>
 </html>
