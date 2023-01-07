@@ -230,12 +230,12 @@ in the change attributes value (e.g. change="x: x + 1").
 <_
     x="0"
     y="0"
-    w="width/10"
-    h="height/10"
+    w="width / 10"
+    h="height / 10"
     change="x: x + width / 10"
-    repeat="UNTIL x >= width"
+    repeat="UNTIL x AT_LEAST width"
   >
-    <rect change="y: y + height / 10" repeat="UNTIL y >= height"></rect>
+    <rect change="y: y + height / 10" repeat="UNTIL y AT_LEAST height"></rect>
   </_>
 ```
 
