@@ -69,15 +69,14 @@ Here's how to produce that same example in Marker:
   stroke_color="NONE"
 >
   <square
-    x="width/2"
-    y="height/2"
+    anchor="width / 2, height / 2"
     s="200"
     rect_mode="CENTER"
     fill_color="180, 40, 20"
     angle="square_angle"
     square_angle="square_angle + 1"
   />
-  <circle x="width/2" y="height * 0.75" d="100" fill_color="20, 60, 180" />
+  <circle x="width / 2" y="height * 0.75" d="100" fill_color="20, 60, 180" />
 </canvas>
 ```
 
