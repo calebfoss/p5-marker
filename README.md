@@ -48,7 +48,7 @@ function draw() {
   fill(180, 40, 20);
   rectMode(CENTER);
   square(0, 0, 200);
-  squareAngle = squareAngle + 2;
+  squareAngle = squareAngle + 1;
   pop();
   fill(20, 60, 180);
   circle(width / 2, height * 0.75, 100);
