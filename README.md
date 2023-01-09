@@ -231,11 +231,10 @@ in the change attributes value (e.g. change="x: x + 1").
     y="0"
     w="width / 10"
     h="height / 10"
-    change="x: x + width / 10"
-    repeat="UNTIL x AT_LEAST width"
-  >
-    <rect change="y: y + height / 10" repeat="UNTIL y AT_LEAST height"></rect>
-  </_>
+    change="x: x + w"
+    repeat="UNTIL x AT_LEAST width">
+    <rect change="y: y + h" repeat="UNTIL y AT_LEAST height"></rect>
+</_>
 ```
 
 ![a grid of white rectangles outlined in black](img/iterationExample1.png)
