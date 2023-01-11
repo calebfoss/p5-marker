@@ -108,7 +108,13 @@ const P5Extension = (baseClass) =>
         return prop in target.#state;
       },
       set(target, prop, val) {
-        target.#updateFunctions.set(prop, () => val);
+        const getOwner = (prop) => {
+          if (target.isPersistent(prop)) return target.persistent;
+          if (prop in target.pInst) return target.pInst;
+          return target;
+        };
+        const owner = getOwner(prop);
+        target.#updateFunctions.set(prop, () => (owner[prop] = val));
         target.#state[prop] = val;
       },
     });
