@@ -473,7 +473,35 @@ const P5Extension = (baseClass) =>
       return this.#state;
     }
   };
-
+/**
+ * @attribute {Boolean | [Number, Number, Number]} orbit_control
+ * Allows movement around a 3D sketch using a mouse or trackpad.  Left-clicking
+ * and dragging will rotate the camera position about the center of the sketch,
+ * right-clicking and dragging will pan the camera position without rotation,
+ * and using the mouse wheel (scrolling) will move the camera closer or further
+ * from the center of the sketch. This attribute can be set with a list of numbers
+ * dictating sensitivity to mouse movement along the X and Y axes.  Setting
+ * this attribute to true is the equivalent to setting to [1, 1].
+ * To reverse direction of movement in either axis, enter a negative number
+ * for sensitivity.
+ *
+ * @element P5Element
+ * @attribute {boolean | [GRID|AXIS, Number, Number, Number, Number, Number] |
+ * [Number, Number, Number, Number Number, Number, Number, Number, Number]} debug_mode
+ * debug_mode helps visualize 3D space by adding a grid to indicate where the
+ * ‘ground’ is in a sketch and an axes icon which indicates the +X, +Y, and +Z
+ * directions. This attribute can be set to true to create a
+ * default grid and axes icon, or it can be set  to customize the size and position
+ * of the grid and/or axes icon.  The
+ * grid is drawn using the stroke_color and stroke_weight.
+ *
+ * By default, the grid will run through the origin (0,0,0) of the sketch
+ * along the XZ plane
+ * and the axes icon will be offset from the origin.  Both the grid and axes
+ * icon will be sized according to the current canvas size.  Note that because the
+ * grid runs parallel to the default camera view, it is often helpful to use
+ * debug_mode along with orbit_control to allow full view of the grid.
+ */
 export class P5Element extends P5Extension(HTMLElement) {}
 
 export class P5Function extends P5Element {
@@ -617,9 +645,17 @@ customElements.define("p-_", _);
  * remain in the next frame. This can be used to animate attributes over
  * time.
  * @element canvas
- * @attr {Number} width - Width of the canvas in pixels
- * @attr {Number} height - Height of the canvas in pixels
- * @attr {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image, [Number]} canvas_background - Sets the background that is rendered at the start of each frame. This may be a color or an image.
+ * @attribute {Number} width - Width of the canvas in pixels
+ * @attribute {Number} height - Height of the canvas in pixels
+ * @attribute {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image,
+ * [Number]} canvas_background
+ * Sets the background that is rendered at the start of each frame. This may be a color
+ * or an image. The default background is transparent. The color is either specified in
+ * terms of the RGB, HSB, or HSL color depending on the current color_mode.
+ *
+ * If the attribute is set to a single string, RGB, RGBA and Hex CSS color strings and
+ * all named color strings are supported. In this case, an alpha number value as a second
+ * value is not supported, the RGBA form should be used.
  */
 class Canvas extends P5Extension(HTMLCanvasElement) {
   constructor() {
