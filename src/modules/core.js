@@ -474,6 +474,60 @@ const P5Extension = (baseClass) =>
     }
   };
 /**
+ * @attribute {p5.Color} fill_color
+ * Sets the color used to fill shapes drawn by an element and its children. For example,
+ * if you set fill_color="204, 102, 0",
+ * the element with that attribute as well as its children will be filled with the color orange.
+ * This color is either specified in terms of the RGB or HSB color depending on
+ * the current color_mode. (The default color space
+ * is RGB, with each value in the range from 0 to 255). The alpha range by default
+ * is also 0 to 255.
+ *
+ * If a single string argument is provided, RGB, RGBA and Hex CSS color strings
+ * and all named color strings are supported. In this case, an alpha number
+ * value as a second argument is not supported, the RGBA form should be used.
+ *
+ * A <a href="#/p5.Color">p5.Color</a> object can also be provided to set the fill color.
+ *
+ * To use a transparent fill, set fill_color="NONE".
+ *
+ * @attribute {p5.Color} stroke_color
+ * Sets the color used to draw lines and borders around shapes drawn by an element and its
+ * children. This color
+ * is either specified in terms of the RGB or HSB color depending on the
+ * current color_mode (the default color space
+ * is RGB, with each value in the range from 0 to 255). The alpha range by
+ * default is also 0 to 255.
+ *
+ * If a single string argument is provided, RGB, RGBA and Hex CSS color
+ * strings and all named color strings are supported. In this case, an alpha
+ * number value as a second argument is not supported, the RGBA form should be
+ * used.
+ *
+ * A <a href="#/p5.Color">p5.Color</a> object can also be provided to set the stroke color.
+ *
+ * To use a transparent stroke, set stroke_color="NONE".
+ *
+ * @attribute {Boolean | [Number, Number]} erase
+ * An element with erase="true" as well as its children will subtract from
+ * the canvas. Erased areas will reveal the web page underneath the canvas. Erasing
+ * can be turned off with erase="false".
+ *
+ * <image> and <paint-bucked> elements will not erase the canvas and will instead work
+ * as usual.
+ *
+ * @attribute {RGB|HSB|HSL, [RGB|HSB|HSL, Number], [RGB|HSB, Number, Number, Number, Number]} color_mode
+ * color_mode changes the way p5.js interprets
+ * color data. By default, the parameters for fill_color,
+ * stroke_color, canvas_background,
+ * and <a href="#/p5/color">color()</a> are defined by values between 0 and 255
+ * using the RGB color model. This is equivalent to setting color_mode="RGB, 255".
+ * Setting color_mode="HSB" lets you use the HSB system instead. By default, this
+ * is color_mode="HSB, 360, 100, 100, 1". You can also use HSL.
+ *
+ * Note: existing color objects remember the mode that they were created in,
+ * so you can change modes as you like without affecting their appearance.
+ *
  * @attribute {Boolean | [Number, Number, Number]} orbit_control
  * Allows movement around a 3D sketch using a mouse or trackpad.  Left-clicking
  * and dragging will rotate the camera position about the center of the sketch,
@@ -650,8 +704,9 @@ customElements.define("p-_", _);
  * @attribute {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image,
  * [Number]} canvas_background
  * Sets the background that is rendered at the start of each frame. This may be a color
- * or an image. The default background is transparent. The color is either specified in
- * terms of the RGB, HSB, or HSL color depending on the current color_mode.
+ * or an image. The default background is NONE (transparent). The color is either specified in
+ * terms of the RGB, HSB, or HSL color depending on the current color_mode. The values are the
+ * same as the parameters for <a href="https://p5js.org/reference/#/p5/color" target="_blank">color()</a>.
  *
  * If the attribute is set to a single string, RGB, RGBA and Hex CSS color strings and
  * all named color strings are supported. In this case, an alpha number value as a second
