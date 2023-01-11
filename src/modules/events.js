@@ -65,6 +65,7 @@ wrapMethod(
     function (e) {
       base.call(this, e);
       this._setProperty("mouse_dragging", this.mouseIsPressed);
+      this._setProperty("touch_moved", this.mouseIsPressed);
     }
 );
 
@@ -110,7 +111,7 @@ wrapMethod(
   (base) =>
     function (e) {
       base.call(this, e);
-      this._setProperty("touche_moved", true);
+      this._setProperty("touch_moved", true);
     }
 );
 
