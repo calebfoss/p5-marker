@@ -53,6 +53,12 @@ p5.prototype.loadAssets = async function () {
 };
 p5.prototype.registerPreloadMethod("loadAssets", p5.prototype);
 p5.prototype._debug_attributes = true;
+p5.prototype.create_canvas_element = function (elementName) {
+  const createdElement = document.createElement(elementName);
+  this.canvas.appendChild(createdElement);
+  createdElement.setup(this, this.canvas);
+  return createdElement;
+};
 defineProperties({
   object_assign: {
     set: function ([target, ...sources]) {
@@ -114,8 +120,7 @@ const P5Extension = (baseClass) =>
           return target;
         };
         const owner = getOwner(prop);
-        target.#updateFunctions.set(prop, () => (owner[prop] = val));
-        target.#state[prop] = val;
+        owner.set(prop, val);
       },
     });
     /**
@@ -211,6 +216,13 @@ const P5Extension = (baseClass) =>
       if (attrName in this.persistent) return this.persistent[attrName];
       if (attrName in this.pInst) return this.pInst[attrName];
       return;
+    }
+    /**
+     * The parent canvas for this element
+     * @type {HTMLCanvasElement}
+     */
+    get canvas() {
+      return this.#canvas;
     }
     /**
      * Checks if this element is colliding with the provided other element.
@@ -353,6 +365,15 @@ const P5Extension = (baseClass) =>
      */
     get pInst() {
       return this.#pInst;
+    }
+    /**
+     * Sets an attribute's value on this element.
+     * @param {string} attributeName
+     * @param {*} value
+     */
+    set(attributeName, value) {
+      this.#updateFunctions.set(attributeName, () => value);
+      this.#state[attributeName] = value;
     }
     /**
      * Sets this element up with a p5 instance and sets up its children.
