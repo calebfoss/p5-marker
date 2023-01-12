@@ -1,4 +1,4 @@
-// p5-marker v0.0.0 Sat Jan 07 2023 https://github.com/calebfoss/p5-marker.git
+// p5-marker v0.0.0 Thu Jan 12 2023 https://github.com/calebfoss/p5-marker.git
 const $7a53813bc2528edd$var$upperCaseChar = /([A-Z])/g;
 const $7a53813bc2528edd$var$upperCaseCharAfterFirst = /(?<!^)[A-Z]/g;
 //  js string replace 2nd param
@@ -98,7 +98,7 @@ class $1e4b072929c69c2b$export$25a3dda2d7b8a35b {
         "void",
         "while",
         "with",
-        "yield", 
+        "yield"
     ];
     static getOwnerName(el, prop) {
         if ($1e4b072929c69c2b$export$25a3dda2d7b8a35b.keywords.includes(prop) || prop in $1e4b072929c69c2b$export$25a3dda2d7b8a35b.escapes || prop in globalThis) return "none";
@@ -180,6 +180,12 @@ p5.prototype.loadAssets = async function() {
 };
 p5.prototype.registerPreloadMethod("loadAssets", p5.prototype);
 p5.prototype._debug_attributes = true;
+p5.prototype.create_canvas_element = function(elementName) {
+    const createdElement = document.createElement(elementName);
+    this.canvas.appendChild(createdElement);
+    createdElement.setup(this, this.canvas);
+    return createdElement;
+};
 (0, $1b3618ac1b6555cf$export$b61bda4fbca264f2)({
     object_assign: {
         set: function([target, ...sources]) {
@@ -205,7 +211,7 @@ const $641a8979c6a6229d$var$attributePriorities = [
     "shear",
     "_default",
     "repeat",
-    "change", 
+    "change"
 ];
 const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends baseClass {
         /**
@@ -227,8 +233,13 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
                 return prop in target.#state;
             },
             set (target, prop, val) {
-                target.#updateFunctions.set(prop, ()=>val);
-                target.#state[prop] = val;
+                const getOwner = (prop)=>{
+                    if (target.isPersistent(prop)) return target.persistent;
+                    if (prop in target.pInst) return target.pInst;
+                    return target;
+                };
+                const owner = getOwner(prop);
+                owner.set(prop, val);
             }
         });
         /**
@@ -261,7 +272,7 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
         /**
      * @method applyChange
      * @private
-     */  #applyChange() {
+     */ #applyChange() {
             const change = this.#state.change = this.#updateAttribute(this.#state, "change", this);
             let changed = false;
             const assignProp = (obj, prop)=>{
@@ -295,7 +306,7 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
         }
         /**
      * @private
-     */  #callAttributeUpdater(inherited, attrName, thisArg) {
+     */ #callAttributeUpdater(inherited, attrName, thisArg) {
             if (this.#updateFunctions.has(attrName)) {
                 const evalFn = this.#updateFunctions.get(attrName);
                 return evalFn.call(thisArg, this.pInst, inherited);
@@ -304,6 +315,12 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
             if (attrName in this.persistent) return this.persistent[attrName];
             if (attrName in this.pInst) return this.pInst[attrName];
             return;
+        }
+        /**
+     * The parent canvas for this element
+     * @type {HTMLCanvasElement}
+     */ get canvas() {
+            return this.#canvas;
         }
         /**
      * Checks if this element is colliding with the provided other element.
@@ -406,6 +423,14 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
             return this.#pInst;
         }
         /**
+     * Sets an attribute's value on this element.
+     * @param {string} attributeName
+     * @param {*} value
+     */ set(attributeName, value) {
+            this.#updateFunctions.set(attributeName, ()=>value);
+            this.#state[attributeName] = value;
+        }
+        /**
      * Sets this element up with a p5 instance and sets up its children.
      * @param {p5} pInst
      */ setup(pInst, canvas) {
@@ -418,7 +443,7 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
         }
         /**
      * @private
-     */  #setupEvalFn(attr) {
+     */ #setupEvalFn(attr) {
             //  The attribute's value will be modified, then run as JS
             const attrJsStr = attr.value;
             //  TODO - catch improperly ordered quote marks: "foo'var"'
@@ -443,7 +468,7 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
         }
         /**
      * @private
-     */  #setupEvalFns() {
+     */ #setupEvalFns() {
             if (this.hasAttribute("repeat") && !this.hasAttribute("change")) {
                 console.error(`It looks like a ${this.constructor.elementName} has a repeat attribute ` + "but does not have a change attribute. The change attribute is required to " + "prevent infinite loops.");
                 this.removeAttribute("repeat");
@@ -467,7 +492,7 @@ const $641a8979c6a6229d$var$P5Extension = (baseClass)=>class P5Extension extends
      * @param {*} attrName
      * @param {*} thisArg
      * @returns
-     */  #updateAttribute(inherited1, attrName1, thisArg1) {
+     */ #updateAttribute(inherited1, attrName1, thisArg1) {
             if (attrName1 === "repeat" || attrName1 === "change") inherited1 = this.#state;
             const val = this.#callAttributeUpdater(inherited1, attrName1, thisArg1);
             //  Setting canvas width or height resets the drawing context
@@ -511,7 +536,7 @@ class $641a8979c6a6229d$export$d546242e33fb8131 extends $641a8979c6a6229d$export
    * Sets the parameters used to call this element's render function based
    * on the overloads for that function and this element's attributes.
    * @private
-   */  #getArgumentsFromOverloads() {
+   */ #getArgumentsFromOverloads() {
         const { overloads: overloads  } = this;
         //  Check every required parameter has an attribute
         const isOptional = (param)=>param.match(/^\[.*\]$/);
@@ -599,9 +624,18 @@ customElements.define("p-_", $641a8979c6a6229d$var$_);
  * remain in the next frame. This can be used to animate attributes over
  * time.
  * @element canvas
- * @attr {Number} width - Width of the canvas in pixels
- * @attr {Number} height - Height of the canvas in pixels
- * @attr {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image, [Number]} canvas_background - Sets the background that is rendered at the start of each frame. This may be a color or an image.
+ * @attribute {Number} width - Width of the canvas in pixels
+ * @attribute {Number} height - Height of the canvas in pixels
+ * @attribute {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image,
+ * [Number]} canvas_background
+ * Sets the background that is rendered at the start of each frame. This may be a color
+ * or an image. The default background is NONE (transparent). The color is either specified in
+ * terms of the RGB, HSB, or HSL color depending on the current color_mode. The values are the
+ * same as the parameters for <a href="https://p5js.org/reference/#/p5/color" target="_blank">color()</a>.
+ *
+ * If the attribute is set to a single string, RGB, RGBA and Hex CSS color strings and
+ * all named color strings are supported. In this case, an alpha number value as a second
+ * value is not supported, the RGBA form should be used.
  */ class $641a8979c6a6229d$var$Canvas extends $641a8979c6a6229d$var$P5Extension(HTMLCanvasElement) {
     constructor(){
         super();
@@ -765,7 +799,7 @@ customElements.define("p-asset", $641a8979c6a6229d$var$Asset);
         super();
         this.#loadXML(this.href);
     }
-     #convertElement(xmlEl) {
+    #convertElement(xmlEl) {
         const xmlTag = xmlEl.tagName;
         const createElementArguments = this.#xmlTagToCreateElementArguments(xmlTag);
         const pEl = document.createElement(...createElementArguments);
@@ -773,24 +807,24 @@ customElements.define("p-asset", $641a8979c6a6229d$var$Asset);
         if (xmlTag === "custom") p5.prototype._defineCustomElement(pEl);
         return pEl;
     }
-     #convertAllElements(xmlEl1, parent = document.body) {
+    #convertAllElements(xmlEl1, parent = document.body) {
         const pEl1 = this.#convertElement(xmlEl1);
         parent.appendChild(pEl1);
         for(let i1 = 0; i1 < xmlEl1.children.length; i1++)this.#convertAllElements(xmlEl1.children[i1], pEl1);
     }
-     #convertXML(e) {
+    #convertXML(e) {
         const xml = e.target.response.documentElement;
         this.#convertAllElements(xml);
         document.querySelectorAll("canvas").forEach((canvas)=>canvas.runCode());
     }
-     #copyAttributes(orig, copy) {
+    #copyAttributes(orig, copy) {
         const attrs = orig.attributes;
         for(let i2 = 0; i2 < attrs.length; i2++){
             const attr = attrs[i2];
             copy.setAttribute(attr.name, attr.value);
         }
     }
-     #loadXML(path) {
+    #loadXML(path) {
         if (!path) return console.error("p-sketch element is missing required path attribute");
         const request = new XMLHttpRequest();
         request.open("GET", path);
@@ -799,7 +833,7 @@ customElements.define("p-asset", $641a8979c6a6229d$var$Asset);
         request.addEventListener("load", this.#convertXML.bind(this));
         request.send();
     }
-     #xmlTagToCreateElementArguments(xmlTag1) {
+    #xmlTagToCreateElementArguments(xmlTag1) {
         if (xmlTag1.slice(0, 2) === "p-") return [
             xmlTag1
         ];
@@ -1033,7 +1067,7 @@ class $be018c00eb40bc53$export$f08b370029806897 extends (0, $641a8979c6a6229d$ex
             "gray, [alpha]",
             "values",
             "c",
-            ...overloads, 
+            ...overloads
         ];
         super(overloads, renderFunctionName);
     }
@@ -1052,29 +1086,7 @@ const $be018c00eb40bc53$var$transparent = p5.prototype.color.call({
 }, 0, 0);
 p5.prototype.setErase = p5.prototype.erase;
 p5.prototype._background = $be018c00eb40bc53$var$transparent;
-/**
- * The background property sets the color used
- * for the background of the canvas. The default background is transparent.
- * The color is either specified in terms of the RGB, HSB, or HSL color depending
- * on the current color_mode. (The default color space
- * is RGB, with each value in the range from 0 to 255). The alpha range by default
- * is also 0 to 255.<br><br>
- *
- * If a single string value is provided, RGB, RGBA and Hex CSS color strings
- * and all named color strings are supported. In this case, an alpha number
- * value as a second argument is not supported, the RGBA form should be used.
- *
- * A <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object
- * can also be provided to set the background color.
- *
- * A <a href="https://p5js.org/reference/#/p5.Image">p5.Image</a> can also
- * be provided to set the background image.
- *
- * @external p5.prototype
- * @see https://p5js.org/reference
- * */ /**
- * @member external:p5.prototype.canvas_background
- * */ Object.defineProperties(p5.prototype, {
+(0, $1b3618ac1b6555cf$export$b61bda4fbca264f2)({
     canvas_background: {
         get: function() {
             return this._background;
@@ -1084,9 +1096,7 @@ p5.prototype._background = $be018c00eb40bc53$var$transparent;
             else if (val instanceof p5.Image) this._background = val;
             else this._background = this.color(val);
         }
-    }
-});
-(0, $1b3618ac1b6555cf$export$b61bda4fbca264f2)({
+    },
     color_mode: {
         get: function() {
             return this._colorMode;
@@ -1228,7 +1238,10 @@ p5.prototype.collide_elements = function(elementA, elementB) {
 /*~++~+~+~++~+~++~++~+~+~ 2D ~+~+~++~+~++~+~+~+~+~+~+~+~+~+~+*/ p5.prototype.collide_rect_rect = function(x, y, w, h, x2, y2, w2, h2) {
     //2d
     //add in a thing to detect rectMode CENTER
-    if (x + w >= x2 && x <= x2 + w2 && y + h >= y2 && y <= y2 + h2) // r1 bottom edge past r2 top
+    if (x + w >= x2 && // r1 right edge past r2 left
+    x <= x2 + w2 && // r1 left edge past r2 right
+    y + h >= y2 && // r1 top edge past r2 bottom
+    y <= y2 + h2) // r1 bottom edge past r2 top
     return true;
     return false;
 };
@@ -1292,7 +1305,10 @@ p5.prototype.collide_point_ellipse_vector = function(p, c, d) {
 };
 p5.prototype.collide_point_rect = function(pointX, pointY, x, y, xW, yW) {
     //2d
-    if (pointX >= x && pointX <= x + xW && pointY >= y && pointY <= y + yW) // above the bottom
+    if (pointX >= x && // right of the left edge AND
+    pointX <= x + xW && // left of the right edge AND
+    pointY >= y && // below the top AND
+    pointY <= y + yW) // above the bottom
     return true;
     return false;
 };
@@ -1779,7 +1795,7 @@ customElements.define("p-line", $c7ffc8b66df47534$var$Line);
         ];
     }
     get mouse_over() {
-        const { x: x , y: y , stroke_weight: stroke_weight , pixel_density: pixel_density , mouse_trans_pos_x: mouse_trans_pos_x , mouse_trans_pos_y: mouse_trans_pos_y ,  } = this.this_element;
+        const { x: x , y: y , stroke_weight: stroke_weight , pixel_density: pixel_density , mouse_trans_pos_x: mouse_trans_pos_x , mouse_trans_pos_y: mouse_trans_pos_y  } = this.this_element;
         const d = stroke_weight * this.pInst.pow(pixel_density, 2);
         return this.pInst.collide_point_circle(mouse_trans_pos_x, mouse_trans_pos_y, x, y, d);
     }
@@ -1811,7 +1827,7 @@ customElements.define("p-point", $c7ffc8b66df47534$var$Point);
     constructor(){
         super([
             "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
-            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]", 
+            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]"
         ]);
     }
     collider = p5.prototype.collider_type.poly;
@@ -1830,7 +1846,7 @@ customElements.define("p-point", $c7ffc8b66df47534$var$Point);
             this.pInst.createVector(x1, y1),
             this.pInst.createVector(x2, y2),
             this.pInst.createVector(x3, y3),
-            this.pInst.createVector(x4, y4), 
+            this.pInst.createVector(x4, y4)
         ];
     }
 }
@@ -1859,7 +1875,7 @@ customElements.define("p-quad", $c7ffc8b66df47534$var$Quad);
     constructor(){
         super([
             "x, y, w, [h], [tl], [tr], [br], [bl]",
-            "x, y, w, h, [detail_x], [detail_y]", 
+            "x, y, w, h, [detail_x], [detail_y]"
         ]);
     }
     collider = p5.prototype.collider_type.rect;
@@ -1956,7 +1972,7 @@ class $c7ffc8b66df47534$var$Triangle extends (0, $641a8979c6a6229d$export$d54624
         return [
             this.pInst.createVector(x1, y1),
             this.pInst.createVector(x2, y2),
-            this.pInst.createVector(x3, y3), 
+            this.pInst.createVector(x3, y3)
         ];
     }
 }
@@ -1965,7 +1981,7 @@ class $c7ffc8b66df47534$var$Bezier extends (0, $641a8979c6a6229d$export$d546242e
     constructor(){
         super([
             "x1, y1, x2, y2, x3, y3, x4, y4",
-            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4", 
+            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"
         ]);
     }
 }
@@ -1974,7 +1990,7 @@ class $c7ffc8b66df47534$var$Curve extends (0, $641a8979c6a6229d$export$d546242e3
     constructor(){
         super([
             "x1, y1, x2, y2, x3, y3, x4, y4",
-            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4", 
+            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"
         ]);
     }
 }
@@ -2121,7 +2137,7 @@ class $c7ffc8b66df47534$var$LoadModel extends (0, $641a8979c6a6229d$export$d5462
     constructor(){
         super([
             "path, normalize, [successCallback], [failureCallback], [fileType]",
-            "path, [successCallback], [failureCallback], [fileType]", 
+            "path, [successCallback], [failureCallback], [fileType]"
         ]);
     }
 }
@@ -2470,7 +2486,7 @@ const $3d1b09cc8252f1f2$var$identityMatrix = new DOMMatrix([
     0,
     0,
     0,
-    1, 
+    1
 ]);
 p5.prototype._transform_point_matrix = function(originalPoint, transMatrix) {
     const pixelDensityMatrix = new DOMMatrix($3d1b09cc8252f1f2$var$identityMatrix).scale(this.pixel_density);
@@ -2521,6 +2537,7 @@ p5.prototype._startAngleZ;
 (0, $1b3618ac1b6555cf$export$e00416b3cd122575)("_onmousemove", (base)=>function(e) {
         base.call(this, e);
         this._setProperty("mouse_dragging", this.mouseIsPressed);
+        this._setProperty("touch_moved", this.mouseIsPressed);
     });
 (0, $1b3618ac1b6555cf$export$e00416b3cd122575)("_onwheel", (base)=>function(e) {
         base.call(this, e);
@@ -2541,7 +2558,7 @@ p5.prototype._startAngleZ;
     });
 (0, $1b3618ac1b6555cf$export$e00416b3cd122575)("_ontouchmove", (base)=>function(e) {
         base.call(this, e);
-        this._setProperty("touche_moved", true);
+        this._setProperty("touch_moved", true);
     });
 (0, $1b3618ac1b6555cf$export$e00416b3cd122575)("_ontouchend", (base)=>function(e) {
         base.call(this, e);
@@ -2791,7 +2808,7 @@ p5.prototype._shakeThreshold = 30;
     constructor(){
         super([
             "img, x, y, [w], [h]",
-            "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]", 
+            "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]"
         ]);
     }
 }
@@ -2927,7 +2944,7 @@ p5.prototype.EMISSIVE = "emissive";
             return [
                 this._renderer.constantAttenuation,
                 this._renderer.linearAttenuation,
-                this._renderer.quadraticAttenuation, 
+                this._renderer.quadraticAttenuation
             ];
         }
     },
@@ -3087,7 +3104,7 @@ customElements.define("p-ambient-light", $da8d19ba6ae4969b$var$AmbientLight);
             "v1, v2, v3, x, y, z",
             "v1, v2, v3, direction",
             "color, x, y, z",
-            "color, direction", 
+            "color, direction"
         ]);
     }
 }
@@ -3123,7 +3140,7 @@ customElements.define("p-directional-light", $da8d19ba6ae4969b$var$DirectionalLi
             "v1, v2, v3, x, y, z",
             "v1, v2, v3, position",
             "color, x, y, z",
-            "color, position", 
+            "color, position"
         ]);
     }
 }
@@ -3192,7 +3209,7 @@ customElements.define("p-lights", $da8d19ba6ae4969b$var$Lights);
             "color, position, rx, ry, rz, [angle], [concentration]",
             "v1, v2, v3, x, y, z, direction, [angle], [concentration]",
             "v1, v2, v3, position, rx, ry, rz, [angle], [concentration]",
-            "color, x, y, z, rx, ry, rz, [angle], [concentration]", 
+            "color, x, y, z, rx, ry, rz, [angle], [concentration]"
         ]);
     }
 }
