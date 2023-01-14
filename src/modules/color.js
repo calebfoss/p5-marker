@@ -3,7 +3,7 @@ import { P5Function } from "./core";
 
 defineSnakeAlias("lerpColor");
 
-p5.prototype.NONE = "none";
+p5.prototype.NONE = "#0000";
 
 export class ColorFunction extends P5Function {
   constructor(overloads, renderFunctionName) {
