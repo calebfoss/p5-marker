@@ -1,0 +1,14 @@
+<!-- https://p5js.org/reference/#/p5/keyIsDown -->
+<canvas width="512" height="512">
+    <clear></clear>
+    <ellipse
+        x="100" y="100"
+        w="50" h="50"
+        fill_color="255, 0, 0"
+        player="this_element">
+        <_ on="key_is_down(LEFT_ARROW)" player.x="player.x - 5"></_>
+        <_ on="key_is_down(RIGHT_ARROW)" player.x="player.x + 5"></_>
+        <_ on="key_is_down(UP_ARROW)" player.y="player.y - 5"></_>
+        <_ on="key_is_down(DOWN_ARROW)" player.y="player.y + 5"></_>
+    </ellipse>
+</canvas>

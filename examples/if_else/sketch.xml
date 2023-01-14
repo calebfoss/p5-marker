@@ -1,30 +1,21 @@
 <canvas
   width="400"
   height="400"
-  is="p-canvas"
-  anchor="width/2, height/2"
   stroke_color="NONE"
   canvas_background="200"
 >
-  <circle
-    fill_color="'red'"
-    x="0"
-    y="0"
-    d="width"
-    on="frame_count LESS_THAN 60"
-  ></circle>
-  <circle
-    fill_color="'yellow'"
-    x="0"
-    y="0"
-    d="width"
-    on="above_siblings_off AND frame_count LESS_THAN 120"
-  ></circle>
-  <circle
-    fill_color="'green'"
-    x="0"
-    y="0"
-    d="width"
-    on="above_siblings_off"
-  ></circle>
+  <_ d="width" anchor="width/2, height/2">
+    <circle
+      fill_color="'red'"
+      on="frame_count LESS_THAN 60"
+    ></circle>
+    <circle
+      fill_color="'yellow'"
+      on="above_siblings_off AND frame_count LESS_THAN 120"
+    ></circle>
+    <circle
+      fill_color="'green'"
+      on="above_siblings_off"
+    ></circle>
+  </_>
 </canvas>

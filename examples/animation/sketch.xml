@@ -1,0 +1,18 @@
+<canvas
+    width="400"
+    height="400"
+    canvas_background="220"
+>
+    <square x="width / 2" y="height / 2" s="width / 5" speed_x="3" speed_y="2" bounce="this_element">
+        <_
+            bounce.x="bounce.x + bounce.speed_x"
+            bounce.y="bounce.y + bounce.speed_y"
+        ></_>
+        <_ on="bounce.x AT_LEAST width || bounce.x NO_MORE_THAN 0">
+            <_ bounce.speed_x="-bounce.speed_x"></_>
+        </_>
+        <_ on="bounce.y AT_LEAST height || bounce.y NO_MORE_THAN 0">
+            <_ bounce.speed_y="-bounce.speed_y"></_>
+        </_>
+    </square>
+</canvas>

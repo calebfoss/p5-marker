@@ -114,8 +114,12 @@ const P5Extension = (baseClass) =>
         return prop in target.#state;
       },
       set(target, prop, val) {
-        target.#updateFunctions.set(prop, () => val);
-        target.#state[prop] = val;
+        const getOwner = (prop) => {
+          if (prop in target.pInst) return target.pInst;
+          return target;
+        };
+        const owner = getOwner(prop);
+        owner.set(prop, val);
       },
     });
     /**
@@ -174,7 +178,6 @@ const P5Extension = (baseClass) =>
       };
       for (const prop in change) {
         assignProp(this.#state, prop) ||
-          assignProp(this.persistent, prop) ||
           assignProp(this.pInst, prop) ||
           console.error(
             `${this.constructor.elementName}'s change attribute has a prop called ${prop} that is unknown`
@@ -208,7 +211,6 @@ const P5Extension = (baseClass) =>
         return evalFn.call(thisArg, this.pInst, inherited);
       }
       if (attrName in inherited) return inherited[attrName];
-      if (attrName in this.persistent) return this.persistent[attrName];
       if (attrName in this.pInst) return this.pInst[attrName];
       return;
     }
@@ -263,7 +265,7 @@ const P5Extension = (baseClass) =>
         for (const child of this.children) {
           child.draw(this.#state);
         }
-        repeat = this.#state.repeat;
+        repeat = this.hasAttribute("repeat") && this.#state.repeat;
         const { change } = this.#state;
         if (Array.isArray(repeat)) {
           const [key, ...conditions] = this.#updateAttribute(
@@ -275,6 +277,7 @@ const P5Extension = (baseClass) =>
         if (repeat) {
           this.pInst.pop();
           this.pInst.push();
+          const changed = this.#applyChange();
           const updaters = this.#updateFunctions.entries();
           for (const [attrName, updater] of updaters) {
             if (attrName in change === false)
@@ -284,7 +287,6 @@ const P5Extension = (baseClass) =>
                 this
               );
           }
-          const changed = this.#applyChange();
           if (!changed) repeat = false;
         }
         this.endRender?.(this.#state);
@@ -303,17 +305,6 @@ const P5Extension = (baseClass) =>
      */
     get #html() {
       return this.outerHTML.replace(this.innerHTML, "");
-    }
-    /**
-     * Checks if an attribute belongs to the parent canvas of this element.
-     * @method isPersistent
-     * @param {string} attributeName - name of the attribute to check
-     * @returns {boolean} true if the attribute belongs to the parent canvas
-     */
-    isPersistent(attributeName) {
-      if (this instanceof HTMLCanvasElement)
-        return this.hasAttribute(attributeName);
-      return this.parentElement?.isPersistent?.(attributeName);
     }
     /**
      * List of attribute names in the order in which they will be evaluated.
@@ -337,14 +328,6 @@ const P5Extension = (baseClass) =>
           attributePriorities.includes(attrName)
         ) + 1;
       return ordered;
-    }
-    /**
-     * Proxy for this element's parent canvas is a child with access to its
-     * properties, methods, and attributes.
-     * @type {proxy}
-     */
-    get persistent() {
-      return this.#canvas.this_element;
     }
     /**
      * Proxy for this element's parent element with access to its properties,
@@ -462,7 +445,7 @@ const P5Extension = (baseClass) =>
       if (this.pInst.debug_attributes === false) return val;
       if (
         this instanceof HTMLCanvasElement &&
-        (attrName !== "width" || attrName !== "height")
+        (attrName === "width" || attrName === "height")
       )
         return val;
 
@@ -617,7 +600,7 @@ export class P5Function extends P5Element {
           this.attributeInherited(p) ||
           isOptional(p) ||
           p === "" ||
-          (i === overloadsSplitSorted.length - 1 && this.isPersistent(p))
+          (i === overloadsSplitSorted.length - 1 && this.attributeInherited(p))
       );
 
       //  If matched overload found
@@ -637,13 +620,6 @@ export class P5Function extends P5Element {
             );
           //  If not defined on this element and optional, return filtered params
           if (optional) return filteredParams;
-          //  If attribute is persistent, add it to filtered params
-          if (this.isPersistent(p))
-            return filterParams(
-              overloadParams,
-              filteredParams.concat({ owner: this.persistent, param: p }),
-              ++i
-            );
           //  If required and already initialized, add it to filtered params
           if (this.attributeInherited(p))
             return filterParams(
@@ -715,11 +691,7 @@ customElements.define("p-_", _);
 
 /**
  * The `<canvas>` element is a rectangular area of the window for rendering
- * imagery. All child elements are rendered to the canvas. Width, height
- * canvas_background, and all custom attributes are persistent; if a child
- * element changes the value of any of these attributes, the change will
- * remain in the next frame. This can be used to animate attributes over
- * time.
+ * imagery. All child elements are rendered to the canvas.
  * @element canvas
  * @attribute {Number} width - Width of the canvas in pixels
  * @attribute {Number} height - Height of the canvas in pixels
@@ -739,15 +711,23 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     super();
     window.addEventListener("customElementsDefined", this.runCode.bind(this));
   }
+  attributeInherited(attributeName) {
+    if (this.hasAttribute(attributeName) || attributeName in this.defaults)
+      return true;
+    return super.attributeInherited(attributeName);
+  }
   get orderedAttributeNames() {
     //  Remove 'is' and 'style' from attrNames
     return super.orderedAttributeNames.filter(
       (v) => v !== "is" && v != "style"
     );
   }
+  set loop(val) {
+    if (val) this.pInst.loop();
+    else this.pInst.noLoop();
+  }
   runCode() {
     const canvas = this;
-
     const sketch = (pInst) => {
       canvas.defaults = {
         x: 0,
@@ -788,23 +768,16 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
         const renderer = pInst[canvas.getAttribute("renderer")];
         canvas.setup(pInst, canvas);
         pInst.assignCanvas(canvas, renderer);
-        const initialState = canvas.updateState({});
-        Object.getOwnPropertyNames(initialState).forEach(
-          (name) => delete canvas.defaults[name]
-        );
+        canvas.updateState(canvas.defaults);
       };
       pInst.draw = function () {
+        const state = canvas.updateState(canvas.defaults);
         for (const child of canvas.children) {
-          child.draw?.(canvas.defaults);
+          child.draw?.(state);
         }
       };
     };
     new p5(sketch);
-  }
-  attributeInherited(attributeName) {
-    if (this.hasAttribute(attributeName) || attributeName in this.defaults)
-      return true;
-    return super.attributeInherited(attributeName);
   }
 }
 customElements.define("p-canvas", Canvas, { extends: "canvas" });

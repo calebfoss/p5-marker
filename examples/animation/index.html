@@ -3,32 +3,9 @@
   <head>
     <script src="../../node_modules/p5/lib/p5.js"></script>
     <script src="../../dist/p5.marker.js" defer></script>
+    <link is="p-sketch" href="./sketch.xml" />
     <link rel="stylesheet" type="text/css" href="style.css" />
     <meta charset="utf-8" />
   </head>
-  <body>
-    <canvas
-      width="400"
-      height="400"
-      is="p-canvas"
-      canvas_background="220"
-      square_pos_x="width/2"
-      square_pos_y="height/2"
-      square_speed_x="3"
-      square_speed_y="2"
-    >
-      <p-square x="square_pos_x" y="square_pos_y" s="width/5">
-        <p-_
-          square_pos_x="square_pos_x + square_speed_x"
-          square_pos_y="square_pos_y + square_speed_y"
-        ></p-_>
-        <p-_ on="square_pos_x > width || square_pos_x < 0">
-          <p-_ square_speed_x="-square_speed_x"></p-_>
-        </p-_>
-        <p-_ on="square_pos_y > height || square_pos_y < 0">
-          <p-_ square_speed_y="-square_speed_y"></p-_>
-        </p-_>
-      </p-square>
-    </canvas>
-  </body>
+  <body></body>
 </html>

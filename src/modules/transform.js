@@ -159,21 +159,6 @@ defineProperties({
   },
 });
 
-p5.prototype.registerMethod("pre", function () {
-  const { anchor, angle_vector, scale_factor, shear } = this;
-  this._renderer._anchorStack = [anchor];
-  this.anchor = anchor;
-
-  this._renderer._angleStack = [angle_vector];
-  this.angle_vector = angle_vector;
-
-  this._renderer._scaleStack = [scale_factor];
-  this.scale_factor = scale_factor;
-
-  this._renderer._shearStack = [shear];
-  this.shear = shear;
-});
-
 const identityMatrix = new DOMMatrix([
   1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
 ]);

@@ -3,7 +3,7 @@
   height="400"
   is="p-canvas"
   canvas_background="220"
-  animate="false"
+  loop="false"
 >
   <_
     x="0"

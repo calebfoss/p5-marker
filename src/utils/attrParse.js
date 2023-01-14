@@ -98,9 +98,8 @@ export class AttrParseUtil {
       prop in globalThis
     )
       return "none";
+    if (prop in el && prop !== "width" && prop !== "height") return "this";
     if (AttrParseUtil.isP5(prop)) return "pInst";
-    if (el.isPersistent(prop)) return "this.persistent";
-    if (prop in el) return "this";
     return "inherited";
   }
   static getPrefix(el, prop) {

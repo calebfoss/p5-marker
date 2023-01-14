@@ -212,7 +212,7 @@ defineProperties({
     set: function (val) {
       this.print(val);
     },
-  },
+  }, //  TODO - fix this
   sketch_description: {
     get: function () {
       const cnvId = this.canvas.id;
