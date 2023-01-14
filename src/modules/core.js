@@ -716,6 +716,18 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
       return true;
     return super.attributeInherited(attributeName);
   }
+  get description() {
+    const { pInst } = this;
+    const cnvId = this.id;
+    const descContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Description`);
+    if (descContainer) return descContainer;
+    const labelContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Label`);
+    return labelContainer;
+  }
+  set description(val) {
+    if (Array.isArray(val)) this.pInst.describe(...val);
+    else this.pInst.describe(val);
+  }
   get orderedAttributeNames() {
     //  Remove 'is' and 'style' from attrNames
     return super.orderedAttributeNames.filter(
@@ -730,6 +742,7 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     const canvas = this;
     const sketch = (pInst) => {
       canvas.defaults = {
+        canvas_background: pInst.color(0, 0),
         x: 0,
         x1: 0,
         x2: 0,
@@ -768,10 +781,10 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
         const renderer = pInst[canvas.getAttribute("renderer")];
         canvas.setup(pInst, canvas);
         pInst.assignCanvas(canvas, renderer);
-        canvas.updateState(canvas.defaults);
       };
       pInst.draw = function () {
         const state = canvas.updateState(canvas.defaults);
+        canvas.pInst.background(state.canvas_background);
         for (const child of canvas.children) {
           child.draw?.(state);
         }

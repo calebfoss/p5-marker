@@ -159,9 +159,6 @@ defineProperties({
     },
   },
   description: {
-    get: function () {
-      return this.sketch_description;
-    },
     set: function (val) {
       this.describeElement(...val);
     },
@@ -211,22 +208,6 @@ defineProperties({
   log: {
     set: function (val) {
       this.print(val);
-    },
-  }, //  TODO - fix this
-  sketch_description: {
-    get: function () {
-      const cnvId = this.canvas.id;
-      const descContainer = this.dummyDOM.querySelector(
-        `#${cnvId}_Description`
-      );
-      if (descContainer) return descContainer;
-      const labelContainer = this.dummyDOM.querySelector(`#${cnvId}_Label`);
-      return labelContainer;
-    },
-
-    set: function (val) {
-      if (Array.isArray(val)) this.describe(...val);
-      else this.describe(val);
     },
   },
   text_output: {

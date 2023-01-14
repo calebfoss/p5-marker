@@ -18,6 +18,7 @@
 
         <!-- STATE MANAGEMENT -->
         <_ x="width/2" y="height/2" text_align="CENTER, CENTER" text_size="height/15">
+            <!-- TODO - fix newline -->
             <text on="state === 'start'"
                 content="'Left: W for up, S for down\nRight: up/down arrows\n\nClick to start'">
                 <_ on="mouse_down" game.state="'play'"></_>
