@@ -59,16 +59,37 @@ export class WebGLLight extends FillStrokeElement {
   }
 }
 
-defineProperties({
-  light_falloff: {
-    get: function () {
-      return [
-        this._renderer.constantAttenuation,
-        this._renderer.linearAttenuation,
-        this._renderer.quadraticAttenuation,
+const addLightFalloff = (baseClass) =>
+  class extends baseClass {
+    #light_falloff;
+    /**
+     * Sets the falloff rate for ```<point-light>```
+     * and ```<spot-light>```.
+     *
+     * light_falloff affects only this element and its children.
+     *
+     * The values are `constant`, `linear`, an `quadratic` and are used to calculate falloff as follows:
+     *
+     * d = distance from light position to vertex position
+     *
+     * falloff = 1 / (CONSTANT + d \* LINEAR + (d \* d) \* QUADRATIC)
+     * @type {[number, number, number]}
+     */
+    get light_falloff() {
+      return this.#light_falloff;
+    }
+    set light_falloff([constant, linear, quadratic]) {
+      const { pInst } = this;
+      pInst.lightFalloff(constant, linear, quadratic);
+      this.#light_falloff = [
+        pInst._renderer.constantAttenuation,
+        pInst._renderer.linearAttenuation,
+        pInst._renderer.quadraticAttenuation,
       ];
-    },
-  },
+    }
+  };
+
+defineProperties({
   remove_lights: {
     set: function () {
       this.noLights();
@@ -241,7 +262,7 @@ customElements.define("p-directional-light", DirectionalLight);
  *                href="https://p5js.org/reference/#/p5.Color">p5.Color</a>,
  *                as an array, or as a CSS string
  */
-class PointLight extends WebGLLight {
+class PointLight extends addLightFalloff(WebGLLight) {
   constructor() {
     super([
       "v1, v2, v3, x, y, z",
@@ -308,7 +329,7 @@ customElements.define("p-lights", Lights);
  * @attribute  {Number}    concentration  concentration of cone. Defaults to
  *                                            100
  */
-class SpotLight extends WebGLLight {
+class SpotLight extends addLightFalloff(WebGLLight) {
   constructor() {
     super([
       "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",

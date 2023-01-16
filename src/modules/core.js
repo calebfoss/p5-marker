@@ -676,7 +676,6 @@ customElements.define("p-_", _);
  */
 class Canvas extends P5Extension(HTMLCanvasElement) {
   #background;
-  #camera;
   #debug_mode;
   #orbit_control;
   constructor() {
@@ -792,6 +791,26 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     this.#orbit_control = true;
     if (Array.isArray(val)) return this.pInst.orbitControl(...val);
     this.pInst.orbitControl();
+  }
+
+  /**
+   * Sets an orthographic projection for the current camera in a 3D sketch
+   * and defines a box-shaped viewing frustum within which objects are seen.
+   * In this projection, all objects with the same dimension appear the same
+   * size, regardless of whether they are near or far from the camera.
+   *
+   * This may be set to a comma-separated list of arguments to
+   * <a href="https://p5js.org/reference/#/p5/ortho">ortho()</a>
+   *
+   * If set to "true", the following default is used:
+   * ortho(-width/2, width/2, -height/2, height/2).
+   *
+   * @type {boolean}
+   */
+  set ortho(val) {
+    if (val === true) this.pInst.ortho();
+    else if (Array.isArray(val)) this.pInst.ortho(...val);
+    else if (val !== false) this.pInst.ortho(val);
   }
   get orderedAttributeNames() {
     //  Remove 'is' and 'style' from attrNames
