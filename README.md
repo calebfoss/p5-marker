@@ -66,7 +66,7 @@ Here's how to produce that same example in Marker:
   square_angle="0"
   angle_mode="DEGREES"
   canvas_background="20"
-  stroke_color="NONE"
+  stroke="NONE"
 >
   <square
     anchor="width / 2, height / 2"

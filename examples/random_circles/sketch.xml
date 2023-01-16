@@ -2,7 +2,7 @@
 <canvas width="400" height="400" background="220" loop="false">
     <circle anchor="random(width), random(height)"
         fill="random(255), random(255), random(255)"
-        stroke_color="NONE"
+        stroke="NONE"
         count="0" repeat="UNTIL count === 100"
         change="count: count + 1"></circle>
 </canvas>

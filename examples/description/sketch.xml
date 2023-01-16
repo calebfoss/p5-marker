@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://p5js.org/reference/#/p5/describeElement -->
-<canvas width="100" height="100" background="'pink'" stroke_color="NONE">
+<canvas width="100" height="100" background="'pink'" stroke="NONE">
     <ellipse x="25" y="25" w="40" h="40" fill="'yellow'"
         description="'Circle', 'Yellow circle in the top left corner'" />
     <ellipse x="66.6" y="66.6" w="20" h="20" fill="'red'"

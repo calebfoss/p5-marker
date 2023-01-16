@@ -459,6 +459,21 @@ const P5Extension = (baseClass) =>
       }
     }
     /**
+     * Sets the color used to draw lines and borders around shapes. This color
+     * is either a <a href="#/p5.Color">p5.Color</a> object or a comma
+     * separated list of values to pass into
+     * <a href="https://p5js.org/reference/#/p5/color">color()</a>.
+     * @type {p5.Color}
+     */
+    get stroke() {
+      if (!this.pInst.drawingContext) return "";
+      return this.pInst.color(this.pInst.drawingContext.strokeStyle);
+    }
+    set stroke(val) {
+      if (val === this.pInst.NONE) this.pInst.noStroke();
+      else this.pInst.stroke(val);
+    }
+    /**
      * This element's proxy with access to properties, methods, and attributes.
      */
     get this_element() {
@@ -513,72 +528,6 @@ const P5Extension = (baseClass) =>
       return this.#state;
     }
   };
-/**
- * @attribute {p5.Color} stroke_color
- * Sets the color used to draw lines and borders around shapes drawn by an element and its
- * children. This color
- * is either specified in terms of the RGB or HSB color depending on the
- * current color_mode (the default color space
- * is RGB, with each value in the range from 0 to 255). The alpha range by
- * default is also 0 to 255.
- *
- * If a single string argument is provided, RGB, RGBA and Hex CSS color
- * strings and all named color strings are supported. In this case, an alpha
- * number value as a second argument is not supported, the RGBA form should be
- * used.
- *
- * A <a href="#/p5.Color">p5.Color</a> object can also be provided to set the stroke color.
- *
- * To use a transparent stroke, set stroke_color="NONE".
- *
- * @attribute {Boolean | [Number, Number]} erase
- * An element with erase="true" as well as its children will subtract from
- * the canvas. Erased areas will reveal the web page underneath the canvas. Erasing
- * can be turned off with erase="false".
- *
- * <image> and <paint-bucked> elements will not erase the canvas and will instead work
- * as usual.
- *
- * @attribute {RGB|HSB|HSL, [RGB|HSB|HSL, Number], [RGB|HSB, Number, Number, Number, Number]} color_mode
- * color_mode changes the way p5.js interprets
- * color data. By default, the parameters for fill_color,
- * stroke_color, canvas_background,
- * and <a href="#/p5/color">color()</a> are defined by values between 0 and 255
- * using the RGB color model. This is equivalent to setting color_mode="RGB, 255".
- * Setting color_mode="HSB" lets you use the HSB system instead. By default, this
- * is color_mode="HSB, 360, 100, 100, 1". You can also use HSL.
- *
- * Note: existing color objects remember the mode that they were created in,
- * so you can change modes as you like without affecting their appearance.
- *
- * @attribute {Boolean | [Number, Number, Number]} orbit_control
- * Allows movement around a 3D sketch using a mouse or trackpad.  Left-clicking
- * and dragging will rotate the camera position about the center of the sketch,
- * right-clicking and dragging will pan the camera position without rotation,
- * and using the mouse wheel (scrolling) will move the camera closer or further
- * from the center of the sketch. This attribute can be set with a list of numbers
- * dictating sensitivity to mouse movement along the X and Y axes.  Setting
- * this attribute to true is the equivalent to setting to [1, 1].
- * To reverse direction of movement in either axis, enter a negative number
- * for sensitivity.
- *
- * @element P5Element
- * @attribute {boolean | [GRID|AXIS, Number, Number, Number, Number, Number] |
- * [Number, Number, Number, Number Number, Number, Number, Number, Number]} debug_mode
- * debug_mode helps visualize 3D space by adding a grid to indicate where the
- * ‘ground’ is in a sketch and an axes icon which indicates the +X, +Y, and +Z
- * directions. This attribute can be set to true to create a
- * default grid and axes icon, or it can be set  to customize the size and position
- * of the grid and/or axes icon.  The
- * grid is drawn using the stroke_color and stroke_weight.
- *
- * By default, the grid will run through the origin (0,0,0) of the sketch
- * along the XZ plane
- * and the axes icon will be offset from the origin.  Both the grid and axes
- * icon will be sized according to the current canvas size.  Note that because the
- * grid runs parallel to the default camera view, it is often helpful to use
- * debug_mode along with orbit_control to allow full view of the grid.
- */
 export class P5Element extends P5Extension(HTMLElement) {}
 
 export class P5Function extends P5Element {
@@ -841,7 +790,7 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
  * @example Clouds
  * ```html
  * <_>
- *  <custom name="cloud" attributes="center_x, center_y" stroke_color="NONE">
+ *  <custom name="cloud" attributes="center_x, center_y" stroke="NONE">
  *      <_ anchor="center_x, center_y" d="40">
  *          <circle x="-20" y="-10" fill_color="220"></circle>
  *          <circle x="20" y="-10" fill_color="210"></circle>

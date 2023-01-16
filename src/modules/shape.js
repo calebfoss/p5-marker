@@ -157,7 +157,7 @@ customElements.define("p-circle", Circle);
  * Draws a line (a direct path between two points) to the screen. This width
  * can be modified by using the stroke_weight attribute. A line cannot be
  * filled, therefore the fill_color attribute will not affect the color of a
- * line. So to color a line, use the stroke_color attribute.
+ * line. So to color a line, use the stroke attribute.
  * @element line
  * @attr {Number} x1 - x-coordinate of the first point
  * @attr {Number} y1 - y-coordinate of the first point
@@ -206,7 +206,7 @@ class Line extends P5Function {
 customElements.define("p-line", Line);
 /**
  * Draws a point, a coordinate in space at the dimension of one pixel. The
- * color of the point is changed with the stroke_color attribute. The size of
+ * color of the point is changed with the stroke attribute. The size of
  * the point can be changed with the stroke_weight attribute.
  * @element point
  * @attr {Number} x - x-coordinate

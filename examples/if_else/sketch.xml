@@ -1,7 +1,7 @@
 <canvas
   width="400"
   height="400"
-  stroke_color="NONE"
+  stroke="NONE"
   background="200"
 >
   <_ d="width" anchor="width/2, height/2">
