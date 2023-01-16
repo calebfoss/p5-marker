@@ -676,6 +676,8 @@ customElements.define("p-_", _);
  */
 class Canvas extends P5Extension(HTMLCanvasElement) {
   #background;
+  #camera;
+  #debug_mode;
   #orbit_control;
   constructor() {
     super();
@@ -704,6 +706,39 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
   set background(c) {
     if (c instanceof p5.Color || c instanceof p5.Image) this.#background = c;
     this.#background = this.pInst.color(c);
+  }
+  /**
+   * Sets the current (active) camera of a 3D sketch.
+   * Allows for switching between multiple cameras.
+   *
+   * Comma-separated arguments for
+   * <a href="https://p5js.org/reference/#/p5/camera">camera()</a>
+   * may also be provided to adjust the current camera.
+   *
+   * @type {p5.Camera}
+   * */
+  get camera() {
+    return this.pInst._renderer._curCamera;
+  }
+  set camera(val) {
+    const { pInst } = this;
+    if (val instanceof p5.Camera) pInst.setCamera(val);
+    else if (Array.isArray(val)) pInst.camera(...val);
+    else pInst.camera(val);
+  }
+  get debug_mode() {
+    return this.#debug_mode;
+  }
+  set debug_mode(val) {
+    const { pInst } = this;
+    if (val === false) {
+      pInst.noDebugMode();
+      this.#debug_mode = false;
+      return;
+    } else if (val === true) pInst.debugMode();
+    else if (Array.isArray(val)) pInst.debugMode(...val);
+    else pInst.debugMode(val);
+    this.#debug_mode = true;
   }
   get description() {
     const { pInst } = this;

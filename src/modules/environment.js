@@ -30,20 +30,27 @@ p5.prototype._createDescriptionContainer = function () {
   this.canvas.append(descriptionContainer);
   return descriptionContainer;
 };
-
+const fallbackDescId = "_fallbackDesc";
 wrapMethod(
   "_describeHTML",
   (base) =>
     function (type, text) {
       const cnvId = this.canvas.id;
       const describeId = `#${cnvId}_Description`;
-      if (type === "fallback" && !this.dummyDOM.querySelector(describeId)) {
-        const fallback = this._createDescriptionContainer().querySelector(
-          `#${cnvId}_fallbackDesc`
+      if (type === "fallback") {
+        if (!this.dummyDOM.querySelector(describeId)) {
+          const fallback = this._createDescriptionContainer().querySelector(
+            `#${cnvId}_fallbackDesc`
+          );
+          fallback.innerHTML = text;
+        } else {
+          base.call(this, type, text);
+        }
+        //if the container for the description exists
+        this.descriptions.fallback = this.dummyDOM.querySelector(
+          `#${cnvId}${fallbackDescId}`
         );
-        fallback.innerHTML = text;
-      } else {
-        base.call(this, type, text);
+        this.descriptions.fallback.innerHTML = text;
       }
     }
 );

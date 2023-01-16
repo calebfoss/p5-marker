@@ -9,19 +9,6 @@ p5.prototype.SPECULAR = "specular";
 p5.prototype.EMISSIVE = "emissive";
 
 defineProperties({
-  debug_mode: {
-    get: function () {
-      return this._debugMode;
-    },
-    set: function (val) {
-      if (val === this.NONE) this.noDebugMode();
-      else {
-        this._debugMode = val;
-        if (val === true) this.debugMode();
-        else this.debugMode(val);
-      }
-    },
-  },
   specular_color: {
     get: function () {
       return this._renderer.specularColors;
@@ -110,14 +97,6 @@ defineProperties({
     },
     set: function (val) {
       this.shininess(val);
-    },
-  },
-  camera: {
-    get: function () {
-      return this._renderer._curCamera;
-    },
-    set: function (val) {
-      this.setCamera(val);
     },
   },
 });
