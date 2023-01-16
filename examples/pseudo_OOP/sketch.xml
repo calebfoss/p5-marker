@@ -17,7 +17,7 @@
         <_ on="ball.y NO_MORE_THAN 0 OR ball.y AT_LEAST height" ball.speed_y="-ball.speed_y"></_>
     </custom>
 
-    <canvas width="window_width" height="window_height" canvas_background="255">
+    <canvas width="window_width" height="window_height" background="255">
         <_ on="mouse_down" ball="create_canvas_element('p-ball')"></_>
     </canvas>
 </_>

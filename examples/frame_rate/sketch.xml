@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" canvas_background="220">
+<canvas width="400" height="400" background="220">
     <text content="int(frame_rate)" x="20" text_size="40" text_align="LEFT, TOP">
         <_ parent_element.y="parent_element.y + 1"></_>
         <_ on="parent_element.y >= height" parent_element.y="0" frame_rate="frame_rate/2" />

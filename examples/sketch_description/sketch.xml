@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://p5js.org/reference/#/p5/describe -->
-<canvas width="100" height="100" canvas_background="'pink'"
+<canvas width="100" height="100" background="'pink'"
     description="'pink square with red heart in the bottom right corner'" fill_color="'red'"
     stroke_color="NONE" loop="false">
     <ellipse x="67" y="67" w="20" h="20" />

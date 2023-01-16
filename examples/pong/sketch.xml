@@ -1,5 +1,5 @@
 <_>
-    <canvas width="window_width" height="window_height" canvas_background="0" left_paddle="null"
+    <canvas width="window_width" height="window_height" background="0" left_paddle="null"
         right_paddle="null" left_score="0" right_score="0" count_down="120" wait_time="120"
         state="'start'" winner="''" fill_color="255" ball_speed_mag="height/100"
         default_ball_speed_mag="height/100" game="this_element">

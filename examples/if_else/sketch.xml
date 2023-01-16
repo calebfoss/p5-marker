@@ -2,7 +2,7 @@
   width="400"
   height="400"
   stroke_color="NONE"
-  canvas_background="200"
+  background="200"
 >
   <_ d="width" anchor="width/2, height/2">
     <circle

@@ -14,7 +14,7 @@
     <canvas
         width="400"
         height="400"
-        canvas_background="100, 140, 200"
+        background="100, 140, 200"
     >
         <_ start_x="0" clouds="this_element">
             <cloud

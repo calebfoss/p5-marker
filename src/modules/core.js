@@ -707,6 +707,7 @@ customElements.define("p-_", _);
  * value is not supported, the RGBA form should be used.
  */
 class Canvas extends P5Extension(HTMLCanvasElement) {
+  #background;
   constructor() {
     super();
     window.addEventListener("customElementsDefined", this.runCode.bind(this));
@@ -715,6 +716,13 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     if (this.hasAttribute(attributeName) || attributeName in this.defaults)
       return true;
     return super.attributeInherited(attributeName);
+  }
+  get background() {
+    return this.#background;
+  }
+  set background(c) {
+    if (c instanceof p5.Color || c instanceof p5.Image) this.#background = c;
+    this.#background = this.pInst.color(c);
   }
   get description() {
     const { pInst } = this;
@@ -742,7 +750,6 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     const canvas = this;
     const sketch = (pInst) => {
       canvas.defaults = {
-        canvas_background: pInst.color(0, 0),
         x: 0,
         x1: 0,
         x2: 0,
@@ -780,11 +787,13 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
       pInst.setup = function () {
         const renderer = pInst[canvas.getAttribute("renderer")];
         canvas.setup(pInst, canvas);
+        //  Set default background to transparent
+        canvas.background = pInst.color(0, 0);
         pInst.assignCanvas(canvas, renderer);
       };
       pInst.draw = function () {
         const state = canvas.updateState(canvas.defaults);
-        canvas.pInst.background(state.canvas_background);
+        pInst.background(canvas.background);
         for (const child of canvas.children) {
           child.draw?.(state);
         }

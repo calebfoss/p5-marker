@@ -1,7 +1,7 @@
 <canvas
     width="400"
     height="400"
-    canvas_background="220"
+    background="220"
 >
     <square x="width / 2" y="height / 2" s="width / 5" speed_x="3" speed_y="2" bounce="this_element">
         <_

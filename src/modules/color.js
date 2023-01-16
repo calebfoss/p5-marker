@@ -32,18 +32,7 @@ const transparent = p5.prototype.color.call(
   0
 );
 p5.prototype.setErase = p5.prototype.erase;
-p5.prototype._background = transparent;
 defineProperties({
-  canvas_background: {
-    get: function () {
-      return this._background;
-    },
-    set: function (val) {
-      if (val === this.NONE) this._background = transparent;
-      else if (val instanceof p5.Image) this._background = val;
-      else this._background = this.color(val);
-    },
-  },
   color_mode: {
     get: function () {
       return this._colorMode;
@@ -143,7 +132,3 @@ class PaintBucket extends ColorFunction {
   }
 }
 customElements.define("p-paint-bucket", PaintBucket);
-
-p5.prototype.registerMethod("pre", function () {
-  this.background(this.canvas_background);
-});
