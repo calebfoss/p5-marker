@@ -1,14 +1,14 @@
 <_>
     <custom name="cloud" stroke_color="NONE">
         <_ anchor="x, y">
-            <circle x="-d/2" y="-d/4" fill_color="220"></circle>
-            <circle x="-d/2" y="-d/4" fill_color="210"></circle>
-            <circle x="-d/4" y="-d/2" fill_color="250"></circle>
-            <circle x="d/4" y="-d/2" fill_color="210"></circle>
-            <circle x="0" y="0" fill_color="180"></circle>
-            <circle x="d/2" y="0" fill_color="200"></circle>
-            <circle x="-d/2" y="0" fill_color="240"></circle>
-            <circle x="0" y="-d/8" fill_color="235"></circle>
+            <circle x="-d/2" y="-d/4" fill="220"></circle>
+            <circle x="-d/2" y="-d/4" fill="210"></circle>
+            <circle x="-d/4" y="-d/2" fill="250"></circle>
+            <circle x="d/4" y="-d/2" fill="210"></circle>
+            <circle x="0" y="0" fill="180"></circle>
+            <circle x="d/2" y="0" fill="200"></circle>
+            <circle x="-d/2" y="0" fill="240"></circle>
+            <circle x="0" y="-d/8" fill="235"></circle>
         </_>
     </custom>
     <canvas

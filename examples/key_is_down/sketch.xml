@@ -4,7 +4,7 @@
     <ellipse
         x="100" y="100"
         w="50" h="50"
-        fill_color="255, 0, 0"
+        fill="255, 0, 0"
         player="this_element">
         <_ on="key_is_down(LEFT_ARROW)" player.x="player.x - 5"></_>
         <_ on="key_is_down(RIGHT_ARROW)" player.x="player.x + 5"></_>

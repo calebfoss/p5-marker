@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas width="400" height="400" background="220" loop="false">
     <circle anchor="random(width), random(height)"
-        fill_color="random(255), random(255), random(255)"
+        fill="random(255), random(255), random(255)"
         stroke_color="NONE"
         count="0" repeat="UNTIL count === 100"
         change="count: count + 1"></circle>

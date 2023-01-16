@@ -72,11 +72,11 @@ Here's how to produce that same example in Marker:
     anchor="width / 2, height / 2"
     s="200"
     rect_mode="CENTER"
-    fill_color="180, 40, 20"
+    fill="180, 40, 20"
     angle="square_angle"
     square_angle="square_angle + 1"
   />
-  <circle x="width / 2" y="height * 0.75" d="100" fill_color="20, 60, 180" />
+  <circle x="width / 2" y="height * 0.75" d="100" fill="20, 60, 180" />
 </canvas>
 ```
 
@@ -143,7 +143,7 @@ You can reference attributes from parents (grandparents, etc.).
 Attributes can be set to multiple values, separated by commas.
 
 ```
-<square x="25" y="25" s="50" fill_color="180, 40, 20">
+<square x="25" y="25" s="50" fill="180, 40, 20">
   <circle d="25" />
 </square>
 <circle x="75" y="25" d="50" />
@@ -158,10 +158,10 @@ Functions are called within attribute values to calculate a value.
 p5.js functions that return a value, rather than render something to the canvas, have a snake case alias.
 
 ```
-<canvas width="100" height="100" canvas_background="255">
-  <square x="25" y="25" s="50" fill_color="0">
-    <circle d="25" fill_color="lerp_color(fill_color, canvas_background, 0.5)"/>
-  </square>
+<canvas width="100" height="100" background="255">
+    <square x="25" y="25" s="50" fill="0">
+        <circle d="25" fill="lerp_color(fill, canvas.background, 0.5)" />
+    </square>
 </canvas>
 ```
 
@@ -190,21 +190,21 @@ The above_siblings_off property is true if the siblings directly above the eleme
 
 ```
   <circle
-    fill_color="'red'"
+    fill="'red'"
     x="0"
     y="0"
     d="width"
     on="frame_count LESS_THAN 60"
   ></circle>
   <circle
-    fill_color="'yellow'"
+    fill="'yellow'"
     x="0"
     y="0"
     d="width"
     on="above_siblings_off AND frame_count LESS_THAN 120"
   ></circle>
   <circle
-    fill_color="'green'"
+    fill="'green'"
     x="0"
     y="0"
     d="width"

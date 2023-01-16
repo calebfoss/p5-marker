@@ -29,26 +29,26 @@
           x4="x_base - width"
           y4="height"
           stroke_weight="2"
-          fill_color="NONE"
+          fill="NONE"
         >
           <p-_
             stroke_color="60, 180, 20"
-            fill_color="20, 60, 180"
+            fill="20, 60, 180"
             stroke_weight="4"
             t="0"
             repeat="WHILE t LESS_THAN 1"
             change="t: t + 0.1"
           >
             <p-_
-              lerped_stroke="lerp_color(stroke_color, fill_color, t)"
-              lerped_fill="lerp_color(fill_color, stroke_color, t)"
+              lerped_stroke="lerp_color(stroke_color, fill, t)"
+              lerped_fill="lerp_color(fill, stroke_color, t)"
             >
               <p-circle
                 anchor="curvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t)"
                 x="0"
                 y="0"
                 d="20"
-                fill_color="lerped_fill"
+                fill="lerped_fill"
                 stroke_color="lerped_stroke"
               ></p-circle>
             </p-_>

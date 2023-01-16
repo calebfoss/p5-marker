@@ -321,6 +321,21 @@ const P5Extension = (baseClass) =>
       return `p-${pascalToKebab(this.name)}`;
     }
     /**
+     * Sets the color used to fill shapes. This may be a
+     * <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object or
+     * a comma separated list of values to pass into
+     * <a href="https://p5js.org/reference/#/p5/color">color()</a>.
+     * @type {p5.Color}
+     */
+    get fill() {
+      if (!this.pInst.drawingContext) return "";
+      return this.pInst.color(this.pInst.drawingContext.fillStyle);
+    }
+    set fill(val) {
+      if (val === this.NONE) this.pInst.noFill();
+      else this.pInst.fill(val);
+    }
+    /**
      * @private
      */
     get #html() {
@@ -499,23 +514,6 @@ const P5Extension = (baseClass) =>
     }
   };
 /**
- * @attribute {p5.Color} fill_color
- * Sets the color used to fill shapes drawn by an element and its children. For example,
- * if you set fill_color="204, 102, 0",
- * the element with that attribute as well as its children will be filled with the color orange.
- * This color is either specified in terms of the RGB or HSB color depending on
- * the current color_mode. (The default color space
- * is RGB, with each value in the range from 0 to 255). The alpha range by default
- * is also 0 to 255.
- *
- * If a single string argument is provided, RGB, RGBA and Hex CSS color strings
- * and all named color strings are supported. In this case, an alpha number
- * value as a second argument is not supported, the RGBA form should be used.
- *
- * A <a href="#/p5.Color">p5.Color</a> object can also be provided to set the fill color.
- *
- * To use a transparent fill, set fill_color="NONE".
- *
  * @attribute {p5.Color} stroke_color
  * Sets the color used to draw lines and borders around shapes drawn by an element and its
  * children. This color

@@ -9,7 +9,7 @@
             ball.just_created="false"></_>
         <circle
             color_mode="HSB"
-            fill_color="fill_hue, 100, 100"
+            fill="fill_hue, 100, 100"
             stroke_color="mouse_over ? 0 : NONE"
             stroke_weight="5"></circle>
         <_ ball.x="ball.x + ball.speed_x" ball.y="ball.y + ball.speed_y"></_>

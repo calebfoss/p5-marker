@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="100" height="100" background="220" fill_color="NONE">
+<canvas width="100" height="100" background="220" fill="NONE">
     <!-- https://p5js.org/reference/#/p5/cursor -->
     <rect w="width/2" h="height/2">
         <_ on="parent_element.mouse_over" cursor_type="CROSS"></_>

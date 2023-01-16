@@ -1,10 +1,10 @@
 <_>
     <canvas width="window_width" height="window_height" background="0" left_paddle="null"
         right_paddle="null" left_score="0" right_score="0" count_down="120" wait_time="120"
-        state="'start'" winner="''" fill_color="255" ball_speed_mag="height/100"
+        state="'start'" winner="''" fill="255" ball_speed_mag="height/100"
         default_ball_speed_mag="height/100" game="this_element">
         <!-- SCORE -->
-        <text content="left_score" x="width * 0.3" y="height * 0.1" fill_color="255"
+        <text content="left_score" x="width * 0.3" y="height * 0.1" fill="255"
             text_size="height/10" text_align="CENTER, TOP">
             <text content="right_score" x="width - x"></text>
         </text>
@@ -37,7 +37,7 @@
         <!-- <_ on="window_resized" width="window_width" height="window_height"></_> -->
     </canvas>
     <!-- BALL -->
-    <custom name="ball" s="height/50" stroke_color="NONE" fill_color="255" rect_mode="CENTER"
+    <custom name="ball" s="height/50" stroke_color="NONE" fill="255" rect_mode="CENTER"
         speed="createVector()" ball="this_element">
         <!-- POSITION CHECKS -->
         <_ ball_left="x - s/2" ball_right="x + s/2" ball_top="y - s/2" ball_bottom="y + s/2"
@@ -114,7 +114,7 @@
     </custom>
     <!-- PADDLE -->
     <custom name="paddle" x="width * 0.9" y="height/2" w="height/50" h="height/5"
-        stroke_color="NONE" fill_color="255" rect_mode="CENTER" up=" UP_ARROW" down="DOWN_ARROW"
+        stroke_color="NONE" fill="255" rect_mode="CENTER" up=" UP_ARROW" down="DOWN_ARROW"
         speed="height/75" paddle=" this_element">
         <!-- MOVEMENT -->
         <_ on="key_is_down(up)" paddle.y="constrain(paddle.y - speed, h/2, height - h/2)"></_>

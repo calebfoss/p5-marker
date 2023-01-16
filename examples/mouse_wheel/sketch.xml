@@ -5,7 +5,7 @@
     background="237, 34, 93"
     pos="25"
 >
-    <rect x="25" y="pos" w="50" h="50" fill_color="0">
+    <rect x="25" y="pos" w="50" h="50" fill="0">
         <_ parent_element.y="parent_element.y + mouse_wheel"></_>
     </rect>
 </canvas>
