@@ -321,6 +321,32 @@ const P5Extension = (baseClass) =>
       return `p-${pascalToKebab(this.name)}`;
     }
     /**
+     * With erase="true", this element and all elements rendered after it will
+     * subtract from the canvas. Erased areas will reveal the web page
+     * underneath the canvas. This may be canceled with erase="false"
+     *
+     * Arguments for the optional parameters to
+     * <a href="https://p5js.org/reference/#/p5/erase">erase()</a>
+     * may also be provided as a comma separated list.
+     *
+     * ```<p-image>``` elements will not erase the canvas but works as usual.
+     * @type {boolean}
+     */
+    get erase() {
+      return this.pInst._renderer._isErasing;
+    }
+    set erase(val) {
+      if (val === true) this.pInst.erase();
+      else if (val === false) this.pInst.noErase();
+      else if (Array.isArray(val)) this.pInst.erase(...val);
+      else
+        console.error(
+          `${
+            this.tagName
+          }'s erase property was set using type ${typeof val}, but erase may only be set to a boolean or array.`
+        );
+    }
+    /**
      * Sets the color used to fill shapes. This may be a
      * <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object or
      * a comma separated list of values to pass into

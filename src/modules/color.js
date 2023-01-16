@@ -21,29 +21,6 @@ export class ColorFunction extends P5Function {
     super(overloads, renderFunctionName);
   }
 }
-
-//  TODO - Less hacky way to set color before initializing p5?
-const transparent = p5.prototype.color.call(
-  {
-    _colorMode: "rgb",
-    _colorMaxes: { rgb: [255, 255, 255, 255] },
-  },
-  0,
-  0
-);
-p5.prototype.setErase = p5.prototype.erase;
-defineProperties({
-  erase: {
-    get: function () {
-      return this._isErasing;
-    },
-    set: function (val) {
-      if (val === true) this.setErase();
-      else if (Array.isArray(val)) this.setErase(...val);
-      else this.setErase(val);
-    },
-  },
-});
 /**
  * Clears the pixels within a buffer. This element only clears the canvas.
  * It will not clear objects created by create_x() functions such as
