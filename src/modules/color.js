@@ -1,28 +1,11 @@
 import { defineSnakeAlias, defineProperties } from "../utils/p5Modifiers";
-import { P5Function } from "./core";
+import { RenderedElement } from "./core";
 
 defineSnakeAlias("lerpColor");
 
 p5.prototype.NONE = "#0000";
 
-export class ColorFunction extends P5Function {
-  constructor(overloads, renderFunctionName) {
-    /**
-     * @private
-     */
-    overloads = [
-      "v1, v2, v3, [alpha]",
-      "value",
-      "gray, [alpha]",
-      "values",
-      "c",
-      ...overloads,
-    ];
-    super(overloads, renderFunctionName);
-  }
-}
-
-export class StrokeFunction extends P5Function {
+export class StrokeElement extends RenderedElement {
   #stroke;
   /**
    * Sets the color used to draw lines and borders around shapes. This color
@@ -42,7 +25,7 @@ export class StrokeFunction extends P5Function {
   }
 }
 
-export class FillStrokeFunction extends StrokeFunction {
+export class FillStrokeElement extends StrokeElement {
   #fill;
   /**
    * Sets the color used to fill shapes. This may be a
@@ -83,7 +66,7 @@ export class FillStrokeFunction extends StrokeFunction {
  * @attribute {Number} b normalized blue val.
  * @attribute {Number} a normalized alpha val.
  */
-class Clear extends P5Function {
+class Clear extends RenderedElement {
   constructor() {
     super(["", "r, g, b, a"]);
   }
@@ -113,10 +96,10 @@ customElements.define("p-clear", Clear);
  * @attribute {p5.Image} image    image loaded via an ```<asset>``` (must be
  *                                  same size as the sketch window)
  */
-class PaintBucket extends ColorFunction {
+class PaintBucket extends RenderedElement {
   constructor() {
     super(
-      ["colorstring, [a]", "gray, [a]", "image, [a]", "v1, v2, v3, [a]"],
+      ["c", "colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"],
       "background"
     );
   }

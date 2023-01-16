@@ -531,7 +531,7 @@ const P5Extension = (baseClass) =>
   };
 export class P5Element extends P5Extension(HTMLElement) {}
 
-export class P5Function extends P5Element {
+export class RenderedElement extends P5Element {
   constructor(overloads, renderFunctionName) {
     super();
     /**

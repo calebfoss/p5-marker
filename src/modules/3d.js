@@ -1,6 +1,6 @@
 import { defineProperties, defineSnakeAlias } from "../utils/p5Modifiers";
-import { P5Function } from "./core";
-import { ColorFunction, FillStrokeFunction } from "./color";
+import { RenderedElement } from "./core";
+import { ColorFunction, FillStrokeElement } from "./color";
 
 p5.prototype._debugMode = [];
 p5.prototype.DEFAULT = "default";
@@ -169,7 +169,7 @@ customElements.define("p-ambient-light", AmbientLight);
  *                                 href="https://p5js.org/reference/#/p5.Color"
  *                                 target="_blank">p5.Color</a>
  */
-class DirectionalLight extends P5Function {
+class DirectionalLight extends RenderedElement {
   constructor() {
     super([
       "v1, v2, v3, x, y, z",
@@ -207,7 +207,7 @@ customElements.define("p-directional-light", DirectionalLight);
  *                href="https://p5js.org/reference/#/p5.Color">p5.Color</a>,
  *                as an array, or as a CSS string
  */
-class PointLight extends P5Function {
+class PointLight extends RenderedElement {
   constructor() {
     super([
       "v1, v2, v3, x, y, z",
@@ -225,7 +225,7 @@ customElements.define("p-point-light", PointLight);
  * <directional-light v1="128" v2="128" v3'="128" x="0" y="0" z="-1">.
  * @element lights
  */
-class Lights extends P5Function {
+class Lights extends RenderedElement {
   constructor() {
     super([""]);
   }
@@ -274,7 +274,7 @@ customElements.define("p-lights", Lights);
  * @attribute  {Number}    concentration  concentration of cone. Defaults to
  *                                            100
  */
-class SpotLight extends P5Function {
+class SpotLight extends RenderedElement {
   constructor() {
     super([
       "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",

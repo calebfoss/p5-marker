@@ -32,7 +32,6 @@
       is="p-canvas"
       color_mode="HSB"
       background="NONE"
-      fill="NONE"
       stroke_weight="4"
     >
       <p-paint-bucket on="first_frame" c="0"></p-paint-bucket>
@@ -40,6 +39,7 @@
         x="width/2"
         y="(frame_count % (height * 2)) - height/2"
         d="width"
+        fill="NONE"
         stroke="frame_count % 360, 70, 80"
       ></p-circle>
     </canvas>
