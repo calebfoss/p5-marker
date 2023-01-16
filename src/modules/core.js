@@ -231,6 +231,26 @@ const P5Extension = (baseClass) =>
       return this.pInst.collide_elements(this, el);
     }
     /**
+     * color_mode changes the way p5.js interprets
+     * color data. By default, fill,
+     * <a href="https://p5js.org/reference/#/p5/color">color()</a> are defined
+     * by values between 0 and 255 using the RGB color model. This is equivalent
+     * to setting color_mode="RGB, 255".
+     * Setting color_mode="HSB" lets you use the HSB system instead. By default,
+     * this is color_mode="HSB, 360, 100, 100, 1". You can also use HSL.
+     *
+     * Note: existing color objects remember the mode that they were created in,
+     * so you can change modes as you like without affecting their appearance.
+     *
+     * @type {RGB|HSB|HSL}
+     */
+    get color_mode() {
+      return this.pInst._colorMode;
+    }
+    set color_mode(val) {
+      this.pInst.colorMode(val);
+    }
+    /**
      * @private
      */
     get #comments() {

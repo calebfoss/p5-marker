@@ -33,14 +33,6 @@ const transparent = p5.prototype.color.call(
 );
 p5.prototype.setErase = p5.prototype.erase;
 defineProperties({
-  color_mode: {
-    get: function () {
-      return this._colorMode;
-    },
-    set: function (val) {
-      this.colorMode(val);
-    },
-  },
   fill_color: {
     get: function () {
       if (!this.drawingContext) return "";
