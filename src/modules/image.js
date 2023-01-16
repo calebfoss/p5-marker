@@ -2,7 +2,7 @@ import {
   defineProperties,
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
-import { P5Function } from "./core";
+import { RenderedElement } from "./core";
 
 /**
  * Draw an image to the canvas.
@@ -53,7 +53,7 @@ import { P5Function } from "./core";
  * @attribute {Constant} [xAlign] either LEFT, RIGHT or CENTER default is CENTER
  * @attribute {Constant} [yAlign] either TOP, BOTTOM or CENTER default is CENTER
  */
-class Image extends P5Function {
+class Image extends RenderedElement {
   constructor() {
     super([
       "img, x, y, [w], [h]",

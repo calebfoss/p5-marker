@@ -2,8 +2,9 @@ import {
   defineProperties,
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
-import { P5Function, P5Function } from "./core";
-import { StrokeFunction, FillStrokeFunction } from "./color";
+import { RenderedElement } from "./core";
+import { StrokeElement, FillStrokeElement } from "./color";
+import { WebGLGeometry } from "./3d";
 
 const transformVertexFn = (el) => (v) => {
   const originalPoint = new DOMPoint(v.x, v.y);
@@ -39,7 +40,7 @@ const transformVertexFn = (el) => (v) => {
  * to specify the number of vertices that makes up the perimeter of the arc.
  * Default value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Arc extends FillStrokeFunction {
+class Arc extends FillStrokeElement {
   constructor() {
     super(["x, y, w, h, start_angle, stop_angle, [mode], [detail], [a]"]);
   }
@@ -82,7 +83,7 @@ customElements.define("p-arc", Arc);
  * number of vertices that makes up the perimeter of the ellipse. Default
  * value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Ellipse extends FillStrokeFunction {
+class Ellipse extends FillStrokeElement {
   constructor() {
     super(["x, y, w, [h]", "x, y, w, h, [detail]"]);
   }
@@ -124,7 +125,7 @@ customElements.define("p-ellipse", Ellipse);
  * @attr {Number} y - y-coordinate of the center of the circle
  * @attr {Number} d - diameter of the circle
  */
-class Circle extends FillStrokeFunction {
+class Circle extends FillStrokeElement {
   constructor() {
     super(["x, y, d"]);
   }
@@ -167,7 +168,7 @@ customElements.define("p-circle", Circle);
  * @attr {Number} z1 - z-coordinate of the first point (WEBGL mode)
  * @attr {Number} z2 - z-coordinate of the second point (WEBGL mode)
  */
-class Line extends StrokeFunction {
+class Line extends StrokeElement {
   constructor() {
     super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
   }
@@ -214,7 +215,7 @@ customElements.define("p-line", Line);
  * @attr {Number} y - y-coordinate
  * @attr {Number} z - z-coordinate (WEBGL mode)
  */
-class Point extends StrokeFunction {
+class Point extends StrokeElement {
   constructor() {
     super(["x, y, [z]", "coordinate_vector"]);
   }
@@ -275,7 +276,7 @@ customElements.define("p-point", Point);
  * @attr {Number} z3 - z-coordinate of the third point (WEBGL mode)
  * @attr {Number} z4 - z-coordinate of the fourth point (WEBGL mode)
  */
-class Quad extends FillStrokeFunction {
+class Quad extends FillStrokeElement {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
@@ -326,7 +327,7 @@ customElements.define("p-quad", Quad);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Rect extends FillStrokeFunction {
+class Rect extends FillStrokeElement {
   constructor() {
     super([
       "x, y, w, [h], [tl], [tr], [br], [bl]",
@@ -385,7 +386,7 @@ customElements.define("p-rect", Rect);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Square extends FillStrokeFunction {
+class Square extends FillStrokeElement {
   constructor() {
     super(["x, y, s, [tl], [tr], [br], [bl]"]);
   }
@@ -419,7 +420,7 @@ class Square extends FillStrokeFunction {
   }
 }
 customElements.define("p-square", Square);
-class Triangle extends FillStrokeFunction {
+class Triangle extends FillStrokeElement {
   constructor() {
     const overloads = ["x1, y1, x2, y2, x3, y3"];
     super(overloads);
@@ -452,7 +453,7 @@ class Triangle extends FillStrokeFunction {
   }
 }
 customElements.define("p-triangle", Triangle);
-class Bezier extends FillStrokeFunction {
+class Bezier extends FillStrokeElement {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -461,7 +462,7 @@ class Bezier extends FillStrokeFunction {
   }
 }
 customElements.define("p-bezier", Bezier);
-class Curve extends FillStrokeFunction {
+class Curve extends FillStrokeElement {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -470,7 +471,7 @@ class Curve extends FillStrokeFunction {
   }
 }
 customElements.define("p-curve", Curve);
-class Contour extends FillStrokeFunction {
+class Contour extends FillStrokeElement {
   constructor() {
     super([""], "beginContour");
   }
@@ -479,7 +480,7 @@ class Contour extends FillStrokeFunction {
   }
 }
 customElements.define("p-contour", Contour);
-class Shape extends FillStrokeFunction {
+class Shape extends FillStrokeElement {
   constructor() {
     super(["[kind]"], "beginShape");
   }
@@ -512,75 +513,75 @@ class Shape extends FillStrokeFunction {
   }
 }
 customElements.define("p-shape", Shape);
-class Vertex extends P5Function {
+class Vertex extends RenderedElement {
   constructor() {
     super(["x, y", "x, y, [z]", "x, y, [z], [u], [v]"]);
   }
 }
 customElements.define("p-vertex", Vertex);
 
-class QuadraticVertex extends P5Function {
+class QuadraticVertex extends RenderedElement {
   constructor() {
     super(["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"]);
   }
 }
 customElements.define("p-quadratic-vertex", QuadraticVertex);
-class CurveVertex extends P5Function {
+class CurveVertex extends RenderedElement {
   constructor() {
     super(["x, y", "x, y, [z]"]);
   }
 }
 customElements.define("p-curve-vertex", CurveVertex);
-class Normal extends P5Function {
+class Normal extends RenderedElement {
   constructor() {
     super(["vector", "x, y, z"]);
   }
 }
 customElements.define("p-normal", Normal);
-class Plane extends FillStrokeFunction {
+class Plane extends WebGLGeometry {
   constructor() {
     super("[w], [h], [detail_x], [detail_y]");
   }
 }
 customElements.define("p-plane", Plane);
-class Box extends FillStrokeFunction {
+class Box extends WebGLGeometry {
   constructor() {
     super(["[w], [h], [depth], [detail_x], [detail_y]"]);
   }
 }
 customElements.define("p-box", Box);
-class Sphere extends FillStrokeFunction {
+class Sphere extends WebGLGeometry {
   constructor() {
     super(["[radius], [detail_x], [detail_y]"]);
   }
 }
 customElements.define("p-sphere", Sphere);
-class Cylinder extends FillStrokeFunction {
+class Cylinder extends WebGLGeometry {
   constructor() {
     super(["[radius], [h], [detail_x], [detail_y], [bottomCap], [topCap]"]);
   }
 }
 customElements.define("p-cylinder", Cylinder);
-class Cone extends FillStrokeFunction {
+class Cone extends WebGLGeometry {
   constructor() {
     super(["[radius], [h], [detail_x], [detail_y], [cap]"]);
   }
 }
 customElements.define("p-cone", Cone);
-class Ellipsoid extends FillStrokeFunction {
+class Ellipsoid extends WebGLGeometry {
   constructor() {
     super(["[radius_x], [radius_y], [radius_z], [detail_x], [detail_y]"]);
   }
 }
 customElements.define("p-ellipsoid", Ellipsoid);
-class Torus extends FillStrokeFunction {
+class Torus extends WebGLGeometry {
   constructor() {
     super(["[radius], [tubeRadius], [detailX], [detailY]"]);
   }
 }
 customElements.define("p-torus", Torus);
 //  TODO - test when preload implemented
-class LoadModel extends P5Function {
+class LoadModel extends RenderedElement {
   constructor() {
     super([
       "path, normalize, [successCallback], [failureCallback], [fileType]",
@@ -589,7 +590,7 @@ class LoadModel extends P5Function {
   }
 }
 customElements.define("p-load-model", LoadModel);
-class Model extends FillStrokeFunction {
+class Model extends WebGLGeometry {
   constructor() {
     super(["model"]);
   }

@@ -1,4 +1,4 @@
-import { defineSnakeAlias, defineProperties } from "../utils/p5Modifiers";
+import { defineSnakeAlias } from "../utils/p5Modifiers";
 import { RenderedElement } from "./core";
 
 defineSnakeAlias("lerpColor");
@@ -19,9 +19,13 @@ export class StrokeElement extends RenderedElement {
   }
   set stroke(val) {
     const { pInst } = this;
-    if (val === pInst.NONE) pInst.noStroke();
-    else pInst.stroke(val);
-    this.#stroke = pInst.color(pInst.drawingContext.strokeStyle);
+    if (val === pInst.NONE) {
+      pInst.noStroke();
+      this.#stroke = pInst.color(pInst.NONE);
+    } else {
+      pInst.stroke(val);
+      this.#stroke = pInst.color(pInst.drawingContext.strokeStyle);
+    }
   }
 }
 

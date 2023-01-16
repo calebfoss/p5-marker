@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<canvas width="100" height="100" renderer="WEBGL"
+    background="0"
+    description="'Sphere with specular highlight. Clicking the mouse toggles the specular highlight color between red and the default white.'">
+    <ambient-light gray="60"></ambient-light>
+    <_ set_red_specular_color="true">
+        <point-light specular_color="set_red_specular_color ? color(255, 0, 0) : 255"
+            v1="200" v2="200" v3="200"
+            x="mouse_pos_x - width / 2"
+            y="mouse_pos_y - height / 2"
+            z="50">
+            <sphere radius="30" detail_x="64" detail_y="64"
+                stroke="NONE"
+                shininess="50"
+                material="SPECULAR, 150"></sphere>
+        </point-light>
+        <_ on="mouse_down"
+            parent_element.set_red_specular_color="!parent_element.set_red_specular_color"></_>
+    </_>
+
+
+</canvas>

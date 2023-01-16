@@ -1,6 +1,5 @@
 import { defineProperties, defineSnakeAlias } from "../utils/p5Modifiers";
-import { RenderedElement } from "./core";
-import { ColorFunction, FillStrokeElement } from "./color";
+import { FillStrokeElement } from "./color";
 
 p5.prototype._debugMode = [];
 p5.prototype.DEFAULT = "default";
@@ -8,16 +7,59 @@ p5.prototype.AMBIENT = "ambient";
 p5.prototype.SPECULAR = "specular";
 p5.prototype.EMISSIVE = "emissive";
 
+export class WebGLGeometry extends FillStrokeElement {
+  #shininess;
+  /**
+   * Sets the amount of gloss ("shininess") of a
+   * specular_material.
+   *
+   * The default and minimum value is 1.
+   * @type {number}
+   * */
+  get shininess() {
+    return this.#shininess;
+  }
+  set shininess(val) {
+    this.pInst.shininess(val);
+    this.#shininess = val;
+  }
+}
+
+export class WebGLLight extends FillStrokeElement {
+  #specular_color;
+  /**
+   * Sets the color of the specular highlight of a non-ambient light
+   * (i.e. all lights except ```<ambient-light>```).
+   *
+   * specular_color affects only the lights which are created by
+   * this element or its children
+   *
+   * This property is used in combination with
+   * <a href="#/p5/specularMaterial">specularMaterial()</a>.
+   * If a geometry does not use specular_material, this property
+   * will have no effect.
+   *
+   * The default color is white (255, 255, 255), which is used if
+   * specular_color is not explicitly set.
+   *
+   * Note: specular_color is equivalent to the Processing function
+   * <a href="https://processing.org/reference/lightSpecular_.
+   * html">lightSpecular</a>.
+   *
+   * @type {p5.Color}
+   */
+  get specular_color() {
+    return this.#specular_color;
+  }
+  set specular_color(val) {
+    const { pInst } = this;
+    const c = Array.isArray(val) ? pInst.color(...val) : pInst.color(val);
+    pInst.specularColor(c);
+    this.#specular_color = c;
+  }
+}
+
 defineProperties({
-  specular_color: {
-    get: function () {
-      return this._renderer.specularColors;
-    },
-    set: function (val) {
-      if (Array.isArray(val)) this.specularColor(...val);
-      else this.specularColor(val);
-    },
-  },
   light_falloff: {
     get: function () {
       return [
@@ -74,29 +116,21 @@ defineProperties({
       if (this._renderer._useSpecularMaterial) return this.SPECULAR;
     },
     set: function (val) {
-      switch (val) {
+      const [type, ...args] = Array.isArray(val) ? val : [val];
+      switch (type) {
         case this.NORMAL:
-          this.normalMaterial();
+          this.normalMaterial(...args);
           break;
         case this.AMBIENT:
-          this.ambientMaterial();
+          this.ambientMaterial(...args);
           break;
         case this.EMISSIVE:
-          this.emissiveMaterial();
+          this.emissiveMaterial(...args);
           break;
         case this.SPECULAR:
-          this.specularMaterial();
+          this.specularMaterial(...args);
           break;
       }
-    },
-  },
-
-  shininess: {
-    get: function () {
-      return this._renderer._useShininess;
-    },
-    set: function (val) {
-      this.shininess(val);
     },
   },
 });
@@ -127,9 +161,9 @@ defineSnakeAlias("createShader", "createCamera");
  *                                 href="https://p5js.org/reference/#/p5.Color"
  *                                 target="_blank">p5.Color</a>
  */
-class AmbientLight extends ColorFunction {
+class AmbientLight extends WebGLLight {
   constructor() {
-    super([]);
+    super(["v1, v2, v3, [alpha]", "gray, [alpha]", "value", "values", "color"]);
   }
 }
 customElements.define("p-ambient-light", AmbientLight);
@@ -169,7 +203,7 @@ customElements.define("p-ambient-light", AmbientLight);
  *                                 href="https://p5js.org/reference/#/p5.Color"
  *                                 target="_blank">p5.Color</a>
  */
-class DirectionalLight extends RenderedElement {
+class DirectionalLight extends WebGLLight {
   constructor() {
     super([
       "v1, v2, v3, x, y, z",
@@ -207,7 +241,7 @@ customElements.define("p-directional-light", DirectionalLight);
  *                href="https://p5js.org/reference/#/p5.Color">p5.Color</a>,
  *                as an array, or as a CSS string
  */
-class PointLight extends RenderedElement {
+class PointLight extends WebGLLight {
   constructor() {
     super([
       "v1, v2, v3, x, y, z",
@@ -225,7 +259,7 @@ customElements.define("p-point-light", PointLight);
  * <directional-light v1="128" v2="128" v3'="128" x="0" y="0" z="-1">.
  * @element lights
  */
-class Lights extends RenderedElement {
+class Lights extends WebGLLight {
   constructor() {
     super([""]);
   }
@@ -274,7 +308,7 @@ customElements.define("p-lights", Lights);
  * @attribute  {Number}    concentration  concentration of cone. Defaults to
  *                                            100
  */
-class SpotLight extends RenderedElement {
+class SpotLight extends WebGLLight {
   constructor() {
     super([
       "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",
