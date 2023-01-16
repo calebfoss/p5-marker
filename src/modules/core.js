@@ -342,21 +342,6 @@ const P5Extension = (baseClass) =>
         );
     }
     /**
-     * Sets the color used to fill shapes. This may be a
-     * <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object or
-     * a comma separated list of values to pass into
-     * <a href="https://p5js.org/reference/#/p5/color">color()</a>.
-     * @type {p5.Color}
-     */
-    get fill() {
-      if (!this.pInst.drawingContext) return "";
-      return this.pInst.color(this.pInst.drawingContext.fillStyle);
-    }
-    set fill(val) {
-      if (val === this.NONE) this.pInst.noFill();
-      else this.pInst.fill(val);
-    }
-    /**
      * @private
      */
     get #html() {
@@ -487,21 +472,6 @@ const P5Extension = (baseClass) =>
       }
     }
     /**
-     * Sets the color used to draw lines and borders around shapes. This color
-     * is either a <a href="#/p5.Color">p5.Color</a> object or a comma
-     * separated list of values to pass into
-     * <a href="https://p5js.org/reference/#/p5/color">color()</a>.
-     * @type {p5.Color}
-     */
-    get stroke() {
-      if (!this.pInst.drawingContext) return "";
-      return this.pInst.color(this.pInst.drawingContext.strokeStyle);
-    }
-    set stroke(val) {
-      if (val === this.pInst.NONE) this.pInst.noStroke();
-      else this.pInst.stroke(val);
-    }
-    /**
      * This element's proxy with access to properties, methods, and attributes.
      */
     get this_element() {
@@ -544,7 +514,10 @@ const P5Extension = (baseClass) =>
      * @returns
      */
     updateState(inherited) {
-      this.#state = Object.assign({}, inherited);
+      for (const prop in inherited) {
+        if (prop in this) this[prop] = inherited[prop];
+        else this.#state[prop] = inherited[prop];
+      }
       const updaters = this.#updateFunctions.entries();
       for (const [attrName, updateFunction] of updaters) {
         this.#state[attrName] = this.#updateAttribute(

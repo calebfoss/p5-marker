@@ -21,6 +21,47 @@ export class ColorFunction extends P5Function {
     super(overloads, renderFunctionName);
   }
 }
+
+export class StrokeFunction extends P5Function {
+  #stroke;
+  /**
+   * Sets the color used to draw lines and borders around shapes. This color
+   * is either a <a href="#/p5.Color">p5.Color</a> object or a comma
+   * separated list of values to pass into
+   * <a href="https://p5js.org/reference/#/p5/color">color()</a>.
+   * @type {p5.Color}
+   */
+  get stroke() {
+    return this.#stroke;
+  }
+  set stroke(val) {
+    const { pInst } = this;
+    if (val === pInst.NONE) pInst.noStroke();
+    else pInst.stroke(val);
+    this.#stroke = pInst.color(pInst.drawingContext.strokeStyle);
+  }
+}
+
+export class FillStrokeFunction extends StrokeFunction {
+  #fill;
+  /**
+   * Sets the color used to fill shapes. This may be a
+   * <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object or
+   * a comma separated list of values to pass into
+   * <a href="https://p5js.org/reference/#/p5/color">color()</a>.
+   * @type {p5.Color}
+   */
+  get fill() {
+    return this.#fill;
+  }
+  set fill(val) {
+    const { pInst } = this;
+    if (val === this.NONE) pInst.noFill();
+    else pInst.fill(val);
+    this.#fill = pInst.color(pInst.drawingContext.fillStyle);
+  }
+}
+
 /**
  * Clears the pixels within a buffer. This element only clears the canvas.
  * It will not clear objects created by create_x() functions such as
