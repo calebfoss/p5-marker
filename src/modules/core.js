@@ -726,6 +726,23 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     else if (Array.isArray(val)) pInst.camera(...val);
     else pInst.camera(val);
   }
+  /**
+   * debug_mode helps visualize 3D space by adding a grid to indicate where the
+   * ‘ground’ is in a sketch and an axes icon which indicates the +X, +Y, and +Z
+   * directions. This property can be set to "true" to create a
+   * default grid and axes icon, or it can be set to a comma-separated list
+   * of values to pass into
+   * <a href="https://p5js.org/reference/#/p5/debugMode">debugMode()</a>.
+   *
+   * By default, the grid will run through the origin (0,0,0) of the sketch
+   * along the XZ plane
+   * and the axes icon will be offset from the origin.  Both the grid and axes
+   * icon will be sized according to the current canvas size.
+   * Note that because the
+   * grid runs parallel to the default camera view, it is often helpful to use
+   * debug_mode along with orbit_control to allow full view of the grid.
+   * @type {boolean}
+   */
   get debug_mode() {
     return this.#debug_mode;
   }
