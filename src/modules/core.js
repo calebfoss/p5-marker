@@ -676,6 +676,7 @@ customElements.define("p-_", _);
  */
 class Canvas extends P5Extension(HTMLCanvasElement) {
   #background;
+  #orbit_control;
   constructor() {
     super();
     window.addEventListener("customElementsDefined", this.runCode.bind(this));
@@ -715,6 +716,30 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
   set description(val) {
     if (Array.isArray(val)) this.pInst.describe(...val);
     else this.pInst.describe(val);
+  }
+  /**
+   * Allows movement around a 3D sketch using a mouse or trackpad.
+   * Left-clicking and dragging will rotate the camera position about the
+   * center of the sketch,
+   * right-clicking and dragging will pan the camera position without rotation,
+   * and using the mouse wheel (scrolling) will move the camera closer or
+   * further
+   * from the center of the sketch. This property can be set with parameters
+   * dictating sensitivity to mouse movement along the X, Y, and Z axes.
+   * Setting orbit_control="true" is equivalent to setting
+   * orbit_control="1, 1".
+   * To reverse direction of movement in either axis, enter a negative number
+   * for sensitivity.
+   * @type {boolean}
+   * */
+  get orbit_control() {
+    return this.#orbit_control;
+  }
+  set orbit_control(val) {
+    if (val === false) return (this.#orbit_control = false);
+    this.#orbit_control = true;
+    if (Array.isArray(val)) return this.pInst.orbitControl(...val);
+    this.pInst.orbitControl();
   }
   get orderedAttributeNames() {
     //  Remove 'is' and 'style' from attrNames

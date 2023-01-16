@@ -1,31 +1,14 @@
 import { defineProperties, defineSnakeAlias } from "../utils/p5Modifiers";
 import { P5Function } from "./core";
-import { ColorFunction } from "./color";
+import { ColorFunction, FillStrokeFunction } from "./color";
 
-p5.prototype._orbitControl = { on: false, sensitivity: [] };
 p5.prototype._debugMode = [];
-p5.prototype.registerMethod("pre", function () {
-  if (this._orbitControl.on)
-    this.orbitControl(...this._orbitControl.sensitivity);
-});
 p5.prototype.DEFAULT = "default";
 p5.prototype.AMBIENT = "ambient";
 p5.prototype.SPECULAR = "specular";
 p5.prototype.EMISSIVE = "emissive";
 
 defineProperties({
-  orbit_control: {
-    get: function () {
-      return this._orbitControl;
-    },
-    set: function (val) {
-      if (val === false) return (this._orbitControl = false);
-      this._orbitControl.on = true;
-      if (val === true) return;
-      if (Array.isArray(val)) this._orbitControl.sensitivity = val;
-      this._orbitControl.sensitivity = [val];
-    },
-  },
   debug_mode: {
     get: function () {
       return this._debugMode;
