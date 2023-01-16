@@ -16,7 +16,7 @@
     >
       <p-_
         x_base="0"
-        repeat="WHILE x_base < width"
+        repeat="WHILE x_base LESS_THAN width"
         change="x_base: x_base + width / 10"
       >
         <p-curve
@@ -32,26 +32,21 @@
           fill="NONE"
         >
           <p-_
-            stroke="60, 180, 20"
-            fill="20, 60, 180"
+            c1="color(60, 180, 20)"
+            c2="color(20, 60, 180)"
             stroke_weight="4"
             t="0"
             repeat="WHILE t LESS_THAN 1"
             change="t: t + 0.1"
           >
-            <p-_
-              lerped_stroke="lerp_color(stroke, fill, t)"
-              lerped_fill="lerp_color(fill, stroke, t)"
-            >
-              <p-circle
-                anchor="curvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t)"
-                x="0"
-                y="0"
-                d="20"
-                fill="lerped_fill"
-                stroke="lerped_stroke"
-              ></p-circle>
-            </p-_>
+            <p-circle
+              anchor="curvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t)"
+              x="0"
+              y="0"
+              d="20"
+              fill="lerp_color(c2, c1, t)"
+              stroke="lerp_color(c1, c2, t)"
+            ></p-circle>
           </p-_>
         </p-curve>
       </p-_>
