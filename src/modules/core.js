@@ -114,12 +114,7 @@ const P5Extension = (baseClass) =>
         return prop in target.#state;
       },
       set(target, prop, val) {
-        const getOwner = (prop) => {
-          if (prop in target.pInst) return target.pInst;
-          return target;
-        };
-        const owner = getOwner(prop);
-        owner.set(prop, val);
+        target.set(prop, val);
       },
     });
     /**
@@ -411,7 +406,14 @@ const P5Extension = (baseClass) =>
      * @param {*} value
      */
     set(attributeName, value) {
-      this.#updateFunctions.set(attributeName, () => value);
+      if (attributeName in this) {
+        this.#updateFunctions.set(
+          attributeName,
+          () => (this[attributeName] = value)
+        );
+      } else {
+        this.#updateFunctions.set(attributeName, () => value);
+      }
       this.#state[attributeName] = value;
     }
     /**
