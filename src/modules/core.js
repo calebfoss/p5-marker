@@ -717,6 +717,18 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
       return true;
     return super.attributeInherited(attributeName);
   }
+  /**
+   * The background property sets the color or image used
+   * for the background of the p5.js canvas. The default background is transparent.
+
+   * A <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object can be provided to set the background color.
+   *
+   * A <a href="https://p5js.org/reference/#/p5.Image">p5.Image</a> can also be provided to set the background image.
+   * 
+   * The arguments to <a href="https://p5js.org/reference/#/p5/color">color()</a> can also be provided,
+   * separated by commas."
+   * @type {p5.Color|p5.Image}
+   */
   get background() {
     return this.#background;
   }
