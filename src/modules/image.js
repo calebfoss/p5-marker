@@ -61,6 +61,13 @@ class Image extends addDimensions(RenderedElement) {
       "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
     ]);
   }
+  get tint() {
+    return this.pInst._renderer?._tint;
+  }
+  set tint(val) {
+    if (val === this.pInst.NONE) this.pInst.noTint();
+    else this.pInst.tint(...arguments);
+  }
 }
 customElements.define("p-image", Image);
 
@@ -75,15 +82,6 @@ defineProperties({
     set: function (px) {
       this.pixels = px;
       this.updatePixels();
-    },
-  },
-  image_tint: {
-    get: function () {
-      return this._renderer?._tint;
-    },
-    set: function (val) {
-      if (val === p5.prototype.NONE) this.noTint();
-      else this.tint(...arguments);
     },
   },
 });
