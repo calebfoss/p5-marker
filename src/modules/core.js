@@ -426,7 +426,14 @@ const P5Extension = (baseClass) =>
           `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
-      const owner = AttrParseUtil.getOwnerName(this, attr.name);
+      const getOwnerName = (prop) => {
+        if (prop in this) return "this";
+        //  TODO - remove condition when p5 props have been moved to elments
+        if (prop in this.pInst && typeof this.pInst[prop] !== "function")
+          return "this.pInst";
+        if (this.attributeInherited(prop)) return "inherited";
+      };
+      const owner = getOwnerName(attr.name);
       //  This is plural because there may be a prop name within
       //  Ex:  myArray[i]
       const varName = AttrParseUtil.replacePropNames(this, attr.name);
