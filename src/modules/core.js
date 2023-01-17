@@ -213,7 +213,7 @@ const P5Extension = (baseClass) =>
      * @type {HTMLCanvasElement}
      */
     get canvas() {
-      return this.#canvas;
+      return this.#canvas.this_element;
     }
     /**
      * Checks if this element is colliding with the provided other element.
