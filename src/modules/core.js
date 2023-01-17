@@ -775,6 +775,7 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     return this.pInst.height;
   }
   set height(val) {
+    if (val === this.height || isNaN(val)) return;
     this.#resize(this.width, val);
   }
   /**
@@ -890,14 +891,16 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
         on: true,
         repeat: false,
         change: {},
-        width: 100,
-        height: 100,
       };
+
       pInst.preload = () => pInst.loadAssets();
 
       pInst.setup = function () {
         const renderer = pInst[canvas.getAttribute("renderer")];
         canvas.setup(pInst, canvas);
+        // Set default dimensions (100, 100)
+        canvas.width = 100;
+        canvas.height = 100;
         //  Set default background to transparent
         canvas.background = pInst.color(0, 0);
         pInst.assignCanvas(canvas, renderer);
@@ -920,6 +923,7 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     return this.pInst.width;
   }
   set width(val) {
+    if (val === this.width || isNaN(val)) return;
     this.#resize(val, this.height);
   }
 }
