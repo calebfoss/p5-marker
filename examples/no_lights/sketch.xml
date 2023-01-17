@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://p5js.org/reference/#/p5/noLights -->
+<canvas width="100" height="100" renderer="WEBGL"
+    background="200" stroke="NONE">
+    <ambient-light v1="255" v2="0" v3="0">
+        <sphere anchor="-30, 0, 0" radius="13"
+            ambient_material="255">
+            <_ no_lights="true">
+                <sphere anchor="30, 0, 0" radius="13"
+                    ambient_material="255"
+                >
+                    <ambient-light v1="0" v2="255" v3="0">
+                        <sphere anchor="30, 0, 0" radius="13"
+                            ambient_material="255"></sphere>
+                    </ambient-light>
+                </sphere>
+            </_>
+        </sphere>
+    </ambient-light>
+</canvas>

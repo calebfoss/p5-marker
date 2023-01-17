@@ -8,7 +8,33 @@ p5.prototype.SPECULAR = "specular";
 p5.prototype.EMISSIVE = "emissive";
 
 export class WebGLGeometry extends FillStrokeElement {
+  #ambient_material;
   #shininess;
+  #no_lights;
+  /**
+   * Sets the ambient color of the material.
+   *
+   * The ambient_material color is the color the object will reflect
+   * under **any** lighting.
+   *
+   * Consider an ambient_material with the color yellow (255, 255, 0).
+   * If the light emits the color white (255, 255, 255), then the object
+   * will appear yellow as it will reflect the red and green components
+   * of the light. If the light emits the color red (255, 0, 0), then
+   * the object will appear red as it will reflect the red component
+   * of the light. If the light emits the color blue (0, 0, 255),
+   * then the object will appear black, as there is no component of
+   * the light that it can reflect.
+   * @type {p5.Color}
+   */
+  get ambient_material() {
+    return this.#ambient_material;
+  }
+  set ambient_material(val) {
+    if (Array.isArray(val)) this.pInst.ambientMaterial(...val);
+    else this.pInst.ambientMaterial(val);
+    this.#ambient_material = this.pInst.color(val);
+  }
   /**
    * Sets the amount of gloss ("shininess") of a
    * specular_material.
@@ -22,6 +48,25 @@ export class WebGLGeometry extends FillStrokeElement {
   set shininess(val) {
     this.pInst.shininess(val);
     this.#shininess = val;
+  }
+  /**
+   * Removes all lights present in a sketch.
+   *
+   * All subsequent geometry is rendered without lighting (until a new
+   * light is created with a lighting element (
+   * ```<lights>```,
+   * ```<ambient-light>```,
+   * ```<directional-light>```,
+   * ```<point-light>```,
+   * ```<spot-light>```).
+   * @type {boolean}
+   */
+  get no_lights() {
+    return this.#no_lights;
+  }
+  set no_lights(val) {
+    this.#no_lights = val;
+    if (val == true) this.pInst.noLights();
   }
 }
 
@@ -93,11 +138,6 @@ const addLightFalloff = (baseClass) =>
   };
 
 defineProperties({
-  remove_lights: {
-    set: function () {
-      this.noLights();
-    },
-  },
   shader: {
     get: function () {
       return [this._renderer.userStrokeShader, this._renderer.userFillShader];
