@@ -75,6 +75,30 @@ export class WebGLGeometry extends FillStrokeElement {
     if (val) this.pInst.normalMaterial();
   }
   /**
+   * Sets the <a href="#/p5.Shader">p5.Shader</a> object to
+   * be used to render subsequent shapes.
+   *
+   * Custom shaders can be created using the
+   * create_shader() method and
+   * ```<shader>``` element.
+   *
+   * Set shader="DEFAULT" to restore the default shaders.
+   *
+   * Note, shaders can only be used in WEBGL mode.
+   * @type {p5.Shader}
+   */
+  get shader() {
+    return [
+      this.pInst._renderer.userStrokeShader,
+      this.pInst._renderer.userFillShader,
+    ];
+  }
+  set shader(val) {
+    const { pInst } = this;
+    if (val === pInst.DEFAULT) pInst.resetShader();
+    else pInst.shader(val);
+  }
+  /**
    * Sets the amount of gloss ("shininess") of a
    * specular_material.
    *
@@ -203,15 +227,6 @@ const addLightFalloff = (baseClass) =>
   };
 
 defineProperties({
-  shader: {
-    get: function () {
-      return [this._renderer.userStrokeShader, this._renderer.userFillShader];
-    },
-    set: function (val) {
-      if (val === this.DEFAULT) this.resetShader();
-      else this.shader(val);
-    },
-  },
   texture: {
     get: function () {
       return this._renderer._tex;
