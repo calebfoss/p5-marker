@@ -190,28 +190,6 @@ defineProperties({
       return this.getURLParams();
     },
   },
-  width: {
-    get: function () {
-      return this._width;
-    },
-    set: function (val) {
-      if (val !== this._width) {
-        this._setProperty("_width", val);
-        this.resizeCanvas(this._width, this._height);
-      }
-    },
-  },
-  height: {
-    get: function () {
-      return this._height;
-    },
-    set: function (val) {
-      if (val !== this._height) {
-        this._setProperty("_height", val);
-        this.resizeCanvas(this._width, this._height);
-      }
-    },
-  },
   log: {
     set: function (val) {
       this.print(val);

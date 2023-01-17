@@ -98,7 +98,7 @@ export class AttrParseUtil {
       prop in globalThis
     )
       return "none";
-    if (prop in el && prop !== "width" && prop !== "height") return "this";
+    if (prop in el) return "this";
     if (AttrParseUtil.isP5(prop)) return "pInst";
     return "inherited";
   }

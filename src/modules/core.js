@@ -36,7 +36,6 @@ p5.prototype.assignCanvas = function (c, r) {
   }
   this._renderer._applyDefaults();
   this._setProperty("_elements", [this._renderer]);
-  this.resizeCanvas(c.width, c.height);
 };
 
 p5.prototype.assets = {};
@@ -769,6 +768,16 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     else this.pInst.describe(val);
   }
   /**
+   * The height of the canvas in pixels.
+   * @type {number}
+   */
+  get height() {
+    return this.pInst.height;
+  }
+  set height(val) {
+    this.#resize(this.width, val);
+  }
+  /**
    * Allows movement around a 3D sketch using a mouse or trackpad.
    * Left-clicking and dragging will rotate the camera position about the
    * center of the sketch,
@@ -792,7 +801,6 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
     if (Array.isArray(val)) return this.pInst.orbitControl(...val);
     this.pInst.orbitControl();
   }
-
   /**
    * Sets an orthographic projection for the current camera in a 3D sketch
    * and defines a box-shaped viewing frustum within which objects are seen.
@@ -821,6 +829,31 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
   set loop(val) {
     if (val) this.pInst.loop();
     else this.pInst.noLoop();
+  }
+  #resize(w, h) {
+    if (w === this.width && h === this.height) return;
+    const { pInst } = this;
+    const props = {};
+    for (const key in pInst.drawingContext) {
+      const val = pInst.drawingContext[key];
+      if (typeof val !== "object" && typeof val !== "function") {
+        props[key] = val;
+      }
+    }
+    pInst.width = pInst._renderer.width = w;
+    pInst.height = pInst._renderer.height = h;
+    this.setAttribute("width", w * pInst._pixelDensity);
+    this.setAttribute("height", h * pInst._pixelDensity);
+    this.style.width = `${w}px`;
+    this.style.height = `${h}px`;
+    pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
+    for (const savedKey in props) {
+      try {
+        pInst.drawingContext[savedKey] = props[savedKey];
+      } catch (err) {}
+    }
+    pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
+    pInst.redraw();
   }
   runCode() {
     const canvas = this;
@@ -857,6 +890,8 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
         on: true,
         repeat: false,
         change: {},
+        width: 100,
+        height: 100,
       };
       pInst.preload = () => pInst.loadAssets();
 
@@ -876,6 +911,16 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
       };
     };
     new p5(sketch);
+  }
+  /**
+   * The width of the canvas in pixels.
+   * @type {number}
+   */
+  get width() {
+    return this.pInst.width;
+  }
+  set width(val) {
+    this.#resize(val, this.height);
   }
 }
 customElements.define("p-canvas", Canvas, { extends: "canvas" });
