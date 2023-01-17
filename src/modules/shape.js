@@ -19,6 +19,10 @@ export const addDimensions = (baseClass) =>
   class extends baseClass {
     #height;
     #width;
+    /**
+     * The height of the element in pixels.
+     * @type {number}
+     */
     get height() {
       return this.#height;
     }
@@ -29,6 +33,10 @@ export const addDimensions = (baseClass) =>
           `${this.tagName}'s height is being set to ${val}, but it may only be set to a number.`
         );
     }
+    /**
+     * The width of the element in pixels.
+     * @type {number}
+     */
     get width() {
       return this.#width;
     }
