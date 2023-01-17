@@ -61,8 +61,23 @@ class Image extends addDimensions(RenderedElement) {
       "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
     ]);
   }
+  /**
+   * Sets the fill value for displaying images. Images can be tinted to
+   * specified colors or made transparent by including an alpha value.
+   *
+   * To apply transparency to an image without affecting its color, use
+   * white as the tint color and specify an alpha value. For instance,
+   * tint(255, 128) will make an image 50% transparent (assuming the default
+   * alpha range of 0-255, which can be changed with color_mode.
+   *
+   * The value for the gray parameter must be less than or equal to the current
+   * maximum value as specified by color_mode. The default maximum value is
+   * 255.
+   *
+   * @type {p5.Color}
+   */
   get tint() {
-    return this.pInst._renderer?._tint;
+    return this.pInst.color(this.pInst._renderer._tint);
   }
   set tint(val) {
     if (val === this.pInst.NONE) this.pInst.noTint();
