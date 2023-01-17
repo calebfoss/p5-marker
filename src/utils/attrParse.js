@@ -99,7 +99,9 @@ export class AttrParseUtil {
     )
       return "none";
     if (prop in el) return "this";
-    if (prop in el.pInst) return "pInst";
+    //  TODO - remove this temporary check when no longer needed
+    if (prop in el.pInst && prop !== "width" && prop !== "height")
+      return "pInst";
     return "inherited";
   }
   static getPrefix(el, prop) {

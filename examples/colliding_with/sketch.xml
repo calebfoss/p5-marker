@@ -6,7 +6,7 @@
         <triangle x1="150" y1="25" x2="150" y2="125" x3="250" y3="125"
             fill="colliding_with(parent_element) ? highlight : NONE"></triangle>
         <circle x="325" y="75" fill="colliding_with(parent_element) ? highlight : NONE"></circle>
-        <rect x="25" y="150" w="200" h="100"
+        <rect x="25" y="150" width="200" height="100"
             fill="colliding_with(parent_element) ? highlight : NONE"></rect>
         <quad x1="275" y1="150" x2="375" y2="200" x3="275" y3="250" x4="250" y4="225"
             fill="colliding_with(parent_element) ? highlight : NONE"></quad>

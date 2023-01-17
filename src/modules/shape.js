@@ -14,6 +14,32 @@ const transformVertexFn = (el) => (v) => {
   );
   return el.pInst.createVector(x, y);
 };
+
+export const addDimensions = (baseClass) =>
+  class extends baseClass {
+    #height;
+    #width;
+    get height() {
+      return this.#height;
+    }
+    set height(val) {
+      if (!isNaN(val)) this.#height = Number(val);
+      else
+        console.error(
+          `${this.tagName}'s height is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    get width() {
+      return this.#width;
+    }
+    set width(val) {
+      if (!isNaN(val)) this.#width = Number(val);
+      else
+        console.error(
+          `${this.tagName}'s width is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
 /**
  * Draws an arc to the screen. If called with only x, y, w, h, start and stop
  * the arc will be drawn and filled as an open pie segment. If a mode
@@ -40,18 +66,20 @@ const transformVertexFn = (el) => (v) => {
  * to specify the number of vertices that makes up the perimeter of the arc.
  * Default value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Arc extends FillStrokeElement {
+class Arc extends addDimensions(FillStrokeElement) {
   constructor() {
-    super(["x, y, w, h, start_angle, stop_angle, [mode], [detail], [a]"]);
+    super([
+      "x, y, width, height, start_angle, stop_angle, [mode], [detail], [a]",
+    ]);
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, w, h, start_angle, stop_angle } = this.this_element;
+    const { x, y, width, height, start_angle, stop_angle } = this;
     console.assert(
-      w === h,
+      width === height,
       "mouse_over currently only works for arc's with equal width and height."
     );
-    const arcRadius = w / 2;
+    const arcRadius = width / 2;
     const arcAngle = stop_angle - start_angle;
     const arcRotation = start_angle + arcAngle / 2;
 
@@ -83,9 +111,9 @@ customElements.define("p-arc", Arc);
  * number of vertices that makes up the perimeter of the ellipse. Default
  * value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Ellipse extends FillStrokeElement {
+class Ellipse extends addDimensions(FillStrokeElement) {
   constructor() {
-    super(["x, y, w, [h]", "x, y, w, h, [detail]"]);
+    super(["x, y, width, [height]", "x, y, width, height, [detail]"]);
   }
   collider = p5.prototype.collider_type.ellipse;
   get collision_args() {
@@ -98,20 +126,20 @@ class Ellipse extends FillStrokeElement {
       this.transform_matrix
     );
     const { pixel_density } = this.pInst;
-    const { w } = this.this_element * pixel_density;
-    const { h } = this.this_element.h * pixel_density || w;
+    const { w } = this.width * pixel_density;
+    const { h } = this.height * pixel_density || w;
     return [x, y, w, h];
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, w, h } = this.this_element;
+    const { x, y, width, height } = this.this_element;
     return this.pInst.collide_point_ellipse(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
       x,
       y,
-      w,
-      h
+      width,
+      height
     );
   }
 }
@@ -327,11 +355,11 @@ customElements.define("p-quad", Quad);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Rect extends FillStrokeElement {
+class Rect extends addDimensions(FillStrokeElement) {
   constructor() {
     super([
-      "x, y, w, [h], [tl], [tr], [br], [bl]",
-      "x, y, w, h, [detail_x], [detail_y]",
+      "x, y, width, [h], [tl], [tr], [br], [bl]",
+      "x, y, width, height, [detail_x], [detail_y]",
     ]);
   }
   collider = p5.prototype.collider_type.rect;
@@ -345,20 +373,20 @@ class Rect extends FillStrokeElement {
       this.transform_matrix
     );
     const { pixel_density } = this.pInst;
-    const w = this.this_element.w * this.pInst.pow(pixel_density, 2);
-    const h = this.this_element.h * this.pInst.pow(pixel_density, 2);
+    const w = this.width * this.pInst.pow(pixel_density, 2);
+    const h = this.height * this.pInst.pow(pixel_density, 2);
     return [x, y, w, h];
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, w, h } = this.this_element;
+    const { x, y, width, height } = this.this_element;
     return this.pInst.collide_point_rect(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
       x,
       y,
-      w,
-      h
+      width,
+      height
     );
   }
 }
@@ -538,15 +566,15 @@ class Normal extends RenderedElement {
   }
 }
 customElements.define("p-normal", Normal);
-class Plane extends WebGLGeometry {
+class Plane extends addDimensions(WebGLGeometry) {
   constructor() {
-    super("[w], [h], [detail_x], [detail_y]");
+    super("[width], [height], [detail_x], [detail_y]");
   }
 }
 customElements.define("p-plane", Plane);
-class Box extends WebGLGeometry {
+class Box extends addDimensions(WebGLGeometry) {
   constructor() {
-    super(["[w], [h], [depth], [detail_x], [detail_y]"]);
+    super(["[width], [height], [depth], [detail_x], [detail_y]"]);
   }
 }
 customElements.define("p-box", Box);
@@ -558,13 +586,15 @@ class Sphere extends WebGLGeometry {
 customElements.define("p-sphere", Sphere);
 class Cylinder extends WebGLGeometry {
   constructor() {
-    super(["[radius], [h], [detail_x], [detail_y], [bottomCap], [topCap]"]);
+    super([
+      "[radius], [height], [detail_x], [detail_y], [bottomCap], [topCap]",
+    ]);
   }
 }
 customElements.define("p-cylinder", Cylinder);
 class Cone extends WebGLGeometry {
   constructor() {
-    super(["[radius], [h], [detail_x], [detail_y], [cap]"]);
+    super(["[radius], [height], [detail_x], [detail_y], [cap]"]);
   }
 }
 customElements.define("p-cone", Cone);

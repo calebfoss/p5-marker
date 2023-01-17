@@ -1,61 +1,66 @@
 <_>
     <canvas width="window_width" height="window_height" background="0" left_paddle="null"
         right_paddle="null" left_score="0" right_score="0" count_down="120" wait_time="120"
-        state="'start'" winner="''" fill="255" ball_speed_mag="height/100"
-        default_ball_speed_mag="height/100" game="this_element">
+        state="'start'" winner="''" fill="255" ball_speed_mag="canvas.height/100"
+        default_ball_speed_mag="canvas.height/100" game="this_element">
         <!-- SCORE -->
-        <text content="left_score" x="width * 0.3" y="height * 0.1" fill="255"
-            text_size="height/10" text_align="CENTER, TOP">
-            <text content="right_score" x="width - x"></text>
+        <text content="left_score" x="canvas.width * 0.3" y="canvas.height * 0.1"
+            fill="255"
+            text_size="canvas.height/10" text_align="CENTER, TOP">
+            <text content="right_score" x="canvas.width - x"></text>
         </text>
 
         <!-- GAME OBJECTS -->
-        <paddle x="width * 0.1" up="87" down="83"></paddle>
+        <paddle x="canvas.width * 0.1" up="87" down="83"></paddle>
         <paddle left_paddle="above_sibling" right_paddle="this_element">
             <ball on="count_down LESS_THAN 1"></ball>
         </paddle>
 
 
         <!-- STATE MANAGEMENT -->
-        <_ x="width/2" y="height/2" text_align="CENTER, CENTER" text_size="height/15">
-            <!-- TODO - fix newline -->
+        <_ x="canvas.width/2" y="canvas.height/2" text_align="CENTER, CENTER"
+            text_size="canvas.height/15"> <!-- TODO - fix newline -->
             <text on="state === 'start'"
                 content="'Left: W for up, S for down\nRight: up/down arrows\n\nClick to start'">
                 <_ on="mouse_down" game.state="'play'"></_>
             </text>
-            <text on="above_siblings_off AND state === 'pause'" content="'Paused'">
+            <text
+                on="above_siblings_off AND state === 'pause'" content="'Paused'">
                 <_ on="mouse_down" game.state="'play'"></_>
             </text>
-            <_ on="above_siblings_off AND state === 'play'" game.count_down="count_down - 1">
+            <_
+                on="above_siblings_off AND state === 'play'" game.count_down="count_down - 1">
                 <_ on="mouse_down" game.state="'pause'"></_>
             </_>
-            <text on="above_siblings_off AND state === 'gameover'"
+            <text
+                on="above_siblings_off AND state === 'gameover'"
                 content="winner + ' wins!\n Click to play again!'">
                 <_ on="mouse_down" game.state="'play'" game.left_score="0" game.right_score="0"></_>
             </text>
         </_>
-        <!-- <_ on="window_resized" width="window_width" height="window_height"></_> -->
     </canvas>
     <!-- BALL -->
-    <custom name="ball" s="height/50" stroke="NONE" fill="255" rect_mode="CENTER"
+    <custom name="ball" s="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
         speed="createVector()" ball="this_element">
         <!-- POSITION CHECKS -->
         <_ ball_left="x - s/2" ball_right="x + s/2" ball_top="y - s/2" ball_bottom="y + s/2"
             moving_left="speed.x LESS_THAN 0">
             <!-- RESET -->
             <_ on="count_down === 0" random_angle="random(HALF_PI) - QUARTER_PI + random([0, PI])"
-                ball.x="width/2" ball.y="height/2" ball.reset="false"
+                ball.x="canvas.width/2" ball.y="canvas.height/2" ball.reset="false"
                 ball_speed_mag="default_ball_speed_mag">
                 <_ ball.speed="p5.Vector.fromAngle(random_angle, ball_speed_mag)"></_>
             </_>
             <!-- TOP BOTTOM BOUNCE -->
-            <_ on="above_siblings_off AND ball_top LESS_THAN 0 || ball_bottom GREATER_THAN height"
+            <_
+                on="above_siblings_off AND ball_top LESS_THAN 0 || ball_bottom GREATER_THAN canvas.height"
                 ball.speed.y="-ball.speed.y"></_>
             <!-- LEFT COLLISION/SCORE CHECK -->
             <_ on="above_siblings_off AND moving_left"
-                left_hit="ball_left LESS_THAN left_paddle.x + left_paddle.w/2">
-                <_ on="left_hit" right_hit="ball_right GREATER_THAN left_paddle.x - left_paddle.w/2"
-                    paddle_top="left_paddle.y - left_paddle.h/2">
+                left_hit="ball_left LESS_THAN left_paddle.x + left_paddle.width/2">
+                <_ on="left_hit"
+                    right_hit="ball_right GREATER_THAN left_paddle.x - left_paddle.width/2"
+                    paddle_top="left_paddle.y - left_paddle.height/2">
                     <!-- RIGHT SCORE -->
                     <_ on="ball_left LESS_THAN 0">
                         <_ on="count_down LESS_THAN 0" game.count_down="120"
@@ -68,7 +73,7 @@
                     <!-- LEFT PADDLE HIT -->
                     <_ on="above_siblings_off AND right_hit"
                         bottom_hit="ball_bottom GREATER_THAN paddle_top"
-                        paddle_bottom="left_paddle.y + left_paddle.h/2">
+                        paddle_bottom="left_paddle.y + left_paddle.height/2">
                         <_ on="bottom_hit" top_hit="ball_top LESS_THAN paddle_bottom">
                             <_ on="top_hit">
                                 <_ ball.speed.x="-ball.speed.x"
@@ -82,10 +87,10 @@
             </_>
             <!--  RIGHT COLLISION/SCORE -->
             <_ on="above_siblings_off" right_hit="ball_right GREATER_THAN right_paddle.x">
-                <_ on="right_hit" left_hit="ball_left LESS_THAN right_paddle.x + right_paddle.w"
-                    paddle_top="right_paddle.y - right_paddle.h/2">
+                <_ on="right_hit" left_hit="ball_left LESS_THAN right_paddle.x + right_paddle.width"
+                    paddle_top="right_paddle.y - right_paddle.height/2">
                     <!-- LEFT SCORE -->
-                    <_ on="ball_right GREATER_THAN width">
+                    <_ on="ball_right GREATER_THAN canvas.width">
                         <_ on="count_down LESS_THAN 0" game.count_down="120"
                             game.left_score="left_score + 1">
                             <_ on="game.left_score === 7" game.state="'gameover'"
@@ -95,7 +100,7 @@
                     <!-- RIGHT PADDLE HIT -->
                     <_ on="above_siblings_off AND left_hit"
                         top_hit="ball_bottom GREATER_THAN paddle_top"
-                        paddle_bottom="right_paddle.y + right_paddle.h/2">
+                        paddle_bottom="right_paddle.y + right_paddle.height/2">
                         <_ on="top_hit" bottom_hit="ball_top LESS_THAN paddle_bottom">
                             <_ on="bottom_hit">
                                 <_ ball.speed.x="-ball.speed.x"
@@ -113,12 +118,13 @@
         <square></square>
     </custom>
     <!-- PADDLE -->
-    <custom name="paddle" x="width * 0.9" y="height/2" w="height/50" h="height/5"
+    <custom name="paddle" x="canvas.width * 0.9" y="canvas.height/2"
+        width="canvas.height/50" height="canvas.height/5"
         stroke="NONE" fill="255" rect_mode="CENTER" up=" UP_ARROW" down="DOWN_ARROW"
-        speed="height/75" paddle=" this_element">
+        speed="canvas.height/75" paddle=" this_element">
         <!-- MOVEMENT -->
-        <_ on="key_is_down(up)" paddle.y="constrain(paddle.y - speed, h/2, height - h/2)"></_>
-        <_ on="key_is_down(down)" paddle.y="constrain(paddle.y + speed, h/2, height - h/2)"></_>
+        <_ on="key_is_down(up)" paddle.y="constrain(paddle.y - speed, h/2, canvas.height - h/2)"></_>
+        <_ on="key_is_down(down)" paddle.y="constrain(paddle.y + speed, h/2, canvas.height - h/2)"></_>
         <rect></rect>
     </custom>
 </_>

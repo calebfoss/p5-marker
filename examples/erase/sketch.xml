@@ -4,7 +4,7 @@
     description="'60×60 centered pink rect, purple background.
 Elliptical area in top-left of rect is erased white.'"
 >
-    <rect fill="250, 100, 100" x="20" y="20" w="60" h="60" erase="false">
-        <ellipse erase="true" x="25" y="30" w="30"></ellipse>
+    <rect fill="250, 100, 100" x="20" y="20" width="60" height="60" erase="false">
+        <ellipse erase="true" x="25" y="30" width="30"></ellipse>
     </rect>
 </canvas>

@@ -3,6 +3,7 @@ import {
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
 import { RenderedElement } from "./core";
+import { addDimensions } from "./shape";
 
 /**
  * Draw an image to the canvas.
@@ -53,10 +54,10 @@ import { RenderedElement } from "./core";
  * @attribute {Constant} [xAlign] either LEFT, RIGHT or CENTER default is CENTER
  * @attribute {Constant} [yAlign] either TOP, BOTTOM or CENTER default is CENTER
  */
-class Image extends RenderedElement {
+class Image extends addDimensions(RenderedElement) {
   constructor() {
     super([
-      "img, x, y, [w], [h]",
+      "img, x, y, [width], [height]",
       "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
     ]);
   }

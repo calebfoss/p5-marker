@@ -7,6 +7,6 @@
     description="'White square repeatedly grows to fill canvas and then shrinks. An interactive example of a red cube with 3 sliders for moving it across x, y, z axis and 3 sliders for shifting its center.'"
 >
     <_ on="first_frame" parent_element.camera="parent_element.camera"></_>
-    <box material="NORMAL" w="15" h="30"></box>
+    <box material="NORMAL" width="15" height="30"></box>
     <_ on="key_is_down(32)" parent_element.debug_mode="false"></_>
 </canvas>

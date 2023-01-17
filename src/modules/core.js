@@ -429,7 +429,12 @@ const P5Extension = (baseClass) =>
       const getOwnerName = (prop) => {
         if (prop in this) return "this";
         //  TODO - remove condition when p5 props have been moved to elments
-        if (prop in this.pInst && typeof this.pInst[prop] !== "function")
+        if (
+          prop in this.pInst &&
+          typeof this.pInst[prop] !== "function" &&
+          prop !== "width" &&
+          prop !== "height"
+        )
           return "this.pInst";
         if (this.attributeInherited(prop)) return "inherited";
       };
