@@ -1,4 +1,4 @@
-import { defineProperties, defineSnakeAlias } from "../utils/p5Modifiers";
+import { defineSnakeAlias } from "../utils/p5Modifiers";
 import { FillStrokeElement } from "./color";
 
 p5.prototype._debugMode = [];
@@ -139,6 +139,72 @@ export class WebGLGeometry extends FillStrokeElement {
     this.#specular_material = this.pInst.color(val);
   }
   /**
+   * Sets the texture that will be used to render subsequent shapes.
+   *
+   * A texture is like a "skin" that wraps around a 3D geometry. Currently
+   * supported textures are images, video, and offscreen renders.
+   *
+   * To texture a geometry created by a ```<shape>``` element,
+   * you will need to specify uv coordinates in ```<vertex>``` element.
+   *
+   * Note, texture can only be used in WEBGL mode.
+   *
+   * @type {p5.Image|p5.MediaElement|p5.Graphics|p5.Texture}
+   */
+  get texture() {
+    return this.pInst._renderer._tex;
+  }
+  set texture(val) {
+    this.pInst.texture(val);
+  }
+  /**
+   * Sets the coordinate space for texture mapping. The default mode is IMAGE
+   * which refers to the actual coordinates of the image.
+   * NORMAL refers to a normalized space of values ranging from 0 to 1.
+   *
+   * With IMAGE, if an image is 100×200 pixels, mapping the image onto the
+   * entire
+   * size of a quad would require the points (0,0) (100, 0) (100,200) (0,200).
+   * The same mapping in NORMAL is (0,0) (1,0) (1,1) (0,1).
+   *
+   * @type {IMAGE|NORMAL}
+   */
+  get texture_mode() {
+    return this.pInst._renderer.textureMode;
+  }
+  set texture_mode(val) {
+    this.pInst.textureMode(val);
+  }
+  /**
+   * Sets the global texture wrapping mode. This controls how textures behave
+   * when their uv's go outside of the 0 to 1 range. There are three options:
+   * CLAMP, REPEAT, and MIRROR.
+   *
+   * CLAMP causes the pixels at the edge of the texture to extend to the bounds.
+   * REPEAT causes the texture to tile repeatedly until reaching the bounds.
+   * MIRROR works similarly to REPEAT but it flips the texture with every new tile.
+   *
+   * REPEAT & MIRROR are only available if the texture
+   * is a power of two size (128, 256, 512, 1024, etc.).
+   *
+   * This method will affect all textures in your sketch until another element
+   * sets texture_mode.
+   *
+   * If only one value is provided, it will be applied to both the
+   * horizontal and vertical axes.
+   * @type {[CLAMP|REPEAT|MIRROR, CLAMP|REPEAT|MIRROR]}
+   */
+  get texture_wrap() {
+    return [
+      this.pInst._renderer.textureWrapX,
+      this.pInst._renderer.textureWrapY,
+    ];
+  }
+  set texture_wrap(val) {
+    if (Array.isArray(val)) this.pInst.textureWrap(...val);
+    else this.pInst.textureWrap(val);
+  }
+  /**
    * Removes all lights present in a sketch.
    *
    * All subsequent geometry is rendered without lighting (until a new
@@ -225,34 +291,6 @@ const addLightFalloff = (baseClass) =>
       ];
     }
   };
-
-defineProperties({
-  texture: {
-    get: function () {
-      return this._renderer._tex;
-    },
-    set: function (val) {
-      this.texture(val);
-    },
-  },
-  texture_mode: {
-    get: function () {
-      return this._renderer.textureMode;
-    },
-    set: function (val) {
-      this.textureMode(val);
-    },
-  },
-  texture_wrap: {
-    get: function () {
-      return [this._renderer.textureWrapX, this._renderer.textureWrapY];
-    },
-    set: function (val) {
-      if (Array.isArray(val)) this.textureWrap(...val);
-      else this.textureWrap(val);
-    },
-  },
-});
 
 defineSnakeAlias("createShader", "createCamera");
 
