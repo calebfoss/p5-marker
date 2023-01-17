@@ -9,7 +9,9 @@ p5.prototype.EMISSIVE = "emissive";
 
 export class WebGLGeometry extends FillStrokeElement {
   #ambient_material;
+  #emissive_material;
   #shininess;
+  #specular_material;
   #no_lights;
   /**
    * Sets the ambient color of the material.
@@ -36,6 +38,43 @@ export class WebGLGeometry extends FillStrokeElement {
     this.#ambient_material = this.pInst.color(val);
   }
   /**
+   * Sets the emissive color of the material.
+   *
+   * An emissive material will display the emissive color at
+   * full strength regardless of lighting. This can give the
+   * appearance that the object is glowing.
+   *
+   * Note, "emissive" is a misnomer in the sense that the material
+   * does not actually emit light that will affect surrounding objects.
+   *
+   * @type {p5.Color}
+   */
+  get emissive_material() {
+    return this.#emissive_material;
+  }
+  set emissive_material(val) {
+    if (Array.isArray(val)) this.pInst.emissiveMaterial(...val);
+    else this.pInst.emissiveMaterial(val);
+    this.#ambient_material = this.pInst.color(val);
+  }
+  /**
+   * Sets the current material as a normal material.
+   *
+   * A normal material is not affected by light. It is often used as
+   * a placeholder material when debugging.
+   *
+   * Surfaces facing the X-axis become red, those facing the Y-axis
+   * become green, and those facing the Z-axis become blue.
+   *
+   * @type {boolean}
+   */
+  get normal_material() {
+    return this.pInst._renderer.useNormalMaterial;
+  }
+  set normal_material(val) {
+    if (val) this.pInst.normalMaterial();
+  }
+  /**
    * Sets the amount of gloss ("shininess") of a
    * specular_material.
    *
@@ -48,6 +87,32 @@ export class WebGLGeometry extends FillStrokeElement {
   set shininess(val) {
     this.pInst.shininess(val);
     this.#shininess = val;
+  }
+  /**
+   * Sets the specular color of the material.
+   *
+   * A specular material is reflective (shiny). The shininess can be
+   * controlled by the shininess property.
+   *
+   * Like ambient_material,
+   * the specular_material color is the color the object will reflect
+   * under ```<ambient-light>```.
+   * However unlike ambient_material, for all other types of lights
+   * ```<directional-light>```,
+   * ```<point-light>```,
+   * ```spot-light>```,
+   * a specular material will reflect the **color of the light source**.
+   * This is what gives it its "shiny" appearance.
+   *
+   * @type {p5.Color}
+   */
+  get specular_material() {
+    return this.#specular_material;
+  }
+  set specular_material(val) {
+    if (Array.isArray(val)) this.pInst.specularMaterial(...val);
+    else this.pInst.specularMaterial(val);
+    this.#specular_material = this.pInst.color(val);
   }
   /**
    * Removes all lights present in a sketch.
@@ -170,31 +235,6 @@ defineProperties({
     set: function (val) {
       if (Array.isArray(val)) this.textureWrap(...val);
       else this.textureWrap(val);
-    },
-  },
-  material: {
-    get: function () {
-      if (this._renderer._useNormalMaterial) return this.NORMAL;
-      if (this._renderer._useAmbientMaterial) return this.AMBIENT;
-      if (this._renderer._useEmissiveMaterial) return this.EMISSIVE;
-      if (this._renderer._useSpecularMaterial) return this.SPECULAR;
-    },
-    set: function (val) {
-      const [type, ...args] = Array.isArray(val) ? val : [val];
-      switch (type) {
-        case this.NORMAL:
-          this.normalMaterial(...args);
-          break;
-        case this.AMBIENT:
-          this.ambientMaterial(...args);
-          break;
-        case this.EMISSIVE:
-          this.emissiveMaterial(...args);
-          break;
-        case this.SPECULAR:
-          this.specularMaterial(...args);
-          break;
-      }
     },
   },
 });

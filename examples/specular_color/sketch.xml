@@ -12,7 +12,7 @@
             <sphere radius="30" detail_x="64" detail_y="64"
                 stroke="NONE"
                 shininess="50"
-                material="SPECULAR, 150"></sphere>
+                specular_material="150"></sphere>
         </point-light>
         <_ on="mouse_down"
             parent_element.set_red_specular_color="!parent_element.set_red_specular_color"></_>
