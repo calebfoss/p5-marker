@@ -35,7 +35,7 @@ export class AttrParseUtil {
   static enclose = (str) => {
     const strMinusStrings = str.replace(/(["'`]).*?\1/gi, "");
     const items = strMinusStrings.split(/(?<!{[^}]*),/gi);
-    const isObject = str.match(/^[^\?\{]*:/gi);
+    const isObject = strMinusStrings.match(/^[^\?\{]*:/gi);
     if (items.length === 1 && !isObject) return str;
     const isUnenclosed = str.match(/(?<!\([^\)]*)(?<!{[^}]*)[,:]/gi) !== null;
     if (!isUnenclosed) return str;
@@ -99,7 +99,7 @@ export class AttrParseUtil {
     )
       return "none";
     if (prop in el) return "this";
-    if (AttrParseUtil.isP5(prop)) return "pInst";
+    if (prop in el.pInst) return "pInst";
     return "inherited";
   }
   static getPrefix(el, prop) {
