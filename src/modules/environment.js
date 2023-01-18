@@ -92,16 +92,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  cursor_type: {
-    get: function () {
-      return this.canvas?.style.cursor;
-    },
-    set: function (val) {
-      if (val === this.NONE) this.noCursor();
-      else if (Array.isArray(val)) this.cursor(...val);
-      else this.cursor(val);
-    },
-  },
   delta_time: {
     get: function () {
       return this.deltaTime;
