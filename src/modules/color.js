@@ -45,7 +45,11 @@ export class FillStrokeElement extends StrokeElement {
     const { pInst } = this;
     if (val === this.NONE) pInst.noFill();
     else pInst.fill(val);
-    this.#fill = pInst.color(pInst.drawingContext.fillStyle);
+    this.#fill = pInst.color(
+      pInst._renderer.isP3D
+        ? pInst._renderer.curFillColor
+        : pInst.drawingContext.fillStyle
+    );
   }
 }
 
