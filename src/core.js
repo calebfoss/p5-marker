@@ -2,6 +2,8 @@ import { pascalToKebab, kebabToCamel } from "./utils/caseConvert";
 import { AttrParseUtil } from "./utils/attrParse";
 import { wrapMethod, defineProperties } from "./utils/p5Modifiers";
 import { addWebGLMethods } from "./methods/3d_methods";
+import { addCanvasProperties } from "./properties/canvas_props";
+import { addCanvasMethods } from "./methods/canvas_methods";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -90,7 +92,7 @@ const attributePriorities = [
   "repeat",
   "change",
 ];
-const P5Extension = (baseClass) =>
+export const addP5PropsAndMethods = (baseClass) =>
   class P5Extension extends addWebGLMethods(baseClass) {
     /**
      * This element's parent canvas.
@@ -669,7 +671,7 @@ const P5Extension = (baseClass) =>
       this.pInst.setAttributes(...arguments);
     }
   };
-export class P5Element extends P5Extension(HTMLElement) {}
+export class P5Element extends addP5PropsAndMethods(HTMLElement) {}
 
 export class RenderedElement extends P5Element {
   constructor(overloads, renderFunctionName) {
@@ -814,261 +816,18 @@ customElements.define("p-_", _);
  * all named color strings are supported. In this case, an alpha number value as a second
  * value is not supported, the RGBA form should be used.
  */
-class Canvas extends P5Extension(HTMLCanvasElement) {
-  #background;
-  #debug_mode;
-  #orbit_control;
+export class Canvas extends addCanvasMethods(
+  addCanvasProperties(addP5PropsAndMethods(HTMLCanvasElement))
+) {
+  static renderer = "p2d";
+
   constructor() {
     super();
     window.addEventListener("customElementsDefined", this.runCode.bind(this));
   }
-  attributeInherited(attributeName) {
-    if (this.hasAttribute(attributeName) || attributeName in this.defaults)
-      return true;
-    return super.attributeInherited(attributeName);
-  }
-  /**
-   * The background property sets the color or image used
-   * for the background of the p5.js canvas. The default background is transparent.
-
-   * A <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object can be provided to set the background color.
-   *
-   * A <a href="https://p5js.org/reference/#/p5.Image">p5.Image</a> can also be provided to set the background image.
-   * 
-   * The arguments to <a href="https://p5js.org/reference/#/p5/color">color()</a> can also be provided,
-   * separated by commas."
-   * @type {p5.Color|p5.Image}
-   */
-  get background() {
-    return this.#background;
-  }
-  set background(c) {
-    if (c instanceof p5.Color || c instanceof p5.Image) this.#background = c;
-    this.#background = this.pInst.color(c);
-  }
-  /**
-   * Sets the current (active) camera of a 3D sketch.
-   * Allows for switching between multiple cameras.
-   *
-   * Comma-separated arguments for
-   * <a href="https://p5js.org/reference/#/p5/camera">camera()</a>
-   * may also be provided to adjust the current camera.
-   *
-   * @type {p5.Camera}
-   * */
-  get camera() {
-    return this.pInst._renderer._curCamera;
-  }
-  set camera(val) {
-    const { pInst } = this;
-    if (val instanceof p5.Camera) pInst.setCamera(val);
-    else if (Array.isArray(val)) pInst.camera(...val);
-    else pInst.camera(val);
-  }
-  /**
-   * debug_mode helps visualize 3D space by adding a grid to indicate where the
-   * ‘ground’ is in a sketch and an axes icon which indicates the +X, +Y, and +Z
-   * directions. This property can be set to "true" to create a
-   * default grid and axes icon, or it can be set to a comma-separated list
-   * of values to pass into
-   * <a href="https://p5js.org/reference/#/p5/debugMode">debugMode()</a>.
-   *
-   * By default, the grid will run through the origin (0,0,0) of the sketch
-   * along the XZ plane
-   * and the axes icon will be offset from the origin.  Both the grid and axes
-   * icon will be sized according to the current canvas size.
-   * Note that because the
-   * grid runs parallel to the default camera view, it is often helpful to use
-   * debug_mode along with orbit_control to allow full view of the grid.
-   * @type {boolean}
-   */
-  get debug_mode() {
-    return this.#debug_mode;
-  }
-  set debug_mode(val) {
-    const { pInst } = this;
-    if (val === false) {
-      pInst.noDebugMode();
-      this.#debug_mode = false;
-      return;
-    } else if (val === true) pInst.debugMode();
-    else if (Array.isArray(val)) pInst.debugMode(...val);
-    else pInst.debugMode(val);
-    this.#debug_mode = true;
-  }
-  get description() {
-    const { pInst } = this;
-    const cnvId = this.id;
-    const descContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Description`);
-    if (descContainer) return descContainer;
-    const labelContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Label`);
-    return labelContainer;
-  }
-  set description(val) {
-    if (Array.isArray(val)) this.pInst.describe(...val);
-    else this.pInst.describe(val);
-  }
-  /**
-   * The height of the canvas in pixels.
-   * @type {number}
-   */
-  get height() {
-    return this.pInst.height;
-  }
-  set height(val) {
-    if (val === this.height || isNaN(val)) return;
-    this.#resize(this.width, val);
-  }
-  /**
-   * Allows movement around a 3D sketch using a mouse or trackpad.
-   * Left-clicking and dragging will rotate the camera position about the
-   * center of the sketch,
-   * right-clicking and dragging will pan the camera position without rotation,
-   * and using the mouse wheel (scrolling) will move the camera closer or
-   * further
-   * from the center of the sketch. This property can be set with parameters
-   * dictating sensitivity to mouse movement along the X, Y, and Z axes.
-   * Setting orbit_control="true" is equivalent to setting
-   * orbit_control="1, 1".
-   * To reverse direction of movement in either axis, enter a negative number
-   * for sensitivity.
-   * @type {boolean}
-   * */
-  get orbit_control() {
-    return this.#orbit_control;
-  }
-  set orbit_control(val) {
-    if (val === false) return (this.#orbit_control = false);
-    this.#orbit_control = true;
-    if (Array.isArray(val)) return this.pInst.orbitControl(...val);
-    this.pInst.orbitControl();
-  }
-  /**
-   * Sets an orthographic projection for the current camera in a 3D sketch
-   * and defines a box-shaped viewing frustum within which objects are seen.
-   * In this projection, all objects with the same dimension appear the same
-   * size, regardless of whether they are near or far from the camera.
-   *
-   * This may be set to a comma-separated list of arguments to
-   * <a href="https://p5js.org/reference/#/p5/ortho">ortho()</a>
-   *
-   * If set to "true", the following default is used:
-   * ortho(-width/2, width/2, -height/2, height/2).
-   *
-   * @type {boolean}
-   */
-  set ortho(val) {
-    if (val === true) this.pInst.ortho();
-    else if (Array.isArray(val)) this.pInst.ortho(...val);
-    else if (val !== false) this.pInst.ortho(val);
-  }
-  get orderedAttributeNames() {
-    //  Remove 'is' and 'style' from attrNames
-    return super.orderedAttributeNames.filter(
-      (v) => v !== "is" && v != "style"
-    );
-  }
-  set loop(val) {
-    if (val) this.pInst.loop();
-    else this.pInst.noLoop();
-  }
-  #resize(w, h) {
-    if (w === this.width && h === this.height) return;
-    const { pInst } = this;
-    const props = {};
-    for (const key in pInst.drawingContext) {
-      const val = pInst.drawingContext[key];
-      if (typeof val !== "object" && typeof val !== "function") {
-        props[key] = val;
-      }
-    }
-    pInst.width = pInst._renderer.width = w;
-    pInst.height = pInst._renderer.height = h;
-    this.setAttribute("width", w * pInst._pixelDensity);
-    this.setAttribute("height", h * pInst._pixelDensity);
-    this.style.width = `${w}px`;
-    this.style.height = `${h}px`;
-    pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
-    for (const savedKey in props) {
-      try {
-        pInst.drawingContext[savedKey] = props[savedKey];
-      } catch (err) {}
-    }
-    pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
-    pInst.redraw();
-  }
-  runCode() {
-    const canvas = this;
-    const sketch = (pInst) => {
-      canvas.defaults = {
-        x: 0,
-        x1: 0,
-        x2: 0,
-        x3: 100,
-        x4: 100,
-        cx: 0,
-        y: 0,
-        y1: 0,
-        y2: 100,
-        y3: 100,
-        y4: 0,
-        cy: 0,
-        z: 0,
-        w: 100,
-        h: 100,
-        d: 100,
-        size: 100,
-        start_angle: 0,
-        stop_angle: pInst.PI,
-        vector: pInst.createVector(),
-        v1: 255,
-        v2: 255,
-        v3: 255,
-        rx: 1,
-        ry: 1,
-        rz: -1,
-        img: pInst.createImage(100, 100),
-        content: "",
-        on: true,
-        repeat: false,
-        change: {},
-      };
-
-      pInst.preload = () => pInst.loadAssets();
-
-      pInst.setup = function () {
-        const renderer = pInst[canvas.getAttribute("renderer")];
-        canvas.setup(pInst, canvas);
-        // Set default dimensions (100, 100)
-        canvas.width = 100;
-        canvas.height = 100;
-        //  Set default background to transparent
-        canvas.background = pInst.color(0, 0);
-        pInst.assignCanvas(canvas, renderer);
-      };
-      pInst.draw = function () {
-        const state = canvas.updateState(canvas.defaults);
-        pInst.background(canvas.background);
-        for (const child of canvas.children) {
-          child.draw?.(state);
-        }
-      };
-    };
-    new p5(sketch);
-  }
-  /**
-   * The width of the canvas in pixels.
-   * @type {number}
-   */
-  get width() {
-    return this.pInst.width;
-  }
-  set width(val) {
-    if (val === this.width || isNaN(val)) return;
-    this.#resize(val, this.height);
-  }
 }
 customElements.define("p-canvas", Canvas, { extends: "canvas" });
+
 /**
  * The `<custom>` element generates a new element from a combination of existing
  * elements. This element should be placed outside the <canvas> element. The name attribute defines the name of the new element. For
@@ -1212,6 +971,7 @@ class Sketch extends HTMLLinkElement {
   #xmlTagToCreateElementArguments(xmlTag) {
     if (xmlTag.slice(0, 2) === "p-") return [xmlTag];
     if (xmlTag === "canvas") return [xmlTag, { is: "p-canvas" }];
+    if (xmlTag === "canvas-3d") return ["canvas", { is: "p-canvas-3d" }];
     return ["p-" + xmlTag];
   }
 }

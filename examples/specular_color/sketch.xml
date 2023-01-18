@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="100" height="100" renderer="WEBGL"
+<canvas-3d width="100" height="100"
     background="0"
     description="'Sphere with specular highlight. Clicking the mouse toggles the specular highlight color between red and the default white.'">
     <ambient-light gray="60"></ambient-light>
@@ -15,8 +15,6 @@
                 specular_material="150"></sphere>
         </point-light>
         <_ on="mouse_down"
-            parent_element.set_red_specular_color="!parent_element.set_red_specular_color"></_>
+            parent_element.set_red_specular_color="!parent_element.set_red_specular_color" />
     </_>
-
-
-</canvas>
+</canvas-3d>
