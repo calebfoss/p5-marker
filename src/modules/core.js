@@ -197,6 +197,56 @@ const P5Extension = (baseClass) =>
       return false;
     }
     /**
+     * Blends the pixels in the display window according to the defined mode.
+     * There is a choice of the following modes to blend the source pixels (A)
+     * with the ones of pixels already in the display window (B):
+     * <ul>
+     * <li><code>BLEND</code> - linear interpolation of colours: C =
+     * A*factor + B. <b>This is the default blending mode.</b></li>
+     * <li><code>ADD</code> - sum of A and B</li>
+     * <li><code>DARKEST</code> - only the darkest colour succeeds: C =
+     * min(A*factor, B).</li>
+     * <li><code>LIGHTEST</code> - only the lightest colour succeeds: C =
+     * max(A*factor, B).</li>
+     * <li><code>DIFFERENCE</code> - subtract colors from underlying image.
+     * <em>(2D)</em></li>
+     * <li><code>EXCLUSION</code> - similar to <code>DIFFERENCE</code>, but less
+     * extreme.</li>
+     * <li><code>MULTIPLY</code> - multiply the colors, result will always be
+     * darker.</li>
+     * <li><code>SCREEN</code> - opposite multiply, uses inverse values of the
+     * colors.</li>
+     * <li><code>REPLACE</code> - the pixels entirely replace the others and
+     * don't utilize alpha (transparency) values.</li>
+     * <li><code>REMOVE</code> - removes pixels from B with the alpha strength of A.</li>
+     * <li><code>OVERLAY</code> - mix of <code>MULTIPLY</code> and <code>SCREEN
+     * </code>. Multiplies dark values, and screens light values. <em>(2D)</em></li>
+     * <li><code>HARD_LIGHT</code> - <code>SCREEN</code> when greater than 50%
+     * gray, <code>MULTIPLY</code> when lower. <em>(2D)</em></li>
+     * <li><code>SOFT_LIGHT</code> - mix of <code>DARKEST</code> and
+     * <code>LIGHTEST</code>. Works like <code>OVERLAY</code>, but not as harsh. <em>(2D)</em>
+     * </li>
+     * <li><code>DODGE</code> - lightens light tones and increases contrast,
+     * ignores darks. <em>(2D)</em></li>
+     * <li><code>BURN</code> - darker areas are applied, increasing contrast,
+     * ignores lights. <em>(2D)</em></li>
+     * <li><code>SUBTRACT</code> - remainder of A and B <em>(3D)</em></li>
+     * </ul>
+     *
+     * <em>(2D)</em> indicates that this blend mode <b>only</b> works in the 2D renderer.<br>
+     * <em>(3D)</em> indicates that this blend mode <b>only</b> works in the WEBGL renderer.
+     * @type {BLEND|DARKEST|LIGHTEST|DIFFERENCE|MULTIPLY|EXCLUSION|SCREEN|
+     * REPLACE|OVERLAY|HARD_LIGHT|SOFT_LIGHT|DODGE|BURN|ADD|REMOVE|SUBTRACT}
+     */
+    get blend_mode() {
+      if (this.pInst._renderer.isP3D) return this.curBlendMode;
+      return this.pInst.drawingContext.globalCompositeOperation;
+    }
+    set blend_mode(val) {
+      this.pInst.blendMode(val);
+    }
+
+    /**
      * @private
      */
     #callAttributeUpdater(inherited, attrName, thisArg) {
