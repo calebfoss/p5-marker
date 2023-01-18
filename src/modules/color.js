@@ -1,5 +1,5 @@
 import { defineSnakeAlias } from "../utils/p5Modifiers";
-import { RenderedElement } from "./core";
+import { RenderedElement } from "../core";
 
 defineSnakeAlias("lerpColor");
 

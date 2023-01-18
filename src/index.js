@@ -1,5 +1,5 @@
 "use strict";
-import "./modules/core";
+import "./core";
 import "./modules/environment";
 import "./modules/color";
 import "./modules/collide";
@@ -14,7 +14,7 @@ import "./modules/events";
 import "./modules/image";
 import "./modules/io";
 import "./modules/typography";
-import "./modules/3d";
+import "./elements/3d_elements";
 
 const customElementsDefined = new Event("customElementsDefined");
 dispatchEvent(customElementsDefined);

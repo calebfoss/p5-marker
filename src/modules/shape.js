@@ -2,9 +2,9 @@ import {
   defineProperties,
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
-import { RenderedElement } from "./core";
+import { RenderedElement } from "../core";
 import { StrokeElement, FillStrokeElement } from "./color";
-import { WebGLGeometry } from "./3d";
+import { WebGLGeometry } from "../properties/3d_props";
 
 const transformVertexFn = (el) => (v) => {
   const originalPoint = new DOMPoint(v.x, v.y);

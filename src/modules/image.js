@@ -2,7 +2,7 @@ import {
   defineProperties,
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
-import { RenderedElement } from "./core";
+import { RenderedElement } from "../core";
 import { addWidthHeight, addXY } from "./shape";
 
 /**

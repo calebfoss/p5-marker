@@ -1,6 +1,7 @@
-import { pascalToKebab, kebabToCamel } from "../utils/caseConvert";
-import { AttrParseUtil } from "../utils/attrParse";
-import { wrapMethod, defineProperties } from "../utils/p5Modifiers";
+import { pascalToKebab, kebabToCamel } from "./utils/caseConvert";
+import { AttrParseUtil } from "./utils/attrParse";
+import { wrapMethod, defineProperties } from "./utils/p5Modifiers";
+import { addWebGLMethods } from "./methods/3d_methods";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -90,7 +91,7 @@ const attributePriorities = [
   "change",
 ];
 const P5Extension = (baseClass) =>
-  class P5Extension extends baseClass {
+  class P5Extension extends addWebGLMethods(baseClass) {
     /**
      * This element's parent canvas.
      * @private
