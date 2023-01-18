@@ -200,7 +200,7 @@ const addY3 = (baseClass) =>
     }
   };
 
-const addXY123 = (baseClass) => addY3(addXY12(baseClass));
+const addXY123 = (baseClass) => class extends addXY12(addY3(baseClass)) {};
 
 const addXYZ12 = (baseClass) =>
   class extends addXY12(baseClass) {
@@ -237,7 +237,7 @@ const addXYZ12 = (baseClass) =>
   };
 
 const addXYZ1234 = (baseClass) =>
-  class extends addY3(addXYZ12(baseClass)) {
+  class extends addXYZ12(addY3(baseClass)) {
     #z3;
     #z4;
     #y4;
@@ -310,7 +310,7 @@ const addXYZ1234 = (baseClass) =>
  * to specify the number of vertices that makes up the perimeter of the arc.
  * Default value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Arc extends addWidthHeight(addXY(FillStrokeElement)) {
+class Arc extends addXY(addWidthHeight(FillStrokeElement)) {
   constructor() {
     super([
       "x, y, width, height, start_angle, stop_angle, [mode], [detail], [a]",
@@ -355,7 +355,7 @@ customElements.define("p-arc", Arc);
  * number of vertices that makes up the perimeter of the ellipse. Default
  * value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Ellipse extends addWidthHeight(addXY(FillStrokeElement)) {
+class Ellipse extends addXY(addWidthHeight(FillStrokeElement)) {
   constructor() {
     super(["x, y, width, [height]", "x, y, width, height, [detail]"]);
   }
@@ -593,7 +593,7 @@ customElements.define("p-quad", Quad);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Rect extends addWidthHeight(addXYZ(FillStrokeElement)) {
+class Rect extends addXY(addWidthHeight(FillStrokeElement)) {
   constructor() {
     super([
       "x, y, width, [h], [tl], [tr], [br], [bl]",
