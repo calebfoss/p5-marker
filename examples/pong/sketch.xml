@@ -43,7 +43,8 @@
     <custom name="ball" size="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
         speed="createVector()" ball="this_element">
         <!-- POSITION CHECKS -->
-        <_ ball_left="x - s/2" ball_right="x + s/2" ball_top="y - s/2" ball_bottom="y + s/2"
+        <_ ball_left="x - size/2" ball_right="x + size/2" ball_top="y - size/2"
+            ball_bottom="y + size/2"
             moving_left="speed.x LESS_THAN 0">
             <!-- RESET -->
             <_ on="count_down === 0" random_angle="random(HALF_PI) - QUARTER_PI + random([0, PI])"
