@@ -15,7 +15,60 @@ const transformVertexFn = (el) => (v) => {
   return el.pInst.createVector(x, y);
 };
 
-export const addDimensions = (baseClass) =>
+export const addXY = (baseClass) =>
+  class extends baseClass {
+    #x;
+    #y;
+    /**
+     * The x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get x() {
+      return this.#x;
+    }
+    set x(val) {
+      if (!isNaN(val)) this.#x = Number(val);
+      else
+        console.error(
+          `${this.tagName}'s x property is being set to ${val}, but it may only be set to a number`
+        );
+    }
+    /**
+     * The y-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get y() {
+      return this.#y;
+    }
+    set y(val) {
+      if (!isNaN(val)) this.#y = Number(val);
+      else
+        console.error(
+          `${this.tagName}'s y property is being set to ${val}, but it may only be set to a number`
+        );
+    }
+  };
+
+export const addXYZ = (baseClass) =>
+  class extends addXY(baseClass) {
+    #z;
+    /**
+     * The z-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get z() {
+      return this.#z;
+    }
+    set z(val) {
+      if (!isNaN(val)) this.#z = Number(val);
+      else
+        console.error(
+          `${this.tagName}'s z property is being set to ${val}, but it may only be set to a number`
+        );
+    }
+  };
+
+export const addWidthHeight = (baseClass) =>
   class extends baseClass {
     #height;
     #width;
@@ -48,6 +101,189 @@ export const addDimensions = (baseClass) =>
         );
     }
   };
+
+const addXY12 = (baseClass) =>
+  class extends baseClass {
+    #x1;
+    #y1;
+    #x2;
+    #y2;
+    /**
+     * The first x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get x1() {
+      return this.#x1;
+    }
+    set x1(val) {
+      if (!isNaN(val)) this.#x1 = val;
+      else
+        console.error(
+          `${this.tagName}'s x1 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The first y-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get y1() {
+      return this.#y1;
+    }
+    set y1(val) {
+      if (!isNaN(val)) this.#y1 = val;
+      else
+        console.error(
+          `${this.tagName}'s y1 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The second x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get x2() {
+      return this.#x2;
+    }
+    set x2(val) {
+      if (!isNaN(val)) this.#x2 = val;
+      else
+        console.error(
+          `${this.tagName}'s x2 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The second y-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get y2() {
+      return this.#y2;
+    }
+    set y2(val) {
+      if (!isNaN(val)) this.#y2 = val;
+      else
+        console.error(
+          `${this.tagName}'s y2 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
+
+const addY3 = (baseClass) =>
+  class extends baseClass {
+    #x3;
+    #y3;
+    /**
+     * The third x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get x3() {
+      return this.#x3;
+    }
+    set x3(val) {
+      if (!isNaN(val)) this.#x3 = val;
+      else
+        console.error(
+          `${this.tagName}'s x3 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The third y-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get y3() {
+      return this.#y3;
+    }
+    set y3(val) {
+      if (!isNaN(val)) this.#y3 = val;
+      else
+        console.error(
+          `${this.tagName}'s y3 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
+
+const addXY123 = (baseClass) => addY3(addXY12(baseClass));
+
+const addXYZ12 = (baseClass) =>
+  class extends addXY12(baseClass) {
+    #z1;
+    #z2;
+    /**
+     * The first x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get z1() {
+      return this.#z1;
+    }
+    set z1(val) {
+      if (!isNaN(val)) this.#z1 = val;
+      else
+        console.error(
+          `${this.tagName}'s z1 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The second x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get z2() {
+      return this.#z2;
+    }
+    set z2(val) {
+      if (!isNaN(val)) this.#z2 = val;
+      else
+        console.error(
+          `${this.tagName}'s z2 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
+
+const addXYZ1234 = (baseClass) =>
+  class extends addY3(addXYZ12(baseClass)) {
+    #z3;
+    #z4;
+    #y4;
+    /**
+     * The fourth y-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get y4() {
+      return this.#y4;
+    }
+    set y4(val) {
+      if (!isNaN(val)) this.#y4 = val;
+      else
+        console.error(
+          `${this.tagName}'s y4 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The first x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get z3() {
+      return this.#z3;
+    }
+    set z3(val) {
+      if (!isNaN(val)) this.#z3 = val;
+      else
+        console.error(
+          `${this.tagName}'s z3 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The fourth z-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get z4() {
+      return this.#z4;
+    }
+    set z4(val) {
+      if (!isNaN(val)) this.#z4 = val;
+      else
+        console.error(
+          `${this.tagName}'s z4 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
 /**
  * Draws an arc to the screen. If called with only x, y, w, h, start and stop
  * the arc will be drawn and filled as an open pie segment. If a mode
@@ -74,7 +310,7 @@ export const addDimensions = (baseClass) =>
  * to specify the number of vertices that makes up the perimeter of the arc.
  * Default value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Arc extends addDimensions(FillStrokeElement) {
+class Arc extends addWidthHeight(addXY(FillStrokeElement)) {
   constructor() {
     super([
       "x, y, width, height, start_angle, stop_angle, [mode], [detail], [a]",
@@ -119,7 +355,7 @@ customElements.define("p-arc", Arc);
  * number of vertices that makes up the perimeter of the ellipse. Default
  * value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Ellipse extends addDimensions(FillStrokeElement) {
+class Ellipse extends addWidthHeight(addXY(FillStrokeElement)) {
   constructor() {
     super(["x, y, width, [height]", "x, y, width, height, [detail]"]);
   }
@@ -161,16 +397,13 @@ customElements.define("p-ellipse", Ellipse);
  * @attr {Number} y - y-coordinate of the center of the circle
  * @attr {Number} d - diameter of the circle
  */
-class Circle extends FillStrokeElement {
+class Circle extends addXY(FillStrokeElement) {
   constructor() {
     super(["x, y, d"]);
   }
   collider = p5.prototype.collider_type.circle;
   get collision_args() {
-    const originalPoint = new DOMPoint(
-      this.this_element.x,
-      this.this_element.y
-    );
+    const originalPoint = new DOMPoint(this.x, this.y);
     const { x, y } = this.pInst._transform_point_matrix(
       originalPoint,
       this.transform_matrix
@@ -204,7 +437,7 @@ customElements.define("p-circle", Circle);
  * @attr {Number} z1 - z-coordinate of the first point (WEBGL mode)
  * @attr {Number} z2 - z-coordinate of the second point (WEBGL mode)
  */
-class Line extends StrokeElement {
+class Line extends addXYZ12(StrokeElement) {
   constructor() {
     super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
   }
@@ -251,16 +484,13 @@ customElements.define("p-line", Line);
  * @attr {Number} y - y-coordinate
  * @attr {Number} z - z-coordinate (WEBGL mode)
  */
-class Point extends StrokeElement {
+class Point extends addXYZ(StrokeElement) {
   constructor() {
-    super(["x, y, [z]", "coordinate_vector"]);
+    super(["x, y, [z]"]);
   }
   collider = p5.prototype.collider_type.circle;
   get collision_args() {
-    const originalPoint = new DOMPoint(
-      this.this_element.x,
-      this.this_element.y
-    );
+    const originalPoint = new DOMPoint(this.x, this.y);
     const { x, y } = this.pInst._transform_point_matrix(
       originalPoint,
       this.transform_matrix
@@ -277,7 +507,7 @@ class Point extends StrokeElement {
       pixel_density,
       mouse_trans_pos_x,
       mouse_trans_pos_y,
-    } = this.this_element;
+    } = this;
     const d = stroke_weight * this.pInst.pow(pixel_density, 2);
     return this.pInst.collide_point_circle(
       mouse_trans_pos_x,
@@ -312,7 +542,7 @@ customElements.define("p-point", Point);
  * @attr {Number} z3 - z-coordinate of the third point (WEBGL mode)
  * @attr {Number} z4 - z-coordinate of the fourth point (WEBGL mode)
  */
-class Quad extends FillStrokeElement {
+class Quad extends addXYZ1234(FillStrokeElement) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
@@ -332,7 +562,7 @@ class Quad extends FillStrokeElement {
     );
   }
   get vertices() {
-    const { x1, y1, x2, y2, x3, y3, x4, y4 } = this.this_element;
+    const { x1, y1, x2, y2, x3, y3, x4, y4 } = this;
     return [
       this.pInst.createVector(x1, y1),
       this.pInst.createVector(x2, y2),
@@ -363,7 +593,7 @@ customElements.define("p-quad", Quad);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Rect extends addDimensions(FillStrokeElement) {
+class Rect extends addWidthHeight(addXYZ(FillStrokeElement)) {
   constructor() {
     super([
       "x, y, width, [h], [tl], [tr], [br], [bl]",
@@ -372,10 +602,7 @@ class Rect extends addDimensions(FillStrokeElement) {
   }
   collider = p5.prototype.collider_type.rect;
   get collision_args() {
-    const originalPoint = new DOMPoint(
-      this.this_element.x,
-      this.this_element.y
-    );
+    const originalPoint = new DOMPoint(this.x, this.y);
     const { x, y } = this.pInst._transform_point_matrix(
       originalPoint,
       this.transform_matrix
@@ -387,7 +614,7 @@ class Rect extends addDimensions(FillStrokeElement) {
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, width, height } = this.this_element;
+    const { x, y, width, height } = this;
     return this.pInst.collide_point_rect(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
@@ -422,29 +649,27 @@ customElements.define("p-rect", Rect);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Square extends FillStrokeElement {
+class Square extends addXY(FillStrokeElement) {
+  #size;
   constructor() {
-    super(["x, y, s, [tl], [tr], [br], [bl]"]);
+    super(["x, y, size, [tl], [tr], [br], [bl]"]);
   }
   collider = p5.prototype.collider_type.rect;
   get collision_args() {
-    const originalPoint = new DOMPoint(
-      this.this_element.x,
-      this.this_element.y
-    );
+    const originalPoint = new DOMPoint(this.x, this.y);
     const { x, y } = this.pInst._transform_point_matrix(
       originalPoint,
       this.transform_matrix
     );
     const { pixel_density } = this.pInst;
-    const { s } = this.this_element;
-    const w = s * this.pInst.pow(pixel_density, 2);
+    const { size } = this;
+    const w = size * this.pInst.pow(pixel_density, 2);
     const h = w;
     return [x, y, w, h];
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, s } = this.this_element;
+    const { x, y, s } = this;
     return this.pInst.collide_point_rect(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
@@ -454,9 +679,23 @@ class Square extends FillStrokeElement {
       s
     );
   }
+  /**
+   * The side size of the square
+   * @type {number}
+   */
+  get size() {
+    return this.#size;
+  }
+  set size(val) {
+    if (!isNaN(val)) this.#size = Number(val);
+    else
+      console.error(
+        `${this.tagName}'s size is being set to ${val}, but it may only be set to a number.`
+      );
+  }
 }
 customElements.define("p-square", Square);
-class Triangle extends FillStrokeElement {
+class Triangle extends addXY123(FillStrokeElement) {
   constructor() {
     const overloads = ["x1, y1, x2, y2, x3, y3"];
     super(overloads);
@@ -467,7 +706,7 @@ class Triangle extends FillStrokeElement {
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x1, y1, x2, y2, x3, y3 } = this.this_element;
+    const { x1, y1, x2, y2, x3, y3 } = this;
     return this.pInst.collide_point_triangle(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
@@ -480,7 +719,7 @@ class Triangle extends FillStrokeElement {
     );
   }
   get vertices() {
-    const { x1, y1, x2, y2, x3, y3 } = this.this_element;
+    const { x1, y1, x2, y2, x3, y3 } = this;
     return [
       this.pInst.createVector(x1, y1),
       this.pInst.createVector(x2, y2),
@@ -489,7 +728,7 @@ class Triangle extends FillStrokeElement {
   }
 }
 customElements.define("p-triangle", Triangle);
-class Bezier extends FillStrokeElement {
+class Bezier extends addXYZ1234(FillStrokeElement) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -498,7 +737,7 @@ class Bezier extends FillStrokeElement {
   }
 }
 customElements.define("p-bezier", Bezier);
-class Curve extends FillStrokeElement {
+class Curve extends addXYZ1234(FillStrokeElement) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -539,19 +778,19 @@ class Shape extends FillStrokeElement {
     );
     const vertices = vertexChildren.map((el) => {
       if (el instanceof QuadraticVertex) {
-        const { x3, y3 } = el.this_element;
+        const { x3, y3 } = el;
         return this.pInst.createVector(x3, y3);
       }
-      const { x, y } = el.this_element;
+      const { x, y } = el;
       return this.pInst.createVector(x, y);
     });
     return vertices.concat(vertices.slice(0));
   }
 }
 customElements.define("p-shape", Shape);
-class Vertex extends RenderedElement {
+class Vertex extends addXYZ(RenderedElement) {
   constructor() {
-    super(["x, y", "x, y, [z]", "x, y, [z], [u], [v]"]);
+    super(["x, y, [z], [u], [v]"]);
   }
 }
 customElements.define("p-vertex", Vertex);
@@ -562,25 +801,25 @@ class QuadraticVertex extends RenderedElement {
   }
 }
 customElements.define("p-quadratic-vertex", QuadraticVertex);
-class CurveVertex extends RenderedElement {
+class CurveVertex extends addXYZ(RenderedElement) {
   constructor() {
     super(["x, y", "x, y, [z]"]);
   }
 }
 customElements.define("p-curve-vertex", CurveVertex);
-class Normal extends RenderedElement {
+class Normal extends addXYZ(RenderedElement) {
   constructor() {
     super(["vector", "x, y, z"]);
   }
 }
 customElements.define("p-normal", Normal);
-class Plane extends addDimensions(WebGLGeometry) {
+class Plane extends addWidthHeight(WebGLGeometry) {
   constructor() {
     super("[width], [height], [detail_x], [detail_y]");
   }
 }
 customElements.define("p-plane", Plane);
-class Box extends addDimensions(WebGLGeometry) {
+class Box extends addWidthHeight(WebGLGeometry) {
   constructor() {
     super(["[width], [height], [depth], [detail_x], [detail_y]"]);
   }

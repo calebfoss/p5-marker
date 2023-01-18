@@ -40,7 +40,7 @@
         </_>
     </canvas>
     <!-- BALL -->
-    <custom name="ball" s="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
+    <custom name="ball" size="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
         speed="createVector()" ball="this_element">
         <!-- POSITION CHECKS -->
         <_ ball_left="x - s/2" ball_right="x + s/2" ball_top="y - s/2" ball_bottom="y + s/2"

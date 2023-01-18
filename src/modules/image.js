@@ -3,7 +3,7 @@ import {
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
 import { RenderedElement } from "./core";
-import { addDimensions } from "./shape";
+import { addWidthHeight, addXY } from "./shape";
 
 /**
  * Draw an image to the canvas.
@@ -30,10 +30,6 @@ import { addDimensions } from "./shape";
  *
  * @element image
  * @attribute  {p5.Image|p5.Element|p5.Texture} img    the image to display
- * @attribute  {Number}   x     the x-coordinate of the top-left corner of the image
- * @attribute  {Number}   y     the y-coordinate of the top-left corner of the image
- * @attribute  {Number}   w  the width to draw the image
- * @attribute  {Number}   h the height to draw the image
  * @attribute  {p5.Image|p5.Element|p5.Texture} img
  * @attribute  {Number}   dx     the x-coordinate of the destination
  *                           rectangle in which to draw the source image
@@ -54,7 +50,7 @@ import { addDimensions } from "./shape";
  * @attribute {Constant} [xAlign] either LEFT, RIGHT or CENTER default is CENTER
  * @attribute {Constant} [yAlign] either TOP, BOTTOM or CENTER default is CENTER
  */
-class Image extends addDimensions(RenderedElement) {
+class Image extends addXY(addWidthHeight(RenderedElement)) {
   constructor() {
     super([
       "img, x, y, [width], [height]",

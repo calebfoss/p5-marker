@@ -3,7 +3,8 @@
     height="400"
     background="220"
 >
-    <square x="width / 2" y="height / 2" s="width / 5" speed_x="3" speed_y="2" bounce="this_element">
+    <square x="width / 2" y="height / 2" size="width / 5" speed_x="3" speed_y="2"
+        bounce="this_element">
         <_
             bounce.x="bounce.x + bounce.speed_x"
             bounce.y="bounce.y + bounce.speed_y"

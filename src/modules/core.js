@@ -171,7 +171,8 @@ const P5Extension = (baseClass) =>
         return false;
       };
       for (const prop in change) {
-        assignProp(this.#state, prop) ||
+        assignProp(this, prop) ||
+          assignProp(this.#state, prop) ||
           assignProp(this.pInst, prop) ||
           console.error(
             `${this.constructor.elementName}'s change attribute has a prop called ${prop} that is unknown`
@@ -303,6 +304,9 @@ const P5Extension = (baseClass) =>
         .map((line) => line.match(/.{1,80}/g))
         .flat()
         .map((line) => "//\t" + line);
+    }
+    set console_log(val) {
+      console.log(...arguments);
     }
     /**
      * Updates the element's attribute values, renders it to the canvas, and
@@ -604,7 +608,7 @@ const P5Extension = (baseClass) =>
     updateState(inherited) {
       for (const prop in inherited) {
         if (prop in this) this[prop] = inherited[prop];
-        else this.#state[prop] = inherited[prop];
+        this.#state[prop] = inherited[prop];
       }
       const updaters = this.#updateFunctions.entries();
       for (const [attrName, updateFunction] of updaters) {
@@ -1011,7 +1015,7 @@ class Canvas extends P5Extension(HTMLCanvasElement) {
         w: 100,
         h: 100,
         d: 100,
-        s: 100,
+        size: 100,
         start_angle: 0,
         stop_angle: pInst.PI,
         vector: pInst.createVector(),
