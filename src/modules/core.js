@@ -616,6 +616,52 @@ const P5Extension = (baseClass) =>
       }
       return this.#state;
     }
+    /**
+     * Set attributes for the WebGL Drawing context.
+     * This is a way of adjusting how the WebGL
+     * renderer works to fine-tune the display and performance.
+     *
+     * Note that this will reinitialize the drawing context
+     * if set after the WebGL canvas is made.
+     *
+     * If webgl_attributes is set to an object, all attributes
+     * not declared in the object will be set to defaults.
+     *
+     * The available attributes are:
+     * <br>
+     * alpha - indicates if the canvas contains an alpha buffer
+     * default is false
+     *
+     * depth - indicates whether the drawing buffer has a depth buffer
+     * of at least 16 bits - default is true
+     *
+     * stencil - indicates whether the drawing buffer has a stencil buffer
+     * of at least 8 bits
+     *
+     * antialias - indicates whether or not to perform anti-aliasing
+     * default is false (true in Safari)
+     *
+     * premultipliedAlpha - indicates that the page compositor will assume
+     * the drawing buffer contains colors with pre-multiplied alpha
+     * default is false
+     *
+     * preserveDrawingBuffer - if true the buffers will not be cleared and
+     * and will preserve their values until cleared or overwritten by author
+     * (note that p5 clears automatically on draw loop)
+     * default is true
+     *
+     * perPixelLighting - if true, per-pixel lighting will be used in the
+     * lighting shader otherwise per-vertex lighting is used.
+     * default is true.
+     *
+     * @type {Object}
+     */
+    get webgl_attributes() {
+      return this.pInst._glAttributes;
+    }
+    set webgl_attributes(val) {
+      this.pInst.setAttributes(...arguments);
+    }
   };
 export class P5Element extends P5Extension(HTMLElement) {}
 
