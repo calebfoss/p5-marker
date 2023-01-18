@@ -476,6 +476,7 @@ const P5Extension = (baseClass) =>
           attributeName,
           () => (this[attributeName] = value)
         );
+        this[attributeName] = value;
       } else {
         this.#updateFunctions.set(attributeName, () => value);
       }
