@@ -764,9 +764,10 @@ export class RenderedElement extends P5Element {
   }
 }
 
-p5.prototype._defineCustomElement = function (pCustomEl) {
+function defineCustomElement(pCustomEl) {
   const name = pCustomEl.getAttribute("name");
-  customElements.define(
+  //  Trick custom-elements-manifest into ignoring this
+  customElements["define"](
     `p-${name}`,
     class extends P5Element {
       constructor() {
@@ -786,11 +787,10 @@ p5.prototype._defineCustomElement = function (pCustomEl) {
         );
         this.prepend(...childClones);
       }
-
       renderToCanvas = null;
     }
   );
-};
+}
 /**
  * The blank `<_>` element renders nothing to the canvas. This is useful
  * for adjusting attributes for child elements.
@@ -875,7 +875,7 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
 class Custom extends P5Element {
   constructor() {
     super();
-    if (this.attributes.length) p5.prototype._defineCustomElement(this);
+    if (this.attributes.length) defineCustomElement(this);
   }
 }
 customElements.define("p-custom", Custom);
@@ -938,7 +938,7 @@ class Sketch extends HTMLLinkElement {
     const createElementArguments = this.#xmlTagToCreateElementArguments(xmlTag);
     const pEl = document.createElement(...createElementArguments);
     this.#copyAttributes(xmlEl, pEl);
-    if (xmlTag === "custom") p5.prototype._defineCustomElement(pEl);
+    if (xmlTag === "custom") defineCustomElement(pEl);
     return pEl;
   }
   #convertAllElements(xmlEl, parent = document.body) {
