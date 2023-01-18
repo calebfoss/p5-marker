@@ -2,7 +2,8 @@ import {
   defineRendererGetterSetters,
   defineSnakeAlias,
 } from "../utils/p5Modifiers";
-import { FillStrokeElement } from "./color";
+import { RenderedElement } from "../core";
+import { addFillStroke } from "../properties/color_props";
 
 defineRendererGetterSetters(
   "textAlign",
@@ -15,7 +16,7 @@ defineRendererGetterSetters(
 
 defineSnakeAlias("textAscent", "textDescent");
 
-class Text extends FillStrokeElement {
+class Text extends addFillStroke(RenderedElement) {
   constructor() {
     super(["content, x, y, [x2], [y2]"]);
   }

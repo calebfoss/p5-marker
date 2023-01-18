@@ -3,7 +3,7 @@ import {
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
 import { RenderedElement } from "../core";
-import { StrokeElement, FillStrokeElement } from "./color";
+import { addStroke, addFillStroke } from "../properties/color_props";
 import { WebGLGeometry } from "../properties/3d_props";
 
 const transformVertexFn = (el) => (v) => {
@@ -310,7 +310,7 @@ const addXYZ1234 = (baseClass) =>
  * to specify the number of vertices that makes up the perimeter of the arc.
  * Default value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Arc extends addXY(addWidthHeight(FillStrokeElement)) {
+class Arc extends addXY(addWidthHeight(addFillStroke(RenderedElement))) {
   constructor() {
     super([
       "x, y, width, height, start_angle, stop_angle, [mode], [detail], [a]",
@@ -355,7 +355,7 @@ customElements.define("p-arc", Arc);
  * number of vertices that makes up the perimeter of the ellipse. Default
  * value is 25. Won't draw a stroke for a detail of more than 50.
  */
-class Ellipse extends addXY(addWidthHeight(FillStrokeElement)) {
+class Ellipse extends addXY(addWidthHeight(addFillStroke(RenderedElement))) {
   constructor() {
     super(["x, y, width, [height]", "x, y, width, height, [detail]"]);
   }
@@ -397,7 +397,7 @@ customElements.define("p-ellipse", Ellipse);
  * @attr {Number} y - y-coordinate of the center of the circle
  * @attr {Number} d - diameter of the circle
  */
-class Circle extends addXY(FillStrokeElement) {
+class Circle extends addXY(addFillStroke(RenderedElement)) {
   constructor() {
     super(["x, y, d"]);
   }
@@ -437,7 +437,7 @@ customElements.define("p-circle", Circle);
  * @attr {Number} z1 - z-coordinate of the first point (WEBGL mode)
  * @attr {Number} z2 - z-coordinate of the second point (WEBGL mode)
  */
-class Line extends addXYZ12(StrokeElement) {
+class Line extends addXYZ12(addStroke(RenderedElement)) {
   constructor() {
     super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
   }
@@ -484,7 +484,7 @@ customElements.define("p-line", Line);
  * @attr {Number} y - y-coordinate
  * @attr {Number} z - z-coordinate (WEBGL mode)
  */
-class Point extends addXYZ(StrokeElement) {
+class Point extends addXYZ(addStroke(RenderedElement)) {
   constructor() {
     super(["x, y, [z]"]);
   }
@@ -542,7 +542,7 @@ customElements.define("p-point", Point);
  * @attr {Number} z3 - z-coordinate of the third point (WEBGL mode)
  * @attr {Number} z4 - z-coordinate of the fourth point (WEBGL mode)
  */
-class Quad extends addXYZ1234(FillStrokeElement) {
+class Quad extends addXYZ1234(addFillStroke(RenderedElement)) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
@@ -593,7 +593,7 @@ customElements.define("p-quad", Quad);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Rect extends addXY(addWidthHeight(FillStrokeElement)) {
+class Rect extends addXY(addWidthHeight(addFillStroke(RenderedElement))) {
   constructor() {
     super([
       "x, y, width, [h], [tl], [tr], [br], [bl]",
@@ -649,7 +649,7 @@ customElements.define("p-rect", Rect);
  * @attr  {Number} br - radius of bottom-right corner.
  * @attr  {Number} bl - radius of bottom-left corner.
  */
-class Square extends addXY(FillStrokeElement) {
+class Square extends addXY(addFillStroke(RenderedElement)) {
   #size;
   constructor() {
     super(["x, y, size, [tl], [tr], [br], [bl]"]);
@@ -695,7 +695,7 @@ class Square extends addXY(FillStrokeElement) {
   }
 }
 customElements.define("p-square", Square);
-class Triangle extends addXY123(FillStrokeElement) {
+class Triangle extends addXY123(addFillStroke(RenderedElement)) {
   constructor() {
     const overloads = ["x1, y1, x2, y2, x3, y3"];
     super(overloads);
@@ -728,7 +728,7 @@ class Triangle extends addXY123(FillStrokeElement) {
   }
 }
 customElements.define("p-triangle", Triangle);
-class Bezier extends addXYZ1234(FillStrokeElement) {
+class Bezier extends addXYZ1234(addFillStroke(RenderedElement)) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -737,7 +737,7 @@ class Bezier extends addXYZ1234(FillStrokeElement) {
   }
 }
 customElements.define("p-bezier", Bezier);
-class Curve extends addXYZ1234(FillStrokeElement) {
+class Curve extends addXYZ1234(addFillStroke(RenderedElement)) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -746,7 +746,7 @@ class Curve extends addXYZ1234(FillStrokeElement) {
   }
 }
 customElements.define("p-curve", Curve);
-class Contour extends FillStrokeElement {
+class Contour extends addFillStroke(RenderedElement) {
   constructor() {
     super([""], "beginContour");
   }
@@ -755,7 +755,7 @@ class Contour extends FillStrokeElement {
   }
 }
 customElements.define("p-contour", Contour);
-class Shape extends FillStrokeElement {
+class Shape extends addFillStroke(RenderedElement) {
   constructor() {
     super(["[kind]"], "beginShape");
   }

@@ -1,7 +1,7 @@
 "use strict";
 import "./core";
 import "./modules/environment";
-import "./modules/color";
+import "./elements/color_elements";
 import "./modules/collide";
 import "./modules/shape";
 import "./modules/structure";

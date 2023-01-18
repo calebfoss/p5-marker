@@ -1,11 +1,12 @@
-import { FillStrokeElement } from "../modules/color";
+import { RenderedElement } from "../core";
+import { addFillStroke } from "../properties/color_props";
 
 p5.prototype.DEFAULT = "default";
 p5.prototype.AMBIENT = "ambient";
 p5.prototype.SPECULAR = "specular";
 p5.prototype.EMISSIVE = "emissive";
 
-export class WebGLGeometry extends FillStrokeElement {
+export class WebGLGeometry extends addFillStroke(RenderedElement) {
   #ambient_material;
   #emissive_material;
   #shininess;
@@ -223,7 +224,7 @@ export class WebGLGeometry extends FillStrokeElement {
   }
 }
 
-export class WebGLLight extends FillStrokeElement {
+export class WebGLLight extends RenderedElement {
   draw(inherited) {
     //  Set no_lights to false so that children won't delete this light
     super.draw({ ...inherited, ...{ no_lights: false } });
