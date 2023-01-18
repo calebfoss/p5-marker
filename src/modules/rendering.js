@@ -12,11 +12,6 @@ defineProperties({
       this.blendMode(val);
     },
   },
-  drawing_context: {
-    get: function () {
-      return this.drawingContext;
-    },
-  },
   set_webgl_attr: {
     set: function () {
       this.setAttributes(...arguments);

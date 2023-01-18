@@ -308,6 +308,33 @@ const P5Extension = (baseClass) =>
       this.pInst.pop();
     }
     /**
+     * The p5.js API provides a lot of functionality for creating graphics, but
+     * there is some native HTML5 Canvas functionality that is not exposed by
+     * p5.
+     *
+     * You can still assign to
+     * it directly using the property `drawing_context`. This is
+     * the equivalent of calling `canvas.getContext('2d');` or
+     * `canvas.getContext('webgl');` and then calling Object.assign on the
+     * result.
+     * See this
+     * <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D">
+     * reference for the native canvas API</a> for possible drawing functions
+     * you can call.
+     *
+     * ```xml
+     * <_ drawing_context="shadowOffsetX: 5, shadowOffsetY: -5, shadowBlur: 10,
+     * shadowColor: 'black'" />
+     * ```
+     * @type {Object}
+     */
+    get drawing_context() {
+      return this.pInst.drawingContext;
+    }
+    set drawing_context(obj) {
+      Object.assign(this.pInst.drawingContext, obj);
+    }
+    /**
      * Name of the HTML element generated from this class.
      * @type {string}
      */
