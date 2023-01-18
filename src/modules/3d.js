@@ -225,7 +225,12 @@ export class WebGLGeometry extends FillStrokeElement {
   }
 }
 
-export class WebGLLight extends FillStrokeElement {}
+export class WebGLLight extends FillStrokeElement {
+  draw(inherited) {
+    //  Set no_lights to false so that children won't delete this light
+    super.draw({ ...inherited, ...{ no_lights: false } });
+  }
+}
 
 const addSpecularColor = (baseClass) =>
   class extends baseClass {
