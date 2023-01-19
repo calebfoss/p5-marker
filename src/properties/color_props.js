@@ -8,6 +8,7 @@ export const addColorConstants = (baseClass) =>
 export const addStroke = (baseClass) =>
   class extends baseClass {
     #stroke;
+    #stroke_weight;
     /**
      * Sets the color used to draw lines and borders around shapes. This color
      * is either a <a href="#/p5.Color">p5.Color</a> object or a comma
@@ -27,6 +28,23 @@ export const addStroke = (baseClass) =>
           ? pInst._renderer.curStrokeColor
           : pInst.drawingContext.strokeStyle
       );
+    }
+    /**
+     * Sets the width of the stroke used for lines, points and the border around
+     * shapes. All widths are set in units of pixels.
+     *
+     * Note that it is affected by any transformation or scaling that has
+     * been applied previously.
+     * @type {number}
+     */
+    get stroke_weight() {
+      return this.#stroke_weight;
+    }
+    set stroke_weight(val) {
+      this.pInst.strokeWeight(val);
+      this.#stroke_weight = this.pInst._renderer.isP3D
+        ? this.pInst._renderer.curStrokeWeight
+        : this.pInst.drawingContext.lineWidth;
     }
   };
 

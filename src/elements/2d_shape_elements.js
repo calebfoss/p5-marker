@@ -4,11 +4,16 @@ import {
   addXY,
   addXYZ,
   addXYZ12,
-  addY3,
   addXY123,
+  addXYZ1234,
   addWidthHeight,
   addRectMode,
+  add2DStrokeStyling,
 } from "../properties/shape_props";
+
+const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
+const add2DFillStroke = (baseClass) =>
+  addFillStroke(add2DStrokeStyling(baseClass));
 
 const transformVertexFn = (el) => (v) => {
   const originalPoint = new DOMPoint(v.x, v.y);
@@ -19,54 +24,6 @@ const transformVertexFn = (el) => (v) => {
   return el.pInst.createVector(x, y);
 };
 
-const addXYZ1234 = (baseClass) =>
-  class extends addXYZ12(addY3(baseClass)) {
-    #z3;
-    #z4;
-    #y4;
-    /**
-     * The fourth y-coordinate of the element relative to the current anchor.
-     * @type {number}
-     */
-    get y4() {
-      return this.#y4;
-    }
-    set y4(val) {
-      if (!isNaN(val)) this.#y4 = val;
-      else
-        console.error(
-          `${this.tagName}'s y4 is being set to ${val}, but it may only be set to a number.`
-        );
-    }
-    /**
-     * The first x-coordinate of the element relative to the current anchor.
-     * @type {number}
-     */
-    get z3() {
-      return this.#z3;
-    }
-    set z3(val) {
-      if (!isNaN(val)) this.#z3 = val;
-      else
-        console.error(
-          `${this.tagName}'s z3 is being set to ${val}, but it may only be set to a number.`
-        );
-    }
-    /**
-     * The fourth z-coordinate of the element relative to the current anchor.
-     * @type {number}
-     */
-    get z4() {
-      return this.#z4;
-    }
-    set z4(val) {
-      if (!isNaN(val)) this.#z4 = val;
-      else
-        console.error(
-          `${this.tagName}'s z4 is being set to ${val}, but it may only be set to a number.`
-        );
-    }
-  };
 /**
  * Draws an arc to the screen. If called with only x, y, w, h, start and stop
  * the arc will be drawn and filled as an open pie segment. If a mode
@@ -82,7 +39,7 @@ const addXYZ1234 = (baseClass) =>
  * positive x-direction ("3 o'clock").
  * @element arc
  */
-class Arc extends addXY(addWidthHeight(addFillStroke(RenderedElement))) {
+class Arc extends addXY(addWidthHeight(add2DFillStroke(RenderedElement))) {
   constructor() {
     super([
       "x, y, width, height, start_angle, stop_angle, [mode], [detail], [a]",
@@ -159,7 +116,7 @@ customElements.define("p-ellipse", Ellipse);
  * point, the center.
  * @element circle
  */
-class Circle extends addXY(addFillStroke(RenderedElement)) {
+class Circle extends addXY(add2DFillStroke(RenderedElement)) {
   constructor() {
     super(["x, y, d"]);
   }
@@ -193,7 +150,7 @@ customElements.define("p-circle", Circle);
  * line. So to color a line, use the stroke attribute.
  * @element line
  */
-class Line extends addXYZ12(addStroke(RenderedElement)) {
+class Line extends addXYZ12(add2DStroke(RenderedElement)) {
   constructor() {
     super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
   }
@@ -237,7 +194,7 @@ customElements.define("p-line", Line);
  * the point can be changed with the stroke_weight attribute.
  * @element point
  */
-class Point extends addXYZ(addStroke(RenderedElement)) {
+class Point extends addXYZ(add2DStroke(RenderedElement)) {
   constructor() {
     super(["x, y, [z]"]);
   }
@@ -281,7 +238,7 @@ customElements.define("p-point", Point);
  * quad() is used in WEBGL mode.
  * @element quad
  */
-class Quad extends addXYZ1234(addFillStroke(RenderedElement)) {
+class Quad extends addXYZ1234(add2DFillStroke(RenderedElement)) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
@@ -325,7 +282,7 @@ customElements.define("p-quad", Quad);
  * @element rect
  */
 class Rect extends addXY(
-  addWidthHeight(addRectMode(addFillStroke(RenderedElement)))
+  addWidthHeight(addRectMode(add2DFillStroke(RenderedElement)))
 ) {
   constructor() {
     super([
@@ -375,7 +332,7 @@ customElements.define("p-rect", Rect);
  *
  * @element square
  */
-class Square extends addXY(addRectMode(addFillStroke(RenderedElement))) {
+class Square extends addXY(addRectMode(add2DFillStroke(RenderedElement))) {
   #size;
   constructor() {
     super(["x, y, size, [tl], [tr], [br], [bl]"]);
@@ -428,7 +385,7 @@ customElements.define("p-square", Square);
  * third point.
  * @element triangle
  */
-class Triangle extends addXY123(addFillStroke(RenderedElement)) {
+class Triangle extends addXY123(add2DFillStroke(RenderedElement)) {
   constructor() {
     const overloads = ["x1, y1, x2, y2, x3, y3"];
     super(overloads);
@@ -476,7 +433,7 @@ customElements.define("p-triangle", Triangle);
  * ```<curve>``` element.
  * @element bezier
  */
-class Bezier extends addXYZ1234(addFillStroke(RenderedElement)) {
+class Bezier extends addXYZ1234(add2DFillStroke(RenderedElement)) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -485,7 +442,7 @@ class Bezier extends addXYZ1234(addFillStroke(RenderedElement)) {
   }
 }
 customElements.define("p-bezier", Bezier);
-class Curve extends addXYZ1234(addFillStroke(RenderedElement)) {
+class Curve extends addXYZ1234(add2DFillStroke(RenderedElement)) {
   constructor() {
     super([
       "x1, y1, x2, y2, x3, y3, x4, y4",
@@ -494,7 +451,7 @@ class Curve extends addXYZ1234(addFillStroke(RenderedElement)) {
   }
 }
 customElements.define("p-curve", Curve);
-class Contour extends addFillStroke(RenderedElement) {
+class Contour extends add2DFillStroke(RenderedElement) {
   constructor() {
     super([""], "beginContour");
   }
@@ -503,7 +460,7 @@ class Contour extends addFillStroke(RenderedElement) {
   }
 }
 customElements.define("p-contour", Contour);
-class Shape extends addFillStroke(RenderedElement) {
+class Shape extends add2DFillStroke(RenderedElement) {
   constructor() {
     super(["[kind]"], "beginShape");
   }

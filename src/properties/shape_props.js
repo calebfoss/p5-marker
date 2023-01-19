@@ -186,12 +186,12 @@ export const addY3 = (baseClass) =>
 export const addXY123 = (baseClass) =>
   class extends addXY12(addY3(baseClass)) {};
 
-export const addXYZ12 = (baseClass) =>
-  class extends addXY12(baseClass) {
+const addZ12 = (baseClass) =>
+  class extends baseClass {
     #z1;
     #z2;
     /**
-     * The first x-coordinate of the element relative to the current anchor.
+     * The first z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
      */
     get z1() {
@@ -205,7 +205,7 @@ export const addXYZ12 = (baseClass) =>
         );
     }
     /**
-     * The second x-coordinate of the element relative to the current anchor.
+     * The second z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
      */
     get z2() {
@@ -219,6 +219,9 @@ export const addXYZ12 = (baseClass) =>
         );
     }
   };
+
+export const addXYZ12 = (baseClass) =>
+  class extends addXY12(addZ12(baseClass)) {};
 
 export const addRectMode = (baseClass) =>
   class extends baseClass {
@@ -255,5 +258,113 @@ export const addRectMode = (baseClass) =>
     set rect_mode(mode) {
       this.pInst.rectMode(mode);
       this.#rect_mode = this.pInst._renderer._rectMode;
+    }
+  };
+
+export const add2DStrokeStyling = (baseClass) =>
+  class extends baseClass {
+    #smooth = true;
+    #stroke_cap = "round";
+    #stroke_join = "miter";
+    /**
+     * smooth="true" draws all geometry with smooth (anti-aliased) edges. smooth="true" will also
+     * improve image quality of resized images. smooth is true by
+     * default on a 2D canvas. smooth="false" can be used to disable smoothing of geometry,
+     * images, and fonts.
+     * @type {boolean}
+     */
+    get smooth() {
+      return this.#smooth;
+    }
+    set smooth(val) {
+      if (typeof val !== "boolean")
+        return console.error(
+          `${this.tagName}'s smooth property is being set to ${val}, but it may only be set to true or false.`
+        );
+      if (val) this.pInst.smooth();
+      else this.pInst.noSmooth();
+      this.#smooth = val;
+    }
+    /**
+     * Sets the style for rendering line endings. These ends are either rounded,
+     * squared or extended, each of which specified with the corresponding
+     * parameters: ROUND, SQUARE and PROJECT. The default cap is ROUND.
+     *
+     * The value on this property must be written in ALL CAPS because they are
+     * predefined as constants in ALL CAPS.
+     * @type {ROUND|SQUARE|PROJECT}
+     */
+    get stroke_cap() {
+      return this.#stroke_cap;
+    }
+    set stroke_cap(val) {
+      this.pInst.strokeCap(val);
+      this.#stroke_cap = this.pInst.drawingContext.lineCap;
+    }
+    /**
+     * Sets the style of the joints which connect line segments. These joints
+     * are either mitered, beveled or rounded and specified with the
+     * corresponding parameters MITER, BEVEL and ROUND. The default joint is
+     * MITER.
+     *
+     * The parameter to this method must be written in ALL CAPS because they are
+     * predefined as constants in ALL CAPS.
+     * @type {MITER|BEVEL|ROUND}
+     */
+    get stroke_join() {
+      return this.#stroke_join;
+    }
+    set stroke_join(val) {
+      this.pInst.strokeJoin(val);
+      this.#stroke_join = this.pInst.drawingContext.lineJoin;
+    }
+  };
+
+export const addXYZ1234 = (baseClass) =>
+  class extends addY3(addXYZ12(baseClass)) {
+    #z3;
+    #z4;
+    #y4;
+    /**
+     * The fourth y-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get y4() {
+      return this.#y4;
+    }
+    set y4(val) {
+      if (!isNaN(val)) this.#y4 = val;
+      else
+        console.error(
+          `${this.tagName}'s y4 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The third z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * @type {number}
+     */
+    get z3() {
+      return this.#z3;
+    }
+    set z3(val) {
+      if (!isNaN(val)) this.#z3 = val;
+      else
+        console.error(
+          `${this.tagName}'s z3 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The fourth z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * @type {number}
+     */
+    get z4() {
+      return this.#z4;
+    }
+    set z4(val) {
+      if (!isNaN(val)) this.#z4 = val;
+      else
+        console.error(
+          `${this.tagName}'s z4 is being set to ${val}, but it may only be set to a number.`
+        );
     }
   };

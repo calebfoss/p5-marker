@@ -28,12 +28,25 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
 class WebGLCanvas extends addCanvasMethods(
   addCanvasProperties(addP5PropsAndMethods(HTMLCanvasElement))
 ) {
+  #bezier_detail;
+  #curve_detail;
   #debug_mode;
   #orbit_control;
   static renderer = "webgl";
   constructor() {
     super();
     window.addEventListener("customElementsDefined", this.runCode.bind(this));
+  }
+  /**
+   * Sets the resolution at which Bezier's curve is displayed. The default value is 20.
+   * @type {number}
+   */
+  get bezier_detail() {
+    return this.#bezier_detail;
+  }
+  set bezier_detail(val) {
+    this.pInst.bezierDetail(val);
+    this.#bezier_detail = this.pInst._bezierDetail;
   }
   /**
    * Sets the current (active) camera of a 3D sketch.
@@ -53,6 +66,18 @@ class WebGLCanvas extends addCanvasMethods(
     if (val instanceof p5.Camera) pInst.setCamera(val);
     else if (Array.isArray(val)) pInst.camera(...val);
     else pInst.camera(val);
+  }
+  /**
+   * Sets the resolution at which curves display. The default value is 20 while
+   * the minimum value is 3.
+   * @type {number}
+   */
+  get curve_detail() {
+    return this.#curve_detail;
+  }
+  set curve_detail(val) {
+    this.pInst.curveDetail(val);
+    this.#curve_detail = this.pInst._curveDetail;
   }
   /**
    * debug_mode helps visualize 3D space by adding a grid to indicate where the

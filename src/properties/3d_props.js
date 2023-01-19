@@ -295,3 +295,65 @@ export const addLightFalloff = (baseClass) =>
       ];
     }
   };
+
+export const addRectMode = (baseClass) =>
+  class extends baseClass {
+    #rect_mode;
+    /**
+     * Modifies the location from which rectangles are drawn by changing the way
+     * in which x and y coordinates are interpreted.
+     *
+     * The default mode is CORNER, which interprets the x and y as the
+     * upper-left corner of the shape.
+     *
+     * rect_mode="CORNERS" interprets x and y as the location of
+     * one of the corners, and width and height as the location of
+     * the diagonally opposite corner. Note, the rectangle is drawn between the
+     * coordinates, so it is not necessary that the first corner be the upper left
+     * corner.
+     *
+     * rect_mode="CENTER" interprets x and y as the shape's center
+     * point.
+     *
+     * rect_mode="RADIUS" also uses x and y as the shape's
+     * center
+     * point, but uses width and height to specify half of the shape's
+     * width and height respectively.
+     *
+     * The value to this property must be written in ALL CAPS because they are
+     * predefined as constants in ALL CAPS.
+     *
+     * @type {CORNER|CORNERS|CENTER|RADIUS}
+     */
+    get rect_mode() {
+      return this.#rect_mode;
+    }
+    set rect_mode(mode) {
+      this.pInst.rectMode(mode);
+      this.#rect_mode = this.pInst._renderer._rectMode;
+    }
+  };
+
+export const add3DShapeStyling = (baseClass) =>
+  class extends baseClass {
+    #smooth = false;
+    /**
+     * smooth="true" draws all geometry with smooth (anti-aliased) edges. smooth="true" will also
+     * improve image quality of resized images. On a 3D canvas, smooth is false
+     * by default, so it is necessary to set smooth="true" if you would like
+     * smooth (antialiased) edges on your geometry.
+     * @type {boolean}
+     */
+    get smooth() {
+      return this.#smooth;
+    }
+    set smooth(val) {
+      if (typeof val !== "boolean")
+        return console.error(
+          `${this.tagName}'s smooth property is being set to ${val}, but it may only be set to true or false.`
+        );
+      if (val) this.pInst.smooth();
+      else this.pInst.noSmooth();
+      this.#smooth = val;
+    }
+  };
