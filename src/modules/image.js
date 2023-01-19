@@ -3,7 +3,7 @@ import {
   defineRendererGetterSetters,
 } from "../utils/p5Modifiers";
 import { RenderedElement } from "../core";
-import { addWidthHeight, addXY } from "./shape";
+import { addWidthHeight, addXY } from "../properties/shape_props";
 
 /**
  * Draw an image to the canvas.
