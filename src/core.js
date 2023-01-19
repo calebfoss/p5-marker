@@ -2,8 +2,6 @@ import { pascalToKebab, kebabToCamel } from "./utils/caseConvert";
 import { AttrParseUtil } from "./utils/attrParse";
 import { wrapMethod, defineProperties } from "./utils/p5Modifiers";
 import { addWebGLMethods } from "./methods/3d_methods";
-import { addCanvasProperties } from "./properties/canvas_props";
-import { addCanvasMethods } from "./methods/canvas_methods";
 import { addColorConstants } from "./properties/color_props";
 import { addColorMethods } from "./methods/color_methods";
 import { addEnvironmentProps } from "./properties/environment_props";
