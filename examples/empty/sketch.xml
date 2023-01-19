@@ -1,6 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="100" height="100" background="220">
-    <square x="25" y="25" size="50" fill="180, 40, 20">
-        <circle d="25" />
-    </square>
-</canvas>
+<canvas width="400" height="400" background="220"></canvas>
