@@ -836,35 +836,6 @@ class _ extends P5Element {
 customElements.define("p-_", _);
 
 /**
- * The `<canvas>` element is a rectangular area of the window for rendering
- * imagery. All child elements are rendered to the canvas.
- * @element canvas
- * @attribute {Number} width - Width of the canvas in pixels
- * @attribute {Number} height - Height of the canvas in pixels
- * @attribute {p5.Color|String|Number, [Number]|Number, Number, Number, [Number]|p5.Image,
- * [Number]} canvas_background
- * Sets the background that is rendered at the start of each frame. This may be a color
- * or an image. The default background is NONE (transparent). The color is either specified in
- * terms of the RGB, HSB, or HSL color depending on the current color_mode. The values are the
- * same as the parameters for <a href="https://p5js.org/reference/#/p5/color" target="_blank">color()</a>.
- *
- * If the attribute is set to a single string, RGB, RGBA and Hex CSS color strings and
- * all named color strings are supported. In this case, an alpha number value as a second
- * value is not supported, the RGBA form should be used.
- */
-export class Canvas extends addCanvasMethods(
-  addCanvasProperties(addP5PropsAndMethods(HTMLCanvasElement))
-) {
-  static renderer = "p2d";
-
-  constructor() {
-    super();
-    window.addEventListener("customElementsDefined", this.runCode.bind(this));
-  }
-}
-customElements.define("p-canvas", Canvas, { extends: "canvas" });
-
-/**
  * The `<custom>` element generates a new element from a combination of existing
  * elements. This element should be placed outside the <canvas> element. The name attribute defines the name of the new element. For
  * example, if name is set to "my-element," <my-element>

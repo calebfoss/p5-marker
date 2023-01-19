@@ -1,5 +1,6 @@
 "use strict";
 import "./core";
+import "./elements/canvas_elements";
 import "./modules/environment";
 import "./elements/color_elements";
 import "./modules/collide";
