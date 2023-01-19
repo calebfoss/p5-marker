@@ -10,8 +10,8 @@ Featuring collision detection using the [p5.collide2D](https://github.com/bmoren
 - [Syntax](#syntax)
 - [Core Concepts](#core-concepts)
   - [Elements](#elements)
-  - [Attributes](#attributes)
-  - [Functions](#functions)
+  - [Properties](#properties)
+  - [Methods](#methods)
 - [Logic](#logic)
   - [Conditions](#conditions)
   - [Branching](#branching)
@@ -65,12 +65,12 @@ Here's how to produce that same example in Marker:
   height="400"
   square_angle="0"
   angle_mode="DEGREES"
-  canvas_background="20"
+  background="20"
   stroke="NONE"
 >
   <square
     anchor="width / 2, height / 2"
-    s="200"
+    size="200"
     rect_mode="CENTER"
     fill="180, 40, 20"
     angle="square_angle"
@@ -88,9 +88,9 @@ My target audience for Marker are folks focused on creative work, rather than le
 
 ## Syntax
 
-Attribute values are evaluated as JavaScript, so JS syntax applies.
+Property values are evaluated as JavaScript, so JS syntax applies.
 
-All names are written in snake case, which looks_like_this: all lowercase with words separated by underscores. This is because DOM attributes are case insensitive.
+All names are written in snake case, which looks_like_this: all lowercase with words separated by underscores. This is because DOM properties are case insensitive.
 
 ## Core concepts
 
@@ -108,42 +108,42 @@ Examples:
 - \<text>
 - \<image>
 
-### Attributes
+### Properties
 
-Style settings, transformations, parameters, and variables are all represented by attributes.
+Style settings, transformations, parameters, and variables are all represented by properties.
 
-The general rule is that the required parameters for a p5.js method are required attributes on its corresponding Marker element.
+The general rule is that the required parameters for a p5.js method are required properties on its corresponding Marker element.
 
-For example, the square() p5.js method requires x, y, and s parameters, so the \<square> Marker elements, requires attributes with those same names:
-
-```
-<square x="100" y="100" s="50" />
-```
-
-Attributes are passed down to an element's children.
+For example, the square() p5.js method requires x, y, and s parameters, so the \<square> Marker elements, requires properties with those same names:
 
 ```
-<square x="100" y="100" s="50">
+<square x="100" y="100" size="50" />
+```
+
+Properties are passed down to an element's children.
+
+```
+<square x="100" y="100" size="50">
   <circle d="25" />
 </square>
 ```
 
 ![a square with upper left corner at (100, 100) and size 50 and a circle with its center at the same position with diameter 25](img/childExample.png)
 
-You can reference attributes from parents (grandparents, etc.).
+You can reference properties from parents (grandparents, etc.).
 
 ```
-<square x="25" y="25" s="50">
+<square x="25" y="25" size="50">
   <circle x="x + 50" d="25" />
 </square>
 ```
 
 ![a square with upper left corner at (100, 100) and size 50 and a circle with its center 50 pixels to right of the square's upper left corner with diameter 25](img/childExample2.png)
 
-Attributes can be set to multiple values, separated by commas.
+Properties can be set to multiple values, separated by commas.
 
 ```
-<square x="25" y="25" s="50" fill="180, 40, 20">
+<square x="25" y="25" size="50" fill="180, 40, 20">
   <circle d="25" />
 </square>
 <circle x="75" y="25" d="50" />
@@ -151,15 +151,15 @@ Attributes can be set to multiple values, separated by commas.
 
 ![Red square with small red circle over its upper left corner and large white circle over its upper right corner](img/childExample3.png)
 
-### Functions
+### Methods
 
-Functions are called within attribute values to calculate a value.
+Methods are called within property values to calculate a value.
 
-p5.js functions that return a value, rather than render something to the canvas, have a snake case alias.
+p5.js methods that return a value, rather than render something to the canvas, have a snake case alias.
 
 ```
 <canvas width="100" height="100" background="255">
-    <square x="25" y="25" s="50" fill="0">
+    <square x="25" y="25" size="50" fill="0">
         <circle d="25" fill="lerp_color(fill, canvas.background, 0.5)" />
     </square>
 </canvas>
@@ -171,7 +171,7 @@ p5.js functions that return a value, rather than render something to the canvas,
 
 ### Conditions
 
-Because pointy brackets (< >) and ampersands (&) may not be used in an XML attribute's value, Marker uses the following
+Because pointy brackets (< >) and ampersands (&) may not be used in an XML property's value, Marker uses the following
 escape sequences instead:
 |escape sequence|replaces
 |--|--
@@ -184,9 +184,9 @@ escape sequences instead:
 
 ### Branching
 
-The "on" attribute is evaluated before any other attributes. If and only if its value is true, the element's other attributes will be evaluated, the element will be rendered, and the element's children will be evaluated and rendered.
+The "on" property is evaluated before any other properties. If and only if its value is true, the element's other properties will be evaluated, the element will be rendered, and the element's children will be evaluated and rendered.
 
-The above_siblings_off property is true if the siblings directly above the element either have "on" set to false or do not have an "on" attribute. This may be used to switch between sibling elements based on conditions, similar to if/else.
+The above_siblings_off property is true if the siblings directly above the element either have "on" set to false or do not have an "on" property. This may be used to switch between sibling elements based on conditions, similar to if/else.
 
 ```
   <circle
@@ -214,26 +214,26 @@ The above_siblings_off property is true if the siblings directly above the eleme
 
 ### Iteration
 
-Elements and their children can be iterated using two attributes in combination: "repeat" and "change".
+Elements and their children can be iterated using two properties in combination: "repeat" and "change".
 
 Repeat's value is a boolean evaluated with each iteration. If the value is true, the element and its
 children will be iterated again. The WHILE and UNTIL escapes can be used to improve legibility
 (e.g. repeat="WHILE x LESS_THAN width" or repeat="UNTIL x AT_LEAST width"). UNTIL is the equivalent of
 wrapping the proceeding condition with !(). WHILE serves no programmatic purpose.
 
-Change's value is an object literal. Each property key is the name of an attribute, and the corresponding
-value represents what that attribute will be set to with each iteration. The curly brackets may be omitted
-in the change attributes value (e.g. change="x: x + 1").
+Change's value is an object literal. Each property key is the name of a property, and the corresponding
+value represents what that property will be set to with each iteration. The curly brackets may be omitted
+in the change properties value (e.g. change="x: x + 1").
 
 ```
 <_
     x="0"
     y="0"
-    w="width / 10"
-    h="height / 10"
+    width="canvas.width / 10"
+    height="canvas.height / 10"
     change="x: x + w"
-    repeat="UNTIL x AT_LEAST width">
-    <rect change="y: y + h" repeat="UNTIL y AT_LEAST height"></rect>
+    repeat="UNTIL x AT_LEAST canvas.width">
+    <rect change="y: y + h" repeat="UNTIL y AT_LEAST canvas.height"></rect>
 </_>
 ```
 
