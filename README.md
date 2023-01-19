@@ -110,27 +110,29 @@ Examples:
 
 ### Properties
 
-Style settings, transformations, parameters, and variables are all represented by properties.
+Properties change the way an element is rendered.
 
 The general rule is that the required parameters for a p5.js method are required properties on its corresponding Marker element.
 
-For example, the square() p5.js method requires x, y, and s parameters, so the \<square> Marker elements, requires properties with those same names:
+For example, \<square> has x, y, and size properties, which adjust its horizontal position, vertical position, and size respectively.
 
 ```
-<square x="100" y="100" size="50" />
+<square x="25" y="25" size="50" />
 ```
 
-Properties are passed down to an element's children.
+![a square centered in the 100x100px canvas with its upper left corner at (25, 25)](img/squareExample.png)
+
+Property values are passed down to an element's children.
 
 ```
-<square x="100" y="100" size="50">
+<square x="25" y="100" size="50">
   <circle d="25" />
 </square>
 ```
 
 ![a square with upper left corner at (100, 100) and size 50 and a circle with its center at the same position with diameter 25](img/childExample.png)
 
-You can reference properties from parents (grandparents, etc.).
+Elements can reference property values passed down from parents. Elements cannot reference their own properties.
 
 ```
 <square x="25" y="25" size="50">
@@ -146,10 +148,19 @@ Properties can be set to multiple values, separated by commas.
 <square x="25" y="25" size="50" fill="180, 40, 20">
   <circle d="25" />
 </square>
-<circle x="75" y="25" d="50" />
 ```
 
 ![Red square with small red circle over its upper left corner and large white circle over its upper right corner](img/childExample3.png)
+
+An element can change the properties of elements above it on the XML document. This change will override the target element's initially set property value. This can be used for animation.
+
+```
+<square x="0" y="25" size="50">
+  <_ parent_element.x="x + 1" />
+</square>
+```
+
+![Square moving across the canvas from left to right](img/animationExample.gif)
 
 ### Methods
 
