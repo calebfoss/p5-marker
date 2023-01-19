@@ -92,11 +92,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  delta_time: {
-    get: function () {
-      return this.deltaTime;
-    },
-  },
   display_width: {
     get: function () {
       return this.displayWidth;
