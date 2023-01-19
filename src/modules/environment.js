@@ -92,16 +92,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  display_width: {
-    get: function () {
-      return this.displayWidth;
-    },
-  },
-  display_height: {
-    get: function () {
-      return this.displayHeight;
-    },
-  },
   frame_count: {
     get: function () {
       return this.frameCount;

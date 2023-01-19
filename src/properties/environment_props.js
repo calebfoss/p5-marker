@@ -14,4 +14,21 @@ export const addEnvironmentProps = (baseClass) =>
     get delta_time() {
       return this.pInst.deltaTime;
     }
+    /**
+     * screen stores information about the screen displaying the canvas.
+     * To get the dimensions of the screen, use:
+     * ```
+     * screen.width
+     * screen.height
+     * ```
+     * screen is available in any browser and is not specific to this
+     * library.
+     * The full documentation is here:
+     * https://developer.mozilla.org/en-US/docs/Web/API/Screen
+     * (read-only)
+     * @readonly
+     */
+    get screen() {
+      return screen;
+    }
   };
