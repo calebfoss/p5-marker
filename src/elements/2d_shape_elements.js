@@ -7,6 +7,7 @@ import {
   addY3,
   addXY123,
   addWidthHeight,
+  addRectMode,
 } from "../properties/shape_props";
 
 const transformVertexFn = (el) => (v) => {
@@ -323,7 +324,9 @@ customElements.define("p-quad", Quad);
  * value of the previously specified radius value in the attribute list.
  * @element rect
  */
-class Rect extends addXY(addWidthHeight(addFillStroke(RenderedElement))) {
+class Rect extends addXY(
+  addWidthHeight(addRectMode(addFillStroke(RenderedElement)))
+) {
   constructor() {
     super([
       "x, y, width, [h], [tl], [tr], [br], [bl]",
@@ -372,7 +375,7 @@ customElements.define("p-rect", Rect);
  *
  * @element square
  */
-class Square extends addXY(addFillStroke(RenderedElement)) {
+class Square extends addXY(addRectMode(addFillStroke(RenderedElement))) {
   #size;
   constructor() {
     super(["x, y, size, [tl], [tr], [br], [bl]"]);
