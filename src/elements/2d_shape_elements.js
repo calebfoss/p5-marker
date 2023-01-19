@@ -24,12 +24,87 @@ const transformVertexFn = (el) => (v) => {
   return el.pInst.createVector(x, y);
 };
 
+const addArcProps = (baseClass) =>
+  class extends baseClass {
+    #start_angle;
+    #stop_angle;
+    #mode;
+    #detail;
+    constructor() {
+      super(["x, y, width, height, start_angle, stop_angle, [mode], [detail]"]);
+    }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, width, height, start_angle, stop_angle } = this;
+      console.assert(
+        width === height,
+        "mouse_over currently only works for arc's with equal width and height."
+      );
+      const arcRadius = width / 2;
+      const arcAngle = stop_angle - start_angle;
+      const arcRotation = start_angle + arcAngle / 2;
+
+      return this.pInst.collide_point_arc(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        arcRadius,
+        arcRotation,
+        arcAngle
+      );
+    }
+    /**
+     * Angle to start the arc. Units are radians by default but may be changed
+     * to degrees with the degree_mode property.
+     * @type {number}
+     */
+    get start_angle() {
+      return this.#start_angle;
+    }
+    set start_angle(val) {
+      this.#start_angle = val;
+    }
+    /**
+     * Angle to stop the arc. Units are radians by default but may be changed
+     * to degrees with the degree_mode property.
+     * @type {number}
+     */
+    get stop_angle() {
+      return this.#stop_angle;
+    }
+    set stop_angle(val) {
+      this.#stop_angle = val;
+    }
+    /**
+     * determines the way of drawing the arc:
+     * - OPEN - like an open semi-circle
+     * - CHORD - closed semi-circle
+     * - PIE - closed pie segment
+     * @type {CHORD|PIE|OPEN}
+     */
+    get mode() {
+      return this.#mode;
+    }
+    set mode(val) {
+      this.#mode = val;
+    }
+    /**
+     * 3D mode only. This is to specify the number of vertices that makes up the
+     * perimeter of the arc. Default value is 25. Won't draw a stroke for a detail
+     * of more than 50. (on 3D canvas only)
+     * @type {number}
+     */
+    get detail() {
+      return this.#detail;
+    }
+    set detail(val) {
+      this.#detail = val;
+    }
+  };
 /**
- * Draws an arc to the screen. If called with only x, y, w, h, start and stop
- * the arc will be drawn and filled as an open pie segment. If a mode
- * parameter is provided, the arc will be filled like an open semi-circle
- * (OPEN), a closed semi-circle (CHORD), or as a closed pie segment (PIE).
- * The origin may be changed with the ellipseMode() function.
+ * Draws an arc to the screen.
+ * The origin may be changed with the ellipse_mode property.
  *
  * The arc is always drawn clockwise from wherever start falls to wherever
  * stop falls on the ellipse. Adding or subtracting TWO_PI to either angle
@@ -39,34 +114,9 @@ const transformVertexFn = (el) => (v) => {
  * positive x-direction ("3 o'clock").
  * @element arc
  */
-class Arc extends addXY(addWidthHeight(add2DFillStroke(RenderedElement))) {
-  constructor() {
-    super([
-      "x, y, width, height, start_angle, stop_angle, [mode], [detail], [a]",
-    ]);
-  }
-  get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, width, height, start_angle, stop_angle } = this;
-    console.assert(
-      width === height,
-      "mouse_over currently only works for arc's with equal width and height."
-    );
-    const arcRadius = width / 2;
-    const arcAngle = stop_angle - start_angle;
-    const arcRotation = start_angle + arcAngle / 2;
-
-    return this.pInst.collide_point_arc(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
-      x,
-      y,
-      arcRadius,
-      arcRotation,
-      arcAngle
-    );
-  }
-}
+class Arc extends addXY(
+  addWidthHeight(addArcProps(add2DFillStroke(RenderedElement)))
+) {}
 customElements.define("p-arc", Arc);
 /**
  * Draws an ellipse (oval) to the screen. If no height is specified, the
