@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" background="220"></canvas>
+<canvas>
+    <_ rand_ball="this_element">
+        <_ on="first_frame"
+            rand_ball.x="random(canvas.width)"
+            rand_ball.y="random(canvas.height)"></_>
+        <circle></circle>
+    </_>
+</canvas>

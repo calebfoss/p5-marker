@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <_>
-    <custom name="ball" ball="this_element" just_created="true">
-        <_ on="just_created"
+    <custom name="ball" ball="this_element">
+        <_ on="first_frame"
             ball.x="mouse_pos_x" ball.y="mouse_pos_y"
             ball.speed_x="random(-2, 2)"
             ball.speed_y="random(-2, 2)"
-            ball.fill_hue="random(360)"
-            ball.just_created="false"></_>
+            ball.fill_hue="random(360)"></_>
         <circle
             color_mode="HSB"
             fill="fill_hue, 100, 100"

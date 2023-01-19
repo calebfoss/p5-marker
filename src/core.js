@@ -104,6 +104,7 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @private
      */
     #canvas;
+    #frame_created;
     /**
      * @private
      */
@@ -430,6 +431,35 @@ export const addP5PropsAndMethods = (baseClass) =>
         );
     }
     /**
+     * first_frame is true if the element was just created.
+     * This can be used for setup. For example,
+     * ```xml
+     * <_ rand_ball="this_element">
+     *  <_ on="first_frame"
+     *     rand_ball.x="random(canvas.width)"
+     *     rand_ball.y="random(canvas.height)"></_>
+     *   <circle></circle>
+     * </_>
+     * ```
+     * Sets the ```<_>```'s x-coordinate to a random position along the
+     * canvas when it is first created. The value then stays the same.
+     * As a result, the circle is played at that random position.
+     * (read-only)
+     * @type {boolean}
+     */
+    get first_frame() {
+      return this.frame_count === 1;
+    }
+    /**
+     * frame_count counts the number of frames this element has been
+     * rendered. The first time this element is rendered, frame_count
+     * with be 1. (read-only)
+     * @type {number}
+     */
+    get frame_count() {
+      return this.pInst.frameCount - this.#frame_created;
+    }
+    /**
      * @private
      */
     get #html() {
@@ -496,6 +526,7 @@ export const addP5PropsAndMethods = (baseClass) =>
      */
     setup(pInst, canvas) {
       this.#pInst = pInst;
+      this.#frame_created = pInst.frameCount;
       this.#canvas = canvas;
       this.setDefaults?.();
       this.#setupEvalFns?.();

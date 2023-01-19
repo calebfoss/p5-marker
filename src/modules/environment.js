@@ -92,11 +92,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  frame_count: {
-    get: function () {
-      return this.frameCount;
-    },
-  },
   frame_rate: {
     get: function () {
       return this._frameRate;
