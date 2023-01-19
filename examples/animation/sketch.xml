@@ -3,17 +3,17 @@
     height="400"
     background="220"
 >
-    <square x="width / 2" y="height / 2" size="width / 5" speed_x="3" speed_y="2"
+    <square x="width / 2" y="height / 2" size="width / 5"
+        speed_x="3" speed_y="2"
         bounce="this_element">
+        <_ on="bounce.x AT_LEAST canvas.width - size || bounce.x NO_MORE_THAN 0"
+            bounce.speed_x="-bounce.speed_x" />
+        <_ on="bounce.y AT_LEAST canvas.height - size || bounce.y NO_MORE_THAN 0"
+            bounce.speed_y="-bounce.speed_y" />
         <_
-            bounce.x="bounce.x + bounce.speed_x"
-            bounce.y="bounce.y + bounce.speed_y"
-        ></_>
-        <_ on="bounce.x AT_LEAST width || bounce.x NO_MORE_THAN 0">
-            <_ bounce.speed_x="-bounce.speed_x"></_>
-        </_>
-        <_ on="bounce.y AT_LEAST height || bounce.y NO_MORE_THAN 0">
-            <_ bounce.speed_y="-bounce.speed_y"></_>
-        </_>
+            bounce.x="x + speed_x"
+            bounce.y="y + speed_y"
+        />
+
     </square>
 </canvas>
