@@ -255,7 +255,8 @@ class Point extends addXYZ(add2DStroke(RenderedElement)) {
       originalPoint,
       this.transform_matrix
     );
-    const { stroke_weight, pixel_density } = this.pInst;
+    const { stroke_weight } = this;
+    const { pixel_density } = this.pInst;
     const d = stroke_weight * this.pInst.pow(pixel_density, 2);
     return [x, y, d];
   }
