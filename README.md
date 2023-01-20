@@ -61,22 +61,22 @@ Here's how to produce that same example in Marker:
 
 ```
 <canvas
-  width="400"
-  height="400"
-  square_angle="0"
-  angle_mode="DEGREES"
-  canvas_background="20"
-  stroke="NONE"
+    width="400"
+    height="400"
+    angle_mode="DEGREES"
+    background="20"
+    stroke="NONE"
 >
-  <square
-    anchor="width / 2, height / 2"
-    s="200"
-    rect_mode="CENTER"
-    fill="180, 40, 20"
-    angle="square_angle"
-    square_angle="square_angle + 1"
-  />
-  <circle x="width / 2" y="height * 0.75" d="100" fill="20, 60, 180" />
+    <square
+        anchor="width / 2, height / 2"
+        size="200"
+        rect_mode="CENTER"
+        fill="180, 40, 20"
+        angle="0"
+    >
+        <_ parent_element.angle="parent_element.angle + 1" />
+    </square>
+    <circle x="width / 2" y="height * 0.75" d="100" fill="20, 60, 180" />
 </canvas>
 ```
 

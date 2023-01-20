@@ -515,6 +515,11 @@ export const addP5PropsAndMethods = (baseClass) =>
           () => (this[attributeName] = value)
         );
         this[attributeName] = value;
+      } else if (attributeName in this.pInst) {
+        this.#updateFunctions.set(
+          attributeName,
+          () => (this.pInst[attributeName] = value)
+        );
       } else {
         this.#updateFunctions.set(attributeName, () => value);
       }
