@@ -20,9 +20,6 @@ wrapMethod(
     }
 );
 
-p5.prototype.WHILE = "while";
-p5.prototype.UNTIL = "until";
-
 p5.prototype.assignCanvas = function (c, r) {
   this.noCanvas();
   const mainDiv = document.querySelector("main");
