@@ -1,4 +1,4 @@
-//  regex
+// p5-marker v0.1.1 Sat Jan 21 2023 https://github.com/calebfoss/p5-marker.git
 const $7a53813bc2528edd$var$upperCaseChar = /([A-Z])/g;
 const $7a53813bc2528edd$var$upperCaseCharAfterFirst = /(?<!^)[A-Z]/g;
 //  js string replace 2nd param
@@ -98,7 +98,7 @@ class $1e4b072929c69c2b$export$25a3dda2d7b8a35b {
         "void",
         "while",
         "with",
-        "yield"
+        "yield", 
     ];
     static getOwnerName(el, prop) {
         if ($1e4b072929c69c2b$export$25a3dda2d7b8a35b.keywords.includes(prop) || prop in $1e4b072929c69c2b$export$25a3dda2d7b8a35b.escapes || prop in globalThis) return "none";
@@ -181,177 +181,6 @@ const $03bbbf8eda9a336e$export$f5ddaad6515de8cc = (baseClass)=>class extends bas
     };
 
 
-const $60cbc2b134970376$export$bf2e82bce1545c45 = (baseClass)=>class extends baseClass {
-        #background;
-        /**
-     * The background property sets the color or image used
-     * for the background of the p5.js canvas. The default background is transparent.
-     * A <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object can be provided to set the background color.
-     *
-     * A <a href="https://p5js.org/reference/#/p5.Image">p5.Image</a> can also be provided to set the background image.
-     *
-     * The arguments to <a href="https://p5js.org/reference/#/p5/color">color()</a> can also be provided,
-     * separated by commas.
-     * @type {p5.Color|p5.Image}
-     */ get background() {
-            return this.#background;
-        }
-        set background(c) {
-            if (c instanceof p5.Color || c instanceof p5.Image) this.#background = c;
-            this.#background = this.pInst.color(c);
-        }
-        /**
-     * Sets the cursor when hovering over the canvas.
-     *
-     * You can set cursor to any of the following constants:
-     * ARROW, CROSS, HAND, MOVE, TEXT and WAIT
-     *
-     * You may also set cursor to the URL of an image file. The recommended size
-     * is 16x16 or 32x32 pixels. (Allowed File extensions: .cur, .gif, .jpg, .jpeg, .png)
-     *
-     * For more information on Native CSS cursors and url visit:
-     * https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
-     *
-     * You may also set cursor to "type, x, y", where type is one of the types above,
-     * x is the horizontal active spot of the cursor (must be less than 32)
-     * and
-     * y is the vertical active spot of the cursor (must be less than 32)
-     * @type {string}
-     */ get cursor() {
-            return this.style.cursor;
-        }
-        set cursor(val) {
-            const { pInst: pInst  } = this;
-            if (val === this.NONE) pInst.noCursor();
-            else if (Array.isArray(val)) pInst.cursor(...val);
-            else pInst.cursor(val);
-        }
-        get description() {
-            const { pInst: pInst  } = this;
-            const cnvId = this.id;
-            const descContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Description`);
-            if (descContainer) return descContainer;
-            const labelContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Label`);
-            return labelContainer;
-        }
-        set description(val) {
-            if (Array.isArray(val)) this.pInst.describe(...val);
-            else this.pInst.describe(val);
-        }
-        /**
-     * The height of the canvas in pixels.
-     * @type {number}
-     */ get height() {
-            return this.pInst.height;
-        }
-        set height(val) {
-            if (val === this.height || isNaN(val)) return;
-            this.#resize(this.width, val);
-        }
-        get orderedAttributeNames() {
-            //  Remove 'is' and 'style' from attrNames
-            return super.orderedAttributeNames.filter((v)=>v !== "is" && v != "style");
-        }
-        set loop(val) {
-            if (val) this.pInst.loop();
-            else this.pInst.noLoop();
-        }
-        #resize(w, h) {
-            if (w === this.width && h === this.height) return;
-            const { pInst: pInst  } = this;
-            const props = {};
-            for(const key in pInst.drawingContext){
-                const val = pInst.drawingContext[key];
-                if (typeof val !== "object" && typeof val !== "function") props[key] = val;
-            }
-            pInst.width = pInst._renderer.width = w;
-            pInst.height = pInst._renderer.height = h;
-            this.setAttribute("width", w * pInst._pixelDensity);
-            this.setAttribute("height", h * pInst._pixelDensity);
-            this.style.width = `${w}px`;
-            this.style.height = `${h}px`;
-            pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
-            for(const savedKey in props)try {
-                pInst.drawingContext[savedKey] = props[savedKey];
-            } catch (err) {}
-            pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
-            pInst.redraw();
-        }
-        /**
-     * The width of the canvas in pixels.
-     * @type {number}
-     */ get width() {
-            return this.pInst.width;
-        }
-        set width(val) {
-            if (val === this.width || isNaN(val)) return;
-            this.#resize(val, this.height);
-        }
-    };
-
-
-const $76bd26c91fab8e7c$export$5eb092502585022b = (baseClass)=>class extends baseClass {
-        attributeInherited(attributeName) {
-            if (this.hasAttribute(attributeName) || attributeName in this.defaults) return true;
-            return super.attributeInherited(attributeName);
-        }
-        runCode() {
-            const canvas = this;
-            const sketch = (pInst)=>{
-                canvas.defaults = {
-                    x: 0,
-                    x1: 0,
-                    x2: 0,
-                    x3: 100,
-                    x4: 100,
-                    cx: 0,
-                    y: 0,
-                    y1: 0,
-                    y2: 100,
-                    y3: 100,
-                    y4: 0,
-                    cy: 0,
-                    z: 0,
-                    w: 100,
-                    h: 100,
-                    d: 100,
-                    size: 100,
-                    start_angle: 0,
-                    stop_angle: pInst.PI,
-                    vector: pInst.createVector(),
-                    v1: 255,
-                    v2: 255,
-                    v3: 255,
-                    rx: 1,
-                    ry: 1,
-                    rz: -1,
-                    img: pInst.createImage(100, 100),
-                    content: "",
-                    on: true,
-                    repeat: false,
-                    change: {}
-                };
-                pInst.preload = ()=>pInst.loadAssets();
-                pInst.setup = function() {
-                    canvas.setup(pInst, canvas);
-                    // Set default dimensions (100, 100)
-                    canvas.width = 100;
-                    canvas.height = 100;
-                    //  Set default background to transparent
-                    canvas.background = pInst.color(0, 0);
-                    pInst.assignCanvas(canvas, canvas.constructor.renderer);
-                };
-                pInst.draw = function() {
-                    const state = canvas.updateState(canvas.defaults);
-                    pInst.background(canvas.background);
-                    for (const child of canvas.children)child.draw?.(state);
-                };
-            };
-            new p5(sketch);
-        }
-    };
-
-
 const $063b9c440f4a940f$export$699475ba1140c5eb = (baseClass)=>class extends baseClass {
         get NONE() {
             return "#0000";
@@ -359,6 +188,7 @@ const $063b9c440f4a940f$export$699475ba1140c5eb = (baseClass)=>class extends bas
     };
 const $063b9c440f4a940f$export$b2e29383819ac3c4 = (baseClass)=>class extends baseClass {
         #stroke;
+        #stroke_weight;
         /**
      * Sets the color used to draw lines and borders around shapes. This color
      * is either a <a href="#/p5.Color">p5.Color</a> object or a comma
@@ -373,6 +203,20 @@ const $063b9c440f4a940f$export$b2e29383819ac3c4 = (baseClass)=>class extends bas
             if (val === this.NONE) pInst.noStroke();
             else pInst.stroke(val);
             this.#stroke = pInst.color(pInst._renderer.isP3D ? pInst._renderer.curStrokeColor : pInst.drawingContext.strokeStyle);
+        }
+        /**
+     * Sets the width of the stroke used for lines, points and the border around
+     * shapes. All widths are set in units of pixels.
+     *
+     * Note that it is affected by any transformation or scaling that has
+     * been applied previously.
+     * @type {number}
+     */ get stroke_weight() {
+            return this.#stroke_weight;
+        }
+        set stroke_weight(val) {
+            this.pInst.strokeWeight(val);
+            this.#stroke_weight = this.pInst._renderer.isP3D ? this.pInst._renderer.curStrokeWeight : this.pInst.drawingContext.lineWidth;
         }
     };
 const $063b9c440f4a940f$export$306219eb761ac4c2 = (baseClass)=>class extends $063b9c440f4a940f$export$b2e29383819ac3c4(baseClass) {
@@ -443,8 +287,6 @@ const $db244738e3d6357d$export$a9e2f2714159e1ff = (baseClass)=>class extends bas
             return Object.defineProperty(globalObject, prop, descriptor);
         };
     });
-p5.prototype.WHILE = "while";
-p5.prototype.UNTIL = "until";
 p5.prototype.assignCanvas = function(c, r) {
     this.noCanvas();
     const mainDiv = document.querySelector("main");
@@ -502,7 +344,7 @@ const $79ce0e365a23b6d5$var$attributePriorities = [
     "shear",
     "_default",
     "repeat",
-    "change"
+    "change", 
 ];
 const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension extends (0, $db244738e3d6357d$export$a9e2f2714159e1ff)((0, $dfaf816c8f7968eb$export$df7182d31779a5d2)((0, $063b9c440f4a940f$export$699475ba1140c5eb)((0, $03bbbf8eda9a336e$export$f5ddaad6515de8cc)(baseClass)))) {
         /**
@@ -558,7 +400,7 @@ const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension
         /**
      * @method applyChange
      * @private
-     */ #applyChange() {
+     */  #applyChange() {
             const change = this.#state.change = this.#updateAttribute(this.#state, "change", this);
             let changed = false;
             const assignProp = (obj, prop)=>{
@@ -640,7 +482,7 @@ const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension
         }
         /**
      * @private
-     */ #callAttributeUpdater(inherited, attrName, thisArg) {
+     */  #callAttributeUpdater(inherited, attrName, thisArg) {
             if (this.#updateFunctions.has(attrName)) {
                 const evalFn = this.#updateFunctions.get(attrName);
                 return evalFn.call(thisArg, this.pInst, inherited);
@@ -842,7 +684,8 @@ const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension
             if (attributeName in this) {
                 this.#updateFunctions.set(attributeName, ()=>this[attributeName] = value);
                 this[attributeName] = value;
-            } else this.#updateFunctions.set(attributeName, ()=>value);
+            } else if (attributeName in this.pInst) this.#updateFunctions.set(attributeName, ()=>this.pInst[attributeName] = value);
+            else this.#updateFunctions.set(attributeName, ()=>value);
             this.#state[attributeName] = value;
         }
         /**
@@ -859,7 +702,7 @@ const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension
         }
         /**
      * @private
-     */ #setupEvalFn(attr) {
+     */  #setupEvalFn(attr) {
             //  The attribute's value will be modified, then run as JS
             const attrJsStr = attr.value;
             //  TODO - catch improperly ordered quote marks: "foo'var"'
@@ -890,7 +733,7 @@ const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension
         }
         /**
      * @private
-     */ #setupEvalFns() {
+     */  #setupEvalFns() {
             if (this.hasAttribute("repeat") && !this.hasAttribute("change")) {
                 console.error(`It looks like a ${this.constructor.elementName} has a repeat attribute ` + "but does not have a change attribute. The change attribute is required to " + "prevent infinite loops.");
                 this.removeAttribute("repeat");
@@ -914,7 +757,7 @@ const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension
      * @param {*} attrName
      * @param {*} thisArg
      * @returns
-     */ #updateAttribute(inherited1, attrName1, thisArg1) {
+     */  #updateAttribute(inherited1, attrName1, thisArg1) {
             if (attrName1 === "repeat" || attrName1 === "change") inherited1 = this.#state;
             const val = this.#callAttributeUpdater(inherited1, attrName1, thisArg1);
             //  Setting canvas width or height resets the drawing context
@@ -1006,7 +849,7 @@ class $79ce0e365a23b6d5$export$66cca51e2e9c1a33 extends $79ce0e365a23b6d5$export
    * Sets the parameters used to call this element's render function based
    * on the overloads for that function and this element's attributes.
    * @private
-   */ #getArgumentsFromOverloads() {
+   */  #getArgumentsFromOverloads() {
         const { overloads: overloads  } = this;
         //  Check every required parameter has an attribute
         const isOptional = (param)=>param.match(/^\[.*\]$/);
@@ -1068,6 +911,175 @@ customElements.define("p-_", $79ce0e365a23b6d5$var$_);
 
 
 
+const $60cbc2b134970376$export$bf2e82bce1545c45 = (baseClass)=>class extends baseClass {
+        #background;
+        /**
+     * The background property sets the color or image used
+     * for the background of the p5.js canvas. The default background is transparent.
+     * A <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object can be provided to set the background color.
+     *
+     * A <a href="https://p5js.org/reference/#/p5.Image">p5.Image</a> can also be provided to set the background image.
+     *
+     * The arguments to <a href="https://p5js.org/reference/#/p5/color">color()</a> can also be provided,
+     * separated by commas.
+     * @type {p5.Color|p5.Image}
+     */ get background() {
+            return this.#background;
+        }
+        set background(c) {
+            if (c instanceof p5.Color || c instanceof p5.Image) this.#background = c;
+            this.#background = this.pInst.color(c);
+        }
+        /**
+     * Sets the cursor when hovering over the canvas.
+     *
+     * You can set cursor to any of the following constants:
+     * ARROW, CROSS, HAND, MOVE, TEXT and WAIT
+     *
+     * You may also set cursor to the URL of an image file. The recommended size
+     * is 16x16 or 32x32 pixels. (Allowed File extensions: .cur, .gif, .jpg, .jpeg, .png)
+     *
+     * For more information on Native CSS cursors and url visit:
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
+     *
+     * You may also set cursor to "type, x, y", where type is one of the types above,
+     * x is the horizontal active spot of the cursor (must be less than 32)
+     * and
+     * y is the vertical active spot of the cursor (must be less than 32)
+     * @type {string}
+     */ get cursor() {
+            return this.style.cursor;
+        }
+        set cursor(val) {
+            const { pInst: pInst  } = this;
+            if (val === this.NONE) pInst.noCursor();
+            else if (Array.isArray(val)) pInst.cursor(...val);
+            else pInst.cursor(val);
+        }
+        get description() {
+            const { pInst: pInst  } = this;
+            const cnvId = this.id;
+            const descContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Description`);
+            if (descContainer) return descContainer;
+            const labelContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Label`);
+            return labelContainer;
+        }
+        set description(val) {
+            if (Array.isArray(val)) this.pInst.describe(...val);
+            else this.pInst.describe(val);
+        }
+        /**
+     * The height of the canvas in pixels.
+     * @type {number}
+     */ get height() {
+            return this.pInst.height;
+        }
+        set height(val) {
+            if (val === this.height || isNaN(val)) return;
+            this.#resize(this.width, val);
+        }
+        get orderedAttributeNames() {
+            //  Remove 'is' and 'style' from attrNames
+            return super.orderedAttributeNames.filter((v)=>v !== "is" && v != "style");
+        }
+        set loop(val) {
+            if (val) this.pInst.loop();
+            else this.pInst.noLoop();
+        }
+         #resize(w, h) {
+            if (w === this.width && h === this.height) return;
+            const { pInst: pInst  } = this;
+            const props = {};
+            for(const key in pInst.drawingContext){
+                const val = pInst.drawingContext[key];
+                if (typeof val !== "object" && typeof val !== "function") props[key] = val;
+            }
+            pInst.width = pInst._renderer.width = w;
+            pInst.height = pInst._renderer.height = h;
+            this.setAttribute("width", w * pInst._pixelDensity);
+            this.setAttribute("height", h * pInst._pixelDensity);
+            this.style.width = `${w}px`;
+            this.style.height = `${h}px`;
+            pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
+            for(const savedKey in props)try {
+                pInst.drawingContext[savedKey] = props[savedKey];
+            } catch (err) {}
+            pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
+            pInst.redraw();
+        }
+        /**
+     * The width of the canvas in pixels.
+     * @type {number}
+     */ get width() {
+            return this.pInst.width;
+        }
+        set width(val) {
+            if (val === this.width || isNaN(val)) return;
+            this.#resize(val, this.height);
+        }
+    };
+
+
+const $76bd26c91fab8e7c$export$5eb092502585022b = (baseClass)=>class extends baseClass {
+        attributeInherited(attributeName) {
+            if (this.hasAttribute(attributeName) || attributeName in this.defaults) return true;
+            return super.attributeInherited(attributeName);
+        }
+        runCode() {
+            const canvas = this;
+            const sketch = (pInst)=>{
+                canvas.defaults = {
+                    x: 0,
+                    x1: 0,
+                    x2: 0,
+                    x3: 100,
+                    x4: 100,
+                    cx: 0,
+                    y: 0,
+                    y1: 0,
+                    y2: 100,
+                    y3: 100,
+                    y4: 0,
+                    cy: 0,
+                    z: 0,
+                    w: 100,
+                    h: 100,
+                    d: 100,
+                    size: 100,
+                    start_angle: 0,
+                    stop_angle: pInst.PI,
+                    vector: pInst.createVector(),
+                    v1: 255,
+                    v2: 255,
+                    v3: 255,
+                    rx: 1,
+                    ry: 1,
+                    rz: -1,
+                    img: pInst.createImage(100, 100),
+                    content: "",
+                    on: true,
+                    repeat: false,
+                    change: {}
+                };
+                pInst.preload = ()=>pInst.loadAssets();
+                pInst.setup = function() {
+                    canvas.setup(pInst, canvas);
+                    // Set default dimensions (100, 100)
+                    canvas.width = 100;
+                    canvas.height = 100;
+                    //  Set default background to transparent
+                    canvas.background = pInst.color(0, 0);
+                    pInst.assignCanvas(canvas, canvas.constructor.renderer);
+                };
+                pInst.draw = function() {
+                    const state = canvas.updateState(canvas.defaults);
+                    pInst.background(canvas.background);
+                    for (const child of canvas.children)child.draw?.(state);
+                };
+            };
+            new p5(sketch);
+        }
+    };
 
 
 /**
@@ -1090,12 +1102,24 @@ customElements.define("p-canvas", $a7d17c9282527449$var$Canvas, {
  * The ```<canvas-3d>``` element is a ```<canvas>``` element
  * for rendering 3D elements.
  */ class $a7d17c9282527449$var$WebGLCanvas extends (0, $76bd26c91fab8e7c$export$5eb092502585022b)((0, $60cbc2b134970376$export$bf2e82bce1545c45)((0, $79ce0e365a23b6d5$export$a11dc51f2ecd743e)(HTMLCanvasElement))) {
+    #bezier_detail;
+    #curve_detail;
     #debug_mode;
     #orbit_control;
     static renderer = "webgl";
     constructor(){
         super();
         window.addEventListener("customElementsDefined", this.runCode.bind(this));
+    }
+    /**
+   * Sets the resolution at which Bezier's curve is displayed. The default value is 20.
+   * @type {number}
+   */ get bezier_detail() {
+        return this.#bezier_detail;
+    }
+    set bezier_detail(val) {
+        this.pInst.bezierDetail(val);
+        this.#bezier_detail = this.pInst._bezierDetail;
     }
     /**
    * Sets the current (active) camera of a 3D sketch.
@@ -1114,6 +1138,17 @@ customElements.define("p-canvas", $a7d17c9282527449$var$Canvas, {
         if (val instanceof p5.Camera) pInst.setCamera(val);
         else if (Array.isArray(val)) pInst.camera(...val);
         else pInst.camera(val);
+    }
+    /**
+   * Sets the resolution at which curves display. The default value is 20 while
+   * the minimum value is 3.
+   * @type {number}
+   */ get curve_detail() {
+        return this.#curve_detail;
+    }
+    set curve_detail(val) {
+        this.pInst.curveDetail(val);
+        this.#curve_detail = this.pInst._curveDetail;
     }
     /**
    * debug_mode helps visualize 3D space by adding a grid to indicate where the
@@ -1227,10 +1262,7 @@ p5.prototype.collide_elements = function(elementA, elementB) {
 /*~++~+~+~++~+~++~++~+~+~ 2D ~+~+~++~+~++~+~+~+~+~+~+~+~+~+~+*/ p5.prototype.collide_rect_rect = function(x, y, w, h, x2, y2, w2, h2) {
     //2d
     //add in a thing to detect rectMode CENTER
-    if (x + w >= x2 && // r1 right edge past r2 left
-    x <= x2 + w2 && // r1 left edge past r2 right
-    y + h >= y2 && // r1 top edge past r2 bottom
-    y <= y2 + h2) // r1 bottom edge past r2 top
+    if (x + w >= x2 && x <= x2 + w2 && y + h >= y2 && y <= y2 + h2) // r1 bottom edge past r2 top
     return true;
     return false;
 };
@@ -1294,10 +1326,7 @@ p5.prototype.collide_point_ellipse_vector = function(p, c, d) {
 };
 p5.prototype.collide_point_rect = function(pointX, pointY, x, y, xW, yW) {
     //2d
-    if (pointX >= x && // right of the left edge AND
-    pointX <= x + xW && // left of the right edge AND
-    pointY >= y && // below the top AND
-    pointY <= y + yW) // above the bottom
+    if (pointX >= x && pointX <= x + xW && pointY >= y && pointY <= y + yW) // above the bottom
     return true;
     return false;
 };
@@ -1728,11 +1757,11 @@ const $f2731110a32ba8b7$export$e9cb68263e7b8eb3 = (baseClass)=>class extends bas
     };
 const $f2731110a32ba8b7$export$9772409c44dd5b8c = (baseClass)=>class extends $f2731110a32ba8b7$export$d38590504f301641($f2731110a32ba8b7$export$e9cb68263e7b8eb3(baseClass)) {
     };
-const $f2731110a32ba8b7$export$b29aca5fbcfded71 = (baseClass)=>class extends $f2731110a32ba8b7$export$d38590504f301641(baseClass) {
+const $f2731110a32ba8b7$var$addZ12 = (baseClass)=>class extends baseClass {
         #z1;
         #z2;
         /**
-     * The first x-coordinate of the element relative to the current anchor.
+     * The first z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
      */ get z1() {
             return this.#z1;
@@ -1742,7 +1771,7 @@ const $f2731110a32ba8b7$export$b29aca5fbcfded71 = (baseClass)=>class extends $f2
             else console.error(`${this.tagName}'s z1 is being set to ${val}, but it may only be set to a number.`);
         }
         /**
-     * The second x-coordinate of the element relative to the current anchor.
+     * The second z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
      */ get z2() {
             return this.#z2;
@@ -1751,6 +1780,8 @@ const $f2731110a32ba8b7$export$b29aca5fbcfded71 = (baseClass)=>class extends $f2
             if (!isNaN(val)) this.#z2 = val;
             else console.error(`${this.tagName}'s z2 is being set to ${val}, but it may only be set to a number.`);
         }
+    };
+const $f2731110a32ba8b7$export$b29aca5fbcfded71 = (baseClass)=>class extends $f2731110a32ba8b7$export$d38590504f301641($f2731110a32ba8b7$var$addZ12(baseClass)) {
     };
 const $f2731110a32ba8b7$export$7757a7d90505b04a = (baseClass)=>class extends baseClass {
         #rect_mode;
@@ -1787,14 +1818,58 @@ const $f2731110a32ba8b7$export$7757a7d90505b04a = (baseClass)=>class extends bas
             this.#rect_mode = this.pInst._renderer._rectMode;
         }
     };
-
-
-const $f83208cc1173e373$var$transformVertexFn = (el)=>(v)=>{
-        const originalPoint = new DOMPoint(v.x, v.y);
-        const { x: x , y: y  } = el.pInst._transform_point_matrix(originalPoint, el.transform_matrix);
-        return el.pInst.createVector(x, y);
+const $f2731110a32ba8b7$export$1caa28391933d750 = (baseClass)=>class extends baseClass {
+        #smooth = true;
+        #stroke_cap = "round";
+        #stroke_join = "miter";
+        /**
+     * smooth="true" draws all geometry with smooth (anti-aliased) edges. smooth="true" will also
+     * improve image quality of resized images. smooth is true by
+     * default on a 2D canvas. smooth="false" can be used to disable smoothing of geometry,
+     * images, and fonts.
+     * @type {boolean}
+     */ get smooth() {
+            return this.#smooth;
+        }
+        set smooth(val) {
+            if (typeof val !== "boolean") return console.error(`${this.tagName}'s smooth property is being set to ${val}, but it may only be set to true or false.`);
+            if (val) this.pInst.smooth();
+            else this.pInst.noSmooth();
+            this.#smooth = val;
+        }
+        /**
+     * Sets the style for rendering line endings. These ends are either rounded,
+     * squared or extended, each of which specified with the corresponding
+     * parameters: ROUND, SQUARE and PROJECT. The default cap is ROUND.
+     *
+     * The value on this property must be written in ALL CAPS because they are
+     * predefined as constants in ALL CAPS.
+     * @type {ROUND|SQUARE|PROJECT}
+     */ get stroke_cap() {
+            return this.#stroke_cap;
+        }
+        set stroke_cap(val) {
+            this.pInst.strokeCap(val);
+            this.#stroke_cap = this.pInst.drawingContext.lineCap;
+        }
+        /**
+     * Sets the style of the joints which connect line segments. These joints
+     * are either mitered, beveled or rounded and specified with the
+     * corresponding parameters MITER, BEVEL and ROUND. The default joint is
+     * MITER.
+     *
+     * The parameter to this method must be written in ALL CAPS because they are
+     * predefined as constants in ALL CAPS.
+     * @type {MITER|BEVEL|ROUND}
+     */ get stroke_join() {
+            return this.#stroke_join;
+        }
+        set stroke_join(val) {
+            this.pInst.strokeJoin(val);
+            this.#stroke_join = this.pInst.drawingContext.lineJoin;
+        }
     };
-const $f83208cc1173e373$var$addXYZ1234 = (baseClass)=>class extends (0, $f2731110a32ba8b7$export$b29aca5fbcfded71)((0, $f2731110a32ba8b7$export$e9cb68263e7b8eb3)(baseClass)) {
+const $f2731110a32ba8b7$export$44181740b85b4ab7 = (baseClass)=>class extends $f2731110a32ba8b7$export$e9cb68263e7b8eb3($f2731110a32ba8b7$export$b29aca5fbcfded71(baseClass)) {
         #z3;
         #z4;
         #y4;
@@ -1809,7 +1884,7 @@ const $f83208cc1173e373$var$addXYZ1234 = (baseClass)=>class extends (0, $f273111
             else console.error(`${this.tagName}'s y4 is being set to ${val}, but it may only be set to a number.`);
         }
         /**
-     * The first x-coordinate of the element relative to the current anchor.
+     * The third z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
      */ get z3() {
             return this.#z3;
@@ -1819,7 +1894,7 @@ const $f83208cc1173e373$var$addXYZ1234 = (baseClass)=>class extends (0, $f273111
             else console.error(`${this.tagName}'s z3 is being set to ${val}, but it may only be set to a number.`);
         }
         /**
-     * The fourth z-coordinate of the element relative to the current anchor.
+     * The fourth z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
      */ get z4() {
             return this.#z4;
@@ -1829,12 +1904,81 @@ const $f83208cc1173e373$var$addXYZ1234 = (baseClass)=>class extends (0, $f273111
             else console.error(`${this.tagName}'s z4 is being set to ${val}, but it may only be set to a number.`);
         }
     };
+
+
+const $f83208cc1173e373$var$add2DStroke = (baseClass)=>(0, $063b9c440f4a940f$export$b2e29383819ac3c4)((0, $f2731110a32ba8b7$export$1caa28391933d750)(baseClass));
+const $f83208cc1173e373$var$add2DFillStroke = (baseClass)=>(0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $f2731110a32ba8b7$export$1caa28391933d750)(baseClass));
+const $f83208cc1173e373$var$transformVertexFn = (el)=>(v)=>{
+        const originalPoint = new DOMPoint(v.x, v.y);
+        const { x: x , y: y  } = el.pInst._transform_point_matrix(originalPoint, el.transform_matrix);
+        return el.pInst.createVector(x, y);
+    };
+const $f83208cc1173e373$var$addArcProps = (baseClass)=>class extends baseClass {
+        #start_angle;
+        #stop_angle;
+        #mode;
+        #detail;
+        constructor(){
+            super([
+                "x, y, width, height, start_angle, stop_angle, [mode], [detail]"
+            ]);
+        }
+        get mouse_over() {
+            const { mouse_trans_pos_x: mouse_trans_pos_x , mouse_trans_pos_y: mouse_trans_pos_y  } = this.pInst;
+            const { x: x , y: y , width: width , height: height , start_angle: start_angle , stop_angle: stop_angle  } = this;
+            console.assert(width === height, "mouse_over currently only works for arc's with equal width and height.");
+            const arcRadius = width / 2;
+            const arcAngle = stop_angle - start_angle;
+            const arcRotation = start_angle + arcAngle / 2;
+            return this.pInst.collide_point_arc(mouse_trans_pos_x, mouse_trans_pos_y, x, y, arcRadius, arcRotation, arcAngle);
+        }
+        /**
+     * Angle to start the arc. Units are radians by default but may be changed
+     * to degrees with the degree_mode property.
+     * @type {number}
+     */ get start_angle() {
+            return this.#start_angle;
+        }
+        set start_angle(val) {
+            this.#start_angle = val;
+        }
+        /**
+     * Angle to stop the arc. Units are radians by default but may be changed
+     * to degrees with the degree_mode property.
+     * @type {number}
+     */ get stop_angle() {
+            return this.#stop_angle;
+        }
+        set stop_angle(val) {
+            this.#stop_angle = val;
+        }
+        /**
+     * determines the way of drawing the arc:
+     * - OPEN - like an open semi-circle
+     * - CHORD - closed semi-circle
+     * - PIE - closed pie segment
+     * @type {CHORD|PIE|OPEN}
+     */ get mode() {
+            return this.#mode;
+        }
+        set mode(val) {
+            this.#mode = val;
+        }
+        /**
+     * 3D mode only. This is to specify the number of vertices that makes up the
+     * perimeter of the arc. Default value is 25. Won't draw a stroke for a detail
+     * of more than 50. (on 3D canvas only)
+     * @type {number}
+     */ get detail() {
+            return this.#detail;
+        }
+        set detail(val) {
+            this.#detail = val;
+        }
+    };
 /**
- * Draws an arc to the screen. If called with only x, y, w, h, start and stop
- * the arc will be drawn and filled as an open pie segment. If a mode
- * parameter is provided, the arc will be filled like an open semi-circle
- * (OPEN), a closed semi-circle (CHORD), or as a closed pie segment (PIE).
- * The origin may be changed with the ellipseMode() function.
+ * Draws an arc to the screen.
+ * The origin may be changed with the ellipse_mode property.
  *
  * The arc is always drawn clockwise from wherever start falls to wherever
  * stop falls on the ellipse. Adding or subtracting TWO_PI to either angle
@@ -1843,21 +1987,7 @@ const $f83208cc1173e373$var$addXYZ1234 = (baseClass)=>class extends (0, $f273111
  * the downward direction, therefore angles are measured clockwise from the
  * positive x-direction ("3 o'clock").
  * @element arc
- */ class $f83208cc1173e373$var$Arc extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)((0, $f2731110a32ba8b7$export$5f4909ba2c08017a)((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33)))) {
-    constructor(){
-        super([
-            "x, y, width, height, start_angle, stop_angle, [mode], [detail], [a]"
-        ]);
-    }
-    get mouse_over() {
-        const { mouse_trans_pos_x: mouse_trans_pos_x , mouse_trans_pos_y: mouse_trans_pos_y  } = this.pInst;
-        const { x: x , y: y , width: width , height: height , start_angle: start_angle , stop_angle: stop_angle  } = this;
-        console.assert(width === height, "mouse_over currently only works for arc's with equal width and height.");
-        const arcRadius = width / 2;
-        const arcAngle = stop_angle - start_angle;
-        const arcRotation = start_angle + arcAngle / 2;
-        return this.pInst.collide_point_arc(mouse_trans_pos_x, mouse_trans_pos_y, x, y, arcRadius, arcRotation, arcAngle);
-    }
+ */ class $f83208cc1173e373$var$Arc extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)((0, $f2731110a32ba8b7$export$5f4909ba2c08017a)($f83208cc1173e373$var$addArcProps($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))))) {
 }
 customElements.define("p-arc", $f83208cc1173e373$var$Arc);
 /**
@@ -1901,7 +2031,7 @@ customElements.define("p-ellipse", $f83208cc1173e373$var$Ellipse);
  * set of all points in a plane that are at a given distance from a given
  * point, the center.
  * @element circle
- */ class $f83208cc1173e373$var$Circle extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
+ */ class $f83208cc1173e373$var$Circle extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
     constructor(){
         super([
             "x, y, d"
@@ -1931,7 +2061,7 @@ customElements.define("p-circle", $f83208cc1173e373$var$Circle);
  * filled, therefore the fill_color attribute will not affect the color of a
  * line. So to color a line, use the stroke attribute.
  * @element line
- */ class $f83208cc1173e373$var$Line extends (0, $f2731110a32ba8b7$export$b29aca5fbcfded71)((0, $063b9c440f4a940f$export$b2e29383819ac3c4)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
+ */ class $f83208cc1173e373$var$Line extends (0, $f2731110a32ba8b7$export$b29aca5fbcfded71)($f83208cc1173e373$var$add2DStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
     constructor(){
         super([
             "x1, y1, x2, y2",
@@ -1963,7 +2093,7 @@ customElements.define("p-line", $f83208cc1173e373$var$Line);
  * color of the point is changed with the stroke attribute. The size of
  * the point can be changed with the stroke_weight attribute.
  * @element point
- */ class $f83208cc1173e373$var$Point extends (0, $f2731110a32ba8b7$export$339b9be62e060004)((0, $063b9c440f4a940f$export$b2e29383819ac3c4)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
+ */ class $f83208cc1173e373$var$Point extends (0, $f2731110a32ba8b7$export$339b9be62e060004)($f83208cc1173e373$var$add2DStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
     constructor(){
         super([
             "x, y, [z]"
@@ -1973,7 +2103,8 @@ customElements.define("p-line", $f83208cc1173e373$var$Line);
     get collision_args() {
         const originalPoint = new DOMPoint(this.x, this.y);
         const { x: x , y: y  } = this.pInst._transform_point_matrix(originalPoint, this.transform_matrix);
-        const { stroke_weight: stroke_weight , pixel_density: pixel_density  } = this.pInst;
+        const { stroke_weight: stroke_weight  } = this;
+        const { pixel_density: pixel_density  } = this.pInst;
         const d = stroke_weight * this.pInst.pow(pixel_density, 2);
         return [
             x,
@@ -1982,7 +2113,7 @@ customElements.define("p-line", $f83208cc1173e373$var$Line);
         ];
     }
     get mouse_over() {
-        const { x: x , y: y , stroke_weight: stroke_weight , pixel_density: pixel_density , mouse_trans_pos_x: mouse_trans_pos_x , mouse_trans_pos_y: mouse_trans_pos_y  } = this;
+        const { x: x , y: y , stroke_weight: stroke_weight , pixel_density: pixel_density , mouse_trans_pos_x: mouse_trans_pos_x , mouse_trans_pos_y: mouse_trans_pos_y ,  } = this;
         const d = stroke_weight * this.pInst.pow(pixel_density, 2);
         return this.pInst.collide_point_circle(mouse_trans_pos_x, mouse_trans_pos_y, x, y, d);
     }
@@ -1996,11 +2127,11 @@ customElements.define("p-point", $f83208cc1173e373$var$Point);
  * counter-clockwise around the defined shape. z attributes only work when
  * quad() is used in WEBGL mode.
  * @element quad
- */ class $f83208cc1173e373$var$Quad extends $f83208cc1173e373$var$addXYZ1234((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
+ */ class $f83208cc1173e373$var$Quad extends (0, $f2731110a32ba8b7$export$44181740b85b4ab7)($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
     constructor(){
         super([
             "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
-            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]"
+            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]", 
         ]);
     }
     collider = p5.prototype.collider_type.poly;
@@ -2019,7 +2150,7 @@ customElements.define("p-point", $f83208cc1173e373$var$Point);
             this.pInst.createVector(x1, y1),
             this.pInst.createVector(x2, y2),
             this.pInst.createVector(x3, y3),
-            this.pInst.createVector(x4, y4)
+            this.pInst.createVector(x4, y4), 
         ];
     }
 }
@@ -2036,11 +2167,11 @@ customElements.define("p-quad", $f83208cc1173e373$var$Quad);
  * corners, respectively. An omitted corner radius parameter is set to the
  * value of the previously specified radius value in the attribute list.
  * @element rect
- */ class $f83208cc1173e373$var$Rect extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)((0, $f2731110a32ba8b7$export$5f4909ba2c08017a)((0, $f2731110a32ba8b7$export$7757a7d90505b04a)((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))))) {
+ */ class $f83208cc1173e373$var$Rect extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)((0, $f2731110a32ba8b7$export$5f4909ba2c08017a)((0, $f2731110a32ba8b7$export$7757a7d90505b04a)($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))))) {
     constructor(){
         super([
             "x, y, width, [h], [tl], [tr], [br], [bl]",
-            "x, y, width, height, [detail_x], [detail_y]"
+            "x, y, width, height, [detail_x], [detail_y]", 
         ]);
     }
     collider = p5.prototype.collider_type.rect;
@@ -2079,7 +2210,7 @@ customElements.define("p-rect", $f83208cc1173e373$var$Rect);
  * the previously specified radius value in the attribute list.
  *
  * @element square
- */ class $f83208cc1173e373$var$Square extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)((0, $f2731110a32ba8b7$export$7757a7d90505b04a)((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33)))) {
+ */ class $f83208cc1173e373$var$Square extends (0, $f2731110a32ba8b7$export$767c784c12981b7a)((0, $f2731110a32ba8b7$export$7757a7d90505b04a)($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33)))) {
     #size;
     constructor(){
         super([
@@ -2124,7 +2255,7 @@ customElements.define("p-square", $f83208cc1173e373$var$Square);
  * second point, and x3 and y3 specify the
  * third point.
  * @element triangle
- */ class $f83208cc1173e373$var$Triangle extends (0, $f2731110a32ba8b7$export$9772409c44dd5b8c)((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
+ */ class $f83208cc1173e373$var$Triangle extends (0, $f2731110a32ba8b7$export$9772409c44dd5b8c)($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
     constructor(){
         const overloads = [
             "x1, y1, x2, y2, x3, y3"
@@ -2147,7 +2278,7 @@ customElements.define("p-square", $f83208cc1173e373$var$Square);
         return [
             this.pInst.createVector(x1, y1),
             this.pInst.createVector(x2, y2),
-            this.pInst.createVector(x3, y3)
+            this.pInst.createVector(x3, y3), 
         ];
     }
 }
@@ -2165,25 +2296,25 @@ customElements.define("p-triangle", $f83208cc1173e373$var$Triangle);
  * and are commonly used in computer graphics to define gently sloping curves.
  * ```<curve>``` element.
  * @element bezier
- */ class $f83208cc1173e373$var$Bezier extends $f83208cc1173e373$var$addXYZ1234((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
+ */ class $f83208cc1173e373$var$Bezier extends (0, $f2731110a32ba8b7$export$44181740b85b4ab7)($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
     constructor(){
         super([
             "x1, y1, x2, y2, x3, y3, x4, y4",
-            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"
+            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4", 
         ]);
     }
 }
 customElements.define("p-bezier", $f83208cc1173e373$var$Bezier);
-class $f83208cc1173e373$var$Curve extends $f83208cc1173e373$var$addXYZ1234((0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
+class $f83208cc1173e373$var$Curve extends (0, $f2731110a32ba8b7$export$44181740b85b4ab7)($f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33))) {
     constructor(){
         super([
             "x1, y1, x2, y2, x3, y3, x4, y4",
-            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"
+            "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4", 
         ]);
     }
 }
 customElements.define("p-curve", $f83208cc1173e373$var$Curve);
-class $f83208cc1173e373$var$Contour extends (0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33)) {
+class $f83208cc1173e373$var$Contour extends $f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33)) {
     constructor(){
         super([
             ""
@@ -2194,7 +2325,7 @@ class $f83208cc1173e373$var$Contour extends (0, $063b9c440f4a940f$export$306219e
     }
 }
 customElements.define("p-contour", $f83208cc1173e373$var$Contour);
-class $f83208cc1173e373$var$Shape extends (0, $063b9c440f4a940f$export$306219eb761ac4c2)((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33)) {
+class $f83208cc1173e373$var$Shape extends $f83208cc1173e373$var$add2DFillStroke((0, $79ce0e365a23b6d5$export$66cca51e2e9c1a33)) {
     constructor(){
         super([
             "[kind]"
@@ -2487,7 +2618,7 @@ customElements.define("p-paint-bucket", $6dd9f8b96c98a786$var$PaintBucket);
         super();
         this.#loadXML(this.href);
     }
-    #convertElement(xmlEl) {
+     #convertElement(xmlEl) {
         const xmlTag = xmlEl.tagName;
         const createElementArguments = this.#xmlTagToCreateElementArguments(xmlTag);
         const pEl = document.createElement(...createElementArguments);
@@ -2495,24 +2626,24 @@ customElements.define("p-paint-bucket", $6dd9f8b96c98a786$var$PaintBucket);
         if (xmlTag === "custom") pEl.define();
         return pEl;
     }
-    #convertAllElements(xmlEl1, parent = document.body) {
+     #convertAllElements(xmlEl1, parent = document.body) {
         const pEl1 = this.#convertElement(xmlEl1);
         parent.appendChild(pEl1);
         for(let i = 0; i < xmlEl1.children.length; i++)this.#convertAllElements(xmlEl1.children[i], pEl1);
     }
-    #convertXML(e) {
+     #convertXML(e) {
         const xml = e.target.response.documentElement;
         this.#convertAllElements(xml);
         document.querySelectorAll("canvas").forEach((canvas)=>canvas.runCode());
     }
-    #copyAttributes(orig, copy) {
+     #copyAttributes(orig, copy) {
         const attrs = orig.attributes;
         for(let i1 = 0; i1 < attrs.length; i1++){
             const attr = attrs[i1];
             copy.setAttribute(attr.name, attr.value);
         }
     }
-    #loadXML(path) {
+     #loadXML(path) {
         if (!path) return console.error("p-sketch element is missing required path attribute");
         const request = new XMLHttpRequest();
         request.open("GET", path);
@@ -2521,7 +2652,7 @@ customElements.define("p-paint-bucket", $6dd9f8b96c98a786$var$PaintBucket);
         request.addEventListener("load", this.#convertXML.bind(this));
         request.send();
     }
-    #xmlTagToCreateElementArguments(xmlTag1) {
+     #xmlTagToCreateElementArguments(xmlTag1) {
         if (xmlTag1.slice(0, 2) === "p-") return [
             xmlTag1
         ];
@@ -2648,63 +2779,7 @@ p5.prototype.bezierPoint = $c7ffc8b66df47534$var$pointTangentOverload(p5.prototy
 p5.prototype.bezierTangent = $c7ffc8b66df47534$var$pointTangentOverload(p5.prototype.bezierTangent);
 p5.prototype.curvePoint = $c7ffc8b66df47534$var$pointTangentOverload(p5.prototype.curvePoint);
 p5.prototype.curveTangent = $c7ffc8b66df47534$var$pointTangentOverload(p5.prototype.curveTangent);
-p5.prototype.yesSmooth = p5.prototype.smooth;
 (0, $1b3618ac1b6555cf$export$44f806bc073ff27e)("ellipseMode", "rectMode", "curveTightness");
-(0, $1b3618ac1b6555cf$export$b61bda4fbca264f2)({
-    smooth: {
-        get: function() {
-            if (this._renderer?.isP3D) return this._renderer._pInst._glAttributes?.antialias;
-            return this.drawingContext?.imageSmoothingEnabled;
-        },
-        set: function(val) {
-            if (val) this.yesSmooth();
-            else this.noSmooth();
-        }
-    },
-    stroke_cap: {
-        get: function() {
-            if (this._renderer?.isP3D) return this._renderer.strokeCap();
-            return this.drawingContext?.lineCap;
-        },
-        set: function(val) {
-            this.strokeCap(val);
-        }
-    },
-    stroke_join: {
-        get: function() {
-            if (this._renderer?.isP3D) return this._renderer.strokeJoin();
-            return this.drawingContext?.lineJoin;
-        },
-        set: function(val) {
-            this.strokeJoin(val);
-        }
-    },
-    stroke_weight: {
-        get: function() {
-            if (this._renderer?.isP3D) return this._renderer.curStrokeWeight;
-            return this.drawingContext?.lineWidth;
-        },
-        set: function(val) {
-            this.strokeWeight(val);
-        }
-    },
-    bezier_detail: {
-        get: function() {
-            return this._renderer?._pInst._bezierDetail;
-        },
-        set: function(val) {
-            this.bezierDetail(val);
-        }
-    },
-    curve_detail: {
-        get: function() {
-            return this._renderer?._pInst._curveDetail;
-        },
-        set: function(val) {
-            this.curveDetail(val);
-        }
-    }
-});
 
 
 
@@ -2935,7 +3010,7 @@ const $3d1b09cc8252f1f2$var$identityMatrix = new DOMMatrix([
     0,
     0,
     0,
-    1
+    1, 
 ]);
 p5.prototype._transform_point_matrix = function(originalPoint, transMatrix) {
     const pixelDensityMatrix = new DOMMatrix($3d1b09cc8252f1f2$var$identityMatrix).scale(this.pixel_density);
@@ -3254,7 +3329,7 @@ p5.prototype._shakeThreshold = 30;
     constructor(){
         super([
             "img, x, y, [width], [height]",
-            "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]"
+            "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]", 
         ]);
     }
     /**
@@ -3433,7 +3508,7 @@ class $813871a5b290df44$export$547e390f3d648e59 extends (0, $063b9c440f4a940f$ex
    */ get shader() {
         return [
             this.pInst._renderer.userStrokeShader,
-            this.pInst._renderer.userFillShader
+            this.pInst._renderer.userFillShader, 
         ];
     }
     set shader(val) {
@@ -3535,7 +3610,7 @@ class $813871a5b290df44$export$547e390f3d648e59 extends (0, $063b9c440f4a940f$ex
    */ get texture_wrap() {
         return [
             this.pInst._renderer.textureWrapX,
-            this.pInst._renderer.textureWrapY
+            this.pInst._renderer.textureWrapY, 
         ];
     }
     set texture_wrap(val) {
@@ -3625,8 +3700,61 @@ const $813871a5b290df44$export$ebd05637ed7f2471 = (baseClass)=>class extends bas
             this.#light_falloff = [
                 pInst._renderer.constantAttenuation,
                 pInst._renderer.linearAttenuation,
-                pInst._renderer.quadraticAttenuation
+                pInst._renderer.quadraticAttenuation, 
             ];
+        }
+    };
+const $813871a5b290df44$export$7757a7d90505b04a = (baseClass)=>class extends baseClass {
+        #rect_mode;
+        /**
+     * Modifies the location from which rectangles are drawn by changing the way
+     * in which x and y coordinates are interpreted.
+     *
+     * The default mode is CORNER, which interprets the x and y as the
+     * upper-left corner of the shape.
+     *
+     * rect_mode="CORNERS" interprets x and y as the location of
+     * one of the corners, and width and height as the location of
+     * the diagonally opposite corner. Note, the rectangle is drawn between the
+     * coordinates, so it is not necessary that the first corner be the upper left
+     * corner.
+     *
+     * rect_mode="CENTER" interprets x and y as the shape's center
+     * point.
+     *
+     * rect_mode="RADIUS" also uses x and y as the shape's
+     * center
+     * point, but uses width and height to specify half of the shape's
+     * width and height respectively.
+     *
+     * The value to this property must be written in ALL CAPS because they are
+     * predefined as constants in ALL CAPS.
+     *
+     * @type {CORNER|CORNERS|CENTER|RADIUS}
+     */ get rect_mode() {
+            return this.#rect_mode;
+        }
+        set rect_mode(mode) {
+            this.pInst.rectMode(mode);
+            this.#rect_mode = this.pInst._renderer._rectMode;
+        }
+    };
+const $813871a5b290df44$export$8ef92d1c9f18c818 = (baseClass)=>class extends baseClass {
+        #smooth = false;
+        /**
+     * smooth="true" draws all geometry with smooth (anti-aliased) edges. smooth="true" will also
+     * improve image quality of resized images. On a 3D canvas, smooth is false
+     * by default, so it is necessary to set smooth="true" if you would like
+     * smooth (antialiased) edges on your geometry.
+     * @type {boolean}
+     */ get smooth() {
+            return this.#smooth;
+        }
+        set smooth(val) {
+            if (typeof val !== "boolean") return console.error(`${this.tagName}'s smooth property is being set to ${val}, but it may only be set to true or false.`);
+            if (val) this.pInst.smooth();
+            else this.pInst.noSmooth();
+            this.#smooth = val;
         }
     };
 
@@ -3665,7 +3793,7 @@ customElements.define("p-sphere", $0cebf34523a0dd8b$var$Sphere);
 class $0cebf34523a0dd8b$var$Cylinder extends (0, $813871a5b290df44$export$547e390f3d648e59) {
     constructor(){
         super([
-            "[radius], [height], [detail_x], [detail_y], [bottomCap], [topCap]"
+            "[radius], [height], [detail_x], [detail_y], [bottomCap], [topCap]", 
         ]);
     }
 }
@@ -3699,7 +3827,7 @@ class $0cebf34523a0dd8b$var$LoadModel extends (0, $79ce0e365a23b6d5$export$66cca
     constructor(){
         super([
             "path, normalize, [successCallback], [failureCallback], [fileType]",
-            "path, [successCallback], [failureCallback], [fileType]"
+            "path, [successCallback], [failureCallback], [fileType]", 
         ]);
     }
 }
@@ -3790,7 +3918,7 @@ customElements.define("p-ambient-light", $12bf7ff6c321610b$var$AmbientLight);
             "v1, v2, v3, x, y, z",
             "v1, v2, v3, direction",
             "color, x, y, z",
-            "color, direction"
+            "color, direction", 
         ]);
     }
 }
@@ -3826,7 +3954,7 @@ customElements.define("p-directional-light", $12bf7ff6c321610b$var$DirectionalLi
             "v1, v2, v3, x, y, z",
             "v1, v2, v3, position",
             "color, x, y, z",
-            "color, position"
+            "color, position", 
         ]);
     }
 }
@@ -3895,7 +4023,7 @@ customElements.define("p-lights", $12bf7ff6c321610b$var$Lights);
             "color, position, rx, ry, rz, [angle], [concentration]",
             "v1, v2, v3, x, y, z, direction, [angle], [concentration]",
             "v1, v2, v3, position, rx, ry, rz, [angle], [concentration]",
-            "color, x, y, z, rx, ry, rz, [angle], [concentration]"
+            "color, x, y, z, rx, ry, rz, [angle], [concentration]", 
         ]);
     }
 }
@@ -3908,3 +4036,4 @@ dispatchEvent($cf838c15c8b009ba$var$customElementsDefined);
 
 
 //# sourceMappingURL=p5.marker.js.map
+ 
