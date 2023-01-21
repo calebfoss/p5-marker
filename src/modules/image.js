@@ -1,7 +1,4 @@
-import {
-  defineProperties,
-  defineRendererGetterSetters,
-} from "../utils/p5Modifiers";
+import { defineRendererGetterSetters } from "../utils/p5Modifiers";
 import { RenderedElement } from "../core";
 import { addWidthHeight, addXY } from "../properties/shape_props";
 
@@ -83,16 +80,3 @@ class Image extends addXY(addWidthHeight(RenderedElement)) {
 customElements.define("p-image", Image);
 
 defineRendererGetterSetters("imageMode");
-
-defineProperties({
-  canvas_pixels: {
-    get: function () {
-      this.loadPixels();
-      return this.pixels;
-    },
-    set: function (px) {
-      this.pixels = px;
-      this.updatePixels();
-    },
-  },
-});

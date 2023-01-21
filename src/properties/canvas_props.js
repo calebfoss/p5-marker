@@ -77,6 +77,29 @@ export const addCanvasProperties = (baseClass) =>
         (v) => v !== "is" && v != "style"
       );
     }
+    /**
+     * Array containing the values for all the pixels in the display window.
+     * These values are numbers. This array is the size (include an appropriate
+     * factor for pixel_density) of the display window x4,
+     * representing the R, G, B, A values in order for each pixel, moving from
+     * left to right across each row, then down each column. Retina and other
+     * high density displays may have more pixels (by a factor of
+     * pixel_density^2).
+     * For example, if the image is 100×100 pixels, there will be 40,000. With
+     * pixel_density = 2, there will be 160,000. The first four values
+     * (indices 0-3) in the array will be the R, G, B, A values of the pixel at
+     * (0, 0). The second four values (indices 4-7) will contain the R, G, B, A
+     * values of the pixel at (1, 0).
+     * @type {number[]}
+     */
+    get pixels() {
+      this.pInst.loadPixels();
+      return this.pInst.pixels;
+    }
+    set pixels(px) {
+      this.pInst.pixels = px;
+      this.pInst.updatePixels();
+    }
     set loop(val) {
       if (val) this.pInst.loop();
       else this.pInst.noLoop();
