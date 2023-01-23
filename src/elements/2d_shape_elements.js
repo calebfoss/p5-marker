@@ -30,9 +30,9 @@ const addArcProps = (baseClass) =>
     #stop_angle;
     #mode;
     #detail;
-    constructor() {
-      super(["x, y, width, height, start_angle, stop_angle, [mode], [detail]"]);
-    }
+    static overloads = [
+      "x, y, width, height, start_angle, stop_angle, [mode], [detail]",
+    ];
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, width, height, start_angle, stop_angle } = this;
@@ -128,9 +128,7 @@ customElements.define("p-arc", Arc);
  * @element ellipse
  */
 class Ellipse extends addXY(addWidthHeight(addFillStroke(RenderedElement))) {
-  constructor() {
-    super(["x, y, width, [height]", "x, y, width, height, [detail]"]);
-  }
+  static overloads = ["x, y, width, [height]", "x, y, width, height, [detail]"];
   collider = p5.prototype.collider_type.ellipse;
   get collision_args() {
     const originalPoint = new DOMPoint(
@@ -167,9 +165,8 @@ customElements.define("p-ellipse", Ellipse);
  * @element circle
  */
 class Circle extends addXY(add2DFillStroke(RenderedElement)) {
-  constructor() {
-    super(["x, y, d"]);
-  }
+  static overloads = ["x, y, d"];
+
   collider = p5.prototype.collider_type.circle;
   get collision_args() {
     const originalPoint = new DOMPoint(this.x, this.y);
@@ -201,9 +198,7 @@ customElements.define("p-circle", Circle);
  * @element line
  */
 class Line extends addXYZ12(add2DStroke(RenderedElement)) {
-  constructor() {
-    super(["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"]);
-  }
+  static overloads = ["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"];
   collider = p5.prototype.collider_type.line;
   get collision_args() {
     const originalStart = new DOMPoint(
@@ -245,9 +240,7 @@ customElements.define("p-line", Line);
  * @element point
  */
 class Point extends addXYZ(add2DStroke(RenderedElement)) {
-  constructor() {
-    super(["x, y, [z]"]);
-  }
+  static overloads = ["x, y, [z]"];
   collider = p5.prototype.collider_type.circle;
   get collision_args() {
     const originalPoint = new DOMPoint(this.x, this.y);
@@ -290,12 +283,10 @@ customElements.define("p-point", Point);
  * @element quad
  */
 class Quad extends addXYZ1234(add2DFillStroke(RenderedElement)) {
-  constructor() {
-    super([
-      "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
-      "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
-    ]);
-  }
+  static overloads = [
+    "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
+    "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
+  ];
   collider = p5.prototype.collider_type.poly;
   get collision_args() {
     return [this.vertices.map(transformVertexFn(this))];
@@ -335,12 +326,10 @@ customElements.define("p-quad", Quad);
 class Rect extends addXY(
   addWidthHeight(addRectMode(add2DFillStroke(RenderedElement)))
 ) {
-  constructor() {
-    super([
-      "x, y, width, [h], [tl], [tr], [br], [bl]",
-      "x, y, width, height, [detail_x], [detail_y]",
-    ]);
-  }
+  static overloads = [
+    "x, y, width, [h], [tl], [tr], [br], [bl]",
+    "x, y, width, height, [detail_x], [detail_y]",
+  ];
   collider = p5.prototype.collider_type.rect;
   get collision_args() {
     const originalPoint = new DOMPoint(this.x, this.y);
@@ -385,9 +374,7 @@ customElements.define("p-rect", Rect);
  */
 class Square extends addXY(addRectMode(add2DFillStroke(RenderedElement))) {
   #size;
-  constructor() {
-    super(["x, y, size, [tl], [tr], [br], [bl]"]);
-  }
+  static overloads = ["x, y, size, [tl], [tr], [br], [bl]"];
   collider = p5.prototype.collider_type.rect;
   get collision_args() {
     const originalPoint = new DOMPoint(this.x, this.y);
@@ -437,10 +424,7 @@ customElements.define("p-square", Square);
  * @element triangle
  */
 class Triangle extends addXY123(add2DFillStroke(RenderedElement)) {
-  constructor() {
-    const overloads = ["x1, y1, x2, y2, x3, y3"];
-    super(overloads);
-  }
+  static overloads = ["x1, y1, x2, y2, x3, y3"];
   collider = p5.prototype.collider_type.poly;
   get collision_args() {
     return [this.vertices.map(transformVertexFn(this))];
@@ -485,28 +469,21 @@ customElements.define("p-triangle", Triangle);
  * @element bezier
  */
 class Bezier extends addXYZ1234(add2DFillStroke(RenderedElement)) {
-  constructor() {
-    super([
-      "x1, y1, x2, y2, x3, y3, x4, y4",
-      "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4",
-    ]);
-  }
+  static overloads = [
+    "x1, y1, x2, y2, x3, y3, x4, y4",
+    "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4",
+  ];
 }
 customElements.define("p-bezier", Bezier);
 class Curve extends addXYZ1234(add2DFillStroke(RenderedElement)) {
-  constructor() {
-    super([
-      "x1, y1, x2, y2, x3, y3, x4, y4",
-      "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4",
-    ]);
-  }
+  static overloads = [
+    "x1, y1, x2, y2, x3, y3, x4, y4",
+    "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4",
+  ];
 }
 customElements.define("p-curve", Curve);
 class Contour extends add2DFillStroke(RenderedElement) {
   renderFunctionName = "beginContour";
-  constructor() {
-    super([""]);
-  }
   endRender() {
     this.pInst.endContour();
   }
@@ -514,9 +491,7 @@ class Contour extends add2DFillStroke(RenderedElement) {
 customElements.define("p-contour", Contour);
 class Shape extends add2DFillStroke(RenderedElement) {
   renderFunctionName = "beginShape";
-  constructor() {
-    super(["[kind]"], "beginShape");
-  }
+  static overloads = ["[kind]"];
   collider = p5.prototype.collider_type.poly;
   get collision_args() {
     return [this.vertices.map(transformVertexFn(this))];
@@ -547,21 +522,15 @@ class Shape extends add2DFillStroke(RenderedElement) {
 }
 customElements.define("p-shape", Shape);
 class Vertex extends addXYZ(RenderedElement) {
-  constructor() {
-    super(["x, y, [z], [u], [v]"]);
-  }
+  static overloads = ["x, y, [z], [u], [v]"];
 }
 customElements.define("p-vertex", Vertex);
 
 class QuadraticVertex extends RenderedElement {
-  constructor() {
-    super(["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"]);
-  }
+  static overloads = ["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"];
 }
 customElements.define("p-quadratic-vertex", QuadraticVertex);
 class CurveVertex extends addXYZ(RenderedElement) {
-  constructor() {
-    super(["x, y", "x, y, [z]"]);
-  }
+  static overloads = ["x, y", "x, y, [z]"];
 }
 customElements.define("p-curve-vertex", CurveVertex);

@@ -29,9 +29,13 @@ import {
  *                                 target="_blank">p5.Color</a>
  */
 class AmbientLight extends WebGLLight {
-  constructor() {
-    super(["v1, v2, v3, [alpha]", "gray, [alpha]", "value", "values", "color"]);
-  }
+  static overloads = [
+    "v1, v2, v3, [alpha]",
+    "gray, [alpha]",
+    "value",
+    "values",
+    "color",
+  ];
 }
 customElements.define("p-ambient-light", AmbientLight);
 
@@ -71,14 +75,12 @@ customElements.define("p-ambient-light", AmbientLight);
  *                                 target="_blank">p5.Color</a>
  */
 class DirectionalLight extends addSpecularColor(WebGLLight) {
-  constructor() {
-    super([
-      "v1, v2, v3, x, y, z",
-      "v1, v2, v3, direction",
-      "color, x, y, z",
-      "color, direction",
-    ]);
-  }
+  static overloads = [
+    "v1, v2, v3, x, y, z",
+    "v1, v2, v3, direction",
+    "color, x, y, z",
+    "color, direction",
+  ];
 }
 customElements.define("p-directional-light", DirectionalLight);
 
@@ -109,14 +111,12 @@ customElements.define("p-directional-light", DirectionalLight);
  *                as an array, or as a CSS string
  */
 class PointLight extends addLightFalloff(addSpecularColor(WebGLLight)) {
-  constructor() {
-    super([
-      "v1, v2, v3, x, y, z",
-      "v1, v2, v3, position",
-      "color, x, y, z",
-      "color, position",
-    ]);
-  }
+  static overloads = [
+    "v1, v2, v3, x, y, z",
+    "v1, v2, v3, position",
+    "color, x, y, z",
+    "color, position",
+  ];
 }
 customElements.define("p-point-light", PointLight);
 
@@ -127,9 +127,7 @@ customElements.define("p-point-light", PointLight);
  * @element lights
  */
 class Lights extends addSpecularColor(WebGLLight) {
-  constructor() {
-    super([""]);
-  }
+  static overloads = [""];
 }
 customElements.define("p-lights", Lights);
 
@@ -176,17 +174,15 @@ customElements.define("p-lights", Lights);
  *                                            100
  */
 class SpotLight extends addLightFalloff(addSpecularColor(WebGLLight)) {
-  constructor() {
-    super([
-      "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",
-      "color, position, direction, [angle], [concentration]",
-      "v1, v2, v3, position, direction, [angle], [concentration]",
-      "color, x, y, z, direction, [angle], [concentration]",
-      "color, position, rx, ry, rz, [angle], [concentration]",
-      "v1, v2, v3, x, y, z, direction, [angle], [concentration]",
-      "v1, v2, v3, position, rx, ry, rz, [angle], [concentration]",
-      "color, x, y, z, rx, ry, rz, [angle], [concentration]",
-    ]);
-  }
+  static overloads = [
+    "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",
+    "color, position, direction, [angle], [concentration]",
+    "v1, v2, v3, position, direction, [angle], [concentration]",
+    "color, x, y, z, direction, [angle], [concentration]",
+    "color, position, rx, ry, rz, [angle], [concentration]",
+    "v1, v2, v3, x, y, z, direction, [angle], [concentration]",
+    "v1, v2, v3, position, rx, ry, rz, [angle], [concentration]",
+    "color, x, y, z, rx, ry, rz, [angle], [concentration]",
+  ];
 }
 customElements.define("p-spot-light", SpotLight);

@@ -23,9 +23,7 @@ import { addStroke } from "../properties/color_props";
  * @attribute {Number} a normalized alpha val.
  */
 class Clear extends RenderedElement {
-  constructor() {
-    super(["", "r, g, b, a"]);
-  }
+  static overloads = ["", "r, g, b, a"];
 }
 customElements.define("p-clear", Clear);
 
@@ -53,11 +51,7 @@ customElements.define("p-clear", Clear);
  *                                  same size as the sketch window)
  */
 class PaintBucket extends RenderedElement {
-  constructor() {
-    super(
-      ["c", "colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"],
-      "background"
-    );
-  }
+  static overloads = ["c", "colorstring, [a]", "gray, [a]", "v1, v2, v3, [a]"];
+  renderFunctionName = "background";
 }
 customElements.define("p-paint-bucket", PaintBucket);

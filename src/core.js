@@ -710,12 +710,9 @@ export const addP5PropsAndMethods = (baseClass) =>
 export class P5Element extends addP5PropsAndMethods(HTMLElement) {}
 
 export class RenderedElement extends P5Element {
-  constructor(overloads) {
+  static overloads = [""];
+  constructor() {
     super();
-    /**
-     * @private
-     */
-    this.overloads = overloads;
     /**
      * @private
      */
@@ -729,7 +726,7 @@ export class RenderedElement extends P5Element {
    * @private
    */
   #getArgumentsFromOverloads() {
-    const { overloads } = this;
+    const { overloads } = this.constructor;
     //  Check every required parameter has an attribute
     const isOptional = (param) => param.match(/^\[.*\]$/);
     let overloadMatch = false;

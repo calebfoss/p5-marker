@@ -48,12 +48,10 @@ import { addWidthHeight, addXY } from "../properties/shape_props";
  * @attribute {Constant} [yAlign] either TOP, BOTTOM or CENTER default is CENTER
  */
 class Image extends addXY(addWidthHeight(RenderedElement)) {
-  constructor() {
-    super([
-      "img, x, y, [width], [height]",
-      "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
-    ]);
-  }
+  static overloads = [
+    "img, x, y, [width], [height]",
+    "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
+  ];
   /**
    * Sets the fill value for displaying images. Images can be tinted to
    * specified colors or made transparent by including an alpha value.

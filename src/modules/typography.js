@@ -17,8 +17,6 @@ defineRendererGetterSetters(
 defineSnakeAlias("textAscent", "textDescent");
 
 class Text extends addFillStroke(RenderedElement) {
-  constructor() {
-    super(["content, x, y, [x2], [y2]"]);
-  }
+  static overloads = ["content, x, y, [x2], [y2]"];
 }
 customElements.define("p-text", Text);
