@@ -1,14 +1,14 @@
 <_>
     <custom name="cloud" stroke="NONE">
         <_ anchor="x, y">
-            <circle x="-d/2" y="-d/4" fill="220"></circle>
-            <circle x="-d/2" y="-d/4" fill="210"></circle>
-            <circle x="-d/4" y="-d/2" fill="250"></circle>
-            <circle x="d/4" y="-d/2" fill="210"></circle>
+            <circle x="-diameter/2" y="-diameter/4" fill="220"></circle>
+            <circle x="-diameter/2" y="-diameter/4" fill="210"></circle>
+            <circle x="-diameter/4" y="-diameter/2" fill="250"></circle>
+            <circle x="diameter/4" y="-diameter/2" fill="210"></circle>
             <circle x="0" y="0" fill="180"></circle>
-            <circle x="d/2" y="0" fill="200"></circle>
-            <circle x="-d/2" y="0" fill="240"></circle>
-            <circle x="0" y="-d/8" fill="235"></circle>
+            <circle x="diameter/2" y="0" fill="200"></circle>
+            <circle x="-diameter/2" y="0" fill="240"></circle>
+            <circle x="0" y="-diameter/8" fill="235"></circle>
         </_>
     </custom>
     <canvas
@@ -20,7 +20,7 @@
             <cloud
                 y="75"
                 x="start_x - width * 0.25"
-                d="40"
+                diameter="40"
                 change="x: x + width * 0.25"
                 repeat="WHILE x LESS_THAN width"
             >

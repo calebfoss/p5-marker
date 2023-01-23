@@ -744,7 +744,8 @@ export class RenderedElement extends P5Element {
           this.attributeInherited(p) ||
           isOptional(p) ||
           p === "" ||
-          (i === overloadsSplitSorted.length - 1 && this.attributeInherited(p))
+          (i === overloadsSplitSorted.length - 1 &&
+            (this.attributeInherited(p) || p in this))
       );
 
       //  If matched overload found
@@ -756,7 +757,7 @@ export class RenderedElement extends P5Element {
           const optional = isOptional(overloadParams[i]);
           const p = overloadParams[i].replaceAll(/\[|\]/g, "");
           //  If param defined on this element, add it to filtered params
-          if (this.hasAttribute(p))
+          if (this.hasAttribute(p) || p in this)
             return filterParams(
               overloadParams,
               filteredParams.concat({ owner: this.this_element, param: p }),

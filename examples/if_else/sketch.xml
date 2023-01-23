@@ -4,7 +4,7 @@
   stroke="NONE"
   background="200"
 >
-  <_ d="width" anchor="width/2, height/2">
+  <_ diameter="width" anchor="width/2, height/2">
     <circle
       fill="'red'"
       on="frame_count LESS_THAN 60"

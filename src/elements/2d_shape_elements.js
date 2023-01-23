@@ -165,7 +165,8 @@ customElements.define("p-ellipse", Ellipse);
  * @element circle
  */
 class Circle extends addXY(add2DFillStroke(RenderedElement)) {
-  static overloads = ["x, y, d"];
+  #diameter = 100;
+  static overloads = ["x, y, diameter"];
 
   collider = p5.prototype.collider_type.circle;
   get collision_args() {
@@ -174,18 +175,29 @@ class Circle extends addXY(add2DFillStroke(RenderedElement)) {
       originalPoint,
       this.transform_matrix
     );
-    const d = this.this_element.d * this.pInst.pow(this.pInst.pixel_density, 2);
-    return [x, y, d];
+    const scaledDiameter =
+      this.diameter * this.pInst.pow(this.pInst.pixel_density, 2);
+    return [x, y, scaledDiameter];
+  }
+  /**
+   * Diameter of the circle
+   * @type {number}
+   */
+  get diameter() {
+    return this.#diameter;
+  }
+  set diameter(val) {
+    this.#diameter = val;
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, d } = this.this_element;
+    const { x, y, diameter } = this;
     return this.pInst.collide_point_circle(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
       x,
       y,
-      d
+      diameter
     );
   }
 }
@@ -201,18 +213,12 @@ class Line extends addXYZ12(add2DStroke(RenderedElement)) {
   static overloads = ["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"];
   collider = p5.prototype.collider_type.line;
   get collision_args() {
-    const originalStart = new DOMPoint(
-      this.this_element.x1,
-      this.this_element.y1
-    );
+    const originalStart = new DOMPoint(this.x1, this.y1);
     const { x: x1, y: y1 } = this.pInst._transform_point_matrix(
       originalStart,
       this.transform_matrix
     );
-    const originalEnd = new DOMPoint(
-      this.this_element.x2,
-      this.this_element.y2
-    );
+    const originalEnd = new DOMPoint(this.x2, this.y2);
     const { x: x2, y: y2 } = this.pInst._transform_point_matrix(
       originalEnd,
       this.transform_matrix
@@ -221,7 +227,7 @@ class Line extends addXYZ12(add2DStroke(RenderedElement)) {
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x1, y1, x2, y2 } = this.this_element;
+    const { x1, y1, x2, y2 } = this;
     return this.pInst.collide_point_line(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
@@ -310,6 +316,53 @@ class Quad extends addXYZ1234(add2DFillStroke(RenderedElement)) {
   }
 }
 customElements.define("p-quad", Quad);
+const addCornerRadius = (baseClass) =>
+  class extends baseClass {
+    #top_left_radius = 0;
+    #top_right_radius = 0;
+    #bottom_left_radius = 0;
+    #bottom_right_radius = 0;
+    /**
+     * radius of top-left corner
+     * @type {number}
+     */
+    get top_left_radius() {
+      return this.#top_left_radius;
+    }
+    set top_left_radius(val) {
+      this.#top_left_radius = val;
+    }
+    /**
+     * radius of top-right corner
+     * @type {number}
+     */
+    get top_right_radius() {
+      return this.#top_right_radius;
+    }
+    set top_right_radius(val) {
+      this.#top_right_radius = val;
+    }
+    /**
+     * radius of bottom-left corner
+     * @type {number}
+     */
+    get bottom_left_radius() {
+      return this.#bottom_left_radius;
+    }
+    set bottom_left_radius(val) {
+      this.#bottom_left_radius = val;
+    }
+    /**
+     * radius of bottom-right corner
+     * @type {number}
+     */
+    get bottom_right_radius() {
+      return this.#bottom_right_radius;
+    }
+    set bottom_right_radius(val) {
+      this.#bottom_right_radius = val;
+    }
+  };
 /**
  * Draws a rectangle on the canvas. A rectangle is a four-sided closed shape
  * with every angle at ninety degrees. By default, the x and y attributes
@@ -324,11 +377,10 @@ customElements.define("p-quad", Quad);
  * @element rect
  */
 class Rect extends addXY(
-  addWidthHeight(addRectMode(add2DFillStroke(RenderedElement)))
+  addWidthHeight(addRectMode(addCornerRadius(add2DFillStroke(RenderedElement))))
 ) {
   static overloads = [
-    "x, y, width, [h], [tl], [tr], [br], [bl]",
-    "x, y, width, height, [detail_x], [detail_y]",
+    "x, y, width, [height], [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
   ];
   collider = p5.prototype.collider_type.rect;
   get collision_args() {
@@ -372,9 +424,13 @@ customElements.define("p-rect", Rect);
  *
  * @element square
  */
-class Square extends addXY(addRectMode(add2DFillStroke(RenderedElement))) {
+class Square extends addXY(
+  addRectMode(addCornerRadius(add2DFillStroke(RenderedElement)))
+) {
   #size;
-  static overloads = ["x, y, size, [tl], [tr], [br], [bl]"];
+  static overloads = [
+    "x, y, size, [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
+  ];
   collider = p5.prototype.collider_type.rect;
   get collision_args() {
     const originalPoint = new DOMPoint(this.x, this.y);
