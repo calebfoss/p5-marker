@@ -85,12 +85,10 @@ export const addWidthHeight = (baseClass) =>
     }
   };
 
-export const addXY12 = (baseClass) =>
+const addXY1 = (baseClass) =>
   class extends baseClass {
     #x1;
     #y1;
-    #x2;
-    #y2;
     /**
      * The first x-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -119,6 +117,11 @@ export const addXY12 = (baseClass) =>
           `${this.tagName}'s y1 is being set to ${val}, but it may only be set to a number.`
         );
     }
+  };
+const addXY2 = (baseClass) =>
+  class extends baseClass {
+    #x2;
+    #y2;
     /**
      * The second x-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -149,7 +152,9 @@ export const addXY12 = (baseClass) =>
     }
   };
 
-export const addY3 = (baseClass) =>
+export const addXY12 = (baseClass) =>
+  class extends addXY1(addXY2(baseClass)) {};
+export const addXY3 = (baseClass) =>
   class extends baseClass {
     #x3;
     #y3;
@@ -184,12 +189,11 @@ export const addY3 = (baseClass) =>
   };
 
 export const addXY123 = (baseClass) =>
-  class extends addXY12(addY3(baseClass)) {};
+  class extends addXY12(addXY3(baseClass)) {};
 
-const addZ12 = (baseClass) =>
+const addZ1 = (baseClass) =>
   class extends baseClass {
     #z1;
-    #z2;
     /**
      * The first z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
@@ -204,6 +208,11 @@ const addZ12 = (baseClass) =>
           `${this.tagName}'s z1 is being set to ${val}, but it may only be set to a number.`
         );
     }
+  };
+
+const addZ2 = (baseClass) =>
+  class extends baseClass {
+    #z2;
     /**
      * The second z-coordinate of the element relative to the current anchor. (on 3D canvas only)
      * @type {number}
@@ -221,7 +230,81 @@ const addZ12 = (baseClass) =>
   };
 
 export const addXYZ12 = (baseClass) =>
-  class extends addXY12(addZ12(baseClass)) {};
+  class extends addXY1(addZ1(addXY2(addZ2(baseClass)))) {};
+
+const addXY4 = (baseClass) =>
+  class extends addXY123(baseClass) {
+    #x4;
+    #y4;
+    /**
+     * The fourth x-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get x4() {
+      return this.#x4;
+    }
+    set x4(val) {
+      if (!isNaN(val)) this.#x4 = val;
+      else
+        console.error(
+          `${this.tagName}'s x4 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The fourth y-coordinate of the element relative to the current anchor.
+     * @type {number}
+     */
+    get y4() {
+      return this.#y4;
+    }
+    set y4(val) {
+      if (!isNaN(val)) this.#y4 = val;
+      else
+        console.error(
+          `${this.tagName}'s y4 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
+export const addXY1234 = (baseClass) =>
+  class extends addXY123(addXY4(baseClass)) {};
+
+const addZ3 = (baseClass) =>
+  class extends baseClass {
+    #z3;
+    /**
+     * The third z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * @type {number}
+     */
+    get z3() {
+      return this.#z3;
+    }
+    set z3(val) {
+      if (!isNaN(val)) this.#z3 = val;
+      else
+        console.error(
+          `${this.tagName}'s z3 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
+
+export const addXYZ1234 = (baseClass) =>
+  class extends addXYZ12(addXY3(addZ3(addXY4(baseClass)))) {
+    #z4;
+    /**
+     * The fourth z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * @type {number}
+     */
+    get z4() {
+      return this.#z4;
+    }
+    set z4(val) {
+      if (!isNaN(val)) this.#z4 = val;
+      else
+        console.error(
+          `${this.tagName}'s z4 is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
 
 export const addRectMode = (baseClass) =>
   class extends baseClass {
@@ -317,54 +400,5 @@ export const add2DStrokeStyling = (baseClass) =>
     set stroke_join(val) {
       this.pInst.strokeJoin(val);
       this.#stroke_join = this.pInst.drawingContext.lineJoin;
-    }
-  };
-
-export const addXYZ1234 = (baseClass) =>
-  class extends addY3(addXYZ12(baseClass)) {
-    #z3;
-    #z4;
-    #y4;
-    /**
-     * The fourth y-coordinate of the element relative to the current anchor.
-     * @type {number}
-     */
-    get y4() {
-      return this.#y4;
-    }
-    set y4(val) {
-      if (!isNaN(val)) this.#y4 = val;
-      else
-        console.error(
-          `${this.tagName}'s y4 is being set to ${val}, but it may only be set to a number.`
-        );
-    }
-    /**
-     * The third z-coordinate of the element relative to the current anchor. (on 3D canvas only)
-     * @type {number}
-     */
-    get z3() {
-      return this.#z3;
-    }
-    set z3(val) {
-      if (!isNaN(val)) this.#z3 = val;
-      else
-        console.error(
-          `${this.tagName}'s z3 is being set to ${val}, but it may only be set to a number.`
-        );
-    }
-    /**
-     * The fourth z-coordinate of the element relative to the current anchor. (on 3D canvas only)
-     * @type {number}
-     */
-    get z4() {
-      return this.#z4;
-    }
-    set z4(val) {
-      if (!isNaN(val)) this.#z4 = val;
-      else
-        console.error(
-          `${this.tagName}'s z4 is being set to ${val}, but it may only be set to a number.`
-        );
     }
   };

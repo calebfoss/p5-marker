@@ -5,6 +5,7 @@ import {
   addXYZ,
   addXYZ12,
   addXY123,
+  addXY1234,
   addXYZ1234,
   addWidthHeight,
   addRectMode,
@@ -24,15 +25,11 @@ const transformVertexFn = (el) => (v) => {
   return el.pInst.createVector(x, y);
 };
 
-const addArcProps = (baseClass) =>
+export const addArcProps = (baseClass) =>
   class extends baseClass {
-    #start_angle;
-    #stop_angle;
+    #start_angle = 0;
+    #stop_angle = Math.PI;
     #mode;
-    #detail;
-    static overloads = [
-      "x, y, width, height, start_angle, stop_angle, [mode], [detail]",
-    ];
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, width, height, start_angle, stop_angle } = this;
@@ -89,18 +86,6 @@ const addArcProps = (baseClass) =>
     set mode(val) {
       this.#mode = val;
     }
-    /**
-     * 3D mode only. This is to specify the number of vertices that makes up the
-     * perimeter of the arc. Default value is 25. Won't draw a stroke for a detail
-     * of more than 50. (on 3D canvas only)
-     * @type {number}
-     */
-    get detail() {
-      return this.#detail;
-    }
-    set detail(val) {
-      this.#detail = val;
-    }
   };
 /**
  * Draws an arc to the screen.
@@ -116,10 +101,43 @@ const addArcProps = (baseClass) =>
  */
 class Arc extends addXY(
   addWidthHeight(addArcProps(add2DFillStroke(RenderedElement)))
-) {}
+) {
+  static overloads = ["x, y, width, height, start_angle, stop_angle, [mode]"];
+}
 customElements.define("p-arc", Arc);
+
+const addEllipse2DCollisionProps = (baseClass) =>
+  class extends baseClass {
+    collider = p5.prototype.collider_type.ellipse;
+    get collision_args() {
+      const originalPoint = new DOMPoint(
+        this.this_element.x,
+        this.this_element.y
+      );
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      const { pixel_density } = this.pInst;
+      const { w } = this.width * pixel_density;
+      const { h } = this.height * pixel_density || w;
+      return [x, y, w, h];
+    }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, width, height } = this.this_element;
+      return this.pInst.collide_point_ellipse(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        width,
+        height
+      );
+    }
+  };
 /**
- * Draws an ellipse (oval) to the screen. If no height is specified, the
+ * Draws an ellipse (oval) to a 3D canvas. If no height is specified, the
  * value of width is used for both the width and height. If a
  * negative height or width is specified, the absolute value is taken.
  *
@@ -127,193 +145,186 @@ customElements.define("p-arc", Arc);
  * changed with the ellipseMode() function.
  * @element ellipse
  */
-class Ellipse extends addXY(addWidthHeight(addFillStroke(RenderedElement))) {
-  static overloads = ["x, y, width, [height]", "x, y, width, height, [detail]"];
-  collider = p5.prototype.collider_type.ellipse;
-  get collision_args() {
-    const originalPoint = new DOMPoint(
-      this.this_element.x,
-      this.this_element.y
-    );
-    const { x, y } = this.pInst._transform_point_matrix(
-      originalPoint,
-      this.transform_matrix
-    );
-    const { pixel_density } = this.pInst;
-    const { w } = this.width * pixel_density;
-    const { h } = this.height * pixel_density || w;
-    return [x, y, w, h];
-  }
-  get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, width, height } = this.this_element;
-    return this.pInst.collide_point_ellipse(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
-      x,
-      y,
-      width,
-      height
-    );
-  }
+class Ellipse extends addXY(
+  addWidthHeight(addFillStroke(addEllipse2DCollisionProps(RenderedElement)))
+) {
+  static overloads = ["x, y, width, [height]"];
 }
 customElements.define("p-ellipse", Ellipse);
+
+const addCircle2DCollisionProps = (baseClass) =>
+  class extends baseClass {
+    constructor() {
+      super(["x, y, d"]);
+    }
+    collider = p5.prototype.collider_type.circle;
+    get collision_args() {
+      const originalPoint = new DOMPoint(this.x, this.y);
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      const d =
+        this.this_element.d * this.pInst.pow(this.pInst.pixel_density, 2);
+      return [x, y, d];
+    }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x, y, d } = this.this_element;
+      return this.pInst.collide_point_circle(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        d
+      );
+    }
+  };
 /**
  * Draws a circle to the screen. A circle is a simple closed shape. It is the
  * set of all points in a plane that are at a given distance from a given
  * point, the center.
  * @element circle
  */
-class Circle extends addXY(add2DFillStroke(RenderedElement)) {
+class Circle extends addXY(
+  add2DFillStroke(addCircle2DCollisionProps(RenderedElement))
+) {
+  static overloads = ["x, y, d"];
   #diameter = 100;
-  static overloads = ["x, y, diameter"];
-
-  collider = p5.prototype.collider_type.circle;
-  get collision_args() {
-    const originalPoint = new DOMPoint(this.x, this.y);
-    const { x, y } = this.pInst._transform_point_matrix(
-      originalPoint,
-      this.transform_matrix
-    );
-    const scaledDiameter =
-      this.diameter * this.pInst.pow(this.pInst.pixel_density, 2);
-    return [x, y, scaledDiameter];
-  }
-  /**
-   * Diameter of the circle
-   * @type {number}
-   */
-  get diameter() {
-    return this.#diameter;
-  }
-  set diameter(val) {
-    this.#diameter = val;
-  }
-  get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, diameter } = this;
-    return this.pInst.collide_point_circle(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
-      x,
-      y,
-      diameter
-    );
-  }
 }
 customElements.define("p-circle", Circle);
+
+const addLine2DCollisionProps = (baseClass) =>
+  class extends baseClass {
+    collider = p5.prototype.collider_type.line;
+    get collision_args() {
+      const originalStart = new DOMPoint(
+        this.this_element.x1,
+        this.this_element.y1
+      );
+      const { x: x1, y: y1 } = this.pInst._transform_point_matrix(
+        originalStart,
+        this.transform_matrix
+      );
+      const originalEnd = new DOMPoint(
+        this.this_element.x2,
+        this.this_element.y2
+      );
+      const { x: x2, y: y2 } = this.pInst._transform_point_matrix(
+        originalEnd,
+        this.transform_matrix
+      );
+      return [x1, y1, x2, y2];
+    }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x1, y1, x2, y2 } = this.this_element;
+      return this.pInst.collide_point_line(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x1,
+        y1,
+        x2,
+        y2
+      );
+    }
+  };
 /**
- * Draws a line (a direct path between two points) to the screen. This width
- * can be modified by using the stroke_weight attribute. A line cannot be
- * filled, therefore the fill_color attribute will not affect the color of a
- * line. So to color a line, use the stroke attribute.
+ * Draws a line (a direct path between two points) to the screen. Its width
+ * can be modified by using the stroke_weight property. A line cannot be
+ * filled, therefore the fill_color property will not affect the color of a
+ * line. So to color a line, use the stroke property.
  * @element line
  */
-class Line extends addXYZ12(add2DStroke(RenderedElement)) {
-  static overloads = ["x1, y1, x2, y2", "x1, y1, z1, x2, y2, z2"];
-  collider = p5.prototype.collider_type.line;
-  get collision_args() {
-    const originalStart = new DOMPoint(this.x1, this.y1);
-    const { x: x1, y: y1 } = this.pInst._transform_point_matrix(
-      originalStart,
-      this.transform_matrix
-    );
-    const originalEnd = new DOMPoint(this.x2, this.y2);
-    const { x: x2, y: y2 } = this.pInst._transform_point_matrix(
-      originalEnd,
-      this.transform_matrix
-    );
-    return [x1, y1, x2, y2];
-  }
-  get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x1, y1, x2, y2 } = this;
-    return this.pInst.collide_point_line(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
-      x1,
-      y1,
-      x2,
-      y2
-    );
-  }
+class Line extends addXYZ12(
+  add2DStroke(addLine2DCollisionProps(RenderedElement))
+) {
+  static overloads = ["x1, y1, x2, y2"];
 }
 customElements.define("p-line", Line);
+
+const addPointCollisionProps = (baseClass) =>
+  class extends baseClass {
+    collider = p5.prototype.collider_type.circle;
+    get collision_args() {
+      const originalPoint = new DOMPoint(this.x, this.y);
+      const { x, y } = this.pInst._transform_point_matrix(
+        originalPoint,
+        this.transform_matrix
+      );
+      const { stroke_weight } = this;
+      const { pixel_density } = this.pInst;
+      const d = stroke_weight * this.pInst.pow(pixel_density, 2);
+      return [x, y, d];
+    }
+    get mouse_over() {
+      const {
+        x,
+        y,
+        stroke_weight,
+        pixel_density,
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+      } = this;
+      const d = stroke_weight * this.pInst.pow(pixel_density, 2);
+      return this.pInst.collide_point_circle(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        x,
+        y,
+        d
+      );
+    }
+  };
 /**
  * Draws a point, a coordinate in space at the dimension of one pixel. The
- * color of the point is changed with the stroke attribute. The size of
- * the point can be changed with the stroke_weight attribute.
+ * color of the point is changed with the stroke property. The size of
+ * the point can be changed with the stroke_weight property.
  * @element point
  */
-class Point extends addXYZ(add2DStroke(RenderedElement)) {
-  static overloads = ["x, y, [z]"];
-  collider = p5.prototype.collider_type.circle;
-  get collision_args() {
-    const originalPoint = new DOMPoint(this.x, this.y);
-    const { x, y } = this.pInst._transform_point_matrix(
-      originalPoint,
-      this.transform_matrix
-    );
-    const { stroke_weight } = this;
-    const { pixel_density } = this.pInst;
-    const d = stroke_weight * this.pInst.pow(pixel_density, 2);
-    return [x, y, d];
-  }
-  get mouse_over() {
-    const {
-      x,
-      y,
-      stroke_weight,
-      pixel_density,
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
-    } = this;
-    const d = stroke_weight * this.pInst.pow(pixel_density, 2);
-    return this.pInst.collide_point_circle(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
-      x,
-      y,
-      d
-    );
-  }
+class Point extends addXY(
+  add2DStroke(addPointCollisionProps(RenderedElement))
+) {
+  static overloads = ["x, y"];
 }
 customElements.define("p-point", Point);
+
+const addQuad2DCollisionProps = (baseClass) =>
+  class extends baseClass {
+    collider = p5.prototype.collider_type.poly;
+    get collision_args() {
+      return [this.vertices.map(transformVertexFn(this))];
+    }
+    get mouse_over() {
+      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      return this.pInst.collide_point_poly(
+        mouse_trans_pos_x,
+        mouse_trans_pos_y,
+        this.vertices
+      );
+    }
+    get vertices() {
+      const { x1, y1, x2, y2, x3, y3, x4, y4 } = this;
+      return [
+        this.pInst.createVector(x1, y1),
+        this.pInst.createVector(x2, y2),
+        this.pInst.createVector(x3, y3),
+        this.pInst.createVector(x4, y4),
+      ];
+    }
+  };
 /**
  * Draws a quad on the canvas. A quad is a quadrilateral, a four-sided
  * polygon. It is similar to a rectangle, but the angles between its edges
- * are not constrained to ninety degrees. The x1 and y1 attributes set the
+ * are not constrained to ninety degrees. The x1 and y1 properties set the
  * first vertex and the subsequent pairs should proceed clockwise or
- * counter-clockwise around the defined shape. z attributes only work when
- * quad() is used in WEBGL mode.
+ * counter-clockwise around the defined shape.
  * @element quad
  */
-class Quad extends addXYZ1234(add2DFillStroke(RenderedElement)) {
-  static overloads = [
-    "x1, y1, x2, y2, x3, y3, x4, y4, [detail_x], [detail_y]",
-    "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
-  ];
-  collider = p5.prototype.collider_type.poly;
-  get collision_args() {
-    return [this.vertices.map(transformVertexFn(this))];
-  }
-  get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    return this.pInst.collide_point_poly(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
-      this.vertices
-    );
-  }
-  get vertices() {
-    const { x1, y1, x2, y2, x3, y3, x4, y4 } = this;
-    return [
-      this.pInst.createVector(x1, y1),
-      this.pInst.createVector(x2, y2),
-      this.pInst.createVector(x3, y3),
-      this.pInst.createVector(x4, y4),
-    ];
-  }
+class Quad extends addXY1234(
+  add2DFillStroke(addQuad2DCollisionProps(RenderedElement))
+) {
+  static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-quad", Quad);
 const addCornerRadius = (baseClass) =>
@@ -365,15 +376,10 @@ const addCornerRadius = (baseClass) =>
   };
 /**
  * Draws a rectangle on the canvas. A rectangle is a four-sided closed shape
- * with every angle at ninety degrees. By default, the x and y attributes
+ * with every angle at ninety degrees. By default, the x and y properties
  * set the location of the upper-left corner, w sets the width, and h sets
- * the height. The way these attributes are interpreted may be changed with
- * the rect_mode attribute.
- *
- * The tl, tr, br and bl attributes, if specified, determine
- * corner radius for the top-left, top-right, lower-right and lower-left
- * corners, respectively. An omitted corner radius parameter is set to the
- * value of the previously specified radius value in the attribute list.
+ * the height. The way these properties are interpreted may be changed with
+ * the rect_mode property.
  * @element rect
  */
 class Rect extends addXY(
@@ -446,14 +452,14 @@ class Square extends addXY(
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-    const { x, y, s } = this;
+    const { x, y, size } = this;
     return this.pInst.collide_point_rect(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
       x,
       y,
-      s,
-      s
+      size,
+      size
     );
   }
   /**
