@@ -503,8 +503,9 @@ class Curve extends addXYZ1234(add2DFillStroke(RenderedElement)) {
 }
 customElements.define("p-curve", Curve);
 class Contour extends add2DFillStroke(RenderedElement) {
+  renderFunctionName = "beginContour";
   constructor() {
-    super([""], "beginContour");
+    super([""]);
   }
   endRender() {
     this.pInst.endContour();
@@ -512,6 +513,7 @@ class Contour extends add2DFillStroke(RenderedElement) {
 }
 customElements.define("p-contour", Contour);
 class Shape extends add2DFillStroke(RenderedElement) {
+  renderFunctionName = "beginShape";
   constructor() {
     super(["[kind]"], "beginShape");
   }

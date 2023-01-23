@@ -710,7 +710,7 @@ export const addP5PropsAndMethods = (baseClass) =>
 export class P5Element extends addP5PropsAndMethods(HTMLElement) {}
 
 export class RenderedElement extends P5Element {
-  constructor(overloads, renderFunctionName) {
+  constructor(overloads) {
     super();
     /**
      * @private
@@ -719,8 +719,9 @@ export class RenderedElement extends P5Element {
     /**
      * @private
      */
-    this.renderFunctionName =
-      renderFunctionName || kebabToCamel(this.tagName.toLowerCase().slice(2));
+    this.renderFunctionName ||= kebabToCamel(
+      this.tagName.toLowerCase().slice(2)
+    );
   }
   /**
    * Sets the parameters used to call this element's render function based
