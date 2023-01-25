@@ -1,0 +1,12 @@
+<canvas-3d width="400" height="400" angle_mode="DEGREES">
+  <box width="50" height="50" angle_y="frame_count" angle_x="30"></box>
+  <sphere anchor="-width/4, -height/4" angle_z="frame_count"></sphere>
+  <cylinder radius="height" angle_y="frame_count * -0.25"></cylinder>
+  <ellipsoid
+    anchor="width/4, -height/4"
+    angle_z="-frame_count"
+    radius_x="width/8"
+    radius_y="height/16"
+  ></ellipsoid>
+  <torus anchor="0, height/4" angle_x="frame_count"></torus>
+</canvas-3d>
