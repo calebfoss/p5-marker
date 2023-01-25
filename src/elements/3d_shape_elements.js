@@ -347,3 +347,39 @@ class Shape3D extends addShapeElementProps(
   addFillStroke(add3DProps(RenderedElement))
 ) {}
 customElements.define("p-shape-3d", Shape3D);
+
+const addUV = (baseClass) =>
+  class extends baseClass {
+    #u;
+    #v;
+    /**
+     * the vertex's texture u-coordinate
+     * @type {number}
+     */
+    get u() {
+      return this.#u;
+    }
+    set u(val) {
+      this.#u = val;
+    }
+    /**
+     * the vertex's texture v-coordinate
+     * @type {number}
+     */
+    get v() {
+      return this.#v;
+    }
+    set v(val) {
+      this.#v = val;
+    }
+  };
+/**
+ * All shapes are constructed by connecting a series of vertices. ```<vertex-3d>```
+ * is used to specify the vertex coordinates for shapes on a ```<canvas-3d>```.
+ * It is used exclusively as a child of the ```<shape-3d>``` element.
+ * @element vertex
+ */
+class Vertex3D extends addXYZ(addUV(RenderedElement)) {
+  static overloads = ["x, y, z, [u], [v]"];
+}
+customElements.define("p-vertex-3d", Vertex3D);

@@ -704,8 +704,15 @@ class Shape extends addShapeElementProps(
   add2DFillStroke(addShape2DCollisionProps(RenderedElement))
 ) {}
 customElements.define("p-shape", Shape);
-class Vertex extends addXYZ(RenderedElement) {
-  static overloads = ["x, y, [z], [u], [v]"];
+
+/**
+ * All shapes are constructed by connecting a series of vertices. ```<vertex>```
+ * is used to specify the vertex coordinates for points, lines, triangles,
+ * quads, and polygons. It is used exclusively as a child of the ```<shape>``` element.
+ * @element vertex
+ */
+class Vertex extends addXY(RenderedElement) {
+  static overloads = ["x, y"];
 }
 customElements.define("p-vertex", Vertex);
 
