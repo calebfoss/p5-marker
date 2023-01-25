@@ -236,7 +236,9 @@ customElements.define("p-rect-3d", Rect3D);
  * third point.
  * @element triangle
  */
-class Triangle3D extends addXYZ123(addFillStroke(add3DProps(RenderedElement))) {
+class Triangle3D extends remove3DFromRenderFunctionName(
+  addXYZ123(addFillStroke(add3DProps(RenderedElement)))
+) {
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3"];
 }
 customElements.define("p-triangle-3d", Triangle3D);
