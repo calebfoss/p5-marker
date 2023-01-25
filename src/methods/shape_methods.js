@@ -40,6 +40,8 @@ export const addCurveMethods = (baseClass) =>
       return this.pInst.createVector(x, y);
     }
     /**
+     * Evaluates the tangent to the curve at t.
+     * t is between 0 (start of curve) and 1 (end of curve).
      *
      * @param {number} t - value between 0 and 1
      * @returns {p5.Vector} - tangent of curve at t
