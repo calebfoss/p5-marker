@@ -405,3 +405,23 @@ export const add2DStrokeStyling = (baseClass) =>
       this.#stroke_join = this.pInst.drawingContext.lineJoin;
     }
   };
+
+export const addCurveTightness = (baseClass) =>
+  class extends baseClass {
+    #curve_tightness = 0;
+    /**
+     * Modifies the quality of the curve.The amount
+     * determines how the curve fits to the vertex points. The value 0.0 is the
+     * default value (this value defines the curves to be Catmull-Rom
+     * splines) and the value 1.0 connects all the points with straight lines.
+     * Values within the range -5.0 and 5.0 will deform the curves but will leave
+     * them recognizable and as values increase in magnitude, they will continue to deform.
+     * @type {number}
+     */
+    get curve_tightness() {
+      return this.#curve_tightness;
+    }
+    set curve_tightness(val) {
+      this.#curve_tightness = val;
+    }
+  };

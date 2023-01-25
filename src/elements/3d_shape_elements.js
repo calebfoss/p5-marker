@@ -6,6 +6,7 @@ import {
   addXYZ12,
   addXYZ1234,
   addXYZ123,
+  addCurveTightness,
 } from "../properties/shape_props";
 import { addFillStroke, addStroke } from "../properties/color_props";
 import { add3DProps } from "../properties/3d_props";
@@ -262,3 +263,43 @@ class Bezier3D extends remove3DFromRenderFunctionName(
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
 }
 customElements.define("p-bezier-3d", Bezier3D);
+
+/**
+ * Draws a curved line onto a ```<canvas-3d>``` between two points,
+ * given as (x2, y2) and (x3, y3).
+ * (x1, y1) is a control point, as
+ * if the curve came from this point even though it's not drawn. (x4, y4) similarly describes
+ * the other control point.
+ *
+ * Longer curves can be created by putting a series of ```<curve-3d>``` elements
+ * together or using ```<curve-vertex>```. The curve_tightness property provides control
+ * for the visual quality of the curve.
+ * The ```<curve>``` element is an implementation of Catmull-Rom splines.
+ * @element curve
+ */
+class Curve3D extends remove3DFromRenderFunctionName(
+  addXYZ1234(addCurveTightness(addFillStroke(add3DProps(RenderedElement))))
+) {
+  static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
+}
+customElements.define("p-curve-3d", Curve3D);
+/**
+ * Specifies vertex coordinates for curves. This function may only
+ * be used as a child of the ```<shape-3d>``` element and only when there
+ * is no MODE property specified on the ```<shape-3d>``.
+ *
+ * The first and last points in a series of ```<curve-vertex-3d>``` lines
+ * will be used to
+ * guide the beginning and end of the curve. A minimum of four
+ * points is required to draw a tiny curve between the second and
+ * third points. Adding a fifth point with ```<curve-vertex>``` will draw
+ * the curve between the second, third, and fourth points. The
+ * ```<curve-vertex>``` element is an implementation of Catmull-Rom
+ * splines.
+ */
+class CurveVertex3D extends remove3DFromRenderFunctionName(
+  addXYZ(addCurveTightness(addFillStroke(add3DProps(RenderedElement))))
+) {
+  static overloads = ["x, y, z"];
+}
+customElements.define("p-curve-vertex-3d", CurveVertex3D);

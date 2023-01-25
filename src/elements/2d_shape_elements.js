@@ -10,6 +10,7 @@ import {
   addWidthHeight,
   addRectMode,
   add2DStrokeStyling,
+  addCurveTightness,
 } from "../properties/shape_props";
 
 const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
@@ -542,11 +543,23 @@ class Bezier extends addXYZ1234(add2DFillStroke(RenderedElement)) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-bezier", Bezier);
-class Curve extends addXYZ1234(add2DFillStroke(RenderedElement)) {
-  static overloads = [
-    "x1, y1, x2, y2, x3, y3, x4, y4",
-    "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4",
-  ];
+
+/**
+ * Draws a curved line on the screen between two points, given as (x2, y2) and (x3, y3).
+ * (x1, y1) is a control point, as
+ * if the curve came from this point even though it's not drawn. (x4, y4) similarly describes
+ * the other control point.
+ *
+ * Longer curves can be created by putting a series of ```<curve>``` elements
+ * together or using ```<curve-vertex>```. The curve_tightness property provides control
+ * for the visual quality of the curve.
+ * The ```<curve>``` element is an implementation of Catmull-Rom splines.
+ * @element curve
+ */
+class Curve extends addXYZ1234(
+  addCurveTightness(add2DFillStroke(RenderedElement))
+) {
+  static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-curve", Curve);
 class Contour extends add2DFillStroke(RenderedElement) {
@@ -597,7 +610,21 @@ class QuadraticVertex extends RenderedElement {
   static overloads = ["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"];
 }
 customElements.define("p-quadratic-vertex", QuadraticVertex);
-class CurveVertex extends addXYZ(RenderedElement) {
-  static overloads = ["x, y", "x, y, [z]"];
+/**
+ * Specifies vertex coordinates for curves. This function may only
+ * be used as a child of the ```<shape>``` element and only when there
+ * is no MODE property specified on the ```<shape>``.
+ *
+ * The first and last points in a series of ```<curve-vertex>``` lines
+ * will be used to
+ * guide the beginning and end of the curve. A minimum of four
+ * points is required to draw a tiny curve between the second and
+ * third points. Adding a fifth point with ```<curve-vertex>``` will draw
+ * the curve between the second, third, and fourth points. The
+ * ```<curve-vertex>``` element is an implementation of Catmull-Rom
+ * splines.
+ */
+class CurveVertex extends addXYZ(addCurveTightness(RenderedElement)) {
+  static overloads = ["x, y"];
 }
 customElements.define("p-curve-vertex", CurveVertex);
