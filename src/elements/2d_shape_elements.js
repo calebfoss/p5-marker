@@ -180,6 +180,16 @@ const addCircle2DCollisionProps = (baseClass) =>
       );
     }
   };
+export const addDiameter = (baseClass) =>
+  class extends baseClass {
+    #diameter = 100;
+    get diameter() {
+      return this.#diameter;
+    }
+    set diameter(val) {
+      this.#diameter = val;
+    }
+  };
 /**
  * Draws a circle to the screen. A circle is a simple closed shape. It is the
  * set of all points in a plane that are at a given distance from a given
@@ -187,10 +197,9 @@ const addCircle2DCollisionProps = (baseClass) =>
  * @element circle
  */
 class Circle extends addXY(
-  add2DFillStroke(addCircle2DCollisionProps(RenderedElement))
+  addDiameter(add2DFillStroke(addCircle2DCollisionProps(RenderedElement)))
 ) {
-  static overloads = ["x, y, d"];
-  #diameter = 100;
+  static overloads = ["x, y, diameter"];
 }
 customElements.define("p-circle", Circle);
 

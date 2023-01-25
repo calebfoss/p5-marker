@@ -9,7 +9,7 @@ import {
 } from "../properties/shape_props";
 import { addFillStroke, addStroke } from "../properties/color_props";
 import { add3DProps } from "../properties/3d_props";
-import { addArcProps } from "./2d_shape_elements";
+import { addArcProps, addDiameter } from "./2d_shape_elements";
 
 class WebGLGeometry extends addFillStroke(add3DProps(RenderedElement)) {}
 
@@ -163,9 +163,9 @@ customElements.define("p-ellipse-3d", Ellipse3D);
  * @element circle
  */
 class Circle3D extends remove3DFromRenderFunctionName(
-  addXY(addFillStroke(add3DProps(RenderedElement)))
+  addXY(addDiameter(addFillStroke(add3DProps(RenderedElement))))
 ) {
-  static overloads = ["x, y, d"];
+  static overloads = ["x, y, diameter"];
 }
 customElements.define("p-circle-3d", Circle3D);
 
