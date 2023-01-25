@@ -10,7 +10,11 @@ import {
 } from "../properties/shape_props";
 import { addFillStroke, addStroke } from "../properties/color_props";
 import { add3DProps } from "../properties/3d_props";
-import { addArcProps, addDiameter } from "./2d_shape_elements";
+import {
+  addArcProps,
+  addDiameter,
+  addShapeElementProps,
+} from "./2d_shape_elements";
 
 class WebGLGeometry extends addFillStroke(add3DProps(RenderedElement)) {}
 
@@ -324,3 +328,22 @@ class Contour3D extends remove3DFromRenderFunctionName(
   }
 }
 customElements.define("contour-3d", Contour3D);
+/**
+ * Using the ```<shape-3d>``` element allow creating more
+ * complex forms on a ```<canvas-3d>```.
+ * The vertices of the shape are defined by its ```<vertex-3d>```,
+ * ```<curve-vertex-3d>```, and/or ```<quadratic-vertex-3d>``` children.
+ * The value of the kind property tells it which
+ * types of shapes to create from the provided vertices. With no mode
+ * specified, the shape can be any irregular polygon.
+ *
+ *
+ * Transformations such as translate, angle, and scale do not work on children on ```<shape-3d>```.
+ * It is also not possible to use other shapes, such as
+ * ```<ellipse-3d>``` or ```<rect-3d>``` as children of ```<shape-3d>```.
+ * @element shape-3d
+ */
+class Shape3D extends addShapeElementProps(
+  addFillStroke(add3DProps(RenderedElement))
+) {}
+customElements.define("p-shape-3d", Shape3D);

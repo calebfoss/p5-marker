@@ -615,37 +615,94 @@ class Contour extends add2DFillStroke(RenderedElement) {
   }
 }
 customElements.define("p-contour", Contour);
-class Shape extends add2DFillStroke(RenderedElement) {
-  renderFunctionName = "beginShape";
-  static overloads = ["[kind]"];
-  collider = p5.prototype.collider_type.poly;
-  get collision_args() {
-    return [this.vertices.map(transformVertexFn(this))];
-  }
-  endRender(assigned) {
-    if (assigned.hasOwnProperty("mode")) this.pInst.endShape(assigned.mode);
-    else this.pInst.endShape();
-  }
-  get vertices() {
-    const arrayFromChildren = (el) => {
-      const ca = Array.from(el.children);
-      return ca.concat(ca.map(arrayFromChildren)).flat();
-    };
-    const childArray = arrayFromChildren(this);
-    const vertexChildren = childArray.filter(
-      (el) => el instanceof Vertex && el.this_element
-    );
-    const vertices = vertexChildren.map((el) => {
-      if (el instanceof QuadraticVertex) {
-        const { x3, y3 } = el;
-        return this.pInst.createVector(x3, y3);
-      }
-      const { x, y } = el;
-      return this.pInst.createVector(x, y);
-    });
-    return vertices.concat(vertices.slice(0));
-  }
-}
+
+const addShape2DCollisionProps = (baseClass) =>
+  class extends baseClass {
+    collider = p5.prototype.collider_type.poly;
+    get collision_args() {
+      return [this.vertices.map(transformVertexFn(this))];
+    }
+    get vertices() {
+      const arrayFromChildren = (el) => {
+        const ca = Array.from(el.children);
+        return ca.concat(ca.map(arrayFromChildren)).flat();
+      };
+      const childArray = arrayFromChildren(this);
+      const vertexChildren = childArray.filter(
+        (el) => el instanceof Vertex && el.this_element
+      );
+      const vertices = vertexChildren.map((el) => {
+        if (el instanceof QuadraticVertex) {
+          const { x3, y3 } = el;
+          return this.pInst.createVector(x3, y3);
+        }
+        const { x, y } = el;
+        return this.pInst.createVector(x, y);
+      });
+      return vertices.concat(vertices.slice(0));
+    }
+  };
+export const addShapeElementProps = (baseClass) =>
+  class extends baseClass {
+    #kind;
+    renderFunctionName = "beginShape";
+    static overloads = ["[kind]"];
+
+    endRender(assigned) {
+      if (assigned.hasOwnProperty("mode")) this.pInst.endShape(assigned.mode);
+      else this.pInst.endShape();
+    }
+    /**
+     * The options available for kind are
+     *
+     * POINTS
+     * Draw a series of points
+     *
+     * LINES
+     * Draw a series of unconnected line segments (individual lines)
+     *
+     * TRIANGLES
+     * Draw a series of separate triangles
+     *
+     * TRIANGLE_FAN
+     * Draw a series of connected triangles sharing the first vertex in a fan-like fashion
+     *
+     * TRIANGLE_STRIP
+     * Draw a series of connected triangles in strip fashion
+     *
+     * QUADS
+     * Draw a series of separate quads
+     *
+     * QUAD_STRIP
+     * Draw quad strip using adjacent edges to form the next quad
+     *
+     * TESS (WEBGL only)
+     * Handle irregular polygon for filling curve by explicit tessellation
+     * @type {POINTS|LINES|TRIANGLES|TRIANGLE_FAN TRIANGLE_STRIP|QUADS|QUAD_STRIP|TESS}
+     */
+    get kind() {
+      return this.#kind;
+    }
+    set kind(val) {
+      this.#kind = val;
+    }
+  };
+/**
+ * Using the ```<shape>``` element allow creating more
+ * complex forms. The vertices of the shape are defined by its ```<vertex>```,
+ * ```<curve-vertex>```, and/or ```<quadratic-vertex>``` children.
+ * The value of the kind property tells it which
+ * types of shapes to create from the provided vertices. With no mode
+ * specified, the shape can be any irregular polygon.
+ *
+ * Transformations such as translate, angle, and scale do not work on children on ```<shape>```.
+ * It is also not possible to use other shapes, such as
+ * ```<ellipse>``` or ```<rect>``` as children of ```<shape>```.
+ * @element shape
+ */
+class Shape extends addShapeElementProps(
+  add2DFillStroke(addShape2DCollisionProps(RenderedElement))
+) {}
 customElements.define("p-shape", Shape);
 class Vertex extends addXYZ(RenderedElement) {
   static overloads = ["x, y, [z], [u], [v]"];
