@@ -73,9 +73,10 @@ class Sketch extends HTMLLinkElement {
 }
 customElements.define("p-sketch", Sketch, { extends: "link" });
 /**
- * The `<custom>` element generates a new element from a combination of existing
- * elements. This element should be placed outside the <canvas> element. The name attribute defines the name of the new element. For
- * example, if name is set to "my-element," <my-element>
+ * The ```<custom>``` element generates a new element from a combination of existing
+ * elements. This element should be placed outside the ```<canvas>``` element.
+ * The name attribute defines the name of the new element. For
+ * example, if name is set to "my-element," you can add ```<my-element>``` to your sketch.
  * @element custom
  * @example Clouds
  * ```html
@@ -95,8 +96,7 @@ customElements.define("p-sketch", Sketch, { extends: "link" });
  *  <canvas
  *      width="400"
  *      height="400"
- *      is="canvas"
- *      canvas_background="100, 140, 200"
+ *      background="100, 140, 200"
  *      cloud_x="0"
  *  >
  *      <cloud
