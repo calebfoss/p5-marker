@@ -1,4 +1,4 @@
-export const addBezierPoint = (baseClass) =>
+export const addBezierMethods = (baseClass) =>
   class extends baseClass {
     /**
      * Evaluates the position on the bezier at t. t is the
@@ -10,6 +10,17 @@ export const addBezierPoint = (baseClass) =>
     point_at(t) {
       const x = this.pInst.bezierPoint(this.x1, this.x2, this.x3, this.x4, t);
       const y = this.pInst.bezierPoint(this.y1, this.y2, this.y3, this.y4, t);
+      return this.pInst.createVector(x, y);
+    }
+    /**
+     * Evaluates the tangent to the Bezier at position t.
+     * t is between 0 (start of Bezier) and 1 (end of Bezier).
+     * @param {*} t - value between 0 and 1
+     * @returns {p5.Vector} - position on Bezier at t
+     */
+    tangent_at(t) {
+      const x = this.pInst.bezierTangent(this.x1, this.x2, this.x3, this.x4, t);
+      const y = this.pInst.bezierTangent(this.y1, this.y2, this.y3, this.y4, t);
       return this.pInst.createVector(x, y);
     }
   };

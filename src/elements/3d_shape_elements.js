@@ -16,7 +16,7 @@ import {
   addDiameter,
   addShapeElementProps,
 } from "./2d_shape_elements";
-import { addBezierPoint, addCurvePoint } from "../methods/shape_methods";
+import { addBezierMethods, addCurvePoint } from "../methods/shape_methods";
 
 class WebGLGeometry extends addFillStroke(add3DProps(RenderedElement)) {}
 
@@ -271,7 +271,7 @@ class Bezier3D extends remove3DFromRenderFunctionName(
   addXYZ1(
     addXYZ2(
       addXYZ3(
-        addXYZ4(addFillStroke(add3DProps(addBezierPoint(RenderedElement))))
+        addXYZ4(addFillStroke(add3DProps(addBezierMethods(RenderedElement))))
       )
     )
   )
