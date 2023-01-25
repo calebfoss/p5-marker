@@ -1,0 +1,31 @@
+<canvas
+  width="400"
+  height="400"
+  background="120, 140, 80"
+  loop="false"
+>
+  <shape
+    anchor="width/2, height/2"
+    mode="CLOSE"
+    fill="240, 200, 180"
+    stroke="200, 100, 60"
+    stroke_weight="4"
+  >
+    <vertex x="-100" y="-100">
+      <vertex x="100">
+        <vertex y="100">
+          <vertex x="-100" />
+        </vertex>
+      </vertex>
+    </vertex>
+    <contour>
+      <vertex x="-50" y="-50">
+        <vertex y="50">
+          <vertex x="50">
+            <vertex y="-50" />
+          </vertex>
+        </vertex>
+      </vertex>
+    </contour>
+  </shape>
+</canvas>
