@@ -3,12 +3,11 @@ import {
   addXYZ,
   addWidthHeight,
   addXY,
-  addXYZ12,
-  addXYZ1234,
-  addXYZ123,
   addCurveTightness,
-  addXY3,
-  addZ3,
+  addXYZ1,
+  addXYZ2,
+  addXYZ3,
+  addXYZ4,
 } from "../properties/shape_props";
 import { addFillStroke, addStroke } from "../properties/color_props";
 import { add3DProps } from "../properties/3d_props";
@@ -139,7 +138,7 @@ const addDetailXY = (baseClass) =>
  * @element arc-3d
  */
 class Arc3D extends remove3DFromRenderFunctionName(
-  addArcProps(addDetail(add3DProps(RenderedElement)))
+  addXY(addArcProps(addDetail(add3DProps(RenderedElement))))
 ) {
   static overloads = [
     "x, y, width, height, start_angle, stop_angle, [mode], [detail]",
@@ -184,7 +183,7 @@ customElements.define("p-circle-3d", Circle3D);
  * @element line-3d
  */
 class Line3D extends remove3DFromRenderFunctionName(
-  addXYZ12(addStroke(add3DProps(RenderedElement)))
+  addXYZ1(addXYZ2(addStroke(add3DProps(RenderedElement))))
 ) {
   static overloads = ["x1, y1, z1, x2, y2, z2"];
 }
@@ -212,7 +211,11 @@ customElements.define("p-point-3d", Point3D);
  * @element quad
  */
 class Quad3D extends remove3DFromRenderFunctionName(
-  addXYZ1234(addDetailXY(addFillStroke(add3DProps(RenderedElement))))
+  addXYZ1(
+    addXYZ2(
+      addXYZ3(addXYZ4(addDetailXY(addFillStroke(add3DProps(RenderedElement)))))
+    )
+  )
 ) {
   static overloads = [
     "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
@@ -244,7 +247,7 @@ customElements.define("p-rect-3d", Rect3D);
  * @element triangle
  */
 class Triangle3D extends remove3DFromRenderFunctionName(
-  addXYZ123(addFillStroke(add3DProps(RenderedElement)))
+  addXYZ1(addXYZ2(addXYZ3(addFillStroke(add3DProps(RenderedElement)))))
 ) {
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3"];
 }
@@ -264,7 +267,7 @@ customElements.define("p-triangle-3d", Triangle3D);
  * @element bezier-3d
  */
 class Bezier3D extends remove3DFromRenderFunctionName(
-  addXYZ1234(addFillStroke(add3DProps(RenderedElement)))
+  addXYZ1(addXYZ2(addXYZ3(addXYZ4(addFillStroke(add3DProps(RenderedElement))))))
 ) {
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
 }
@@ -284,7 +287,13 @@ customElements.define("p-bezier-3d", Bezier3D);
  * @element curve
  */
 class Curve3D extends remove3DFromRenderFunctionName(
-  addXYZ1234(addCurveTightness(addFillStroke(add3DProps(RenderedElement))))
+  addXYZ1(
+    addXYZ2(
+      addXYZ3(
+        addXYZ4(addCurveTightness(addFillStroke(add3DProps(RenderedElement))))
+      )
+    )
+  )
 ) {
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
 }
@@ -378,7 +387,7 @@ customElements.define("p-vertex-3d", Vertex3D);
  *  ```<shape-3d>```.
  */
 
-class QuadraticVertex3D extends addXY3(addZ3(RenderedElement)) {
+class QuadraticVertex3D extends addXYZ3(RenderedElement) {
   static overloads = ["cx, cy, cz, x3, y3, z3"];
 }
 customElements.define("p-quadratic-vertex-3d", QuadraticVertex3D);

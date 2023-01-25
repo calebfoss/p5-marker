@@ -1,3 +1,36 @@
+export const addWidthHeight = (baseClass) =>
+  class extends baseClass {
+    #width;
+    #height;
+    /**
+     * The width of the element in pixels.
+     * @type {number}
+     */
+    get width() {
+      return this.#width;
+    }
+    set width(val) {
+      if (!isNaN(val)) this.#width = Number(val);
+      else
+        console.error(
+          `${this.tagName}'s width is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+    /**
+     * The height of the element in pixels.
+     * @type {number}
+     */
+    get height() {
+      return this.#height;
+    }
+    set height(val) {
+      if (!isNaN(val)) this.#height = Number(val);
+      else
+        console.error(
+          `${this.tagName}'s height is being set to ${val}, but it may only be set to a number.`
+        );
+    }
+  };
 export const addXY = (baseClass) =>
   class extends baseClass {
     #x;
@@ -32,8 +65,8 @@ export const addXY = (baseClass) =>
     }
   };
 
-export const addXYZ = (baseClass) =>
-  class extends addXY(baseClass) {
+const addZ = (baseClass) =>
+  class extends baseClass {
     #z;
     /**
      * The z-coordinate of the element relative to the current anchor.
@@ -50,40 +83,7 @@ export const addXYZ = (baseClass) =>
         );
     }
   };
-
-export const addWidthHeight = (baseClass) =>
-  class extends baseClass {
-    #height;
-    #width;
-    /**
-     * The height of the element in pixels.
-     * @type {number}
-     */
-    get height() {
-      return this.#height;
-    }
-    set height(val) {
-      if (!isNaN(val)) this.#height = Number(val);
-      else
-        console.error(
-          `${this.tagName}'s height is being set to ${val}, but it may only be set to a number.`
-        );
-    }
-    /**
-     * The width of the element in pixels.
-     * @type {number}
-     */
-    get width() {
-      return this.#width;
-    }
-    set width(val) {
-      if (!isNaN(val)) this.#width = Number(val);
-      else
-        console.error(
-          `${this.tagName}'s width is being set to ${val}, but it may only be set to a number.`
-        );
-    }
-  };
+export const addXYZ = (baseClass) => class extends addXY(addZ(baseClass)) {};
 
 const addXY1 = (baseClass) =>
   class extends baseClass {
@@ -188,14 +188,13 @@ export const addXY3 = (baseClass) =>
     }
   };
 
-export const addXY123 = (baseClass) =>
-  class extends addXY12(addXY3(baseClass)) {};
+const addXY123 = (baseClass) => class extends addXY12(addXY3(baseClass)) {};
 
 const addZ1 = (baseClass) =>
   class extends baseClass {
     #z1;
     /**
-     * The first z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * The first z-coordinate of the element relative to the current anchor. |
      * @type {number}
      */
     get z1() {
@@ -209,12 +208,12 @@ const addZ1 = (baseClass) =>
         );
     }
   };
-
+export const addXYZ1 = (baseClass) => class extends addXY1(addZ1(baseClass)) {};
 const addZ2 = (baseClass) =>
   class extends baseClass {
     #z2;
     /**
-     * The second z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * The second z-coordinate of the element relative to the current anchor. |
      * @type {number}
      */
     get z2() {
@@ -228,11 +227,10 @@ const addZ2 = (baseClass) =>
         );
     }
   };
+export const addXYZ2 = (baseClass) => class extends addXY2(addZ2(baseClass)) {};
+const addXYZ12 = (baseClass) => class extends addXYZ1(addXYZ2(baseClass)) {};
 
-export const addXYZ12 = (baseClass) =>
-  class extends addXY1(addZ1(addXY2(addZ2(baseClass)))) {};
-
-const addXY4 = (baseClass) =>
+export const addXY4 = (baseClass) =>
   class extends addXY123(baseClass) {
     #x4;
     #y4;
@@ -265,14 +263,12 @@ const addXY4 = (baseClass) =>
         );
     }
   };
-export const addXY1234 = (baseClass) =>
-  class extends addXY123(addXY4(baseClass)) {};
 
 export const addZ3 = (baseClass) =>
   class extends baseClass {
     #z3;
     /**
-     * The third z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * The third z-coordinate of the element relative to the current anchor. |
      * @type {number}
      */
     get z3() {
@@ -286,15 +282,15 @@ export const addZ3 = (baseClass) =>
         );
     }
   };
-
+export const addXYZ3 = (baseClass) => class extends addXY3(addZ3(baseClass)) {};
 export const addXYZ123 = (baseClass) =>
   class extends addXYZ12(addXY3(addZ3(baseClass))) {};
 
-export const addXYZ1234 = (baseClass) =>
-  class extends addXYZ123(addXY4(baseClass)) {
+export const addZ4 = (baseClass) =>
+  class extends baseClass {
     #z4;
     /**
-     * The fourth z-coordinate of the element relative to the current anchor. (on 3D canvas only)
+     * The fourth z-coordinate of the element relative to the current anchor. |
      * @type {number}
      */
     get z4() {
@@ -308,6 +304,7 @@ export const addXYZ1234 = (baseClass) =>
         );
     }
   };
+export const addXYZ4 = (baseClass) => class extends addXY4(addZ4(baseClass)) {};
 
 export const addRectMode = (baseClass) =>
   class extends baseClass {

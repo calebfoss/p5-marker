@@ -3,16 +3,14 @@ import { addStroke, addFillStroke } from "../properties/color_props";
 import {
   addXY,
   addXYZ,
-  addXYZ12,
-  addXY123,
-  addXY1234,
-  addXYZ1234,
+  addXY12,
   addWidthHeight,
   addRectMode,
   add2DStrokeStyling,
   addCurveTightness,
   addCXY,
   addXY3,
+  addXY4,
 } from "../properties/shape_props";
 
 const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
@@ -248,7 +246,7 @@ const addLine2DCollisionProps = (baseClass) =>
  * line. So to color a line, use the stroke property.
  * @element line
  */
-class Line extends addXYZ12(
+class Line extends addXY12(
   add2DStroke(addLine2DCollisionProps(RenderedElement))
 ) {
   static overloads = ["x1, y1, x2, y2"];
@@ -333,8 +331,8 @@ const addQuad2DCollisionProps = (baseClass) =>
  * counter-clockwise around the defined shape.
  * @element quad
  */
-class Quad extends addXY1234(
-  add2DFillStroke(addQuad2DCollisionProps(RenderedElement))
+class Quad extends addXY12(
+  addXY3(addXY4(add2DFillStroke(addQuad2DCollisionProps(RenderedElement))))
 ) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
@@ -497,7 +495,7 @@ customElements.define("p-square", Square);
  * third point.
  * @element triangle
  */
-class Triangle extends addXY123(add2DFillStroke(RenderedElement)) {
+class Triangle extends addXY12(addXY3(add2DFillStroke(RenderedElement))) {
   static overloads = ["x1, y1, x2, y2, x3, y3"];
   collider = p5.prototype.collider_type.poly;
   get collision_args() {
@@ -541,7 +539,7 @@ customElements.define("p-triangle", Triangle);
  * and are commonly used in computer graphics to define gently sloping curves.
  * @element bezier
  */
-class Bezier extends addXYZ1234(add2DFillStroke(RenderedElement)) {
+class Bezier extends addXY12(addXY3(addXY4(add2DFillStroke(RenderedElement)))) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-bezier", Bezier);
@@ -558,8 +556,8 @@ customElements.define("p-bezier", Bezier);
  * The ```<curve>``` element is an implementation of Catmull-Rom splines.
  * @element curve
  */
-class Curve extends addXYZ1234(
-  addCurveTightness(add2DFillStroke(RenderedElement))
+class Curve extends addXY12(
+  addXY3(addXY4(addCurveTightness(add2DFillStroke(RenderedElement))))
 ) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
