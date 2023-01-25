@@ -15,7 +15,7 @@ export const addBezierMethods = (baseClass) =>
     /**
      * Evaluates the tangent to the Bezier at position t.
      * t is between 0 (start of Bezier) and 1 (end of Bezier).
-     * @param {*} t - value between 0 and 1
+     * @param {number} t - value between 0 and 1
      * @returns {p5.Vector} - tangent of Bezier at t
      */
     tangent_at(t) {
