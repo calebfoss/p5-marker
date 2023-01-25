@@ -11,6 +11,8 @@ import {
   addRectMode,
   add2DStrokeStyling,
   addCurveTightness,
+  addCXY,
+  addXY3,
 } from "../properties/shape_props";
 
 const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
@@ -715,9 +717,19 @@ class Vertex extends addXY(RenderedElement) {
   static overloads = ["x, y"];
 }
 customElements.define("p-vertex", Vertex);
-
-class QuadraticVertex extends RenderedElement {
-  static overloads = ["cx, cy, x3, y3", "cx, cy, cz, x3, y3, z3"];
+/**
+ * Specifies vertex coordinates for quadratic Bezier curves. Each ```<quadratic-vertex>```
+ * defines the position of one control points and one
+ * anchor point of a Bezier curve, adding a new segment to a line or shape.
+ * The first ```<quadratic-vertex>``` child of a ```<shape>``` element
+ * must have a ```<vertex>``` sibling above it to set the first anchor point.
+ *
+ * This element must be a child of a ```<shape>``` element
+ * and only when there is no MODE or POINTS property specified on the
+ *  ```<shape>```.
+ */
+class QuadraticVertex extends addCXY(addXY3(RenderedElement)) {
+  static overloads = ["cx, cy, x3, y3"];
 }
 customElements.define("p-quadratic-vertex", QuadraticVertex);
 /**

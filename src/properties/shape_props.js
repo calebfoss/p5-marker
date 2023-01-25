@@ -268,7 +268,7 @@ const addXY4 = (baseClass) =>
 export const addXY1234 = (baseClass) =>
   class extends addXY123(addXY4(baseClass)) {};
 
-const addZ3 = (baseClass) =>
+export const addZ3 = (baseClass) =>
   class extends baseClass {
     #z3;
     /**
@@ -423,5 +423,34 @@ export const addCurveTightness = (baseClass) =>
     }
     set curve_tightness(val) {
       this.#curve_tightness = val;
+    }
+  };
+
+export const addCXY = (baseClass) =>
+  class extends baseClass {
+    #cx;
+    #cy;
+    get cx() {
+      return this.#cx;
+    }
+    set cx(val) {
+      this.#cx = val;
+    }
+    get cy() {
+      return this.#cy;
+    }
+    set cy(val) {
+      this.#cy = val;
+    }
+  };
+
+export const addCXYZ = (baseClass) =>
+  class extends baseClass {
+    #cz;
+    get cz() {
+      return this.#cz;
+    }
+    set cz(val) {
+      this.#cz = val;
     }
   };

@@ -7,6 +7,8 @@ import {
   addXYZ1234,
   addXYZ123,
   addCurveTightness,
+  addXY3,
+  addZ3,
 } from "../properties/shape_props";
 import { addFillStroke, addStroke } from "../properties/color_props";
 import { add3DProps } from "../properties/3d_props";
@@ -288,26 +290,6 @@ class Curve3D extends remove3DFromRenderFunctionName(
 }
 customElements.define("p-curve-3d", Curve3D);
 /**
- * Specifies vertex coordinates for curves. This function may only
- * be used as a child of the ```<shape-3d>``` element and only when there
- * is no MODE property specified on the ```<shape-3d>``.
- *
- * The first and last points in a series of ```<curve-vertex-3d>``` lines
- * will be used to
- * guide the beginning and end of the curve. A minimum of four
- * points is required to draw a tiny curve between the second and
- * third points. Adding a fifth point with ```<curve-vertex>``` will draw
- * the curve between the second, third, and fourth points. The
- * ```<curve-vertex>``` element is an implementation of Catmull-Rom
- * splines.
- */
-class CurveVertex3D extends remove3DFromRenderFunctionName(
-  addXYZ(addCurveTightness(addFillStroke(add3DProps(RenderedElement))))
-) {
-  static overloads = ["x, y, z"];
-}
-customElements.define("p-curve-vertex-3d", CurveVertex3D);
-/**
  * Use the ```<contour-3d>``` element to create negative shapes
  * within a ```<shape-3d>``` element such as the center of the letter 'O'.
  * The vertices of the ```<contour-3d>``` are defined by its
@@ -383,3 +365,41 @@ class Vertex3D extends addXYZ(addUV(RenderedElement)) {
   static overloads = ["x, y, z, [u], [v]"];
 }
 customElements.define("p-vertex-3d", Vertex3D);
+/**
+ * Specifies vertex coordinates for quadratic Bezier curves on a ```<canvas-3d>```.
+ * Each ```<quadratic-vertex-3d>```
+ * defines the position of one control points and one
+ * anchor point of a Bezier curve, adding a new segment to a line or shape.
+ * The first ```<quadratic-vertex-3d>``` child of a ```<shape>``` element
+ * must have a ```<vertex-3d>``` sibling above it to set the first anchor point.
+ *
+ * This element must be a child of a ```<shape-3d>``` element
+ * and only when there is no MODE or POINTS property specified on the
+ *  ```<shape-3d>```.
+ */
+
+class QuadraticVertex3D extends addXY3(addZ3(RenderedElement)) {
+  static overloads = ["cx, cy, cz, x3, y3, z3"];
+}
+customElements.define("p-quadratic-vertex-3d", QuadraticVertex3D);
+
+/**
+ * Specifies vertex coordinates for curves. This function may only
+ * be used as a child of the ```<shape-3d>``` element and only when there
+ * is no MODE property specified on the ```<shape-3d>``.
+ *
+ * The first and last points in a series of ```<curve-vertex-3d>``` lines
+ * will be used to
+ * guide the beginning and end of the curve. A minimum of four
+ * points is required to draw a tiny curve between the second and
+ * third points. Adding a fifth point with ```<curve-vertex>``` will draw
+ * the curve between the second, third, and fourth points. The
+ * ```<curve-vertex>``` element is an implementation of Catmull-Rom
+ * splines.
+ */
+class CurveVertex3D extends remove3DFromRenderFunctionName(
+  addXYZ(addCurveTightness(addFillStroke(add3DProps(RenderedElement))))
+) {
+  static overloads = ["x, y, z"];
+}
+customElements.define("p-curve-vertex-3d", CurveVertex3D);
