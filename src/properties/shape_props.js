@@ -287,8 +287,11 @@ const addZ3 = (baseClass) =>
     }
   };
 
+export const addXYZ123 = (baseClass) =>
+  class extends addXYZ12(addXY3(addZ3(baseClass))) {};
+
 export const addXYZ1234 = (baseClass) =>
-  class extends addXYZ12(addXY3(addZ3(addXY4(baseClass)))) {
+  class extends addXYZ123(addXY4(baseClass)) {
     #z4;
     /**
      * The fourth z-coordinate of the element relative to the current anchor. (on 3D canvas only)

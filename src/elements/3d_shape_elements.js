@@ -5,7 +5,7 @@ import {
   addXY,
   addXYZ12,
   addXYZ1234,
-  addXY123,
+  addXYZ123,
 } from "../properties/shape_props";
 import { addFillStroke, addStroke } from "../properties/color_props";
 import { add3DProps } from "../properties/3d_props";
@@ -236,7 +236,7 @@ customElements.define("p-rect-3d", Rect3D);
  * third point.
  * @element triangle
  */
-class Triangle3D extends addXY123(addFillStroke(add3DProps(RenderedElement))) {
-  static overloads = ["x1, y1, x2, y2, x3, y3"];
+class Triangle3D extends addXYZ123(addFillStroke(add3DProps(RenderedElement))) {
+  static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3"];
 }
 customElements.define("p-triangle-3d", Triangle3D);
