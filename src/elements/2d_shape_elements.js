@@ -536,14 +536,10 @@ customElements.define("p-triangle", Triangle);
  *
  * Bezier curves were developed by French automotive engineer Pierre Bezier,
  * and are commonly used in computer graphics to define gently sloping curves.
- * ```<curve>``` element.
  * @element bezier
  */
 class Bezier extends addXYZ1234(add2DFillStroke(RenderedElement)) {
-  static overloads = [
-    "x1, y1, x2, y2, x3, y3, x4, y4",
-    "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4",
-  ];
+  static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-bezier", Bezier);
 class Curve extends addXYZ1234(add2DFillStroke(RenderedElement)) {

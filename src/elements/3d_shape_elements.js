@@ -240,3 +240,23 @@ class Triangle3D extends addXYZ123(addFillStroke(add3DProps(RenderedElement))) {
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3"];
 }
 customElements.define("p-triangle-3d", Triangle3D);
+
+/**
+ * Draws a cubic Bezier curve onto a ```<canvas-3d>```. These curves are defined by a
+ * series of anchor and control points. x1 and y1 specify
+ * the first anchor point and x4 and y4 specify the other
+ * anchor point, which become the first and last points on the curve. (x2, y2)
+ * and (x3, y3) specify the two control points which define the shape
+ * of the curve. Approximately speaking, control points "pull" the curve
+ * towards them.
+ *
+ * Bezier curves were developed by French automotive engineer Pierre Bezier,
+ * and are commonly used in computer graphics to define gently sloping curves.
+ * @element bezier-3d
+ */
+class Bezier3D extends remove3DFromRenderFunctionName(
+  addXYZ1234(addFillStroke(add3DProps(RenderedElement)))
+) {
+  static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
+}
+customElements.define("p-bezier-3d", Bezier3D);
