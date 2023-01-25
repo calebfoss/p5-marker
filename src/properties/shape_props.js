@@ -405,9 +405,9 @@ export const add2DStrokeStyling = (baseClass) =>
 
 export const addCurveTightness = (baseClass) =>
   class extends baseClass {
-    #curve_tightness = 0;
+    #tightness = 0;
     /**
-     * Modifies the quality of the curve.The amount
+     * Modifies the quality of the curve. The amount
      * determines how the curve fits to the vertex points. The value 0.0 is the
      * default value (this value defines the curves to be Catmull-Rom
      * splines) and the value 1.0 connects all the points with straight lines.
@@ -415,11 +415,11 @@ export const addCurveTightness = (baseClass) =>
      * them recognizable and as values increase in magnitude, they will continue to deform.
      * @type {number}
      */
-    get curve_tightness() {
-      return this.#curve_tightness;
+    get tightness() {
+      return this.#tightness;
     }
-    set curve_tightness(val) {
-      this.#curve_tightness = val;
+    set tightness(val) {
+      this.#tightness = val;
     }
   };
 
