@@ -6,7 +6,6 @@ import "./elements/2d_shape_elements";
 import "./modules/environment";
 import "./elements/color_elements";
 import "./elements/beyond_canvas_elements";
-import "./modules/shape";
 import "./modules/structure";
 import "./modules/dom";
 import "./modules/data";
