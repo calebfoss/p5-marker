@@ -303,3 +303,24 @@ class CurveVertex3D extends remove3DFromRenderFunctionName(
   static overloads = ["x, y, z"];
 }
 customElements.define("p-curve-vertex-3d", CurveVertex3D);
+/**
+ * Use the ```<contour-3d>``` element to create negative shapes
+ * within a ```<shape-3d>``` element such as the center of the letter 'O'.
+ * The vertices of the ```<contour-3d>``` are defined by its
+ * ```<vertex-3d>``` and ```<curve-vertex-3d>``` children.
+ * The vertices that define a negative shape must "wind" in the opposite direction
+ * from the exterior shape. First draw vertices for the exterior clockwise order, then for internal shapes, draw vertices
+ * shape in counter-clockwise.
+ *
+ * This element must be a child of a ```<shape-3d>```.
+ * @element contour
+ */
+class Contour3D extends remove3DFromRenderFunctionName(
+  addFillStroke(add3DProps(RenderedElement))
+) {
+  renderFunctionName = "beginContour";
+  endRender() {
+    this.pInst.endContour();
+  }
+}
+customElements.define("contour-3d", Contour3D);

@@ -562,6 +562,52 @@ class Curve extends addXYZ1234(
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-curve", Curve);
+/**
+ * Use the ```<contour>``` element to create negative shapes
+ * within a ```<shape>``` element such as the center of the letter 'O'.
+ * The vertices of the ```<contour>``` are defined by its
+ * ```<vertex>``` and ```<curve-vertex>``` children.
+ * The vertices that define a negative shape must "wind" in the opposite direction
+ * from the exterior shape. First draw vertices for the exterior clockwise order, then for internal shapes, draw vertices
+ * shape in counter-clockwise.
+ *
+ * This element must be a child of a ```<shape>```.
+ * @element contour
+ * @example Rectangular cut out
+ * ```html
+ * <canvas
+ *    width="400"
+ *    height="400"
+ *    background="120, 140, 80"
+ *    loop="false"
+ * >
+ *  <shape
+ *      anchor="width/2, height/2"
+ *      mode="CLOSE"
+ *      fill="240, 200, 180"
+ *      stroke="200, 100, 60"
+ *      stroke_weight="4"
+ *  >
+ *    <vertex x="-100" y="-100">
+ *      <vertex x="100">
+ *        <vertex y="100">
+ *          <vertex x="-100" />
+ *        </vertex>
+ *      </vertex>
+ *    </vertex>
+ *    <contour>
+ *      <vertex x="-50" y="-50">
+ *        <vertex y="50">
+ *          <vertex x="50">
+ *            <vertex y="-50" />
+ *          </vertex>
+ *        </vertex>
+ *      </vertex>
+ *    </contour>
+ *  </shape>
+ * </canvas>
+ * ```
+ */
 class Contour extends add2DFillStroke(RenderedElement) {
   renderFunctionName = "beginContour";
   endRender() {
