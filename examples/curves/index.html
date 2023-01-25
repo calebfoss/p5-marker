@@ -30,6 +30,7 @@
           y4="height"
           stroke_weight="2"
           fill="NONE"
+          base_curve="this_element"
         >
           <p-_
             c1="color(60, 180, 20)"
@@ -40,7 +41,7 @@
             change="t: t + 0.1"
           >
             <p-circle
-              anchor="curvePoint(x1, y1, x2, y2, x3, y3, x4, y4, t)"
+              anchor="base_curve.point_at(t)"
               x="0"
               y="0"
               diameter="20"

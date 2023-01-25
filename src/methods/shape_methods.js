@@ -13,3 +13,19 @@ export const addBezierPoint = (baseClass) =>
       return this.pInst.createVector(x, y);
     }
   };
+
+export const addCurvePoint = (baseClass) =>
+  class extends baseClass {
+    /**
+     * Evaluates the position on the curve at t.
+     * t is between 0 (start of curve) and 1 (end of curve).
+     *
+     * @param {number} t - value between 0 and 1
+     * @returns {p5.Vector} - tangent of curve at t
+     */
+    point_at(t) {
+      const x = this.pInst.curvePoint(this.x1, this.x2, this.x3, this.x4, t);
+      const y = this.pInst.curvePoint(this.y1, this.y2, this.y3, this.y4, t);
+      return this.pInst.createVector(x, y);
+    }
+  };

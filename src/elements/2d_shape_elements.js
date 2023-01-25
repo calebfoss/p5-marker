@@ -1,5 +1,5 @@
 import { RenderedElement } from "../core";
-import { addBezierPoint } from "../methods/shape_methods";
+import { addBezierPoint, addCurvePoint } from "../methods/shape_methods";
 import { addStroke, addFillStroke } from "../properties/color_props";
 import {
   addXY,
@@ -560,7 +560,9 @@ customElements.define("p-bezier", Bezier);
  * @element curve
  */
 class Curve extends addXY12(
-  addXY3(addXY4(addCurveTightness(add2DFillStroke(RenderedElement))))
+  addXY3(
+    addXY4(addCurveTightness(add2DFillStroke(addCurvePoint(RenderedElement))))
+  )
 ) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
