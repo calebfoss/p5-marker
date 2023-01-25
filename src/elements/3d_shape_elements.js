@@ -16,6 +16,7 @@ import {
   addDiameter,
   addShapeElementProps,
 } from "./2d_shape_elements";
+import { addBezierPoint } from "../methods/shape_methods";
 
 class WebGLGeometry extends addFillStroke(add3DProps(RenderedElement)) {}
 
@@ -267,7 +268,13 @@ customElements.define("p-triangle-3d", Triangle3D);
  * @element bezier-3d
  */
 class Bezier3D extends remove3DFromRenderFunctionName(
-  addXYZ1(addXYZ2(addXYZ3(addXYZ4(addFillStroke(add3DProps(RenderedElement))))))
+  addXYZ1(
+    addXYZ2(
+      addXYZ3(
+        addXYZ4(addFillStroke(add3DProps(addBezierPoint(RenderedElement))))
+      )
+    )
+  )
 ) {
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
 }

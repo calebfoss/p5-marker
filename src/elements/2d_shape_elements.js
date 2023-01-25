@@ -1,4 +1,5 @@
 import { RenderedElement } from "../core";
+import { addBezierPoint } from "../methods/shape_methods";
 import { addStroke, addFillStroke } from "../properties/color_props";
 import {
   addXY,
@@ -539,7 +540,9 @@ customElements.define("p-triangle", Triangle);
  * and are commonly used in computer graphics to define gently sloping curves.
  * @element bezier
  */
-class Bezier extends addXY12(addXY3(addXY4(add2DFillStroke(RenderedElement)))) {
+class Bezier extends addXY12(
+  addXY3(addXY4(add2DFillStroke(addBezierPoint(RenderedElement))))
+) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-bezier", Bezier);
