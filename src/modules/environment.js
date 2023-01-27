@@ -1,19 +1,5 @@
 import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
-p5.prototype.window_resized = false;
-wrapMethod(
-  "_onresize",
-  (base) =>
-    function (e) {
-      base.call(this, e);
-      this._setProperty("window_resized", true);
-    }
-);
-
-p5.prototype.registerMethod("post", function () {
-  this._setProperty("window_resized", false);
-});
-
 p5.prototype._fullscreen = p5.prototype.fullscreen;
 p5.prototype._width = p5.prototype.width;
 p5.prototype._height = p5.prototype.height;

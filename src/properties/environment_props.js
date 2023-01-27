@@ -1,3 +1,16 @@
+p5.prototype.window_resized = false;
+wrapMethod(
+  "_onresize",
+  (base) =>
+    function (e) {
+      base.call(this, e);
+      this._setProperty("window_resized", true);
+    }
+);
+p5.prototype.registerMethod("post", function () {
+  this._setProperty("window_resized", false);
+});
+
 export const addEnvironmentProps = (baseClass) =>
   class extends baseClass {
     /**
@@ -30,5 +43,14 @@ export const addEnvironmentProps = (baseClass) =>
      */
     get screen() {
       return screen;
+    }
+    /**
+     * window_resized is true if the window was resized since the last frame
+     * and false if not (read-only)
+     * @type {boolean}
+     * @readonly
+     */
+    get window_resized() {
+      return this.pInst.window_resized;
     }
   };
