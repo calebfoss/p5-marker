@@ -7,6 +7,7 @@ import { addColorMethods } from "./methods/color_methods";
 import { addEnvironmentProps } from "./properties/environment_props";
 import { addStorage } from "./properties/data_props";
 import { addDataMethods } from "./methods/data_methods";
+import { addCollide } from "./methods/collide_methods";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -95,7 +96,9 @@ const attributePriorities = [
 export const addP5PropsAndMethods = (baseClass) =>
   class P5Extension extends addEnvironmentProps(
     addColorMethods(
-      addColorConstants(addWebGLMethods(addStorage(addDataMethods(baseClass))))
+      addColorConstants(
+        addWebGLMethods(addCollide(addStorage(addDataMethods(baseClass))))
+      )
     )
   ) {
     /**
@@ -133,7 +136,6 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @private
      */
     #updateFunctions = new Map();
-
     constructor() {
       super();
     }
@@ -273,15 +275,6 @@ export const addP5PropsAndMethods = (baseClass) =>
      */
     get canvas() {
       return this.#canvas.this_element;
-    }
-    /**
-     * Checks if this element is colliding with the provided other element.
-     * @method colliding_with
-     * @param {P5Element} el - other element to check
-     * @returns {boolean} true if elements are colliding
-     */
-    colliding_with(el) {
-      return this.pInst.collide_elements(this, el);
     }
     /**
      * color_mode changes the way p5.js interprets

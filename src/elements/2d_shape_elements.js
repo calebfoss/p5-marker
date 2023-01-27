@@ -13,6 +13,7 @@ import {
   addXY3,
   addXY4,
 } from "../properties/shape_props";
+import { collider_type } from "../methods/collide_methods";
 
 const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
 const add2DFillStroke = (baseClass) =>
@@ -43,7 +44,7 @@ export const addArcProps = (baseClass) =>
       const arcAngle = stop_angle - start_angle;
       const arcRotation = start_angle + arcAngle / 2;
 
-      return this.pInst.collide_point_arc(
+      return this.collide.point_arc(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         x,
@@ -110,7 +111,7 @@ customElements.define("p-arc", Arc);
 
 const addEllipse2DCollisionProps = (baseClass) =>
   class extends baseClass {
-    collider = p5.prototype.collider_type.ellipse;
+    collider = collider_type.ellipse;
     get collision_args() {
       const originalPoint = new DOMPoint(
         this.this_element.x,
@@ -128,7 +129,7 @@ const addEllipse2DCollisionProps = (baseClass) =>
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, width, height } = this.this_element;
-      return this.pInst.collide_point_ellipse(
+      return this.collide.point_ellipse(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         x,
@@ -159,7 +160,7 @@ const addCircle2DCollisionProps = (baseClass) =>
     constructor() {
       super(["x, y, d"]);
     }
-    collider = p5.prototype.collider_type.circle;
+    collider = collider_type.circle;
     get collision_args() {
       const originalPoint = new DOMPoint(this.x, this.y);
       const { x, y } = this.pInst._transform_point_matrix(
@@ -173,7 +174,7 @@ const addCircle2DCollisionProps = (baseClass) =>
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x, y, d } = this.this_element;
-      return this.pInst.collide_point_circle(
+      return this.collide.point_circle(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         x,
@@ -207,7 +208,7 @@ customElements.define("p-circle", Circle);
 
 const addLine2DCollisionProps = (baseClass) =>
   class extends baseClass {
-    collider = p5.prototype.collider_type.line;
+    collider = collider_type.line;
     get collision_args() {
       const originalStart = new DOMPoint(
         this.this_element.x1,
@@ -230,7 +231,7 @@ const addLine2DCollisionProps = (baseClass) =>
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
       const { x1, y1, x2, y2 } = this.this_element;
-      return this.pInst.collide_point_line(
+      return this.collide.point_line(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         x1,
@@ -256,7 +257,7 @@ customElements.define("p-line", Line);
 
 const addPointCollisionProps = (baseClass) =>
   class extends baseClass {
-    collider = p5.prototype.collider_type.circle;
+    collider = collider_type.circle;
     get collision_args() {
       const originalPoint = new DOMPoint(this.x, this.y);
       const { x, y } = this.pInst._transform_point_matrix(
@@ -278,7 +279,7 @@ const addPointCollisionProps = (baseClass) =>
         mouse_trans_pos_y,
       } = this;
       const d = stroke_weight * this.pInst.pow(pixel_density, 2);
-      return this.pInst.collide_point_circle(
+      return this.collide.point_circle(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         x,
@@ -302,13 +303,13 @@ customElements.define("p-point", Point);
 
 const addQuad2DCollisionProps = (baseClass) =>
   class extends baseClass {
-    collider = p5.prototype.collider_type.poly;
+    collider = collider_type.poly;
     get collision_args() {
       return [this.vertices.map(transformVertexFn(this))];
     }
     get mouse_over() {
       const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      return this.pInst.collide_point_poly(
+      return this.collide.point_poly(
         mouse_trans_pos_x,
         mouse_trans_pos_y,
         this.vertices
@@ -399,7 +400,7 @@ class Rect extends addXY(
   static overloads = [
     "x, y, width, [height], [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
   ];
-  collider = p5.prototype.collider_type.rect;
+  collider = collider_type.rect;
   get collision_args() {
     const originalPoint = new DOMPoint(this.x, this.y);
     const { x, y } = this.pInst._transform_point_matrix(
@@ -414,7 +415,7 @@ class Rect extends addXY(
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
     const { x, y, width, height } = this;
-    return this.pInst.collide_point_rect(
+    return this.collide.point_rect(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
       x,
@@ -448,7 +449,7 @@ class Square extends addXY(
   static overloads = [
     "x, y, size, [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
   ];
-  collider = p5.prototype.collider_type.rect;
+  collider = collider_type.rect;
   get collision_args() {
     const originalPoint = new DOMPoint(this.x, this.y);
     const { x, y } = this.pInst._transform_point_matrix(
@@ -464,7 +465,7 @@ class Square extends addXY(
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
     const { x, y, size } = this;
-    return this.pInst.collide_point_rect(
+    return this.collide.point_rect(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
       x,
@@ -498,14 +499,14 @@ customElements.define("p-square", Square);
  */
 class Triangle extends addXY12(addXY3(add2DFillStroke(RenderedElement))) {
   static overloads = ["x1, y1, x2, y2, x3, y3"];
-  collider = p5.prototype.collider_type.poly;
+  collider = collider_type.poly;
   get collision_args() {
     return [this.vertices.map(transformVertexFn(this))];
   }
   get mouse_over() {
     const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
     const { x1, y1, x2, y2, x3, y3 } = this;
-    return this.pInst.collide_point_triangle(
+    return this.collide.point_triangle(
       mouse_trans_pos_x,
       mouse_trans_pos_y,
       x1,
@@ -623,7 +624,7 @@ customElements.define("p-contour", Contour);
 
 const addShape2DCollisionProps = (baseClass) =>
   class extends baseClass {
-    collider = p5.prototype.collider_type.poly;
+    collider = collider_type.poly;
     get collision_args() {
       return [this.vertices.map(transformVertexFn(this))];
     }

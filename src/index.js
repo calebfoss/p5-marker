@@ -1,7 +1,6 @@
 "use strict";
 import "./core";
 import "./elements/canvas_elements";
-import "./modules/collide";
 import "./elements/2d_shape_elements";
 import "./modules/environment";
 import "./elements/color_elements";
