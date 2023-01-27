@@ -480,7 +480,7 @@ export const addP5PropsAndMethods = (baseClass) =>
      * methods, and attributes.
      * @type {proxy}
      */
-    get parent_element() {
+    get parent() {
       return this.parentElement.this_element;
     }
     /**

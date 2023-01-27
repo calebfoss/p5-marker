@@ -2,20 +2,20 @@
 <canvas width="400" height="400" background="220">
     <circle x="mouse_pos_x" y="mouse_pos_y" stroke_weight="4" fill="NONE"
         highlight="color(255, 255, 0, 128)">
-        <square x="25" y="25" fill="colliding_with(parent_element) ? highlight : NONE"></square>
+        <square x="25" y="25" fill="colliding_with(parent) ? highlight : NONE"></square>
         <triangle x1="150" y1="25" x2="150" y2="125" x3="250" y3="125"
-            fill="colliding_with(parent_element) ? highlight : NONE"></triangle>
-        <circle x="325" y="75" fill="colliding_with(parent_element) ? highlight : NONE"></circle>
+            fill="colliding_with(parent) ? highlight : NONE"></triangle>
+        <circle x="325" y="75" fill="colliding_with(parent) ? highlight : NONE"></circle>
         <rect x="25" y="150" width="200" height="100"
-            fill="colliding_with(parent_element) ? highlight : NONE"></rect>
+            fill="colliding_with(parent) ? highlight : NONE"></rect>
         <quad x1="275" y1="150" x2="375" y2="200" x3="275" y3="250" x4="250" y4="225"
-            fill="colliding_with(parent_element) ? highlight : NONE"></quad>
+            fill="colliding_with(parent) ? highlight : NONE"></quad>
         <line x1="25" y1="275" x2="375" y2="300"
-            stroke="colliding_with(parent_element) ? highlight : 0"></line>
-        <_ stroke_weight="20" cursor_circle="parent_element">
+            stroke="colliding_with(parent) ? highlight : 0"></line>
+        <_ stroke_weight="20" cursor_circle="parent">
             <point x="200" y="350" stroke="colliding_with(cursor_circle) ? highlight : 0"></point>
         </_>
-        <shape fill="colliding_with(parent_element) ? highlight : NONE" mode="CLOSE">
+        <shape fill="colliding_with(parent) ? highlight : NONE" mode="CLOSE">
             <vertex x="50" y="300">
                 <vertex x="350">
                     <vertex y="350">

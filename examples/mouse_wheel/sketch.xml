@@ -6,6 +6,6 @@
     pos="25"
 >
     <rect x="25" y="pos" width="50" height="50" fill="0">
-        <_ parent_element.y="parent_element.y + mouse_wheel"></_>
+        <_ parent.y="parent.y + mouse_wheel"></_>
     </rect>
 </canvas>
