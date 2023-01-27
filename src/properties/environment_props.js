@@ -13,15 +13,33 @@ p5.prototype.registerMethod("post", function () {
   this._setProperty("window_resized", false);
 });
 
+class Window {
+  #element;
+  constructor(element) {
+    this.#element = element;
+  }
+  get #pInst() {
+    return this.#element.pInst;
+  }
+  /**
+   * window_resized is true if the window was resized since the last frame
+   * and false if not (read-only)
+   * @type {boolean}
+   * @readonly
+   */
+  get resized() {
+    return this.#pInst.window_resized;
+  }
+  get width() {
+    return this.#pInst.windowWidth;
+  }
+  get height() {
+    return this.#pInst.windowHeight;
+  }
+}
+
 export const addEnvironmentProps = (baseClass) =>
   class extends baseClass {
-    /**
-     * fullscreen specifies whether the canvas is in fullscreen (true) or not
-     * (false).
-     * Note that due to browser restrictions this can only
-     * be set on user input.
-     * @type {boolean}
-     */
     get fullscreen() {
       return this.pInst.fullscreen();
     }
@@ -82,12 +100,16 @@ export const addEnvironmentProps = (baseClass) =>
       return screen;
     }
     /**
-     * window_resized is true if the window was resized since the last frame
-     * and false if not (read-only)
-     * @type {boolean}
-     * @readonly
+     * The window object provides information about the window containing the
+     * canvas.
+     * - window.width   - number: width of the window
+     * - window.height  - number: height of the window
+     * - window.resized - boolean: true if the window was resized since last
+     * frame
+     * @type {Object}
      */
-    get window_resized() {
-      return this.pInst.window_resized;
+    get window() {
+      return this.#window;
     }
+    #window = new Window(this);
   };

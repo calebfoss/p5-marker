@@ -77,16 +77,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  window_width: {
-    get: function () {
-      return this.windowWidth;
-    },
-  },
-  window_height: {
-    get: function () {
-      return this.windowHeight;
-    },
-  },
   grid_output: {
     get: function () {
       return this._accessibleOutputs.grid;
