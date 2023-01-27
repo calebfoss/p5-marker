@@ -8,7 +8,6 @@ import "./elements/color_elements";
 import "./elements/beyond_canvas_elements";
 import "./modules/structure";
 import "./modules/dom";
-import "./modules/data";
 import "./modules/math";
 import "./modules/rendering";
 import "./modules/transform";

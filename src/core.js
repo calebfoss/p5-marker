@@ -6,6 +6,7 @@ import { addColorConstants } from "./properties/color_props";
 import { addColorMethods } from "./methods/color_methods";
 import { addEnvironmentProps } from "./properties/environment_props";
 import { addStorage } from "./properties/data_props";
+import { addDataMethods } from "./methods/data_methods";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -93,7 +94,9 @@ const attributePriorities = [
 ];
 export const addP5PropsAndMethods = (baseClass) =>
   class P5Extension extends addEnvironmentProps(
-    addColorMethods(addColorConstants(addWebGLMethods(addStorage(baseClass))))
+    addColorMethods(
+      addColorConstants(addWebGLMethods(addStorage(addDataMethods(baseClass))))
+    )
   ) {
     /**
      * This element's parent canvas.
