@@ -1,3 +1,5 @@
+import { wrapMethod } from "../utils/p5Modifiers";
+
 p5.prototype.window_resized = false;
 wrapMethod(
   "_onresize",
@@ -13,6 +15,28 @@ p5.prototype.registerMethod("post", function () {
 
 export const addEnvironmentProps = (baseClass) =>
   class extends baseClass {
+    /**
+     * frame_rate specifies the number of frames to be displayed every second.
+     * For example,
+     * frame_rate="30" will attempt to refresh 30 times a second.
+     * If the processor is not fast enough to maintain the specified rate, the
+     * frame rate will not be achieved. The default frame rate is
+     * based on the frame rate of the display (here also called "refresh rate"),
+     * which is set to 60 frames per second on most computers.
+     * A frame rate of 24
+     * frames per second (usual for movies) or above will be enough for smooth
+     * animations.
+     *
+     * The canvas must be rendered at least once for frame_rate to have a
+     * value.
+     * @type {number}
+     */
+    get frame_rate() {
+      return this.pInst._frameRate;
+    }
+    set frame_rate(val) {
+      this.pInst.frameRate(val);
+    }
     /**
      * The delta_time property contains the time
      * difference between the beginning of the previous frame and the beginning

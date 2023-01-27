@@ -78,14 +78,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  frame_rate: {
-    get: function () {
-      return this._frameRate;
-    },
-    set: function (val) {
-      this.frameRate(val);
-    },
-  },
   fullscreen: {
     get: function () {
       return this._fullscreen();
