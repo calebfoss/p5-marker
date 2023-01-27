@@ -17,8 +17,11 @@ import {
   addShapeElementProps,
 } from "./2d_shape_elements";
 import { addBezierMethods, addCurveMethods } from "../methods/shape_methods";
+import { add3DTransformProps } from "../properties/transform_props";
 
-class WebGLGeometry extends addFillStroke(add3DProps(RenderedElement)) {}
+class WebGLGeometry extends addFillStroke(
+  add3DTransformProps(add3DProps(RenderedElement))
+) {}
 
 class Normal extends addXYZ(RenderedElement) {
   static overloads = ["vector", "x, y, z"];
@@ -147,6 +150,7 @@ class Arc3D extends remove3DFromRenderFunctionName(
 }
 customElements.define("p-arc-3d", Arc3D);
 
+class Base2DTo3D extends add3DTransformProps(add3DProps(RenderedElement)) {}
 /**
  * Draws an ellipse (oval) onto a ```<canvas-3d>```. If no height is specified, the
  * value of width is used for both the width and height. If a
@@ -157,7 +161,7 @@ customElements.define("p-arc-3d", Arc3D);
  * @element ellipse-3d
  */
 class Ellipse3D extends remove3DFromRenderFunctionName(
-  addXY(addWidthHeight(addFillStroke(add3DProps(RenderedElement))))
+  addXY(addWidthHeight(addFillStroke(Base2DTo3D)))
 ) {
   static overloads = ["x, y, width, [height], [detail]"];
 }
@@ -170,7 +174,7 @@ customElements.define("p-ellipse-3d", Ellipse3D);
  * @element circle
  */
 class Circle3D extends remove3DFromRenderFunctionName(
-  addXY(addDiameter(addFillStroke(add3DProps(RenderedElement))))
+  addXY(addDiameter(addFillStroke(Base2DTo3D)))
 ) {
   static overloads = ["x, y, diameter"];
 }
@@ -184,7 +188,7 @@ customElements.define("p-circle-3d", Circle3D);
  * @element line-3d
  */
 class Line3D extends remove3DFromRenderFunctionName(
-  addXYZ1(addXYZ2(addStroke(add3DProps(RenderedElement))))
+  addXYZ1(addXYZ2(addStroke(Base2DTo3D)))
 ) {
   static overloads = ["x1, y1, z1, x2, y2, z2"];
 }
@@ -197,7 +201,7 @@ customElements.define("p-line-3d", Line3D);
  * @element point
  */
 class Point3D extends remove3DFromRenderFunctionName(
-  addXYZ(addStroke(add3DProps(RenderedElement)))
+  addXYZ(addStroke(Base2DTo3D))
 ) {
   static overloads = ["x, y, z"];
 }
@@ -212,11 +216,7 @@ customElements.define("p-point-3d", Point3D);
  * @element quad
  */
 class Quad3D extends remove3DFromRenderFunctionName(
-  addXYZ1(
-    addXYZ2(
-      addXYZ3(addXYZ4(addDetailXY(addFillStroke(add3DProps(RenderedElement)))))
-    )
-  )
+  addXYZ1(addXYZ2(addXYZ3(addXYZ4(addDetailXY(addFillStroke(Base2DTo3D))))))
 ) {
   static overloads = [
     "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
@@ -232,7 +232,7 @@ customElements.define("p-quad-3d", Quad3D);
  * @element rect
  */
 class Rect3D extends remove3DFromRenderFunctionName(
-  addXY(addWidthHeight(addFillStroke(add3DProps(RenderedElement))))
+  addXY(addWidthHeight(addFillStroke(Base2DTo3D)))
 ) {
   static overloads = [
     "x, y, width, [height], [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
@@ -248,7 +248,7 @@ customElements.define("p-rect-3d", Rect3D);
  * @element triangle
  */
 class Triangle3D extends remove3DFromRenderFunctionName(
-  addXYZ1(addXYZ2(addXYZ3(addFillStroke(add3DProps(RenderedElement)))))
+  addXYZ1(addXYZ2(addXYZ3(addFillStroke(Base2DTo3D))))
 ) {
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3"];
 }
@@ -345,9 +345,7 @@ customElements.define("p-contour-3d", Contour3D);
  * ```<ellipse-3d>``` or ```<rect-3d>``` as children of ```<shape-3d>```.
  * @element shape-3d
  */
-class Shape3D extends addShapeElementProps(
-  addFillStroke(add3DProps(RenderedElement))
-) {}
+class Shape3D extends addShapeElementProps(addFillStroke(Base2DTo3D)) {}
 customElements.define("p-shape-3d", Shape3D);
 
 const addUV = (baseClass) =>

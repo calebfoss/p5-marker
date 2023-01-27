@@ -1,14 +1,12 @@
 import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
 const defaultAnchor = p5.prototype.createVector();
-const defaultAngle = p5.prototype.createVector();
 const defaultShear = p5.prototype.createVector();
 const defaultScale = p5.prototype.createVector(1, 1, 1);
 const wrap = function (renderer) {
   function wrappedRenderer() {
     renderer.apply(this, arguments);
     this._anchorStack = [defaultAnchor.copy()];
-    this._angleStack = [defaultAngle.copy()];
     this._scaleStack = [defaultScale.copy()];
     this._shearStack = [defaultShear.copy()];
   }
@@ -22,7 +20,6 @@ wrapMethod(
   (base) =>
     function () {
       this._renderer._anchorStack.push(defaultAnchor.copy());
-      this._renderer._angleStack.push(defaultAngle.copy());
       this._renderer._scaleStack.push(defaultScale.copy());
       this._renderer._shearStack.push(defaultShear.copy());
       base.call(this);
@@ -34,7 +31,6 @@ wrapMethod(
   (base) =>
     function () {
       this._renderer._anchorStack.pop();
-      this._renderer._angleStack.pop();
       this._renderer._scaleStack.pop();
       this._renderer._shearStack.pop();
       base.call(this);
@@ -60,56 +56,6 @@ defineProperties({
           val
         );
       this.translate(this.anchor);
-    },
-  },
-  angle: {
-    get: function () {
-      return this._renderer?._angleStack.slice(-1)[0].z;
-    },
-    set: function (val) {
-      this._renderer._angleStack[this._renderer._anchorStack.length - 1].z =
-        val;
-      this.rotate(this.angle);
-    },
-  },
-  angle_x: {
-    get: function () {
-      return this._renderer?._angleStack.slice(-1)[0].x;
-    },
-    set: function (val) {
-      this._renderer._angleStack[this._renderer._angleStack.length - 1].x = val;
-      this.rotateX(this.angle_x);
-    },
-  },
-  angle_y: {
-    get: function () {
-      return this._renderer?._angleStack.slice(-1)[0].y;
-    },
-    set: function (val) {
-      this._renderer._angleStack[this._renderer._angleStack.length - 1].y = val;
-      this.rotateY(this.angle_y);
-    },
-  },
-  angle_z: {
-    get: function () {
-      return this._renderer?._angleStack.slice(-1)[0].z;
-    },
-    set: function (val) {
-      this._renderer._angleStack[this._renderer._angleStack.length - 1].z = val;
-      this.rotateZ(this.angle_z);
-    },
-  },
-  angle_vector: {
-    get: function () {
-      return this._renderer?._angleStack.slice(-1)[0];
-    },
-    set: function (val) {
-      this._renderer._angleStack[this._renderer._angleStack.length - 1] = val;
-      if (this._renderer.isP3D) {
-        this.rotateX(this.angle_x);
-        this.rotateY(this.angle_y);
-        this.rotateZ(this.angle_z);
-      } else this.rotate(this.angle);
     },
   },
   scale_factor: {

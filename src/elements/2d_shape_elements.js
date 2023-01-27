@@ -14,6 +14,7 @@ import {
   addXY4,
 } from "../properties/shape_props";
 import { collider_type } from "../methods/collide_methods";
+import { add2DTransformProps } from "../properties/transform_props";
 
 const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
 const add2DFillStroke = (baseClass) =>
@@ -103,7 +104,9 @@ export const addArcProps = (baseClass) =>
  * @element arc
  */
 class Arc extends addXY(
-  addWidthHeight(addArcProps(add2DFillStroke(RenderedElement)))
+  addWidthHeight(
+    addArcProps(add2DFillStroke(add2DTransformProps(RenderedElement)))
+  )
 ) {
   static overloads = ["x, y, width, height, start_angle, stop_angle, [mode]"];
 }
@@ -149,7 +152,11 @@ const addEllipse2DCollisionProps = (baseClass) =>
  * @element ellipse
  */
 class Ellipse extends addXY(
-  addWidthHeight(addFillStroke(addEllipse2DCollisionProps(RenderedElement)))
+  addWidthHeight(
+    addFillStroke(
+      addEllipse2DCollisionProps(add2DTransformProps(RenderedElement))
+    )
+  )
 ) {
   static overloads = ["x, y, width, [height]"];
 }
@@ -200,7 +207,11 @@ export const addDiameter = (baseClass) =>
  * @element circle
  */
 class Circle extends addXY(
-  addDiameter(add2DFillStroke(addCircle2DCollisionProps(RenderedElement)))
+  addDiameter(
+    add2DFillStroke(
+      add2DTransformProps(addCircle2DCollisionProps(RenderedElement))
+    )
+  )
 ) {
   static overloads = ["x, y, diameter"];
 }
@@ -249,7 +260,7 @@ const addLine2DCollisionProps = (baseClass) =>
  * @element line
  */
 class Line extends addXY12(
-  add2DStroke(addLine2DCollisionProps(RenderedElement))
+  add2DStroke(add2DTransformProps(addLine2DCollisionProps(RenderedElement)))
 ) {
   static overloads = ["x1, y1, x2, y2"];
 }
@@ -295,7 +306,7 @@ const addPointCollisionProps = (baseClass) =>
  * @element point
  */
 class Point extends addXY(
-  add2DStroke(addPointCollisionProps(RenderedElement))
+  add2DStroke(add2DTransformProps(addPointCollisionProps(RenderedElement)))
 ) {
   static overloads = ["x, y"];
 }
@@ -334,7 +345,13 @@ const addQuad2DCollisionProps = (baseClass) =>
  * @element quad
  */
 class Quad extends addXY12(
-  addXY3(addXY4(add2DFillStroke(addQuad2DCollisionProps(RenderedElement))))
+  addXY3(
+    addXY4(
+      add2DFillStroke(
+        add2DTransformProps(addQuad2DCollisionProps(RenderedElement))
+      )
+    )
+  )
 ) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
@@ -443,7 +460,9 @@ customElements.define("p-rect", Rect);
  * @element square
  */
 class Square extends addXY(
-  addRectMode(addCornerRadius(add2DFillStroke(RenderedElement)))
+  addRectMode(
+    addCornerRadius(add2DFillStroke(add2DTransformProps(RenderedElement)))
+  )
 ) {
   #size;
   static overloads = [
@@ -497,7 +516,9 @@ customElements.define("p-square", Square);
  * third point.
  * @element triangle
  */
-class Triangle extends addXY12(addXY3(add2DFillStroke(RenderedElement))) {
+class Triangle extends addXY12(
+  addXY3(add2DFillStroke(add2DTransformProps(RenderedElement)))
+) {
   static overloads = ["x1, y1, x2, y2, x3, y3"];
   collider = collider_type.poly;
   get collision_args() {
@@ -562,7 +583,11 @@ customElements.define("p-bezier", Bezier);
  */
 class Curve extends addXY12(
   addXY3(
-    addXY4(addCurveTightness(add2DFillStroke(addCurveMethods(RenderedElement))))
+    addXY4(
+      addCurveTightness(
+        add2DFillStroke(addCurveMethods(add2DTransformProps(RenderedElement)))
+      )
+    )
   )
 ) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
@@ -707,7 +732,9 @@ export const addShapeElementProps = (baseClass) =>
  * @element shape
  */
 class Shape extends addShapeElementProps(
-  add2DFillStroke(addShape2DCollisionProps(RenderedElement))
+  add2DFillStroke(
+    addShape2DCollisionProps(add2DTransformProps(RenderedElement))
+  )
 ) {}
 customElements.define("p-shape", Shape);
 

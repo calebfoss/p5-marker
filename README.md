@@ -74,7 +74,7 @@ Here's how to produce that same example in Marker:
         fill="180, 40, 20"
         angle="0"
     >
-        <_ parent.angle="parent.angle + 1" />
+        <_ parent.angle="angle + 1" />
     </square>
     <circle x="width / 2" y="height * 0.75" d="100" fill="20, 60, 180" />
 </canvas>
