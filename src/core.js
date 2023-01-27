@@ -304,9 +304,6 @@ export const addP5PropsAndMethods = (baseClass) =>
         .flat()
         .map((line) => "//\t" + line);
     }
-    set console_log(val) {
-      console.log(...arguments);
-    }
     /**
      * Updates the element's attribute values, renders it to the canvas, and
      * calls the draw method on its children.
