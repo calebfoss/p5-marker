@@ -92,13 +92,13 @@ export class AttrParseUtil {
     "yield",
   ];
   static getOwnerName(el, prop) {
+    if (prop in el) return "this";
     if (
       AttrParseUtil.keywords.includes(prop) ||
       prop in AttrParseUtil.escapes ||
       prop in globalThis
     )
       return "none";
-    if (prop in el) return "this";
     //  TODO - remove this temporary check when no longer needed
     if (prop in el.pInst && prop !== "width" && prop !== "height")
       return "pInst";
