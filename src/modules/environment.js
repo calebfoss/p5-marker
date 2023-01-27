@@ -1,6 +1,5 @@
 import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
-p5.prototype._fullscreen = p5.prototype.fullscreen;
 p5.prototype._width = p5.prototype.width;
 p5.prototype._height = p5.prototype.height;
 
@@ -78,14 +77,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  fullscreen: {
-    get: function () {
-      return this._fullscreen();
-    },
-    set: function (val) {
-      this._fullscreen(val);
-    },
-  },
   window_width: {
     get: function () {
       return this.windowWidth;

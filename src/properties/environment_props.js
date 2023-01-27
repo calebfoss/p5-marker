@@ -16,6 +16,19 @@ p5.prototype.registerMethod("post", function () {
 export const addEnvironmentProps = (baseClass) =>
   class extends baseClass {
     /**
+     * fullscreen specifies whether the canvas is in fullscreen (true) or not
+     * (false).
+     * Note that due to browser restrictions this can only
+     * be set on user input.
+     * @type {boolean}
+     */
+    get fullscreen() {
+      return this.pInst.fullscreen();
+    }
+    set fullscreen(val) {
+      this.pInst.fullscreen(val);
+    }
+    /**
      * frame_rate specifies the number of frames to be displayed every second.
      * For example,
      * frame_rate="30" will attempt to refresh 30 times a second.
