@@ -58,7 +58,7 @@ p5.prototype.create_canvas_element = function (elementName) {
   const createdElement = document.createElement(elementName);
   this.canvas.appendChild(createdElement);
   createdElement.setup(this, this.canvas);
-  return createdElement;
+  return createdElement.this_element;
 };
 defineProperties({
   object_assign: {
