@@ -329,7 +329,7 @@ class Contour3D extends remove3DFromRenderFunctionName(
     this.pInst.endContour();
   }
 }
-customElements.define("contour-3d", Contour3D);
+customElements.define("p-contour-3d", Contour3D);
 /**
  * Using the ```<shape-3d>``` element allow creating more
  * complex forms on a ```<canvas-3d>```.
