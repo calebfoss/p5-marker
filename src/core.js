@@ -94,11 +94,9 @@ const attributePriorities = [
   "change",
 ];
 export const addP5PropsAndMethods = (baseClass) =>
-  class P5Extension extends addEnvironmentProps(
-    addColorMethods(
-      addColorConstants(
-        addWebGLMethods(addCollide(addStorage(addDataMethods(baseClass))))
-      )
+  class P5Extension extends addColorMethods(
+    addColorConstants(
+      addWebGLMethods(addCollide(addStorage(addDataMethods(baseClass))))
     )
   ) {
     /**

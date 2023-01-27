@@ -1,6 +1,7 @@
 import { addP5PropsAndMethods } from "../core";
 import { addCanvasProperties } from "../properties/canvas_props";
 import { addCanvasMethods } from "../methods/canvas_methods";
+import { addEnvironmentProps } from "../properties/environment_props";
 
 /**
  * The `<canvas>` element is a rectangular area of the window for rendering
@@ -10,7 +11,9 @@ import { addCanvasMethods } from "../methods/canvas_methods";
  * ```<canvas-3d>```.
  */
 class Canvas extends addCanvasMethods(
-  addCanvasProperties(addP5PropsAndMethods(HTMLCanvasElement))
+  addCanvasProperties(
+    addP5PropsAndMethods(addEnvironmentProps(HTMLCanvasElement))
+  )
 ) {
   static renderer = "p2d";
 
@@ -26,7 +29,9 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
  * for rendering 3D elements.
  */
 class WebGLCanvas extends addCanvasMethods(
-  addCanvasProperties(addP5PropsAndMethods(HTMLCanvasElement))
+  addCanvasProperties(
+    addP5PropsAndMethods(addEnvironmentProps(HTMLCanvasElement))
+  )
 ) {
   #bezier_detail;
   #curve_detail;
