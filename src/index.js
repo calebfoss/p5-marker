@@ -9,7 +9,6 @@ import "./modules/structure";
 import "./modules/dom";
 import "./modules/math";
 import "./modules/rendering";
-import "./modules/transform";
 import "./modules/events";
 import "./modules/image";
 import "./modules/io";

@@ -52,8 +52,26 @@ const addScale = (baseClass) =>
     }
   };
 
+const addShear = (baseClass) =>
+  class extends baseClass {
+    #shear_x = 0;
+    #shear_y = 0;
+    get shear_x() {
+      return this.#shear_x;
+    }
+    set shear_x(val) {
+      this.#shear_x = val;
+    }
+    get shear_y() {
+      return this.#shear_y;
+    }
+    set shear_y(val) {
+      this.#shear_y = val;
+    }
+  };
+
 export const add2DTransformProps = (baseClass) =>
-  class extends addAnchor(addScale(baseClass)) {
+  class extends addAnchor(addScale(addShear(baseClass))) {
     #angle = 0;
     #apply_matrix = new DOMMatrix();
     #transform_matrix = new DOMMatrix();
@@ -148,18 +166,32 @@ export const add2DTransformProps = (baseClass) =>
       if (this.reset_transform) {
         this.pInst.resetMatrix();
       } else {
-        const transform_matrix = new DOMMatrix();
-        const translated_matrix = transform_matrix.translate(
-          this.anchor.x,
-          this.anchor.y
-        );
-        const scaled_matrix = translated_matrix.scale(
-          this.scale.x,
-          this.scale.y
-        );
-        const rotated_matrix = scaled_matrix.rotate(this.angle);
-        const applied_matrix = rotated_matrix.multiply(this.apply_transform);
-        const { a, b, c, d, e, f } = applied_matrix;
+        const shear_x_rads = this.pInst._toRadians(this.shear_x);
+        const shear_y_rads = this.pInst._toRadians(this.shear_y);
+        const shear_x_matrix = new DOMMatrix([
+          1,
+          0,
+          Math.tan(shear_x_rads),
+          1,
+          0,
+          0,
+        ]);
+        const shear_y_matrix = new DOMMatrix([
+          1,
+          Math.tan(shear_y_rads),
+          0,
+          1,
+          0,
+          0,
+        ]);
+        const transform_matrix = new DOMMatrix()
+          .translate(this.anchor.x, this.anchor.y)
+          .scale(this.scale.x, this.scale.y)
+          .rotate(this.angle)
+          .multiply(shear_x_matrix)
+          .multiply(shear_y_matrix)
+          .multiply(this.apply_transform);
+        const { a, b, c, d, e, f } = transform_matrix;
         this.pInst.drawingContext.transform(a, b, c, d, e, f);
       }
       this.#transform_matrix = this.pInst.drawingContext.getTransform();
@@ -167,7 +199,7 @@ export const add2DTransformProps = (baseClass) =>
   };
 
 export const add3DTransformProps = (baseClass) =>
-  class extends addAnchor(addScale(baseClass)) {
+  class extends addAnchor(addScale(addShear(baseClass))) {
     #angle_x = 0;
     #angle_y = 0;
     #angle_z = 0;
@@ -210,5 +242,7 @@ export const add3DTransformProps = (baseClass) =>
       this.pInst.rotateX(this.angle_x);
       this.pInst.rotateY(this.angle_y);
       this.pInst.rotateZ(this.angle_z);
+      this.pInst.shearX(this.shear_x);
+      this.pInst.shearY(this.shear_y);
     }
   };
