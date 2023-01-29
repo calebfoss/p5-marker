@@ -117,8 +117,7 @@ export const addP5PropsAndMethods = (baseClass) =>
         return target.#state[prop];
       },
       has(target, prop) {
-        if (prop in target) return true;
-        return prop in target.#state;
+        return prop in target;
       },
       set(target, prop, val) {
         target.set(prop, val);
@@ -635,7 +634,20 @@ export const addP5PropsAndMethods = (baseClass) =>
      */
     updateState(inherited) {
       for (const prop in inherited) {
-        if (prop in this) this[prop] = inherited[prop];
+        if (
+          prop in this &&
+          (![
+            "anchor",
+            "angle",
+            "shear_x",
+            "shear_y",
+            "angle_x",
+            "angle_y",
+            "angle_z",
+          ].includes(prop) ||
+            prop in this.parent === false)
+        )
+          this[prop] = inherited[prop];
         this.#state[prop] = inherited[prop];
       }
       const updaters = this.#updateFunctions.entries();
