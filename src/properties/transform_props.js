@@ -12,8 +12,39 @@ const addAnchor = (baseClass) =>
     }
   };
 
+const addScale = (baseClass) =>
+  class extends baseClass {
+    #scale = new p5.Vector(1, 1, 1);
+    /**
+     * Increases or decreases the size of an element by expanding or contracting
+     * vertices. Objects always scale from their anchor point. Scale values are
+     * specified as decimal percentages.
+     * For example, the setting scale="2.0" increases the dimension of a
+     * shape by 200%.
+     *
+     * Transformations apply to this element and its children. Children's
+     * scale will multiply the effect. For example, setting scale="2.0"
+     * and then setting scale="1.5" on the child will cause the child to be 3x
+     * its size.
+     *
+     * Setting this to a comma-separated list of numbers will result in those
+     * values being passed into create_vector and the resulting vector being set
+     * as the scale. Setting this to a single number will set the scale vector
+     * to that value in the x, y, and z direction.
+     *  @type {p5.Vector}
+     */
+    get scale() {
+      return this.#scale;
+    }
+    set scale(val) {
+      if (val instanceof p5.Vector) this.#scale = val;
+      if (Array.isArray(val)) this.#scale = new p5.Vector(...val);
+      this.#scale = new p5.Vector(val, val, val);
+    }
+  };
+
 export const add2DTransformProps = (baseClass) =>
-  class extends addAnchor(baseClass) {
+  class extends addAnchor(addScale(baseClass)) {
     #angle = 0;
     #apply_matrix = new DOMMatrix();
     #transform_matrix = new DOMMatrix();
@@ -113,7 +144,11 @@ export const add2DTransformProps = (baseClass) =>
           this.anchor.x,
           this.anchor.y
         );
-        const rotated_matrix = translated_matrix.rotate(this.angle);
+        const scaled_matrix = translated_matrix.scale(
+          this.scale.x,
+          this.scale.y
+        );
+        const rotated_matrix = scaled_matrix.rotate(this.angle);
         const applied_matrix = rotated_matrix.multiply(this.apply_transform);
         const { a, b, c, d, e, f } = applied_matrix;
         this.pInst.drawingContext.transform(a, b, c, d, e, f);
@@ -123,7 +158,7 @@ export const add2DTransformProps = (baseClass) =>
   };
 
 export const add3DTransformProps = (baseClass) =>
-  class extends addAnchor(baseClass) {
+  class extends addAnchor(addScale(baseClass)) {
     #angle_x = 0;
     #angle_y = 0;
     #angle_z = 0;
@@ -162,6 +197,7 @@ export const add3DTransformProps = (baseClass) =>
     }
     transform() {
       this.pInst.translate(this.anchor.x, this.anchor.y, this.anchor.z);
+      this.pInst.scale(this.scale.x, this.scale.y, this.scale.z);
       this.pInst.rotateX(this.angle_x);
       this.pInst.rotateY(this.angle_y);
       this.pInst.rotateZ(this.angle_z);
