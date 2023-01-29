@@ -1,12 +1,10 @@
 import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
-const defaultAnchor = p5.prototype.createVector();
 const defaultShear = p5.prototype.createVector();
 const defaultScale = p5.prototype.createVector(1, 1, 1);
 const wrap = function (renderer) {
   function wrappedRenderer() {
     renderer.apply(this, arguments);
-    this._anchorStack = [defaultAnchor.copy()];
     this._scaleStack = [defaultScale.copy()];
     this._shearStack = [defaultShear.copy()];
   }
@@ -19,7 +17,6 @@ wrapMethod(
   "push",
   (base) =>
     function () {
-      this._renderer._anchorStack.push(defaultAnchor.copy());
       this._renderer._scaleStack.push(defaultScale.copy());
       this._renderer._shearStack.push(defaultShear.copy());
       base.call(this);
@@ -30,7 +27,6 @@ wrapMethod(
   "pop",
   (base) =>
     function () {
-      this._renderer._anchorStack.pop();
       this._renderer._scaleStack.pop();
       this._renderer._shearStack.pop();
       base.call(this);
@@ -40,24 +36,6 @@ wrapMethod(
 p5.prototype.RESET = "reset";
 
 defineProperties({
-  anchor: {
-    get: function () {
-      return this._renderer?._anchorStack[
-        this._renderer._anchorStack.length - 1
-      ];
-    },
-    set: function (val) {
-      if (Array.isArray(val))
-        this._renderer._anchorStack[this._renderer._anchorStack.length - 1].set(
-          ...val
-        );
-      else
-        this._renderer._anchorStack[this._renderer._anchorStack.length - 1].set(
-          val
-        );
-      this.translate(this.anchor);
-    },
-  },
   scale_factor: {
     get: function () {
       return this._renderer?._scaleStack.slice(-1)[0];
@@ -93,40 +71,4 @@ defineProperties({
       this.shearY(this.shear.y);
     },
   },
-  transform_matrix: {
-    get: function () {
-      if (this._renderer.isP3D) return this._renderer.uMVMatrix;
-      return this.drawingContext?.getTransform();
-    },
-    set: function (val) {
-      if (val === this.RESET) this.resetMatrix();
-      else this.applyMatrix(val);
-    },
-  },
 });
-
-const identityMatrix = new DOMMatrix([
-  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
-]);
-
-p5.prototype._transform_point_matrix = function (originalPoint, transMatrix) {
-  const pixelDensityMatrix = new DOMMatrix(identityMatrix).scale(
-    this.pixel_density
-  );
-  const scaledMatrix = transMatrix.multiply(pixelDensityMatrix);
-  const transformedPoint = scaledMatrix.transformPoint(originalPoint);
-  return transformedPoint;
-};
-
-p5.prototype.untransform_point = function (x, y, z) {
-  const originalPoint = new DOMPoint(x, y, z);
-  return this._transform_point_matrix(originalPoint, this.transform_matrix);
-};
-
-p5.prototype.transform_point = function (x, y, z) {
-  const originalPoint = new DOMPoint(x, y, z);
-  return this._transform_point_matrix(
-    originalPoint,
-    this.transform_matrix.inverse()
-  );
-};

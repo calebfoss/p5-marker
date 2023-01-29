@@ -4,7 +4,6 @@ import { wrapMethod, defineProperties } from "./utils/p5Modifiers";
 import { addWebGLMethods } from "./methods/3d_methods";
 import { addColorConstants } from "./properties/color_props";
 import { addColorMethods } from "./methods/color_methods";
-import { addEnvironmentProps } from "./properties/environment_props";
 import { addStorage } from "./properties/data_props";
 import { addDataMethods } from "./methods/data_methods";
 import { addCollide } from "./methods/collide_methods";
@@ -325,6 +324,7 @@ export const addP5PropsAndMethods = (baseClass) =>
       const { WHILE } = p5.prototype;
       let repeat = true;
       while (repeat) {
+        this.transform?.();
         this.render?.();
         for (const child of this.children) {
           child.draw(this.#state);
@@ -588,10 +588,6 @@ export const addP5PropsAndMethods = (baseClass) =>
       }
       const { orderedAttributeNames, transformDoneIndex } = this;
       for (let i = 0; i < orderedAttributeNames.length; i++) {
-        if (i === transformDoneIndex)
-          this.#updateFunctions.set("transform_matrix", function () {
-            this.transform_matrix = this.pInst.transform_matrix;
-          });
         this.#setupEvalFn(this.attributes[orderedAttributeNames[i]]);
       }
     }

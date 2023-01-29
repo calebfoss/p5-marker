@@ -21,13 +21,11 @@ const add2DFillStroke = (baseClass) =>
   addFillStroke(add2DStrokeStyling(baseClass));
 
 const transformVertexFn = (el) => (v) => {
-  const originalPoint = new DOMPoint(v.x, v.y);
-  const { x, y } = el.pInst._transform_point_matrix(
-    originalPoint,
-    el.transform_matrix
-  );
+  const { x, y } = el.local_to_canvas_position(v.x, v.y);
   return el.pInst.createVector(x, y);
 };
+
+class Transformed2DElement extends add2DTransformProps(RenderedElement) {}
 
 export const addArcProps = (baseClass) =>
   class extends baseClass {
@@ -35,7 +33,8 @@ export const addArcProps = (baseClass) =>
     #stop_angle = Math.PI;
     #mode;
     get mouse_over() {
-      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x: local_mouse_x, y: local_mouse_y } =
+        this.canvas_to_local_position(mouseX, mouseY);
       const { x, y, width, height, start_angle, stop_angle } = this;
       console.assert(
         width === height,
@@ -46,8 +45,8 @@ export const addArcProps = (baseClass) =>
       const arcRotation = start_angle + arcAngle / 2;
 
       return this.collide.point_arc(
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
+        local_mouse_x,
+        local_mouse_y,
         x,
         y,
         arcRadius,
@@ -104,9 +103,7 @@ export const addArcProps = (baseClass) =>
  * @element arc
  */
 class Arc extends addXY(
-  addWidthHeight(
-    addArcProps(add2DFillStroke(add2DTransformProps(RenderedElement)))
-  )
+  addWidthHeight(addArcProps(add2DFillStroke(Transformed2DElement)))
 ) {
   static overloads = ["x, y, width, height, start_angle, stop_angle, [mode]"];
 }
@@ -116,25 +113,19 @@ const addEllipse2DCollisionProps = (baseClass) =>
   class extends baseClass {
     collider = collider_type.ellipse;
     get collision_args() {
-      const originalPoint = new DOMPoint(
-        this.this_element.x,
-        this.this_element.y
-      );
-      const { x, y } = this.pInst._transform_point_matrix(
-        originalPoint,
-        this.transform_matrix
-      );
+      const { x, y } = this.local_to_canvas_position(this.x, this.y);
       const { pixel_density } = this.pInst;
       const { w } = this.width * pixel_density;
       const { h } = this.height * pixel_density || w;
       return [x, y, w, h];
     }
     get mouse_over() {
-      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x: local_mouse_x, y: local_mouse_y } =
+        this.canvas_to_local_position(mouseX, mouseY);
       const { x, y, width, height } = this.this_element;
       return this.collide.point_ellipse(
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
+        local_mouse_x,
+        local_mouse_y,
         x,
         y,
         width,
@@ -153,9 +144,7 @@ const addEllipse2DCollisionProps = (baseClass) =>
  */
 class Ellipse extends addXY(
   addWidthHeight(
-    addFillStroke(
-      addEllipse2DCollisionProps(add2DTransformProps(RenderedElement))
-    )
+    addFillStroke(addEllipse2DCollisionProps(Transformed2DElement))
   )
 ) {
   static overloads = ["x, y, width, [height]"];
@@ -169,24 +158,22 @@ const addCircle2DCollisionProps = (baseClass) =>
     }
     collider = collider_type.circle;
     get collision_args() {
-      const originalPoint = new DOMPoint(this.x, this.y);
-      const { x, y } = this.pInst._transform_point_matrix(
-        originalPoint,
-        this.transform_matrix
-      );
+      const { x, y } = this.local_to_canvas_position(this.x, this.y);
       const d =
         this.this_element.d * this.pInst.pow(this.pInst.pixel_density, 2);
       return [x, y, d];
     }
     get mouse_over() {
-      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x, y, d } = this.this_element;
+      const { mouseX, mouseY } = this.pInst;
+      const { x: local_mouse_x, y: local_mouse_y } =
+        this.canvas_to_local_position(mouseX, mouseY);
+      const { x, y, diameter } = this;
       return this.collide.point_circle(
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
+        local_mouse_x,
+        local_mouse_y,
         x,
         y,
-        d
+        diameter
       );
     }
   };
@@ -207,11 +194,7 @@ export const addDiameter = (baseClass) =>
  * @element circle
  */
 class Circle extends addXY(
-  addDiameter(
-    add2DFillStroke(
-      add2DTransformProps(addCircle2DCollisionProps(RenderedElement))
-    )
-  )
+  addDiameter(add2DFillStroke(addCircle2DCollisionProps(Transformed2DElement)))
 ) {
   static overloads = ["x, y, diameter"];
 }
@@ -221,30 +204,17 @@ const addLine2DCollisionProps = (baseClass) =>
   class extends baseClass {
     collider = collider_type.line;
     get collision_args() {
-      const originalStart = new DOMPoint(
-        this.this_element.x1,
-        this.this_element.y1
-      );
-      const { x: x1, y: y1 } = this.pInst._transform_point_matrix(
-        originalStart,
-        this.transform_matrix
-      );
-      const originalEnd = new DOMPoint(
-        this.this_element.x2,
-        this.this_element.y2
-      );
-      const { x: x2, y: y2 } = this.pInst._transform_point_matrix(
-        originalEnd,
-        this.transform_matrix
-      );
+      const { x: x1, y: y1 } = this.local_to_canvas_position(this.x1, this.y1);
+      const { x: x2, y: y2 } = this.local_to_canvas_position(this.x2, this.y2);
       return [x1, y1, x2, y2];
     }
     get mouse_over() {
-      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
-      const { x1, y1, x2, y2 } = this.this_element;
+      const { x: local_mouse_x, y: local_mouse_y } =
+        this.canvas_to_local_position(mouseX, mouseY);
+      const { x1, y1, x2, y2 } = this;
       return this.collide.point_line(
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
+        local_mouse_x,
+        local_mouse_y,
         x1,
         y1,
         x2,
@@ -270,33 +240,18 @@ const addPointCollisionProps = (baseClass) =>
   class extends baseClass {
     collider = collider_type.circle;
     get collision_args() {
-      const originalPoint = new DOMPoint(this.x, this.y);
-      const { x, y } = this.pInst._transform_point_matrix(
-        originalPoint,
-        this.transform_matrix
-      );
+      const { x, y } = this.local_to_canvas_position(this.x, this.y);
       const { stroke_weight } = this;
       const { pixel_density } = this.pInst;
       const d = stroke_weight * this.pInst.pow(pixel_density, 2);
       return [x, y, d];
     }
     get mouse_over() {
-      const {
-        x,
-        y,
-        stroke_weight,
-        pixel_density,
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
-      } = this;
+      const { x, y, stroke_weight, pixel_density } = this;
+      const { x: local_mouse_x, y: local_mouse_y } =
+        this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
       const d = stroke_weight * this.pInst.pow(pixel_density, 2);
-      return this.collide.point_circle(
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
-        x,
-        y,
-        d
-      );
+      return this.collide.point_circle(local_mouse_x, local_mouse_y, x, y, d);
     }
   };
 /**
@@ -319,10 +274,11 @@ const addQuad2DCollisionProps = (baseClass) =>
       return [this.vertices.map(transformVertexFn(this))];
     }
     get mouse_over() {
-      const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+      const { x: local_mouse_x, y: local_mouse_y } =
+        this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
       return this.collide.point_poly(
-        mouse_trans_pos_x,
-        mouse_trans_pos_y,
+        local_mouse_x,
+        local_mouse_y,
         this.vertices
       );
     }
@@ -412,29 +368,28 @@ const addCornerRadius = (baseClass) =>
  * @element rect
  */
 class Rect extends addXY(
-  addWidthHeight(addRectMode(addCornerRadius(add2DFillStroke(RenderedElement))))
+  addWidthHeight(
+    addRectMode(addCornerRadius(add2DFillStroke(Transformed2DElement)))
+  )
 ) {
   static overloads = [
     "x, y, width, [height], [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
   ];
   collider = collider_type.rect;
   get collision_args() {
-    const originalPoint = new DOMPoint(this.x, this.y);
-    const { x, y } = this.pInst._transform_point_matrix(
-      originalPoint,
-      this.transform_matrix
-    );
+    const { x, y } = this.local_to_canvas_position(this.x, this.y);
     const { pixel_density } = this.pInst;
     const w = this.width * this.pInst.pow(pixel_density, 2);
     const h = this.height * this.pInst.pow(pixel_density, 2);
     return [x, y, w, h];
   }
   get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+    const { x: local_mouse_x, y: local_mouse_y } =
+      this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
     const { x, y, width, height } = this;
     return this.collide.point_rect(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
+      local_mouse_x,
+      local_mouse_y,
       x,
       y,
       width,
@@ -460,9 +415,7 @@ customElements.define("p-rect", Rect);
  * @element square
  */
 class Square extends addXY(
-  addRectMode(
-    addCornerRadius(add2DFillStroke(add2DTransformProps(RenderedElement)))
-  )
+  addRectMode(addCornerRadius(add2DFillStroke(Transformed2DElement)))
 ) {
   #size;
   static overloads = [
@@ -470,11 +423,7 @@ class Square extends addXY(
   ];
   collider = collider_type.rect;
   get collision_args() {
-    const originalPoint = new DOMPoint(this.x, this.y);
-    const { x, y } = this.pInst._transform_point_matrix(
-      originalPoint,
-      this.transform_matrix
-    );
+    const { x, y } = this.local_to_canvas_position(this.x, this.y);
     const { pixel_density } = this.pInst;
     const { size } = this;
     const w = size * this.pInst.pow(pixel_density, 2);
@@ -482,11 +431,12 @@ class Square extends addXY(
     return [x, y, w, h];
   }
   get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+    const { x: local_mouse_x, y: local_mouse_y } =
+      this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
     const { x, y, size } = this;
     return this.collide.point_rect(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
+      local_mouse_x,
+      local_mouse_y,
       x,
       y,
       size,
@@ -516,20 +466,19 @@ customElements.define("p-square", Square);
  * third point.
  * @element triangle
  */
-class Triangle extends addXY12(
-  addXY3(add2DFillStroke(add2DTransformProps(RenderedElement)))
-) {
+class Triangle extends addXY12(addXY3(add2DFillStroke(Transformed2DElement))) {
   static overloads = ["x1, y1, x2, y2, x3, y3"];
   collider = collider_type.poly;
   get collision_args() {
     return [this.vertices.map(transformVertexFn(this))];
   }
   get mouse_over() {
-    const { mouse_trans_pos_x, mouse_trans_pos_y } = this.pInst;
+    const { x: local_mouse_x, y: local_mouse_y } =
+      this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
     const { x1, y1, x2, y2, x3, y3 } = this;
     return this.collide.point_triangle(
-      mouse_trans_pos_x,
-      mouse_trans_pos_y,
+      local_mouse_x,
+      local_mouse_y,
       x1,
       y1,
       x2,
@@ -584,9 +533,7 @@ customElements.define("p-bezier", Bezier);
 class Curve extends addXY12(
   addXY3(
     addXY4(
-      addCurveTightness(
-        add2DFillStroke(addCurveMethods(add2DTransformProps(RenderedElement)))
-      )
+      addCurveTightness(add2DFillStroke(addCurveMethods(Transformed2DElement)))
     )
   )
 ) {
@@ -732,9 +679,7 @@ export const addShapeElementProps = (baseClass) =>
  * @element shape
  */
 class Shape extends addShapeElementProps(
-  add2DFillStroke(
-    addShape2DCollisionProps(add2DTransformProps(RenderedElement))
-  )
+  add2DFillStroke(addShape2DCollisionProps(Transformed2DElement))
 ) {}
 customElements.define("p-shape", Shape);
 
