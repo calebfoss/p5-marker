@@ -1,6 +1,15 @@
 const addAnchor = (baseClass) =>
   class extends baseClass {
     #anchor = new p5.Vector();
+    /**
+     * This element and its children are positioned and transformed relative to
+     * the anchor position.
+     *
+     * Setting anchor to one or more comma-separated numbers will result in the
+     * values being passed into create_vector and anchor being set to the
+     * resulting vector.
+     * @type {p5.Vector}
+     */
     get anchor() {
       return this.#anchor;
     }
