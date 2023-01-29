@@ -15,6 +15,7 @@ import {
 } from "../properties/shape_props";
 import { collider_type } from "../methods/collide_methods";
 import { add2DTransformProps } from "../properties/transform_props";
+import { add2DTransformMethods } from "../methods/transform_methods";
 
 const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
 const add2DFillStroke = (baseClass) =>
@@ -25,7 +26,9 @@ const transformVertexFn = (el) => (v) => {
   return el.pInst.createVector(x, y);
 };
 
-class Transformed2DElement extends add2DTransformProps(RenderedElement) {}
+class Transformed2DElement extends add2DTransformProps(
+  add2DTransformMethods(RenderedElement)
+) {}
 
 export const addArcProps = (baseClass) =>
   class extends baseClass {
@@ -230,7 +233,7 @@ const addLine2DCollisionProps = (baseClass) =>
  * @element line
  */
 class Line extends addXY12(
-  add2DStroke(add2DTransformProps(addLine2DCollisionProps(RenderedElement)))
+  add2DStroke(addLine2DCollisionProps(Transformed2DElement))
 ) {
   static overloads = ["x1, y1, x2, y2"];
 }
@@ -261,7 +264,7 @@ const addPointCollisionProps = (baseClass) =>
  * @element point
  */
 class Point extends addXY(
-  add2DStroke(add2DTransformProps(addPointCollisionProps(RenderedElement)))
+  add2DStroke(addPointCollisionProps(Transformed2DElement))
 ) {
   static overloads = ["x, y"];
 }
@@ -301,13 +304,7 @@ const addQuad2DCollisionProps = (baseClass) =>
  * @element quad
  */
 class Quad extends addXY12(
-  addXY3(
-    addXY4(
-      add2DFillStroke(
-        add2DTransformProps(addQuad2DCollisionProps(RenderedElement))
-      )
-    )
-  )
+  addXY3(addXY4(add2DFillStroke(addQuad2DCollisionProps(Transformed2DElement))))
 ) {
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }

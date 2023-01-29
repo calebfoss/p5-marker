@@ -18,9 +18,10 @@ import {
 } from "./2d_shape_elements";
 import { addBezierMethods, addCurveMethods } from "../methods/shape_methods";
 import { add3DTransformProps } from "../properties/transform_props";
+import { add3DTransformMethods } from "../methods/transform_methods";
 
 class WebGLGeometry extends addFillStroke(
-  add3DTransformProps(add3DProps(RenderedElement))
+  add3DTransformProps(add3DTransformMethods(add3DProps(RenderedElement)))
 ) {}
 
 class Normal extends addXYZ(RenderedElement) {
