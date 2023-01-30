@@ -7,6 +7,7 @@ import { addColorMethods } from "./methods/color_methods";
 import { addStorage } from "./properties/data_props";
 import { addDataMethods } from "./methods/data_methods";
 import { addCollide } from "./methods/collide_methods";
+import { defineCustomElement } from "./elements/beyond_canvas_elements";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -135,6 +136,7 @@ export const addP5PropsAndMethods = (baseClass) =>
     #name;
     constructor() {
       super();
+      if (this.hasAttribute("name")) defineCustomElement(this);
     }
     /**
      * Proxy for the sibling element above this element with access to its

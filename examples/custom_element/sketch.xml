@@ -1,5 +1,5 @@
 <_>
-    <custom name="cloud" stroke="NONE">
+    <_ name="cloud" stroke="NONE">
         <_ anchor="x, y">
             <circle x="-diameter/2" y="-diameter/4" fill="220"></circle>
             <circle x="-diameter/2" y="-diameter/4" fill="210"></circle>
@@ -10,7 +10,7 @@
             <circle x="-diameter/2" y="0" fill="240"></circle>
             <circle x="0" y="-diameter/8" fill="235"></circle>
         </_>
-    </custom>
+    </_>
     <canvas
         width="400"
         height="400"

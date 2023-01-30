@@ -17,7 +17,7 @@
 
 
         <!-- STATE MANAGEMENT -->
-        <_ x="canvas.width/2" y="canvas.height/2" align="CENTER, CENTER"
+        <_ x="canvas.width/2" y="canvas.height/2" align="CENTER"
             font_size="canvas.height/15"> <!-- TODO - fix newline -->
             <text on="state === 'start'"
             >Left: W for up, S for down\nRight: up/down\n\nClick to start <_
@@ -39,7 +39,7 @@
         </_>
     </canvas>
     <!-- BALL -->
-    <custom name="ball" size="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
+    <_ name="ball" size="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
         speed="createVector()" ball="this_element">
         <!-- POSITION CHECKS -->
         <_ ball_left="x - size/2" ball_right="x + size/2" ball_top="y - size/2"
@@ -116,9 +116,9 @@
         <_ on="game.state === 'play'" ball.x="ball.x + speed.x" ball.y="ball.y + speed.y"
             ball_left="x - w/2" ball_right="x + w/2"></_>
         <square></square>
-    </custom>
+    </_>
     <!-- PADDLE -->
-    <custom name="paddle" x="canvas.width * 0.9" y="canvas.height/2"
+    <_ name="paddle" x="canvas.width * 0.9" y="canvas.height/2"
         width="canvas.height/50" height="canvas.height/5"
         stroke="NONE" fill="255" rect_mode="CENTER" up=" UP_ARROW" down="DOWN_ARROW"
         speed="canvas.height/75" paddle=" this_element">
@@ -126,5 +126,5 @@
         <_ on="key_is_down(up)" paddle.y="constrain(paddle.y - speed, h/2, canvas.height - h/2)"></_>
         <_ on="key_is_down(down)" paddle.y="constrain(paddle.y + speed, h/2, canvas.height - h/2)"></_>
         <rect></rect>
-    </custom>
+    </_>
 </_>

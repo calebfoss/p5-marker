@@ -1,4 +1,32 @@
 import { P5Element } from "../core";
+
+export const defineCustomElement = (el) => {
+  const name = el.getAttribute("name");
+  //  Trick custom-elements-manifest into ignoring this
+  customElements["define"](
+    `p-${name}`,
+    class extends P5Element {
+      constructor() {
+        super();
+      }
+      /**
+       * Sets the default values for this element's attributes.
+       */
+      setDefaults() {
+        Array.from(el.attributes).forEach(
+          (a) =>
+            this.hasAttribute(a.name) === false &&
+            this.setAttribute(a.name, a.value)
+        );
+        const childClones = Array.from(el.children).map((child) =>
+          child.cloneNode(true)
+        );
+        this.prepend(...childClones);
+      }
+      renderToCanvas = null;
+    }
+  );
+};
 /**
  * This HTML element loads an XML sketch file. This should be added to the
  * index.html file as a `<link>` element with the attributes is="p-sketch" and
@@ -35,7 +63,7 @@ class Sketch extends HTMLLinkElement {
         pEl.appendChild(this.#convertElement(childNode));
       else pEl.appendChild(childNode.cloneNode());
     }
-    if (xmlTag === "custom") pEl.define();
+    if (pEl.hasAttribute("name")) defineCustomElement(pEl);
     return pEl;
   }
   #convertXML(e) {
@@ -50,6 +78,7 @@ class Sketch extends HTMLLinkElement {
       copy.setAttribute(attr.name, attr.value);
     }
   }
+
   #loadXML(path) {
     if (!path)
       return console.error(
@@ -70,84 +99,6 @@ class Sketch extends HTMLLinkElement {
   }
 }
 customElements.define("p-sketch", Sketch, { extends: "link" });
-/**
- * The ```<custom>``` element generates a new element from a combination of existing
- * elements. This element should be placed outside the ```<canvas>``` element.
- * The name attribute defines the name of the new element. For
- * example, if name is set to "my-element," you can add ```<my-element>``` to your sketch.
- * @element custom
- * @example Clouds
- * ```html
- * <_>
- *  <custom name="cloud" attributes="center_x, center_y" stroke="NONE">
- *      <_ anchor="center_x, center_y" d="40">
- *          <circle x="-20" y="-10" fill_color="220"></circle>
- *          <circle x="20" y="-10" fill_color="210"></circle>
- *          <circle x="-10" y="-20" fill_color="250"></circle>
- *          <circle x="10" y="-20" fill_color="210"></circle>
- *          <circle x="0" y="0" fill_color="180"></circle>
- *          <circle x="20" y="0" fill_color="200"></circle>
- *          <circle x="-20" y="0" fill_color="240"></circle>
- *          <circle x="0" y="-5" fill_color="235"></circle>
- *      </_>
- *  </custom>
- *  <canvas
- *      width="400"
- *      height="400"
- *      background="100, 140, 200"
- *      cloud_x="0"
- *  >
- *      <cloud
- *          center_y="75"
- *          center_x="cloud_x - 40 - width * 0.25"
- *          change="center_x: center_x + width * 0.25"
- *          repeat="WHILE center_x LESS_THAN width * 1.25"
- *      ></cloud>
- *      <_ cloud_x="cloud_x + 0.25">
- *          <_ on="cloud_x GREATER_THAN width * 0.25" cloud_x="0"></_>
- *      </_>
- *  </canvas>
- * </_>
- * ```
- */
-class Custom extends P5Element {
-  constructor() {
-    super();
-    if (this.attributes.length) this.define(this);
-  }
-  /**
-   * Defines the custom element created by this element.
-   */
-  define() {
-    const pCustomEl = this;
-    const name = pCustomEl.getAttribute("name");
-    //  Trick custom-elements-manifest into ignoring this
-    customElements["define"](
-      `p-${name}`,
-      class extends P5Element {
-        constructor() {
-          super();
-        }
-        /**
-         * Sets the default values for this element's attributes.
-         */
-        setDefaults() {
-          Array.from(pCustomEl.attributes).forEach(
-            (a) =>
-              this.hasAttribute(a.name) === false &&
-              this.setAttribute(a.name, a.value)
-          );
-          const childClones = Array.from(pCustomEl.children).map((child) =>
-            child.cloneNode(true)
-          );
-          this.prepend(...childClones);
-        }
-        renderToCanvas = null;
-      }
-    );
-  }
-}
-customElements.define("p-custom", Custom);
 
 class Asset extends HTMLElement {
   static elementName = "p-asset";
