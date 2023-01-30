@@ -47,9 +47,8 @@ export const addStroke = (baseClass) =>
         : this.pInst.drawingContext.lineWidth;
     }
   };
-
-export const addFillStroke = (baseClass) =>
-  class extends addStroke(baseClass) {
+export const addFill = (baseClass) =>
+  class extends baseClass {
     #fill;
     /**
      * Sets the color used to fill shapes. This may be a
@@ -72,3 +71,5 @@ export const addFillStroke = (baseClass) =>
       );
     }
   };
+export const addFillStroke = (baseClass) =>
+  class extends addFill(addStroke(baseClass)) {};
