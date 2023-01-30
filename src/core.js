@@ -305,7 +305,7 @@ export const addP5PropsAndMethods = (baseClass) =>
     /**
      * The text content of the element and its children. If a $ is followed by
      * the name of a property (such as $blend_mode), it will be replaced by the
-     * value of the property.s
+     * value of the property.
      */
     get content() {
       const getInherited = (owner, prop) => {
@@ -323,6 +323,13 @@ export const addP5PropsAndMethods = (baseClass) =>
         .replace(/\\n/g, "\n")
         .trim();
       return text;
+    }
+    set content(s) {
+      if (this.content === s) return;
+      for (const node of this.childNodes) {
+        if (node.nodeType === 3) this.removeChild(node);
+      }
+      this.insertBefore(document.createTextNode(s), this.firstChild);
     }
     /**
      * Updates the element's attribute values, renders it to the canvas, and
