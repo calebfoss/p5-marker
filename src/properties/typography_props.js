@@ -21,7 +21,10 @@ export const addTypographyProps = (baseClass) =>
     set align(val) {
       if (Array.isArray(val)) this.pInst.textAlign(...val);
       else this.pInst.textAlign(val);
-      this.#align = [this.pInst._textAlign, this.pInst._textBaseline];
+      this.#align = [
+        this.pInst._renderer._textAlign,
+        this.pInst._renderer._textBaseline,
+      ];
     }
     /**
      * Sets the spacing, in pixels, between lines of text.
@@ -32,6 +35,6 @@ export const addTypographyProps = (baseClass) =>
     }
     set leading(val) {
       this.pInst.textLeading(val);
-      this.#leading = this.pInst._textLeading;
+      this.#leading = this.pInst._renderer._textLeading;
     }
   };
