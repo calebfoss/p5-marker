@@ -3,6 +3,6 @@ import {
   defineSnakeAlias,
 } from "../utils/p5Modifiers";
 
-defineRendererGetterSetters("textStyle", "textWrap", "textFont");
+defineRendererGetterSetters("textFont");
 
 defineSnakeAlias("textAscent", "textDescent");

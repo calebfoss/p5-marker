@@ -4,6 +4,7 @@ export const addTypographyProps = (baseClass) =>
     #leading = 15;
     #font_size = 12;
     #style = p5.prototype.NORMAL;
+    #wrap = p5.prototype.WORD;
     /**
      * Sets the current alignment for drawing text. Accepts two
      * values:
@@ -60,5 +61,28 @@ export const addTypographyProps = (baseClass) =>
     set style(val) {
       this.pInst.textStyle(val);
       this.#style = this.pInst._renderer._textStyle;
+    }
+    /**
+     * Specifies how lines of text are wrapped within a text box. This requires
+     * width to be set on this element.
+     *
+     * WORD wrap style only breaks lines at spaces. A single string without spaces
+     * that exceeds the boundaries of the canvas or text area is not truncated,
+     * and will overflow the desired area, disappearing at the canvas edge.
+     *
+     * CHAR wrap style breaks lines wherever needed to stay within the text box.
+     *
+     * WORD is the default wrap style, and both styles will still break lines at
+     * any line breaks specified in the original text. The text height property also
+     * still applies to wrapped text in both styles, lines of text that do not fit
+     * within the text area will not be drawn to the screen.
+     * @type {WORD|CHAR}
+     */
+    get wrap() {
+      return this.#wrap;
+    }
+    set wrap(val) {
+      this.pInst.textWrap(val);
+      this.#wrap = this.pInst._renderer._textWrap;
     }
   };
