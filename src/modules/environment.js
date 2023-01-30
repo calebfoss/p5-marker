@@ -82,11 +82,6 @@ defineProperties({
       this.describeElement(...val);
     },
   },
-  display_density: {
-    get: function () {
-      return this.displayDensity();
-    },
-  },
   url: {
     get: function () {
       return this.getURL();

@@ -81,6 +81,14 @@ export const addEnvironmentProps = (baseClass) =>
       this.pInst.pixelDensity(val);
     }
     /**
+     * The pixel density of the current display the sketch is running on. (read-only)
+     * @type {number}
+     * @readonly
+     */
+    get display_density() {
+      return this.pInst.displayDensity();
+    }
+    /**
      * The delta_time property contains the time
      * difference between the beginning of the previous frame and the beginning
      * of the current frame in milliseconds.
