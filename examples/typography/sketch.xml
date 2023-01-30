@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas width="400" height="400" background="220" loop="false" margin="10">
     <text x="margin" y="margin" width="width - margin * 2" height="height - margin * 2"
-        align="random([LEFT, CENTER, RIGHT])"
-        font_size="int(random(10, 30))" leading="int(random(font_size, font_size * 2))"
+        align="random([LEFT, CENTER, RIGHT])" font="random(['sans-serif', 'monospace', 'serif'])"
+        font_size="int(random(12, 30))" leading="int(random(font_size, font_size * 2))"
         style="random([NORMAL, ITALIC, BOLDITALIC])" wrap="random([WORD, CHAR])">
         This is a demonstration of the text element. This element has the following attributes:
         align: $align
+        font: $font
         font_size: $font_size
         leading: $leading
         style: $style

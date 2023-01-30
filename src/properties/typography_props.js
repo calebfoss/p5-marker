@@ -2,6 +2,7 @@ export const addTypographyProps = (baseClass) =>
   class extends baseClass {
     #align = [p5.prototype.LEFT, p5.prototype.BASELINE];
     #leading = 15;
+    #font = "sans-serif";
     #font_size = 12;
     #style = p5.prototype.NORMAL;
     #wrap = p5.prototype.WORD;
@@ -39,6 +40,19 @@ export const addTypographyProps = (baseClass) =>
     set leading(val) {
       this.pInst.textLeading(val);
       this.#leading = this.pInst._renderer._textLeading;
+    }
+    /**
+     * The current font used by this element. This may be set to a font loaded
+     * with load_font() or a string representing a
+     * <a href="https://mzl.la/2dOw8WD">web safe font</a>.
+     * @type {p5.Font}
+     */
+    get font() {
+      return this.#font;
+    }
+    set font(val) {
+      this.pInst.textFont(val);
+      this.#font = this.pInst._renderer._textFont;
     }
     /**
      * The font size in pixels.
