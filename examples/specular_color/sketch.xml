@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas-3d width="100" height="100"
     background="0"
-    description="'Sphere with specular highlight. Clicking the mouse toggles the specular highlight color between red and the default white.'">
-    <ambient-light gray="60"></ambient-light>
-    <_ set_red_specular_color="true">
+>Sphere with specular highlight. Clicking the mouse toggles the specular highlight
+    color between red and the default white. <ambient-light gray="60"></ambient-light>
+    <_
+        set_red_specular_color="true">
         <point-light specular_color="set_red_specular_color ? color(255, 0, 0) : 255"
             v1="200" v2="200" v3="200"
             x="mouse_pos_x - width / 2"

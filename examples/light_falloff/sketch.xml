@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas-3d width="100" height="100" background="0"
     ortho="true"
-    description="'Two spheres with different falloff values show different intensity of light'"
     stroke="NONE"
->
-    <_ loc_x="mouse_pos_x - width / 2"
+> Two spheres with different falloff values show different intensity of light <_
+        loc_x="mouse_pos_x - width / 2"
         loc_y="mouse_pos_y - height / 2"
         v1="250" v2="250" v3="250">
         <point-light

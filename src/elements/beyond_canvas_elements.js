@@ -30,19 +30,17 @@ class Sketch extends HTMLLinkElement {
     const createElementArguments = this.#xmlTagToCreateElementArguments(xmlTag);
     const pEl = document.createElement(...createElementArguments);
     this.#copyAttributes(xmlEl, pEl);
+    for (const childNode of xmlEl.childNodes) {
+      if (childNode.nodeType === 1)
+        pEl.appendChild(this.#convertElement(childNode));
+      else pEl.appendChild(childNode.cloneNode());
+    }
     if (xmlTag === "custom") pEl.define();
     return pEl;
   }
-  #convertAllElements(xmlEl, parent = document.body) {
-    const pEl = this.#convertElement(xmlEl);
-    parent.appendChild(pEl);
-    for (let i = 0; i < xmlEl.children.length; i++) {
-      this.#convertAllElements(xmlEl.children[i], pEl);
-    }
-  }
   #convertXML(e) {
     const xml = e.target.response.documentElement;
-    this.#convertAllElements(xml);
+    document.body.appendChild(this.#convertElement(xml));
     document.querySelectorAll("canvas").forEach((canvas) => canvas.runCode());
   }
   #copyAttributes(orig, copy) {

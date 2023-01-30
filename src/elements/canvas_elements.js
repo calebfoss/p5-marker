@@ -134,10 +134,7 @@ class WebGLCanvas extends addCanvasMethods(
     return this.#orbit_control;
   }
   set orbit_control(val) {
-    if (val === false) return (this.#orbit_control = false);
-    this.#orbit_control = true;
-    if (Array.isArray(val)) return this.pInst.orbitControl(...val);
-    this.pInst.orbitControl();
+    this.#orbit_control = val;
   }
   /**
    * Sets an orthographic projection for the current camera in a 3D sketch

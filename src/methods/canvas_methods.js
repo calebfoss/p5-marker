@@ -36,7 +36,6 @@ export const addCanvasMethods = (baseClass) =>
           ry: 1,
           rz: -1,
           img: pInst.createImage(100, 100),
-          content: "",
           on: true,
           repeat: false,
           change: {},
@@ -54,13 +53,13 @@ export const addCanvasMethods = (baseClass) =>
           pInst.assignCanvas(canvas, canvas.constructor.renderer);
         };
         pInst.draw = function () {
-          const state = canvas.updateState(canvas.defaults);
-          pInst.background(canvas.background);
-          for (const child of canvas.children) {
-            child.draw?.(state);
-          }
+          if (canvas.orbit_control) canvas.pInst.orbitControl();
+          canvas.draw(canvas.defaults);
         };
       };
       new p5(sketch);
+    }
+    render() {
+      this.pInst.background(this.background);
     }
   };

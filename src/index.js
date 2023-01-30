@@ -13,6 +13,7 @@ import "./modules/events";
 import "./modules/image";
 import "./modules/io";
 import "./modules/typography";
+import "./elements/typography_elements";
 import "./elements/3d_shape_elements";
 import "./elements/3d_light_elements";
 

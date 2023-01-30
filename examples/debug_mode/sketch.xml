@@ -4,9 +4,11 @@
     debug_mode="true"
     orbit_control="true"
     camera="0, -30, 100, 0, 0, 0, 0, 1, 0"
-    description="'White square repeatedly grows to fill canvas and then shrinks. An interactive example of a red cube with 3 sliders for moving it across x, y, z axis and 3 sliders for shifting its center.'"
->
-    <_ on="first_frame" parent.camera="parent.camera"></_>
-    <box normal_material="true" width="15" height="30"></box>
-    <_ on="key_is_down(32)" parent.debug_mode="false"></_>
+> White square repeatedly grows to fill canvas and then
+    shrinks. An interactive example of a red cube with 3 sliders for moving it across x, y, z axis
+    and 3 sliders for shifting its center. <_ on="first_frame" parent.camera="parent.camera"></_>
+    <box
+        normal_material="true" width="15" height="30"></box>
+    <_ on="key_is_down(32)"
+        parent.debug_mode="false"></_>
 </canvas-3d>

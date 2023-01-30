@@ -303,6 +303,28 @@ export const addP5PropsAndMethods = (baseClass) =>
         .map((line) => "//\t" + line);
     }
     /**
+     * The text content of the element and its children. If a $ is followed by
+     * the name of a property (such as $blend_mode), it will be replaced by the
+     * value of the property.s
+     */
+    get content() {
+      const getInherited = (owner, prop) => {
+        if (prop in owner) return owner[prop];
+        if (owner.parentElement) return getInherited(owner.parentElement, prop);
+        return `$${prop}`;
+      };
+      const textNodes = Array.from(this.childNodes).filter(
+        ({ nodeType }) => nodeType === 3
+      );
+      const text = textNodes
+        .map(({ nodeValue }) => nodeValue)
+        .join("")
+        .replace(/\$(\w*)/g, (_, prop) => getInherited(this, prop))
+        .replace(/\\n/g, "\n")
+        .trim();
+      return text;
+    }
+    /**
      * Updates the element's attribute values, renders it to the canvas, and
      * calls the draw method on its children.
      * @method draw
@@ -320,13 +342,15 @@ export const addP5PropsAndMethods = (baseClass) =>
       }
       this.pInst.push();
       this.updateState(inherited);
+      const { content: description } = this;
+      if (description.length) this.pInst.describe(description);
       const { WHILE } = p5.prototype;
       let repeat = true;
       while (repeat) {
         this.transform?.();
         this.render?.();
         for (const child of this.children) {
-          child.draw(this.#state);
+          child.draw?.(this.#state);
         }
         repeat = this.hasAttribute("repeat") && this.#state.repeat;
         const { change } = this.#state;
@@ -539,6 +563,7 @@ export const addP5PropsAndMethods = (baseClass) =>
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
       const getOwnerName = (prop) => {
+        if (prop.includes(".")) return getOwnerName(prop.split(".")[0]);
         if (prop in this) return "this";
         //  TODO - remove condition when p5 props have been moved to elments
         if (
@@ -551,6 +576,27 @@ export const addP5PropsAndMethods = (baseClass) =>
         if (this.attributeInherited(prop)) return "inherited";
       };
       const owner = getOwnerName(attr.name);
+      if (
+        (typeof owner === "undefined" || owner === "inherited") &&
+        ![
+          "anchor",
+          "angle",
+          "shear_x",
+          "shear_y",
+          "angle_x",
+          "angle_y",
+          "angle_z",
+        ].includes(attr.name)
+      ) {
+        Object.defineProperty(this, attr.name, {
+          get: function () {
+            return this.#state[attr.name];
+          },
+          set: function (val) {
+            this.#state[attr.name] = val;
+          },
+        });
+      }
       //  This is plural because there may be a prop name within
       //  Ex:  myArray[i]
       const varName = AttrParseUtil.replacePropNames(this, attr.name);

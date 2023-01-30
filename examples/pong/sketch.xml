@@ -4,12 +4,11 @@
         state="'start'" winner="''" fill="255" ball_speed_mag="canvas.height/100"
         default_ball_speed_mag="canvas.height/100" game="this_element">
         <!-- SCORE -->
-        <text content="left_score" x="canvas.width * 0.3" y="canvas.height * 0.1"
-            fill="255"
-            text_size="canvas.height/10" text_align="CENTER, TOP">
-            <text content="right_score" x="canvas.width - x"></text>
+        <text x="canvas.width * 0.3" y="canvas.height * 0.1"
+            fill="255" text_size="canvas.height/10" text_align="CENTER, TOP"
+        >$left_score<text
+                x="canvas.width - x">$right_score</text>
         </text>
-
         <!-- GAME OBJECTS -->
         <paddle x="canvas.width * 0.1" up="87" down="83"></paddle>
         <paddle left_paddle="above_sibling" right_paddle="this_element">
@@ -21,12 +20,12 @@
         <_ x="canvas.width/2" y="canvas.height/2" text_align="CENTER, CENTER"
             text_size="canvas.height/15"> <!-- TODO - fix newline -->
             <text on="state === 'start'"
-                content="'Left: W for up, S for down\nRight: up/down arrows\n\nClick to start'">
-                <_ on="mouse_down" game.state="'play'"></_>
+            >Left: W for up, S for down\nRight: up/down\n\nClick to start <_
+                    on="mouse_down" game.state="'play'"></_>
             </text>
             <text
-                on="above_siblings_off AND state === 'pause'" content="'Paused'">
-                <_ on="mouse_down" game.state="'play'"></_>
+                on="above_siblings_off AND state === 'pause'">Paused <_ on="mouse_down"
+                    game.state="'play'"></_>
             </text>
             <_
                 on="above_siblings_off AND state === 'play'" game.count_down="count_down - 1">
@@ -34,8 +33,8 @@
             </_>
             <text
                 on="above_siblings_off AND state === 'gameover'"
-                content="winner + ' wins!\n Click to play again!'">
-                <_ on="mouse_down" game.state="'play'" game.left_score="0" game.right_score="0"></_>
+            >$winner wins!\n Click to play again! <_
+                    on="mouse_down" game.state="'play'" game.left_score="0" game.right_score="0"></_>
             </text>
         </_>
     </canvas>

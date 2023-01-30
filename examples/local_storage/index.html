@@ -15,15 +15,8 @@
       background="255"
       my_text="storage.my_text || ''"
     >
-      <p-text
-        content="my_text"
-        x="width/2"
-        y="height/2"
-        text_size="40"
-      ></p-text>
-      <p-_ on="key_down" my_text="key">
-        <p-_ storage.my_text="my_text"></p-_>
-      </p-_>
+      <p-text x="width/2" y="height/2" text_size="40">$my_text</p-text>
+      <p-_ on="key_down" storage.my_text="key"></p-_>
     </canvas>
   </body>
 </html>
