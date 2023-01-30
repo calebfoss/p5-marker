@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas width="400" height="400" background="220">
-    <text content="int(canvas.frame_rate)" x="20" text_size="40" align="LEFT, TOP">
+    <text content="int(canvas.frame_rate)" x="20" font_size="40" align="LEFT, TOP">
         <_
             parent.y="parent.y + 1"></_>
         <_ on="parent.y >= height" parent.y="0"

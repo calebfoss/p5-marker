@@ -5,7 +5,7 @@
         default_ball_speed_mag="canvas.height/100" game="this_element">
         <!-- SCORE -->
         <text x="canvas.width * 0.3" y="canvas.height * 0.1"
-            fill="255" text_size="canvas.height/10" align="CENTER, TOP"
+            fill="255" font_size="canvas.height/10" align="CENTER, TOP"
         >$left_score<text
                 x="canvas.width - x">$right_score</text>
         </text>
@@ -18,7 +18,7 @@
 
         <!-- STATE MANAGEMENT -->
         <_ x="canvas.width/2" y="canvas.height/2" align="CENTER, CENTER"
-            text_size="canvas.height/15"> <!-- TODO - fix newline -->
+            font_size="canvas.height/15"> <!-- TODO - fix newline -->
             <text on="state === 'start'"
             >Left: W for up, S for down\nRight: up/down\n\nClick to start <_
                     on="mouse_down" game.state="'play'"></_>

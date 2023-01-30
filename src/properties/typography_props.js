@@ -2,6 +2,7 @@ export const addTypographyProps = (baseClass) =>
   class extends baseClass {
     #align = ["left", "baseline"];
     #leading = 15;
+    #font_size = 12;
     /**
      * Sets the current alignment for drawing text. Accepts two
      * values:
@@ -36,5 +37,16 @@ export const addTypographyProps = (baseClass) =>
     set leading(val) {
       this.pInst.textLeading(val);
       this.#leading = this.pInst._renderer._textLeading;
+    }
+    /**
+     * The font size in pixels.
+     * @type {number}
+     */
+    get font_size() {
+      return this.#font_size;
+    }
+    set font_size(val) {
+      this.pInst.textSize(val);
+      this.#font_size = this.pInst._renderer._textSize;
     }
   };
