@@ -1,8 +1,9 @@
 export const addTypographyProps = (baseClass) =>
   class extends baseClass {
-    #align = ["left", "baseline"];
+    #align = [p5.prototype.LEFT, p5.prototype.BASELINE];
     #leading = 15;
     #font_size = 12;
+    #style = p5.prototype.NORMAL;
     /**
      * Sets the current alignment for drawing text. Accepts two
      * values:
@@ -48,5 +49,16 @@ export const addTypographyProps = (baseClass) =>
     set font_size(val) {
       this.pInst.textSize(val);
       this.#font_size = this.pInst._renderer._textSize;
+    }
+    /**
+     * The style for text.
+     * @type {NORMAL|ITALIC|BOLDITALIC}
+     */
+    get style() {
+      return this.#style;
+    }
+    set style(val) {
+      this.pInst.textStyle(val);
+      this.#style = this.pInst._renderer._textStyle;
     }
   };
