@@ -370,7 +370,7 @@ class Rect extends addXY(
   )
 ) {
   static overloads = [
-    "x, y, width, height, [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
+    "x, y, width, height, top_left_radius, top_right_radius, bottom_right_radius, bottom_left_radius",
   ];
   collider = collider_type.rect;
   get collision_args() {
@@ -416,7 +416,7 @@ class Square extends addXY(
 ) {
   #size;
   static overloads = [
-    "x, y, size, [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
+    "x, y, size, top_left_radius, top_right_radius, bottom_right_radius, bottom_left_radius",
   ];
   collider = collider_type.rect;
   get collision_args() {
