@@ -350,7 +350,14 @@ export const addP5PropsAndMethods = (baseClass) =>
       this.pInst.push();
       this.updateState(inherited);
       const { content: description } = this;
-      if (description.length) this.pInst.describe(description);
+      if (description.length) {
+        if (this instanceof HTMLCanvasElement) this.pInst.describe(description);
+        else
+          this.pInst.describeElement(
+            this.name || this.tagName.slice(2).toLowerCase(),
+            description
+          );
+      }
       const { WHILE } = p5.prototype;
       let repeat = true;
       while (repeat) {
