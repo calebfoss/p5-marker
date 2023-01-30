@@ -790,44 +790,30 @@ export class RenderedElement extends P5Element {
     //  If there aren't any overloads, return an empty array
     if (overloadsSplitSorted.length === 0) return [];
     for (let i = 0; i < overloadsSplitSorted.length; i++) {
-      const overloadParams = overloadsSplitSorted[i];
-      overloadMatch = overloadParams.every(
-        (p) =>
-          this.hasAttribute(p) ||
-          this.attributeInherited(p) ||
-          isOptional(p) ||
-          p === "" ||
-          (i === overloadsSplitSorted.length - 1 &&
-            (this.attributeInherited(p) || p in this))
-      );
+      const overloadParams = overloadsSplitSorted[i].map((param) => ({
+        name: param.replaceAll(/\[|\]/g, ""),
+        optional: isOptional(param),
+      }));
+      overloadMatch =
+        i === overloadsSplitSorted.length - 1 ||
+        overloadParams.every(
+          ({ name, optional }) =>
+            optional ||
+            this.hasAttribute(name) ||
+            this.attributeInherited(name) ||
+            name === ""
+        );
 
       //  If matched overload found
       if (overloadMatch) {
-        //  Filter params recursively
-        const filterParams = (overloadParams, filteredParams = [], i = 0) => {
-          //  If there are no more overload params, return filtered params
-          if (i === overloadParams.length) return filteredParams;
-          const optional = isOptional(overloadParams[i]);
-          const p = overloadParams[i].replaceAll(/\[|\]/g, "");
-          //  If param defined on this element, add it to filtered params
-          if (this.hasAttribute(p) || p in this)
-            return filterParams(
-              overloadParams,
-              filteredParams.concat({ owner: this.this_element, param: p }),
-              ++i
-            );
-          //  If not defined on this element and optional, return filtered params
-          if (optional) return filteredParams;
-          //  If required and already initialized, add it to filtered params
-          if (this.attributeInherited(p))
-            return filterParams(
-              overloadParams,
-              filteredParams.concat({ owner: this.this_element, param: p }),
-              ++i
-            );
-          return filteredParams;
-        };
-        return filterParams(overloadParams);
+        const lastParamWithAttribute = overloadParams.findLastIndex(
+          ({ name, optional }) => this.hasAttribute(name) || !optional
+        );
+
+        const filteredParams = overloadParams
+          .slice(0, lastParamWithAttribute + 1)
+          .map(({ name }) => name);
+        return filteredParams;
       }
     }
     console.error(
@@ -841,9 +827,7 @@ export class RenderedElement extends P5Element {
   setupRenderFunction() {
     const args = this.#getArgumentsFromOverloads();
     this.render = function () {
-      this.pInst[this.renderFunctionName](
-        ...args.map(({ param, owner }) => owner[param])
-      );
+      this.pInst[this.renderFunctionName](...args.map((param) => this[param]));
     };
   }
 }
