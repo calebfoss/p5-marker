@@ -1,6 +1,7 @@
 export const addTypographyProps = (baseClass) =>
   class extends baseClass {
     #align = ["left", "baseline"];
+    #leading = 15;
     /**
      * Sets the current alignment for drawing text. Accepts two
      * values:
@@ -21,5 +22,16 @@ export const addTypographyProps = (baseClass) =>
       if (Array.isArray(val)) this.pInst.textAlign(...val);
       else this.pInst.textAlign(val);
       this.#align = [this.pInst._textAlign, this.pInst._textBaseline];
+    }
+    /**
+     * Sets the spacing, in pixels, between lines of text.
+     * @type {number}
+     */
+    get leading() {
+      return this.#leading;
+    }
+    set leading(val) {
+      this.pInst.textLeading(val);
+      this.#leading = this.pInst._textLeading;
     }
   };
