@@ -77,15 +77,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  grid_output: {
-    get: function () {
-      return this._accessibleOutputs.grid;
-    },
-    set: function (val) {
-      if (val === true) this.gridOutput();
-      else this.gridOutput(val);
-    },
-  },
   pixel_density: {
     get: function () {
       return this.pixelDensity();
