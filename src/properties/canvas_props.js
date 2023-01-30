@@ -46,20 +46,6 @@ export const addCanvasProperties = (baseClass) =>
       else if (Array.isArray(val)) pInst.cursor(...val);
       else pInst.cursor(val);
     }
-    get description() {
-      const { pInst } = this;
-      const cnvId = this.id;
-      const descContainer = pInst.dummyDOM.querySelector(
-        `#${cnvId}_Description`
-      );
-      if (descContainer) return descContainer;
-      const labelContainer = pInst.dummyDOM.querySelector(`#${cnvId}_Label`);
-      return labelContainer;
-    }
-    set description(val) {
-      if (Array.isArray(val)) this.pInst.describe(...val);
-      else this.pInst.describe(val);
-    }
     /**
      * The height of the canvas in pixels.
      * @type {number}

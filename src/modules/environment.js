@@ -77,11 +77,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  description: {
-    set: function (val) {
-      this.describeElement(...val);
-    },
-  },
   url: {
     get: function () {
       return this.getURL();

@@ -132,6 +132,7 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @private
      */
     #updateFunctions = new Map();
+    #name;
     constructor() {
       super();
     }
@@ -352,11 +353,7 @@ export const addP5PropsAndMethods = (baseClass) =>
       const { content: description } = this;
       if (description.length) {
         if (this instanceof HTMLCanvasElement) this.pInst.describe(description);
-        else
-          this.pInst.describeElement(
-            this.name || this.tagName.slice(2).toLowerCase(),
-            description
-          );
+        else this.pInst.describeElement(this.name, description);
       }
       const { WHILE } = p5.prototype;
       let repeat = true;
@@ -488,6 +485,18 @@ export const addP5PropsAndMethods = (baseClass) =>
      */
     get #html() {
       return this.outerHTML.replace(this.innerHTML, "");
+    }
+    get name() {
+      if (this.#name) return this.#name;
+      const elementsWithThisTag = Array.from(
+        document.querySelectorAll(this.tagName)
+      );
+      return `${this.tagName
+        .slice(2)
+        .toLowerCase()}_${elementsWithThisTag.indexOf(this)}`;
+    }
+    set name(val) {
+      this.#name = val;
     }
     /**
      * List of attribute names in the order in which they will be evaluated.
