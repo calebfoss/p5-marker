@@ -117,7 +117,7 @@ const addEllipse2DCollisionProps = (baseClass) =>
     collider = collider_type.ellipse;
     get collision_args() {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
-      const { pixel_density } = this.pInst;
+      const { pixel_density } = this.canvas;
       const { w } = this.width * pixel_density;
       const { h } = this.height * pixel_density || w;
       return [x, y, w, h];
@@ -163,7 +163,7 @@ const addCircle2DCollisionProps = (baseClass) =>
     get collision_args() {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
       const d =
-        this.this_element.d * this.pInst.pow(this.pInst.pixel_density, 2);
+        this.this_element.d * this.pInst.pow(this.canvas.pixel_density, 2);
       return [x, y, d];
     }
     get mouse_over() {
@@ -245,12 +245,13 @@ const addPointCollisionProps = (baseClass) =>
     get collision_args() {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
       const { stroke_weight } = this;
-      const { pixel_density } = this.pInst;
+      const { pixel_density } = this.canvas;
       const d = stroke_weight * this.pInst.pow(pixel_density, 2);
       return [x, y, d];
     }
     get mouse_over() {
-      const { x, y, stroke_weight, pixel_density } = this;
+      const { x, y, stroke_weight } = this;
+      const { pixel_density } = this.canvas;
       const { x: local_mouse_x, y: local_mouse_y } =
         this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
       const d = stroke_weight * this.pInst.pow(pixel_density, 2);
@@ -375,7 +376,7 @@ class Rect extends addXY(
   collider = collider_type.rect;
   get collision_args() {
     const { x, y } = this.local_to_canvas_position(this.x, this.y);
-    const { pixel_density } = this.pInst;
+    const { pixel_density } = this.canvas;
     const w = this.width * this.pInst.pow(pixel_density, 2);
     const h = this.height * this.pInst.pow(pixel_density, 2);
     return [x, y, w, h];
@@ -421,7 +422,7 @@ class Square extends addXY(
   collider = collider_type.rect;
   get collision_args() {
     const { x, y } = this.local_to_canvas_position(this.x, this.y);
-    const { pixel_density } = this.pInst;
+    const { pixel_density } = this.canvas;
     const { size } = this;
     const w = size * this.pInst.pow(pixel_density, 2);
     const h = w;

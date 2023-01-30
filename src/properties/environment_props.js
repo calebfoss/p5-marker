@@ -69,6 +69,18 @@ export const addEnvironmentProps = (baseClass) =>
       this.pInst.frameRate(val);
     }
     /**
+     * pixel_density specifies the pixel scaling for high pixel density displays.
+     * By default pixel density is set to match display density, set pixel_density="1"
+     * to turn this off.
+     * @type {number}
+     */
+    get pixel_density() {
+      return this.pInst.pixelDensity();
+    }
+    set pixel_density(val) {
+      this.pInst.pixelDensity(val);
+    }
+    /**
      * The delta_time property contains the time
      * difference between the beginning of the previous frame and the beginning
      * of the current frame in milliseconds.

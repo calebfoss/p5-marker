@@ -77,14 +77,6 @@ p5.prototype.registerMethod("post", function () {
 });
 
 defineProperties({
-  pixel_density: {
-    get: function () {
-      return this.pixelDensity();
-    },
-    set: function (val) {
-      this.pixelDensity(val);
-    },
-  },
   description: {
     set: function (val) {
       this.describeElement(...val);
