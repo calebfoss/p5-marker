@@ -99,4 +99,21 @@ export const addTypographyProps = (baseClass) =>
       this.pInst.textWrap(val);
       this.#wrap = this.pInst._renderer._textWrap;
     }
+    /**
+     * The ascent of the current font at its current size. The ascent represents the
+     * distance, in pixels, of the tallest character above the baseline. (read-only)
+     * @type {number}
+     */
+    get ascent() {
+      return this.pInst.textAscent();
+    }
+    /**
+     * The descent of the current font at its current size. The descent represents the
+     * distance, in pixels, of the character with the longest descender below the baseline.
+     * (read-only)
+     * @type {number}
+     */
+    get descent() {
+      return this.pInst.textDescent();
+    }
   };
