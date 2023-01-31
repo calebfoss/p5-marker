@@ -1,11 +1,10 @@
-import { P5Element } from "../core";
-
 export const defineCustomElement = (el) => {
   const name = el.getAttribute("name");
   //  Trick custom-elements-manifest into ignoring this
   customElements["define"](
     `p-${name}`,
-    class extends P5Element {
+    class extends el.constructor {
+      renderFunctionName = el.renderFunctionName;
       constructor() {
         super();
       }
