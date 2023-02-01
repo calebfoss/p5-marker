@@ -8,6 +8,8 @@ import { addStorage } from "./properties/data_props";
 import { addDataMethods } from "./methods/data_methods";
 import { addCollide } from "./methods/collide_methods";
 import { defineCustomElement } from "./elements/beyond_canvas_elements";
+import { addMathProps } from "./properties/math_props";
+import { addMathMethods } from "./methods/math_methods";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -96,7 +98,11 @@ const attributePriorities = [
 export const addP5PropsAndMethods = (baseClass) =>
   class P5Extension extends addColorMethods(
     addColorConstants(
-      addWebGLMethods(addCollide(addStorage(addDataMethods(baseClass))))
+      addWebGLMethods(
+        addCollide(
+          addMathMethods(addMathProps(addStorage(addDataMethods(baseClass))))
+        )
+      )
     )
   ) {
     /**

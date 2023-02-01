@@ -28,7 +28,6 @@ export const addCanvasMethods = (baseClass) =>
           size: 100,
           start_angle: 0,
           stop_angle: pInst.PI,
-          vector: pInst.createVector(),
           v1: 255,
           v2: 255,
           v3: 255,
