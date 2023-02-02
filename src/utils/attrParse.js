@@ -91,8 +91,18 @@ export class AttrParseUtil {
     "with",
     "yield",
   ];
-  static getOwnerName(el, prop) {
-    if (prop in el) return "this";
+  static getOwnerName(el, prop, canReferenceSelf = false) {
+    if (
+      (canReferenceSelf && prop in el) ||
+      [
+        "this_element",
+        "parent",
+        "above_sibling",
+        "above_siblings_off",
+      ].includes(prop)
+    )
+      return "this";
+    if (el.parent && prop in el.parent) return "this.parent";
     if (
       AttrParseUtil.keywords.includes(prop) ||
       prop in AttrParseUtil.escapes ||
@@ -101,24 +111,24 @@ export class AttrParseUtil {
       return "none";
     //  TODO - remove this temporary check when no longer needed
     if (prop in el.pInst && prop !== "width" && prop !== "height")
-      return "pInst";
+      return "this.pInst";
     return "inherited";
   }
-  static getPrefix(el, prop) {
-    const ownerName = AttrParseUtil.getOwnerName(el, prop);
+  static getPrefix(el, prop, canReferenceSelf = false) {
+    const ownerName = AttrParseUtil.getOwnerName(el, prop, canReferenceSelf);
     if (ownerName === "none") return "";
     if (ownerName.slice(0, 4) === "this") return `${ownerName}.`;
     else return `_${ownerName}.`;
   }
-  static replacePropName(el, prop) {
+  static replacePropName(el, prop, canReferenceSelf = false) {
     if (prop in AttrParseUtil.escapes) return AttrParseUtil.escapes[prop];
-    return AttrParseUtil.getPrefix(el, prop) + prop;
+    return AttrParseUtil.getPrefix(el, prop, canReferenceSelf) + prop;
   }
-  static replacePropNames(el, str) {
+  static replacePropNames(el, str, canReferenceSelf = false) {
     return str
       .replace(/UNTIL(.*)/, "!($1)")
       .replace(AttrParseUtil.regex.varName, (prop) =>
-        AttrParseUtil.replacePropName(el, prop)
+        AttrParseUtil.replacePropName(el, prop, canReferenceSelf)
       );
   }
 }

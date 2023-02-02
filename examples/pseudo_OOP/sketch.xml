@@ -9,8 +9,10 @@
         <circle
             color_mode="HSB"
             fill="fill_hue, 100, 100"
-            stroke="mouse_over ? 0 : NONE"
-            stroke_weight="5"></circle>
+            stroke="NONE"
+        >
+            <circle on="mouse_over" stroke_weight="5" stroke="0"></circle>
+        </circle>
         <_ ball.x="ball.x + ball.speed_x" ball.y="ball.y + ball.speed_y"></_>
         <_ on="ball.x NO_MORE_THAN 0 OR ball.x AT_LEAST width" ball.speed_x="-ball.speed_x"></_>
         <_ on="ball.y NO_MORE_THAN 0 OR ball.y AT_LEAST height" ball.speed_y="-ball.speed_y"></_>
