@@ -633,10 +633,13 @@ export const addP5PropsAndMethods = (baseClass) =>
       }
       //  This is plural because there may be a prop name within
       //  Ex:  myArray[i]
-      const varName = AttrParseUtil.replacePropNames(this, attr.name);
+      const varName = AttrParseUtil.replacePropNames(this, attr.name, true);
       const attrValueVarsReplaced = AttrParseUtil.replacePropNames(
         this,
-        attrJsStr
+        attrJsStr,
+        this instanceof HTMLCanvasElement ||
+          varName === "this.repeat" ||
+          varName === "this.change"
       );
       const varValue = AttrParseUtil.enclose(attrValueVarsReplaced);
       const evalFnName = `${this.constructor.name}_${attr.name.replace(

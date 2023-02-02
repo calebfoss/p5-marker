@@ -5,14 +5,14 @@
 >
     <square x="width / 2" y="height / 2" size="width / 5"
         speed_x="3" speed_y="2"
-        bounce="this_element">
-        <_ on="bounce.x AT_LEAST canvas.width - size || bounce.x NO_MORE_THAN 0"
-            bounce.speed_x="-bounce.speed_x" />
-        <_ on="bounce.y AT_LEAST canvas.height - size || bounce.y NO_MORE_THAN 0"
-            bounce.speed_y="-bounce.speed_y" />
+    >
+        <_ on="x AT_LEAST canvas.width - size || x NO_MORE_THAN 0"
+            parent.speed_x="-speed_x" />
+        <_ on="y AT_LEAST canvas.height - size || y NO_MORE_THAN 0"
+            parent.speed_y="-speed_y" />
         <_
-            bounce.x="x + speed_x"
-            bounce.y="y + speed_y"
+            parent.x="x + speed_x"
+            parent.y="y + speed_y"
         />
 
     </square>
