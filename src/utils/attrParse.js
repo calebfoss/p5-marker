@@ -112,7 +112,10 @@ export class AttrParseUtil {
     //  TODO - remove this temporary check when no longer needed
     if (prop in el.pInst && prop !== "width" && prop !== "height")
       return "this.pInst";
-    return "inherited";
+    console.error(
+      `${el.tagName} is referencing ${prop}, but this property cannot be found on its parents or further up the inheritance.`
+    );
+    return "this.parent";
   }
   static getPrefix(el, prop, canReferenceSelf = false) {
     const ownerName = AttrParseUtil.getOwnerName(el, prop, canReferenceSelf);
