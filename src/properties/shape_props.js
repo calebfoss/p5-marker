@@ -33,8 +33,8 @@ export const addWidthHeight = (baseClass) =>
   };
 export const addXY = (baseClass) =>
   class extends baseClass {
-    #x;
-    #y;
+    #x = 0;
+    #y = 0;
     /**
      * The x-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -67,7 +67,7 @@ export const addXY = (baseClass) =>
 
 const addZ = (baseClass) =>
   class extends baseClass {
-    #z;
+    #z = 0;
     /**
      * The z-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -87,8 +87,8 @@ export const addXYZ = (baseClass) => class extends addXY(addZ(baseClass)) {};
 
 const addXY1 = (baseClass) =>
   class extends baseClass {
-    #x1;
-    #y1;
+    #x1 = 0;
+    #y1 = 0;
     /**
      * The first x-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -120,8 +120,8 @@ const addXY1 = (baseClass) =>
   };
 const addXY2 = (baseClass) =>
   class extends baseClass {
-    #x2;
-    #y2;
+    #x2 = 0;
+    #y2 = 100;
     /**
      * The second x-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -156,8 +156,8 @@ export const addXY12 = (baseClass) =>
   class extends addXY1(addXY2(baseClass)) {};
 export const addXY3 = (baseClass) =>
   class extends baseClass {
-    #x3;
-    #y3;
+    #x3 = 100;
+    #y3 = 0;
     /**
      * The third x-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -192,7 +192,7 @@ const addXY123 = (baseClass) => class extends addXY12(addXY3(baseClass)) {};
 
 const addZ1 = (baseClass) =>
   class extends baseClass {
-    #z1;
+    #z1 = 0;
     /**
      * The first z-coordinate of the element relative to the current anchor. |
      * @type {number}
@@ -211,7 +211,7 @@ const addZ1 = (baseClass) =>
 export const addXYZ1 = (baseClass) => class extends addXY1(addZ1(baseClass)) {};
 const addZ2 = (baseClass) =>
   class extends baseClass {
-    #z2;
+    #z2 = 100;
     /**
      * The second z-coordinate of the element relative to the current anchor. |
      * @type {number}
@@ -232,8 +232,8 @@ const addXYZ12 = (baseClass) => class extends addXYZ1(addXYZ2(baseClass)) {};
 
 export const addXY4 = (baseClass) =>
   class extends addXY123(baseClass) {
-    #x4;
-    #y4;
+    #x4 = 0;
+    #y4 = 100;
     /**
      * The fourth x-coordinate of the element relative to the current anchor.
      * @type {number}
@@ -266,7 +266,7 @@ export const addXY4 = (baseClass) =>
 
 export const addZ3 = (baseClass) =>
   class extends baseClass {
-    #z3;
+    #z3 = 100;
     /**
      * The third z-coordinate of the element relative to the current anchor. |
      * @type {number}
@@ -288,7 +288,7 @@ export const addXYZ123 = (baseClass) =>
 
 export const addZ4 = (baseClass) =>
   class extends baseClass {
-    #z4;
+    #z4 = 0;
     /**
      * The fourth z-coordinate of the element relative to the current anchor. |
      * @type {number}
