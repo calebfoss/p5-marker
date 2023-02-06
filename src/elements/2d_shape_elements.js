@@ -162,9 +162,9 @@ const addCircle2DCollisionProps = (baseClass) =>
     collider = collider_type.circle;
     get collision_args() {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
-      const d =
-        this.this_element.d * this.pInst.pow(this.canvas.pixel_density, 2);
-      return [x, y, d];
+      const scaledDiameter =
+        this.diameter * this.pInst.pow(this.canvas.pixel_density, 2);
+      return [x, y, scaledDiameter];
     }
     get mouse_over() {
       const { mouseX, mouseY } = this.pInst;
@@ -415,7 +415,7 @@ customElements.define("p-rect", Rect);
 class Square extends addXY(
   addRectMode(addCornerRadius(add2DFillStroke(Transformed2DElement)))
 ) {
-  #size;
+  #size = 100;
   static overloads = [
     "x, y, size, top_left_radius, top_right_radius, bottom_right_radius, bottom_left_radius",
   ];
@@ -621,11 +621,12 @@ const addShape2DCollisionProps = (baseClass) =>
 export const addShapeElementProps = (baseClass) =>
   class extends baseClass {
     #kind;
+    #mode;
     renderFunctionName = "beginShape";
     static overloads = ["[kind]"];
 
-    endRender(assigned) {
-      if (assigned.hasOwnProperty("mode")) this.pInst.endShape(assigned.mode);
+    endRender() {
+      if (this.#mode) this.pInst.endShape(this.#mode);
       else this.pInst.endShape();
     }
     /**
@@ -661,6 +662,12 @@ export const addShapeElementProps = (baseClass) =>
     }
     set kind(val) {
       this.#kind = val;
+    }
+    get mode() {
+      return this.#mode;
+    }
+    set mode(val) {
+      this.#mode = val;
     }
   };
 /**
