@@ -17,7 +17,7 @@ const addAnchor = (baseClass) =>
       const { pInst } = this;
       if (val instanceof p5.Vector) this.#anchor = val;
       else if (Array.isArray(val)) this.#anchor = pInst.createVector(...val);
-      else this.#anchor = createVector(val);
+      else this.#anchor = pInst.createVector(val);
     }
   };
 
