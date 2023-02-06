@@ -7,7 +7,7 @@ export const addColorConstants = (baseClass) =>
 
 export const addStroke = (baseClass) =>
   class extends baseClass {
-    #stroke;
+    #stroke = "#000";
     #stroke_weight;
     /**
      * Sets the color used to draw lines and borders around shapes. This color
@@ -21,13 +21,17 @@ export const addStroke = (baseClass) =>
     }
     set stroke(val) {
       const { pInst } = this;
-      if (val === this.NONE) pInst.noStroke();
-      else pInst.stroke(val);
-      this.#stroke = pInst.color(
-        pInst._renderer.isP3D
-          ? pInst._renderer.curStrokeColor
-          : pInst.drawingContext.strokeStyle
-      );
+      if (val === this.NONE) {
+        pInst.noStroke();
+        this.#stroke = this.NONE;
+      } else {
+        pInst.stroke(val);
+        this.#stroke = pInst.color(
+          pInst._renderer.isP3D
+            ? pInst._renderer.curStrokeColor
+            : pInst.drawingContext.strokeStyle
+        );
+      }
     }
     /**
      * Sets the width of the stroke used for lines, points and the border around
@@ -49,7 +53,7 @@ export const addStroke = (baseClass) =>
   };
 export const addFill = (baseClass) =>
   class extends baseClass {
-    #fill;
+    #fill = "#fff";
     /**
      * Sets the color used to fill shapes. This may be a
      * <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object or
@@ -62,13 +66,17 @@ export const addFill = (baseClass) =>
     }
     set fill(val) {
       const { pInst } = this;
-      if (val === this.NONE) pInst.noFill();
-      else pInst.fill(val);
-      this.#fill = pInst.color(
-        pInst._renderer.isP3D
-          ? pInst._renderer.curFillColor
-          : pInst.drawingContext.fillStyle
-      );
+      if (val === this.NONE) {
+        pInst.noFill();
+        this.#fill = pInst.color(this.NONE);
+      } else {
+        pInst.fill(val);
+        this.#fill = pInst.color(
+          pInst._renderer.isP3D
+            ? pInst._renderer.curFillColor
+            : pInst.drawingContext.fillStyle
+        );
+      }
     }
   };
 export const addFillStroke = (baseClass) =>
