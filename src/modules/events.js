@@ -203,11 +203,6 @@ defineProperties({
       );
     },
   },
-  first_frame: {
-    get: function () {
-      return this.frameCount === 1;
-    },
-  },
   key_code: {
     get: function () {
       return this.keyCode;
