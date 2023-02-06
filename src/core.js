@@ -87,10 +87,6 @@ defineProperties({
 
 const attributePriorities = [
   "debug_attributes",
-  "anchor",
-  "angle",
-  "scale_factor",
-  "shear",
   "_default",
   "repeat",
   "change",
@@ -120,14 +116,13 @@ export const addP5PropsAndMethods = (baseClass) =>
      */
     #proxy = new Proxy(this, {
       get(target, prop) {
-        if (prop in target) return target[prop];
-        return target.#state[prop];
+        return target[prop];
       },
       has(target, prop) {
         return prop in target;
       },
       set(target, prop, val) {
-        target.set(prop, val);
+        return target.set(prop, val);
       },
     });
     /**
@@ -140,9 +135,20 @@ export const addP5PropsAndMethods = (baseClass) =>
      */
     #updateFunctions = new Map();
     #name;
+    #on = true;
     constructor() {
       super();
       if (this.hasAttribute("name")) defineCustomElement(this);
+    }
+    /**
+     * The on property determines whether this element and its children
+     * are updated and rendered.
+     */
+    get on() {
+      return this.#on;
+    }
+    set on(val) {
+      this.#on = val;
     }
     /**
      * Proxy for the sibling element above this element with access to its
@@ -169,11 +175,7 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @private
      */
     #applyChange() {
-      const change = (this.#state.change = this.#updateAttribute(
-        this.#state,
-        "change",
-        this
-      ));
+      const change = (this.#state.change = this.#updateAttribute("change"));
       let changed = false;
       const assignProp = (obj, prop) => {
         if (prop in obj) {
@@ -265,12 +267,11 @@ export const addP5PropsAndMethods = (baseClass) =>
     /**
      * @private
      */
-    #callAttributeUpdater(inherited, attrName, thisArg) {
+    #callAttributeUpdater(attrName) {
       if (this.#updateFunctions.has(attrName)) {
-        const evalFn = this.#updateFunctions.get(attrName);
-        return evalFn.call(thisArg, this.pInst, inherited);
+        const updateFn = this.#updateFunctions.get(attrName);
+        return updateFn.call(this);
       }
-      if (attrName in inherited) return inherited[attrName];
       if (attrName in this.pInst) return this.pInst[attrName];
       return;
     }
@@ -347,17 +348,13 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @param {object} inherited - object containing attribute values passed
      * down from parent element
      */
-    draw(inherited) {
+    draw() {
       if (this.hasAttribute("on")) {
-        this.#state.on = this.#updateAttribute(
-          inherited,
-          "on",
-          this.this_element
-        );
-        if (!this.#state.on) return;
+        this.#updateAttribute("on");
+        if (!this.on) return;
       }
       this.pInst.push();
-      this.updateState(inherited);
+      this.updateState();
       const { content: description } = this;
       if (description.length) {
         if (this instanceof HTMLCanvasElement) this.pInst.describe(description);
@@ -374,10 +371,7 @@ export const addP5PropsAndMethods = (baseClass) =>
         repeat = this.hasAttribute("repeat") && this.#state.repeat;
         const { change } = this.#state;
         if (Array.isArray(repeat)) {
-          const [key, ...conditions] = this.#updateAttribute(
-            this.#state,
-            "repeat"
-          );
+          const [key, ...conditions] = this.#updateAttribute("repeat");
           repeat = (key === WHILE) === conditions.every((c) => c);
         }
         if (repeat) {
@@ -387,15 +381,11 @@ export const addP5PropsAndMethods = (baseClass) =>
           const updaters = this.#updateFunctions.entries();
           for (const [attrName, updater] of updaters) {
             if (attrName in change === false)
-              this.#state[attrName] = this.#updateAttribute(
-                inherited,
-                attrName,
-                this
-              );
+              this.#state[attrName] = this.#updateAttribute(attrName);
           }
           if (!changed) repeat = false;
         }
-        this.endRender?.(this.#state);
+        this.endRender?.();
       }
       this.pInst.pop();
     }
@@ -523,10 +513,6 @@ export const addP5PropsAndMethods = (baseClass) =>
               attributePriorities.indexOf("_default"))
         )
         .map(({ name }) => name);
-      this.transformDoneIndex =
-        ordered.findLastIndex((attrName) =>
-          attributePriorities.includes(attrName)
-        ) + 1;
       return ordered;
     }
     /**
@@ -544,6 +530,7 @@ export const addP5PropsAndMethods = (baseClass) =>
     get pInst() {
       return this.#pInst;
     }
+    render() {}
     /**
      * Sets an attribute's value on this element.
      * @param {string} attributeName
@@ -551,20 +538,21 @@ export const addP5PropsAndMethods = (baseClass) =>
      */
     set(attributeName, value) {
       if (attributeName in this) {
-        this.#updateFunctions.set(
-          attributeName,
-          () => (this[attributeName] = value)
-        );
+        if (this.#updateFunctions.has(attributeName))
+          this.#updateFunctions.delete(attributeName);
         this[attributeName] = value;
+        return true;
       } else if (attributeName in this.pInst) {
         this.#updateFunctions.set(
           attributeName,
           () => (this.pInst[attributeName] = value)
         );
-      } else {
-        this.#updateFunctions.set(attributeName, () => value);
+        return true;
       }
-      this.#state[attributeName] = value;
+      console.error(
+        `${this.tagName}'s ${attributeName} is being set to ${value} by another element, but it doesn't have a property by that name.`
+      );
+      return false;
     }
     /**
      * Sets this element up with a p5 instance and sets up its children.
@@ -575,7 +563,7 @@ export const addP5PropsAndMethods = (baseClass) =>
       this.#frame_created = pInst.frameCount;
       this.#canvas = canvas;
       this.setDefaults?.();
-      this.#setupEvalFns?.();
+      this.#setupEvalFns();
       this.setupRenderFunction?.();
       for (const child of this.children) {
         child.setup(pInst, canvas);
@@ -590,68 +578,42 @@ export const addP5PropsAndMethods = (baseClass) =>
       //  TODO - catch improperly ordered quote marks: "foo'var"'
       if (AttrParseUtil.allQuotesMatched(attrJsStr) === false)
         console.error(
-          `It looks like a ${this.constructor.elementName}'s ${attr.name} ` +
+          `It looks like a ${this.tagName}'s ${attr.name} ` +
             `attribute has an open string. Check that each string has a beginning and end character.`
         );
-      const getOwnerName = (prop) => {
-        if (prop.includes(".")) return getOwnerName(prop.split(".")[0]);
-        if (prop in this) return "this";
-        //  TODO - remove condition when p5 props have been moved to elments
-        if (
-          prop in this.pInst &&
-          typeof this.pInst[prop] !== "function" &&
-          prop !== "width" &&
-          prop !== "height"
-        )
-          return "this.pInst";
-        if (this.attributeInherited(prop)) return "inherited";
+
+      const getAssignPropRef = (str, obj = this) => {
+        //  If string isn't already an array, split it on '.' characters
+        const [beforeDot, ...afterDot] = Array.isArray(str)
+          ? str
+          : str.split(".");
+        if (afterDot.length === 0) return [obj, beforeDot];
+        return getAssignPropRef(afterDot, obj[beforeDot]);
       };
-      const owner = getOwnerName(attr.name);
-      if (
-        (typeof owner === "undefined" || owner === "inherited") &&
-        ![
-          "anchor",
-          "angle",
-          "shear_x",
-          "shear_y",
-          "angle_x",
-          "angle_y",
-          "angle_z",
-        ].includes(attr.name)
-      ) {
-        Object.defineProperty(this, attr.name, {
-          get: function () {
-            return this.#state[attr.name];
-          },
-          set: function (val) {
-            this.#state[attr.name] = val;
-          },
-        });
-      }
-      //  This is plural because there may be a prop name within
-      //  Ex:  myArray[i]
-      const varName = AttrParseUtil.replacePropNames(this, attr.name, true);
+      const [assignObj, assignPropName] = getAssignPropRef(attr.name);
+
+      if (assignObj === this && assignPropName in this === false)
+        this.#customAttributeToProperty(assignPropName);
       const attrValueVarsReplaced = AttrParseUtil.replacePropNames(
         this,
-        attrJsStr,
+        attr.name === "name" ? `'${attrJsStr}'` : attrJsStr,
         this instanceof HTMLCanvasElement ||
-          varName === "this.repeat" ||
-          varName === "this.change"
+          assignPropName === "repeat" ||
+          assignPropName === "change"
       );
       const varValue = AttrParseUtil.enclose(attrValueVarsReplaced);
-      const evalFnName = `${this.constructor.name}_${attr.name.replace(
+      const evalFnName = `${this.tagName.toLowerCase()}_${attr.name}`.replace(
         /[^a-z0-9]/g,
         "_"
-      )}`;
-      const fnHeader = `return function ${evalFnName}(_pInst, _inherited) {`;
-      //  TODO Fix this mess
-      const fnBody =
-        owner === "inherited" && !attr.name.includes(".")
-          ? `return ${varValue};\n}`
-          : `return ${varName} = ${varValue};\n};`;
+      );
+      const fnHeader = `return function ${evalFnName}() {`;
+      const fnBody = `return ${varValue};\n}`;
       const fnStr = [fnHeader, ...this.#comments, fnBody].join("\n");
       const evalFn = new Function(fnStr)();
-      this.#updateFunctions.set(attr.name, evalFn);
+      const updateFn = function () {
+        return (assignObj[assignPropName] = evalFn.call(this));
+      };
+      this.#updateFunctions.set(attr.name, updateFn);
     }
     /**
      * @private
@@ -665,10 +627,48 @@ export const addP5PropsAndMethods = (baseClass) =>
         );
         this.removeAttribute("repeat");
       }
-      const { orderedAttributeNames, transformDoneIndex } = this;
+      const inheritedAttributes = new Set();
+      let obj = this.parent;
+      while (obj) {
+        for (const { name } of obj.attributes) {
+          inheritedAttributes.add(name);
+        }
+        if (obj.parent && obj.parent !== obj) obj = obj.parent;
+        else break;
+      }
+      for (const propName of inheritedAttributes) {
+        if (this.hasAttribute(propName)) continue;
+        if (propName in this)
+          this.#updateFunctions.set(propName, () => {
+            return (this[propName] = this.parent[propName]);
+          });
+        else {
+          Object.defineProperty(this, propName, {
+            get: function () {
+              if (typeof this.#state[propName] === "undefined")
+                return this.parent[propName];
+              return this.#state[propName];
+            },
+            set: function (val) {
+              this.#state[propName] = val;
+            },
+          });
+        }
+      }
+      const { orderedAttributeNames } = this;
       for (let i = 0; i < orderedAttributeNames.length; i++) {
         this.#setupEvalFn(this.attributes[orderedAttributeNames[i]]);
       }
+    }
+    #customAttributeToProperty(propName) {
+      Object.defineProperty(this, propName, {
+        get: function () {
+          return this.#state[propName];
+        },
+        set: function (val) {
+          this.#state[propName] = val;
+        },
+      });
     }
     /**
      * This element's proxy with access to properties, methods, and attributes.
@@ -683,10 +683,8 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @param {*} thisArg
      * @returns
      */
-    #updateAttribute(inherited, attrName, thisArg) {
-      if (attrName === "repeat" || attrName === "change")
-        inherited = this.#state;
-      const val = this.#callAttributeUpdater(inherited, attrName, thisArg);
+    #updateAttribute(attrName) {
+      const val = this.#callAttributeUpdater(attrName);
       //  Setting canvas width or height resets the drawing context
       //  Only set the attribute if it's not one of those
       if (this.pInst.debug_attributes === false) return val;
@@ -712,31 +710,10 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @param {Object} inherited - object
      * @returns
      */
-    updateState(inherited) {
-      for (const prop in inherited) {
-        if (
-          prop in this &&
-          (![
-            "anchor",
-            "angle",
-            "shear_x",
-            "shear_y",
-            "angle_x",
-            "angle_y",
-            "angle_z",
-          ].includes(prop) ||
-            prop in this.parent === false)
-        )
-          this[prop] = inherited[prop];
-        this.#state[prop] = inherited[prop];
-      }
+    updateState() {
       const updaters = this.#updateFunctions.entries();
       for (const [attrName, updateFunction] of updaters) {
-        this.#state[attrName] = this.#updateAttribute(
-          inherited,
-          attrName,
-          this
-        );
+        this.#updateAttribute(attrName);
       }
       return this.#state;
     }
