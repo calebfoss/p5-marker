@@ -16,7 +16,7 @@
       stroke="NONE"
       debug_attributes="false"
     >
-      <p-_ i="0" repeat="UNTIL i === 1000" change="i: i + 1">
+      <p-_ i="0" repeat="until i === 1000" change="i: i + 1">
         <p-circle
           x="random(width)"
           y="random(height)"
@@ -25,7 +25,7 @@
         ></p-circle>
       </p-_>
       <p-_ pix="canvas.pixels" pix_holder="this_element">
-        <p-_ p="0" repeat="UNTIL p AT_LEAST pix.length" change="p: p + 4">
+        <p-_ p="0" repeat="until p at_least pix.length" change="p: p + 4">
           <p-_ pix_holder.pix[p]="0"></p-_>
         </p-_>
         <p-_ canvas.pixels="pix"></p-_>

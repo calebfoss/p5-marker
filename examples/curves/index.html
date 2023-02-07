@@ -16,7 +16,7 @@
     >
       <p-_
         x_base="0"
-        repeat="WHILE x_base LESS_THAN width"
+        repeat="x_base less_than width"
         change="x_base: x_base + width / 10"
       >
         <p-curve
@@ -37,7 +37,7 @@
             c2="color(20, 60, 180)"
             stroke_weight="4"
             t="0"
-            repeat="WHILE t LESS_THAN 1"
+            repeat="t less_than 1"
             change="t: t + 0.1"
           >
             <p-circle

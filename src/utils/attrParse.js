@@ -43,13 +43,13 @@ export class AttrParseUtil {
     return `[${str}]`;
   };
   static escapes = {
-    LESS_THAN: "<",
-    GREATER_THAN: ">",
-    AT_LEAST: ">=",
-    NO_MORE_THAN: "<=",
-    AND: "&&",
-    OR: "||",
-    WHILE: "",
+    less_than: "<",
+    greater_than: ">",
+    at_least: ">=",
+    no_more_than: "<=",
+    and: "&&",
+    or: "||",
+    while: "",
   };
   static isP5 = (name) => p5.prototype.hasOwnProperty(name);
   static keywords = [
@@ -129,7 +129,7 @@ export class AttrParseUtil {
   }
   static replacePropNames(el, str, canReferenceSelf = false) {
     return str
-      .replace(/UNTIL(.*)/, "!($1)")
+      .replace(/until(.*)/, "!($1)")
       .replace(AttrParseUtil.regex.varName, (prop) =>
         AttrParseUtil.replacePropName(el, prop, canReferenceSelf)
       );

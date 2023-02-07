@@ -1,10 +1,13 @@
-const singleCharTokens = new Set("()[]{},:+-/*%");
+const singleCharTokens = new Set("()[]{},:+-/*%?");
 const multiCharToken = {
   number: "number",
   property: "property",
   boolean: "boolean",
   not: "not",
   comparison: "comparison",
+  string: "string",
+  logical: "logical",
+  until: "until",
 };
 
 const token = (kind, start, end, value) => ({ kind, start, end, value });
@@ -31,7 +34,7 @@ const lex = (str) => {
       return getTokens(end, tokens.concat(singleCharToken));
     }
 
-    const numberMatch = strFromStart.match(/^\d+(?:\.\d+)?/);
+    const numberMatch = strFromStart.match(/^-?\d+(?:\.\d+)?/);
     if (numberMatch) {
       const end = start + numberMatch[0].length;
       const numberToken = token(
@@ -72,6 +75,23 @@ const lex = (str) => {
       );
       return getTokens(end, tokens.concat(comparisonToken));
     }
+    const logicalMatch = strFromStart.match(/^(?:and|or)/);
+    if (logicalMatch) {
+      const end = start + logicalMatch[0].length;
+      const logicalToken = token(
+        multiCharToken.logical,
+        start,
+        end,
+        logicalMatch[0]
+      );
+      return getTokens(end, tokens.concat(logicalToken));
+    }
+    const untilMatch = strFromStart.match(/^until/);
+    if (untilMatch) {
+      const end = start + untilMatch[0].length;
+      const untilToken = token(multiCharToken.until, start, end, untilMatch[0]);
+      return getTokens(end, tokens.concat(untilToken));
+    }
     const propertyMatch = strFromStart.match(/^[a-zA-Z]\w*(?:\.[a-zA-Z]\w*)*/);
     if (propertyMatch) {
       const end = start + propertyMatch[0].length;
@@ -83,12 +103,25 @@ const lex = (str) => {
       );
       return getTokens(end, tokens.concat(propertyToken));
     }
+    const stringMatch = strFromStart.match(/^'.*?'/);
+    if (stringMatch) {
+      const end = start + stringMatch[0].length;
+      const stringToken = token(
+        multiCharToken.string,
+        start,
+        end,
+        stringMatch[0].slice(1, -1)
+      );
+      return getTokens(end, tokens.concat(stringToken));
+    }
+
     console.error(`Unexpected token: ${strFromStart}`);
   };
+
   return getTokens();
 };
 
-const parse = (el, obj, propName, tokens) => {
+const parse = (el, obj, attrName, tokens) => {
   let position = 0;
   const checkNextToken = () => tokens[position];
   const eatToken = () => tokens[position++];
@@ -116,12 +149,12 @@ const parse = (el, obj, propName, tokens) => {
       position;
     if (endParenthesisIndex < 0)
       console.error(
-        `On ${el.tagName}'s ${obj}.${propName}, found an opening parenthesis without a closing parenthesis`
+        `On ${el.tagName}'s ${obj}.${attrName}, found an opening parenthesis without a closing parenthesis`
       );
     const innerBody = parse(
       el,
       obj,
-      propName,
+      attrName,
       tokens.slice(position, endParenthesisIndex)
     );
     position = endParenthesisIndex + 1;
@@ -134,7 +167,7 @@ const parse = (el, obj, propName, tokens) => {
       if (prop in o === false) {
         if (prop in el.pInst) return getPropRef(el.pInst, refs);
         console.error(
-          `On ${el.tagName}'s ${obj}.${propName} property, ${prop} could not be found.`
+          `On ${el.tagName}'s ${attrName} attribute, ${prop} could not be found.`
         );
         return () => {};
       }
@@ -145,17 +178,30 @@ const parse = (el, obj, propName, tokens) => {
   };
 
   const parsePrimaryExpression = () => {
-    console.log("PRIMARY", checkNextToken());
     const token = eatToken();
     switch (token.kind) {
       case multiCharToken.number:
         return () => Number(token.value);
       case multiCharToken.boolean:
         return () => token.value === "true";
+      case multiCharToken.string:
+        return () => token.value;
       case multiCharToken.property:
         return handlePropRef(token);
+      case multiCharToken.until:
+        const restOfStatement = parse(
+          el,
+          obj,
+          attrName,
+          tokens.slice(position)
+        )[0];
+        position = tokens.length;
+        return () => !restOfStatement();
       case "(":
         return handleParenthetical();
+      case "-":
+        position--;
+        return () => 0;
       default:
         console.error(`Parser failed on token ${token.kind}: ${token.value}`);
         position = tokens.length;
@@ -163,7 +209,6 @@ const parse = (el, obj, propName, tokens) => {
   };
 
   const parseList = () => {
-    console.log("BEFORE LIST", checkNextToken());
     const left = parsePrimaryExpression();
 
     if (position === tokens.length) return left;
@@ -171,20 +216,126 @@ const parse = (el, obj, propName, tokens) => {
     return left;
   };
 
-  const parseMethodCall = () => {
-    console.log("BEFORE METHOD", checkNextToken());
-    const left = parseList();
+  const parseObjectLiteral = () => {
+    const remainingTokens = tokens.slice(position);
+    if (
+      position > tokens.length - 2 ||
+      remainingTokens.every((token) => token.kind !== ":")
+    )
+      return parseList();
+
+    const commaSeparatedSections = [[]];
+    for (const token of remainingTokens) {
+      if (token.kind === ",") {
+        commaSeparatedSections.push([]);
+        position++;
+      } else {
+        commaSeparatedSections[commaSeparatedSections.length - 1].push(token);
+      }
+    }
+
+    const keyValuePairs = commaSeparatedSections.map((sectionTokens, i) => {
+      const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
+      position += sectionTokens.length;
+      if (colonIndex < 0) {
+        if (sectionTokens.length > 1)
+          console.error(
+            "Couldn't figure out what to do with these:",
+            sectionTokens
+          );
+        const propName = sectionTokens[0].value;
+
+        const getValue = parse(el, obj, attrName, sectionTokens)[0];
+        return [propName, getValue()];
+      }
+      if (colonIndex === 0) {
+        console.error("FOUND COLON AT BEGINNING OF SECTION");
+        return [];
+      }
+      if (colonIndex === 1) {
+        const propName = sectionTokens[0].value;
+        const tokensAfterColon = sectionTokens.slice(2);
+        const getValue = parse(el, obj, attrName, tokensAfterColon)[0];
+        return [propName, getValue()];
+      }
+
+      const getPropName = parse(
+        el,
+        obj,
+        attrName,
+        sectionTokens.slice(0, colonIndex)
+      )[0];
+
+      const getValue = parse(
+        el,
+        obj,
+        attrName,
+        sectionTokens.slice(colonIndex)
+      )[0];
+      return [getPropName(), getValue()];
+    });
+    return () => Object.fromEntries(keyValuePairs);
+  };
+
+  const parseTernary = () => {
+    const remainingTokens = tokens.slice(position);
+    const questionIndex = remainingTokens.findIndex(
+      (token) => token.kind === "?"
+    );
+    if (questionIndex === -1) return parseObjectLiteral();
+    const commaIndex = remainingTokens.findIndex((token) => token.kind === ",");
+    if (commaIndex >= 0 && commaIndex < questionIndex)
+      return parseObjectLiteral();
+    const left = parse(
+      el,
+      obj,
+      attrName,
+      remainingTokens.slice(0, questionIndex)
+    )[0];
+    const colonIndex = remainingTokens.findIndex((token) => token.kind === ":");
+    const end = commaIndex > -1 ? commaIndex : tokens.length;
+    const middle = parse(
+      el,
+      obj,
+      attrName,
+      remainingTokens.slice(questionIndex + 1, colonIndex)
+    )[0];
+    const right = parse(
+      el,
+      obj,
+      attrName,
+      remainingTokens.slice(colonIndex + 1, end)
+    )[0];
+    position = end + 1;
+    return () => (left() ? middle() : right());
+  };
+
+  const parseLogical = () => {
+    const left = parseTernary();
+    if (position === tokens.length) return left;
+    if (checkNextToken().kind !== "logical") return left;
+    const operator = eatToken();
+    const right = parseTernary();
+    if (operator.value === "and") {
+      return () => left() && right();
+    }
+    return () => left() || right();
+  };
+
+  const parseCall = () => {
+    const left = parseLogical();
 
     if (position === tokens.length || position === 0) return left;
     const prevToken = tokens[position - 1];
 
     if (prevToken.kind === "property" && checkNextToken().kind === "(") {
-      console.log("METHOD", checkNextToken());
       eatToken();
 
       const right = handleParenthetical();
-
-      return () => left()(...right());
+      return () =>
+        typeof left() === "function"
+          ? left()(...right())
+          : right().reduce((obj, propOrIndex) => obj[propOrIndex], left());
     }
     return left;
   };
@@ -207,21 +358,18 @@ const parse = (el, obj, propName, tokens) => {
   };
 
   const parseComparisonExpression = () => {
-    console.log("BEFORE COMPARE", checkNextToken());
-    const left = parseMethodCall();
+    const left = parseCall();
 
     if (position === tokens.length) return left;
     if (checkNextToken().kind === multiCharToken.comparison) {
-      console.log("COMPARE", checkNextToken());
       const operator = eatToken();
-      const right = parseMethodCall();
+      const right = parseCall();
       return getComparisonFn(operator, left, right);
     }
     return left;
   };
 
   const parseMultiplicativeExpression = () => {
-    console.log("BEFORE MULT", checkNextToken());
     const left = parseComparisonExpression();
 
     if (position === tokens.length) return left;
@@ -230,7 +378,6 @@ const parse = (el, obj, propName, tokens) => {
       checkNextToken().kind === "/" ||
       checkNextToken().kind === "%"
     ) {
-      console.log("MULT", checkNextToken());
       const operator = eatToken().value;
 
       const right = parseComparisonExpression();
@@ -240,11 +387,9 @@ const parse = (el, obj, propName, tokens) => {
   };
 
   const parseAdditiveExpression = () => {
-    console.log("BEFORE ADD", checkNextToken());
     const left = parseMultiplicativeExpression();
     if (position === tokens.length) return left;
     if (checkNextToken().kind === "+" || checkNextToken().kind === "-") {
-      console.log("ADD", checkNextToken());
       const operator = eatToken().value;
       const right = parseMultiplicativeExpression();
       return operationFn(left, operator, right);
@@ -256,7 +401,10 @@ const parse = (el, obj, propName, tokens) => {
 
   while (position < tokens.length) {
     console.log(
-      `Parsing at position ${position}/${tokens.length}: ${tokens[position].value}`
+      `Parsing at position ${position}/${tokens.length}: ${tokens
+        .slice(position)
+        .map((token) => token.value)
+        .join(" ")}`
     );
     const expression = parseAdditiveExpression();
 
@@ -272,22 +420,6 @@ const parse = (el, obj, propName, tokens) => {
 
 export const interpret = (el, obj, propName, attrValue) => {
   const tokens = lex(attrValue);
-
   const body = parse(el, obj, propName, tokens);
-  return body.length ? () => body.map((fn) => fn()) : body;
+  return body.length > 1 ? () => body.map((fn) => fn()) : body[0];
 };
-
-const test = interpret(
-  {
-    add: function (a, b) {
-      return a + b;
-    },
-    get test_array() {
-      return [1, 2, 3];
-    },
-  },
-  {},
-  "test",
-  "test_array(1)"
-);
-console.log(test());

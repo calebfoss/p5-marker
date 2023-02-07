@@ -12,7 +12,7 @@
         <!-- GAME OBJECTS -->
         <paddle x="canvas.width * 0.1" up="87" down="83"></paddle>
         <paddle left_paddle="above_sibling" right_paddle="this_element">
-            <ball on="count_down LESS_THAN 1"></ball>
+            <ball on="count_down less_than 1"></ball>
         </paddle>
 
 
@@ -24,15 +24,15 @@
                     on="mouse_down" game.state="'play'"></_>
             </text>
             <text
-                on="above_siblings_off AND state === 'pause'">Paused <_ on="mouse_down"
+                on="above_siblings_off and state === 'pause'">Paused <_ on="mouse_down"
                     game.state="'play'"></_>
             </text>
             <_
-                on="above_siblings_off AND state === 'play'" game.count_down="count_down - 1">
+                on="above_siblings_off and state === 'play'" game.count_down="count_down - 1">
                 <_ on="mouse_down" game.state="'pause'"></_>
             </_>
             <text
-                on="above_siblings_off AND state === 'gameover'"
+                on="above_siblings_off and state === 'gameover'"
             >$winner wins!\n Click to play again! <_
                     on="mouse_down" game.state="'play'" game.left_score="0" game.right_score="0"></_>
             </text>
@@ -44,7 +44,7 @@
         <!-- POSITION CHECKS -->
         <_ ball_left="x - size/2" ball_right="x + size/2" ball_top="y - size/2"
             ball_bottom="y + size/2"
-            moving_left="speed.x LESS_THAN 0">
+            moving_left="speed.x less_than 0">
             <!-- RESET -->
             <_ on="count_down === 0" random_angle="random(HALF_PI) - QUARTER_PI + random([0, PI])"
                 ball.x="canvas.width/2" ball.y="canvas.height/2" ball.reset="false"
@@ -53,17 +53,17 @@
             </_>
             <!-- TOP BOTTOM BOUNCE -->
             <_
-                on="above_siblings_off AND ball_top LESS_THAN 0 || ball_bottom GREATER_THAN canvas.height"
+                on="above_siblings_off and ball_top less_than 0 or ball_bottom greater_than canvas.height"
                 ball.speed.y="-ball.speed.y"></_>
             <!-- LEFT COLLISION/SCORE CHECK -->
-            <_ on="above_siblings_off AND moving_left"
-                left_hit="ball_left LESS_THAN left_paddle.x + left_paddle.width/2">
+            <_ on="above_siblings_off and moving_left"
+                left_hit="ball_left less_than left_paddle.x + left_paddle.width/2">
                 <_ on="left_hit"
-                    right_hit="ball_right GREATER_THAN left_paddle.x - left_paddle.width/2"
+                    right_hit="ball_right greater_than left_paddle.x - left_paddle.width/2"
                     paddle_top="left_paddle.y - left_paddle.height/2">
                     <!-- RIGHT SCORE -->
-                    <_ on="ball_left LESS_THAN 0">
-                        <_ on="count_down LESS_THAN 0" game.count_down="120"
+                    <_ on="ball_left less_than 0">
+                        <_ on="count_down less_than 0" game.count_down="120"
                             game.right_score="right_score + 1">
                             <_ on="game.right_score === 7"
                                 game.state="'gameover'"
@@ -71,10 +71,10 @@
                         </_>
                     </_>
                     <!-- LEFT PADDLE HIT -->
-                    <_ on="above_siblings_off AND right_hit"
-                        bottom_hit="ball_bottom GREATER_THAN paddle_top"
+                    <_ on="above_siblings_off and right_hit"
+                        bottom_hit="ball_bottom greater_than paddle_top"
                         paddle_bottom="left_paddle.y + left_paddle.height/2">
-                        <_ on="bottom_hit" top_hit="ball_top LESS_THAN paddle_bottom">
+                        <_ on="bottom_hit" top_hit="ball_top less_than paddle_bottom">
                             <_ on="top_hit">
                                 <_ ball.speed.x="-ball.speed.x"
                                     ball.speed.y="(y - left_paddle.y)/20"
@@ -86,22 +86,22 @@
                 </_>
             </_>
             <!--  RIGHT COLLISION/SCORE -->
-            <_ on="above_siblings_off" right_hit="ball_right GREATER_THAN right_paddle.x">
-                <_ on="right_hit" left_hit="ball_left LESS_THAN right_paddle.x + right_paddle.width"
+            <_ on="above_siblings_off" right_hit="ball_right greater_than right_paddle.x">
+                <_ on="right_hit" left_hit="ball_left less_than right_paddle.x + right_paddle.width"
                     paddle_top="right_paddle.y - right_paddle.height/2">
                     <!-- LEFT SCORE -->
-                    <_ on="ball_right GREATER_THAN canvas.width">
-                        <_ on="count_down LESS_THAN 0" game.count_down="120"
+                    <_ on="ball_right greater_than canvas.width">
+                        <_ on="count_down less_than 0" game.count_down="120"
                             game.left_score="left_score + 1">
                             <_ on="game.left_score === 7" game.state="'gameover'"
                                 game.winner="'Left'"></_>
                         </_>
                     </_>
                     <!-- RIGHT PADDLE HIT -->
-                    <_ on="above_siblings_off AND left_hit"
-                        top_hit="ball_bottom GREATER_THAN paddle_top"
+                    <_ on="above_siblings_off and left_hit"
+                        top_hit="ball_bottom greater_than paddle_top"
                         paddle_bottom="right_paddle.y + right_paddle.height/2">
-                        <_ on="top_hit" bottom_hit="ball_top LESS_THAN paddle_bottom">
+                        <_ on="top_hit" bottom_hit="ball_top less_than paddle_bottom">
                             <_ on="bottom_hit">
                                 <_ ball.speed.x="-ball.speed.x"
                                     ball.speed.y=" (y - right_paddle.y)/20"
