@@ -13,7 +13,7 @@
         noise_seed="frame_count"
         pix_holder="this_element"
       >
-        <p-_ i="0" repeat="WHILE i LESS_THAN pix.length" change="i: i + 4">
+        <p-_ i="0" repeat="i less_than pix.length" change="i: i + 4">
           <p-_ x="(i / 4) % width" y="floor(i / (width * 4))">
             <p-_ n="noise(x * 0.01, y * 0.01) * 255">
               <p-_

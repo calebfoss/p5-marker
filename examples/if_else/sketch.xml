@@ -7,11 +7,11 @@
   <_ diameter="width" anchor="width/2, height/2">
     <circle
       fill="'red'"
-      on="frame_count LESS_THAN 60"
+      on="frame_count less_than 60"
     ></circle>
     <circle
       fill="'yellow'"
-      on="above_siblings_off AND frame_count LESS_THAN 120"
+      on="above_siblings_off and frame_count less_than 120"
     ></circle>
     <circle
       fill="'green'"

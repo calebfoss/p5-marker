@@ -9,9 +9,9 @@
     x="0"
     width="canvas.width / 10"
     change="x: x + width"
-    repeat="UNTIL x AT_LEAST canvas.width"
+    repeat="until x at_least canvas.width"
   >
     <rect y="0" height="canvas.height / 10" change="y: y + height"
-      repeat="UNTIL y AT_LEAST canvas.height"></rect>
+      repeat="until y at_least canvas.height"></rect>
   </_>
 </canvas>

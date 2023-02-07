@@ -22,11 +22,11 @@
                 x="start_x - width * 0.25"
                 diameter="40"
                 change="x: x + width * 0.25"
-                repeat="WHILE x LESS_THAN width"
+                repeat="x less_than width"
             >
             </cloud>
             <_ clouds.start_x="clouds.start_x + 0.25">
-                <_ on="clouds.start_x AT_LEAST width * 0.25" clouds.start_x="0"></_>
+                <_ on="clouds.start_x at_least width * 0.25" clouds.start_x="0"></_>
             </_>
         </_>
     </canvas>
