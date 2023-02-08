@@ -30,7 +30,6 @@
           y4="height"
           stroke_weight="2"
           fill="NONE"
-          base_curve="this_element"
         >
           <p-_
             c1="color(60, 180, 20)"
@@ -39,6 +38,7 @@
             t="0"
             repeat="t less_than 1"
             change="t: t + 0.1"
+            base_curve="parent"
           >
             <p-circle
               anchor="base_curve.point_at(t)"
