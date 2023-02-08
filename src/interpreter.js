@@ -185,8 +185,10 @@ const parse = (el, obj, attrName, tokens) => {
       return getPropRef(el, splitToken);
     switch (splitToken[0]) {
       case "above_sibling":
+        if (splitToken.length === 1) return [el, "above_sibling"];
         return getPropRef(el.above_sibling, splitToken.slice(1));
       case "parent":
+        if (splitToken.length === 1) return [el, "parent"];
         return getPropRef(el.parent, splitToken.slice(1));
       default:
         return getPropRef(el.parent, splitToken);
@@ -213,7 +215,7 @@ const parse = (el, obj, attrName, tokens) => {
           (t) => t.kind === ")"
         );
         const sections = commaSeparateSections(
-          remainingTokens.slice(1, endParenthesisIndex)
+          remainingTokens.slice(0, endParenthesisIndex)
         );
         const argExpressions = sections
           .map((section) => parse(el, obj, attrName, section))
