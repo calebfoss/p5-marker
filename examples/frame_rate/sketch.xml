@@ -3,7 +3,7 @@
     <text content="int(canvas.frame_rate)" x="20" font_size="40" align="LEFT, TOP">
         <_
             parent.y="parent.y + 1"></_>
-        <_ on="parent.y >= height" parent.y="0"
+        <_ on="parent.y at_least height" parent.y="0"
             canvas.frame_rate="canvas.frame_rate/2" />
     </text>
 </canvas>
