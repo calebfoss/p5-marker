@@ -593,9 +593,7 @@ export const addP5PropsAndMethods = (baseClass) =>
       };
       const [assignObj, assignPropName] = getAssignPropRef(attr.name);
       const interpretation = interpret(
-        attr.name === "repeat" || attr.name === "change"
-          ? this
-          : this.parentElement,
+        this,
         assignObj,
         assignPropName,
         attr.value
@@ -605,7 +603,25 @@ export const addP5PropsAndMethods = (baseClass) =>
           `INTERPRETATION FAILED for ${this.tagName}'s ${attr.name} with value ${attr.value}`,
           interpretation
         );
-      else console.log(this.tagName, attr.name, interpretation());
+      else {
+        this.#updateFunctions.set(
+          attr.name,
+          () => (assignObj[assignPropName] = interpretation())
+        );
+        if (assignObj === this && attr.name in this === false) {
+          this.#state[attr.name] = interpretation();
+          Object.defineProperty(this, attr.name, {
+            get: function () {
+              return this.#state[attr.name];
+            },
+            set: function (val) {
+              this.#state[attr.name] = val;
+            },
+          });
+        }
+        console.log(this.tagName, attr.name, interpretation());
+        return;
+      }
       if (assignObj === this && assignPropName in this === false)
         this.#customAttributeToProperty(assignPropName);
       const attrValueVarsReplaced = AttrParseUtil.replacePropNames(
