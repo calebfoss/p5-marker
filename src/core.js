@@ -140,6 +140,8 @@ export const addP5PropsAndMethods = (baseClass) =>
     #updateFunctions = new Map();
     #name;
     #on = true;
+    #repeat = false;
+    #change = {};
     constructor() {
       super();
       if (this.hasAttribute("name")) defineCustomElement(this);
@@ -179,7 +181,7 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @private
      */
     #applyChange() {
-      const change = (this.#state.change = this.#updateAttribute("change"));
+      const { change } = this;
       let changed = false;
       const assignProp = (obj, prop) => {
         if (prop in obj) {
@@ -286,6 +288,12 @@ export const addP5PropsAndMethods = (baseClass) =>
     get canvas() {
       return this.#canvas.this_element;
     }
+    get change() {
+      return this.#change;
+    }
+    set change(obj) {
+      this.#change = obj;
+    }
     /**
      * color_mode changes the way p5.js interprets
      * color data. By default, fill,
@@ -364,7 +372,6 @@ export const addP5PropsAndMethods = (baseClass) =>
         if (this instanceof HTMLCanvasElement) this.pInst.describe(description);
         else this.pInst.describeElement(this.name, description);
       }
-      const { WHILE } = p5.prototype;
       let repeat = true;
       while (repeat) {
         this.transform?.();
@@ -372,12 +379,8 @@ export const addP5PropsAndMethods = (baseClass) =>
         for (const child of this.children) {
           child.draw?.(this.#state);
         }
-        repeat = this.hasAttribute("repeat") && this.#state.repeat;
-        const { change } = this.#state;
-        if (Array.isArray(repeat)) {
-          const [key, ...conditions] = this.#updateAttribute("repeat");
-          repeat = (key === WHILE) === conditions.every((c) => c);
-        }
+        repeat = this.repeat;
+        const { change } = this;
         if (repeat) {
           this.pInst.pop();
           this.pInst.push();
@@ -535,6 +538,12 @@ export const addP5PropsAndMethods = (baseClass) =>
       return this.#pInst;
     }
     render() {}
+    get repeat() {
+      return this.#repeat;
+    }
+    set repeat(val) {
+      this.#repeat = val;
+    }
     /**
      * Sets an attribute's value on this element.
      * @param {string} attributeName
@@ -601,7 +610,6 @@ export const addP5PropsAndMethods = (baseClass) =>
         assignPropName,
         attr.value
       );
-      console.log(this.pInst.color(255, 0, 0));
       if (typeof interpretation !== "function")
         console.log(
           `INTERPRETATION FAILED for ${this.tagName}'s ${attr.name} with value ${attr.value}`,
@@ -623,7 +631,11 @@ export const addP5PropsAndMethods = (baseClass) =>
             },
           });
         }
-        console.log(this.tagName, attr.name, interpretation());
+        try {
+          console.log(this.tagName, attr.name, interpretation());
+        } catch (err) {
+          console.warn(err);
+        }
         return;
       }
       if (assignObj === this && assignPropName in this === false)
