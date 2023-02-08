@@ -206,7 +206,6 @@ const parse = (el, obj, attrName, tokens) => {
         const [o, prop] = getObjectPropertyRef(token);
         if (position === tokens.length || checkNextToken().kind !== "(")
           return () => o[prop];
-        console.log("METHOD");
         eatToken(); // Left parenthesis
         const remainingTokens = tokens.slice(position);
         const endParenthesisIndex = remainingTokens.findIndex(
@@ -354,25 +353,8 @@ const parse = (el, obj, attrName, tokens) => {
       attrName,
       remainingTokens.slice(colonIndex + 1, end)
     )[0];
-    position += end + 1;
+    position += end;
     return () => (left() ? middle() : right());
-  };
-
-  const parseCall = () => {
-    const left = parseTernary();
-
-    if (position === tokens.length || position === 0) return left;
-    const prevToken = tokens[position - 1];
-
-    if (prevToken.kind === "property" && checkNextToken().kind === "(") {
-      eatToken();
-      const right = handleParenthetical();
-      return () =>
-        typeof left() === "function"
-          ? left()(...right())
-          : right().reduce((obj, propOrIndex) => obj[propOrIndex], left());
-    }
-    return left;
   };
 
   const getComparisonFn = (token, left, right) => {
@@ -397,9 +379,9 @@ const parse = (el, obj, attrName, tokens) => {
     const compareIndex = remainingTokens.findIndex(
       (token) => token.kind === multiCharToken.comparison
     );
-    if (compareIndex === -1) return parseCall();
+    if (compareIndex === -1) return parseTernary();
     const commaIndex = remainingTokens.findIndex((token) => token.kind === ",");
-    if (commaIndex > -1 && commaIndex < commaIndex) return parseCall();
+    if (commaIndex > -1 && commaIndex < commaIndex) return parseTernary();
     const left = parse(
       el,
       obj,
@@ -409,7 +391,6 @@ const parse = (el, obj, attrName, tokens) => {
     const operator = remainingTokens[compareIndex];
     const right = parse(el, obj, attrName, tokens.slice(compareIndex + 1))[0];
     position += remainingTokens.length;
-    console.log(left(), operator.value, right());
     return getComparisonFn(operator, left, right);
   };
 
@@ -422,7 +403,6 @@ const parse = (el, obj, attrName, tokens) => {
     const commaIndex = remainingTokens.findIndex((token) => token.kind === ",");
     if (commaIndex > -1 && commaIndex < logicalIndex)
       return parseComparisonExpression();
-    console.log(remainingTokens.slice(0, logicalIndex));
     const left = parse(
       el,
       obj,
@@ -436,7 +416,6 @@ const parse = (el, obj, attrName, tokens) => {
       attrName,
       remainingTokens.slice(logicalIndex + 1)
     )[0];
-    console.log(left(), operator, right());
     position += remainingTokens.length;
     if (operator === "and") {
       return () => left() && right();
@@ -447,7 +426,7 @@ const parse = (el, obj, attrName, tokens) => {
   const parseMultiplicativeExpression = () => {
     const left = parseLogical();
 
-    if (position === tokens.length) return left;
+    if (position >= tokens.length) return left;
     if (
       checkNextToken().kind === "*" ||
       checkNextToken().kind === "/" ||
