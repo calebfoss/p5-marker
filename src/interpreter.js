@@ -170,7 +170,7 @@ const parse = (el, obj, attrName, tokens) => {
         console.error(
           `On ${el.tagName}'s ${attrName} attribute, ${prop} could not be found.`
         );
-        return;
+        return [];
       }
       if (refs.length > 1) return getPropRef(o[prop], refs.slice(1));
       return [o, prop];
@@ -204,6 +204,7 @@ const parse = (el, obj, attrName, tokens) => {
         return () => token.value;
       case multiCharToken.property:
         const [o, prop] = getObjectPropertyRef(token);
+        if (typeof o === "undefined") return () => undefined;
         if (position === tokens.length || checkNextToken().kind !== "(")
           return () => o[prop];
         eatToken(); // Left parenthesis
