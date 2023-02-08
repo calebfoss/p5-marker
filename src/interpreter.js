@@ -161,18 +161,19 @@ const parse = (el, obj, attrName, tokens) => {
     return () => innerBody.map((fn) => fn());
   };
 
-  const handlePropRef = (token) => {
+  const getObjectPropertyRef = (token) => {
     const getPropRef = (o, refs) => {
       const [prop] = refs;
+
       if (prop in o === false) {
         if (prop in el.pInst) return getPropRef(el.pInst, refs);
         console.error(
           `On ${el.tagName}'s ${attrName} attribute, ${prop} could not be found.`
         );
-        return () => {};
+        return;
       }
       if (refs.length > 1) return getPropRef(o[prop], refs.slice(1));
-      return () => o[prop];
+      return [o, prop];
     };
     const splitToken = token.value.split(".");
     if (
@@ -190,7 +191,6 @@ const parse = (el, obj, attrName, tokens) => {
       default:
         return getPropRef(el.parent, splitToken);
     }
-    r;
   };
 
   const parsePrimaryExpression = () => {
@@ -203,7 +203,27 @@ const parse = (el, obj, attrName, tokens) => {
       case multiCharToken.string:
         return () => token.value;
       case multiCharToken.property:
-        return handlePropRef(token);
+        const [o, prop] = getObjectPropertyRef(token);
+        if (position === tokens.length || checkNextToken().kind !== "(")
+          return () => o[prop];
+        console.log("METHOD");
+        eatToken(); // Left parenthesis
+        const remainingTokens = tokens.slice(position);
+        const endParenthesisIndex = remainingTokens.findIndex(
+          (t) => t.kind === ")"
+        );
+        const sections = commaSeparateSections(
+          remainingTokens.slice(1, endParenthesisIndex)
+        );
+        const argExpressions = sections
+          .map((section) => parse(el, obj, attrName, section))
+          .flat();
+        const getArgs = () => argExpressions.map((fn) => fn());
+        position += endParenthesisIndex + 1;
+        return () =>
+          typeof o[prop] === "function"
+            ? o[prop](...getArgs())
+            : getArgs().reduce((obj, propOrIndex) => obj[propOrIndex], o[prop]);
       case multiCharToken.until:
         const restOfStatement = parse(
           el,
@@ -224,18 +244,33 @@ const parse = (el, obj, attrName, tokens) => {
     }
   };
 
+  const commaSeparateSections = (tokens) => {
+    const sections = [[]];
+    for (const token of tokens) {
+      if (token.kind === ",") {
+        sections.push([]);
+      } else {
+        sections[sections.length - 1].push(token);
+      }
+    }
+    return sections;
+  };
+
   const parseList = () => {
     const remainingTokens = tokens.slice(position);
     const commaIndex = remainingTokens.findIndex((token) => token.kind === ",");
     if (commaIndex === -1) return parsePrimaryExpression();
-    const left = parse(
-      el,
-      obj,
-      attrName,
-      remainingTokens.slice(0, commaIndex)
-    )[0];
-    position += commaIndex + 1;
-    return left;
+    const leftParenthesisIndex = remainingTokens.findIndex(
+      (token) => token.kind === "("
+    );
+    if (leftParenthesisIndex > 0 && leftParenthesisIndex < commaIndex)
+      return parsePrimaryExpression();
+    const commaSeparatedSections = commaSeparateSections(remainingTokens);
+    position += remainingTokens.length;
+    const fns = commaSeparatedSections
+      .map((section) => parse(el, obj, attrName, section))
+      .flat();
+    return () => fns.map((fn) => fn());
   };
 
   const parseObjectLiteral = () => {
@@ -246,19 +281,10 @@ const parse = (el, obj, attrName, tokens) => {
     )
       return parseList();
 
-    const commaSeparatedSections = [[]];
-    for (const token of remainingTokens) {
-      if (token.kind === ",") {
-        commaSeparatedSections.push([]);
-        position++;
-      } else {
-        commaSeparatedSections[commaSeparatedSections.length - 1].push(token);
-      }
-    }
-
+    const commaSeparatedSections = commaSeparateSections(remainingTokens);
+    position += remainingTokens.length;
     const keyValuePairs = commaSeparatedSections.map((sectionTokens, i) => {
       const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
-      position += sectionTokens.length;
       if (colonIndex < 0) {
         if (sectionTokens.length > 1)
           console.error(
@@ -456,7 +482,6 @@ const parse = (el, obj, attrName, tokens) => {
         .join(" ")}`
     );
     const expression = parseAdditiveExpression();
-
     statementBody.push(expression);
     if (position === 0) {
       console.error(`${el.tagName} hit an infinite loop`);

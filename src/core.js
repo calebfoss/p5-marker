@@ -601,6 +601,7 @@ export const addP5PropsAndMethods = (baseClass) =>
         assignPropName,
         attr.value
       );
+      console.log(this.pInst.color(255, 0, 0));
       if (typeof interpretation !== "function")
         console.log(
           `INTERPRETATION FAILED for ${this.tagName}'s ${attr.name} with value ${attr.value}`,
