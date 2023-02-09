@@ -285,7 +285,7 @@ const parse = (el, obj, attrName, tokens) => {
 
     const commaSeparatedSections = commaSeparateSections(remainingTokens);
     position += remainingTokens.length;
-    const keyValuePairs = commaSeparatedSections.map((sectionTokens, i) => {
+    const getKeyValuePairs = commaSeparatedSections.map((sectionTokens, i) => {
       const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
       if (colonIndex < 0) {
         if (sectionTokens.length > 1)
@@ -296,17 +296,17 @@ const parse = (el, obj, attrName, tokens) => {
         const propName = sectionTokens[0].value;
 
         const getValue = parse(el, obj, attrName, sectionTokens)[0];
-        return [propName, getValue()];
+        return () => [propName, getValue()];
       }
       if (colonIndex === 0) {
         console.error("FOUND COLON AT BEGINNING OF SECTION");
-        return [];
+        return () => [];
       }
       if (colonIndex === 1) {
         const propName = sectionTokens[0].value;
         const tokensAfterColon = sectionTokens.slice(2);
         const getValue = parse(el, obj, attrName, tokensAfterColon)[0];
-        return [propName, getValue()];
+        return () => [propName, getValue()];
       }
 
       const getPropName = parse(
@@ -322,9 +322,9 @@ const parse = (el, obj, attrName, tokens) => {
         attrName,
         sectionTokens.slice(colonIndex)
       )[0];
-      return [getPropName(), getValue()];
+      return () => [getPropName(), getValue()];
     });
-    return () => Object.fromEntries(keyValuePairs);
+    return () => Object.fromEntries(getKeyValuePairs.map((fn) => fn()));
   };
 
   const parseTernary = () => {
@@ -383,6 +383,11 @@ const parse = (el, obj, attrName, tokens) => {
       (token) => token.kind === multiCharToken.comparison
     );
     if (compareIndex === -1) return parseTernary();
+    const untilIndex = tokens.findIndex(
+      (token) => token.kind === multiCharToken.until
+    );
+    if (untilIndex > -1 && untilIndex < compareIndex)
+      return parsePrimaryExpression();
     const commaIndex = remainingTokens.findIndex((token) => token.kind === ",");
     if (commaIndex > -1 && commaIndex < commaIndex) return parseTernary();
     const left = parse(
