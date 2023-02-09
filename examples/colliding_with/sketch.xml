@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" background="220">
-    <circle x="mouse.x" y="mouse.y" stroke_weight="4" fill="NONE"
-        mouse_circle="this_element" highlight="color(255, 255, 0, 128)">
+<canvas width="400" height="400" background="220" stroke_weight="4" fill="NONE">
+    <circle x="mouse.x" y="mouse.y" />
+    <_ mouse_circle="above_sibling" highlight="color(255, 255, 0, 128)">
         <square x="25" y="25">
             <square on="colliding_with(mouse_circle)" fill="highlight" />
         </square>
@@ -33,7 +33,5 @@
             </vertex>
             <_ parent.fill="colliding_with(mouse_circle) ? highlight : NONE"></_>
         </shape>
-
-    </circle>
-
+    </_>
 </canvas>
