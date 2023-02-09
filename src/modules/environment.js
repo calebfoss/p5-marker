@@ -1,8 +1,5 @@
 import { defineProperties, wrapMethod } from "../utils/p5Modifiers";
 
-p5.prototype._width = p5.prototype.width;
-p5.prototype._height = p5.prototype.height;
-
 p5.prototype._createDescriptionContainer = function () {
   const cnvId = this.canvas.id;
   const descriptionContainer = document.createElement("div");
