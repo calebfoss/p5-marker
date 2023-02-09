@@ -16,7 +16,7 @@
         height="400"
         background="100, 140, 200"
     >
-        <_ start_x="0" clouds="this_element">
+        <_ start_x="0">
             <cloud
                 y="75"
                 x="start_x - width * 0.25"
@@ -25,9 +25,8 @@
                 repeat="x less_than width"
             >
             </cloud>
-            <_ clouds.start_x="clouds.start_x + 0.25">
-                <_ on="clouds.start_x at_least width * 0.25" clouds.start_x="0"></_>
-            </_>
+            <_ parent.start_x="start_x + 0.25" />
+            <_ on="start_x at_least width * 0.25" parent.start_x="0"></_>
         </_>
     </canvas>
 </_>
