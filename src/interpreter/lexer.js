@@ -77,6 +77,16 @@ export const lex = (str) => {
       return getTokens(end, tokens.concat(comparisonToken));
     }
     const equalityMatch = strFromStart.match(/^(?:is|is_not)/);
+    if (equalityMatch) {
+      const end = start + equalityMatch[0].length;
+      const equalityToken = token(
+        multiCharToken.equality,
+        start,
+        end,
+        equalityMatch[0]
+      );
+      return getTokens(end, tokens.concat(equalityToken));
+    }
     const logicalMatch = strFromStart.match(/^(?:and|or)/);
     if (logicalMatch) {
       const end = start + logicalMatch[0].length;

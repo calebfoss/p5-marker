@@ -70,12 +70,12 @@ const hasColonOutsideTernaryAndParentheses = (tokens) =>
       tokenOfKindOutsideParentheses(t, ",", prevTokens)
     );
     const questionBetweenCommaAndColon = tokens
-      .slice(prevCommaIndex, i)
+      .slice(Math.max(prevCommaIndex, 0), i)
       .find((t) => t.kind === "?");
     return !questionBetweenCommaAndColon;
   });
 
-export const parse = (fullListOfTokens) => {
+export const parse = (element, attrName, fullListOfTokens) => {
   const parseObjectLiteral = (tokens) => {
     const sections = commaSeparateSections(tokens);
     const getKeyValuePairs = sections.map((sectionTokens, i) => {
@@ -88,7 +88,7 @@ export const parse = (fullListOfTokens) => {
           );
         const propName = sectionTokens[0].value;
 
-        const getValue = parse(el, obj, attrName, sectionTokens)[0];
+        const getValue = parseTokens(sectionTokens);
         return () => [propName, getValue()];
       }
       if (colonIndex === 0) {
@@ -98,23 +98,14 @@ export const parse = (fullListOfTokens) => {
       if (colonIndex === 1) {
         const propName = sectionTokens[0].value;
         const tokensAfterColon = sectionTokens.slice(2);
-        const getValue = parse(el, obj, attrName, tokensAfterColon)[0];
+        const getValue = parseTokens(tokensAfterColon);
         return () => [propName, getValue()];
       }
 
-      const getPropName = parse(
-        el,
-        obj,
-        attrName,
-        sectionTokens.slice(0, colonIndex)
-      )[0];
+      const getPropName = parseTokens(sectionTokens.slice(0, colonIndex));
 
-      const getValue = parse(
-        el,
-        obj,
-        attrName,
-        sectionTokens.slice(colonIndex)
-      )[0];
+      const getValue = parseTokens(sectionTokens.slice(colonIndex));
+
       return () => [getPropName(), getValue()];
     });
     return () => Object.fromEntries(getKeyValuePairs.map((fn) => fn()));
@@ -122,10 +113,10 @@ export const parse = (fullListOfTokens) => {
 
   const parseTernary = (tokens) => {
     const questionIndex = tokens.findIndex((token) => token.kind === "?");
-    const left = parseTokens(tokens.slice(0, questionIndex))[0];
+    const left = parseTokens(tokens.slice(0, questionIndex));
     const colonIndex = tokens.findIndex((token) => token.kind === ":");
-    const middle = parseTokens(tokens.slice(questionIndex + 1, colonIndex))[0];
-    const right = parseTokens(tokens.slice(colonIndex + 1))[0];
+    const middle = parseTokens(tokens.slice(questionIndex + 1, colonIndex));
+    const right = parseTokens(tokens.slice(colonIndex + 1));
     return () => (left() ? middle() : right());
   };
 
@@ -185,7 +176,7 @@ export const parse = (fullListOfTokens) => {
     console.log("AFTER LOGICAL", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== multiCharToken.comparison) return [left, afterLeft];
+    if (operator.kind !== multiCharToken.equality) return [left, afterLeft];
     const [right, remainder] = parseEquality(rightTokens);
     if (operator.value === "is")
       return [() => Object.is(left(), right()), remainder];
@@ -210,8 +201,8 @@ export const parse = (fullListOfTokens) => {
         case "greater_than":
           return () => left() > right();
       }
-      return [getCompareFn(), remainder];
     };
+    return [getCompareFn(), remainder];
   };
 
   const parseMultiplicative = (tokens) => {
