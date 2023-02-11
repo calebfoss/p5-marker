@@ -1,9 +1,10 @@
-const singleCharTokens = new Set("()[]{},:/*%?");
+const singleCharTokens = new Set("()[]{},:?");
 export const tokenKind = {
   number: "number",
   property: "property",
   boolean: "boolean",
   additive: "additive",
+  multiplicative: "multiplicative",
   not: "not",
   comparison: "comparison",
   equality: "equality",
@@ -47,6 +48,17 @@ export const lex = (str) => {
       const end = start + additiveMatch[0].length;
       const addToken = token(tokenKind.additive, start, end, additiveMatch[0]);
       return getTokens(end, tokens.concat(addToken));
+    }
+    const multiplicativeMatch = strFromStart.match(/^[*\/%]/);
+    if (multiplicativeMatch) {
+      const end = start + multiplicativeMatch[0].length;
+      const multiplicativeToken = token(
+        tokenKind.multiplicative,
+        start,
+        end,
+        multiplicativeMatch[0]
+      );
+      return getTokens(end, tokens.concat(multiplicativeToken));
     }
     const booleanMatch = strFromStart.match(/^(?:true|false)/);
     if (booleanMatch) {
