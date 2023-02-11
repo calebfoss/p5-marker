@@ -1,4 +1,4 @@
-const singleCharTokens = new Set("()[],:?");
+const singleCharTokens = new Set("(),:?");
 export const tokenKind = {
   number: "number",
   property: "property",
@@ -126,18 +126,17 @@ export const lex = (str) => {
       );
       return getTokens(end, tokens.concat(propertyToken));
     }
-    const stringMatch = strFromStart.match(/^'.*?'/);
+    const stringMatch = strFromStart.match(/^\[.*?(?<!\\)\]/);
     if (stringMatch) {
       const end = start + stringMatch[0].length;
       const stringToken = token(
         tokenKind.string,
         start,
         end,
-        stringMatch[0].slice(1, -1)
+        stringMatch[0].slice(1, -1).replace(/\\\]/g, "]")
       );
       return getTokens(end, tokens.concat(stringToken));
     }
-
     console.error(`Unexpected token: ${strFromStart}`);
   };
 

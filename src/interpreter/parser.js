@@ -152,6 +152,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
   const primary = (tokens) => {
     const [token, ...remainder] = tokens;
     switch (token.kind) {
+      case tokenKind.string:
+        return [() => token.value, remainder];
       case tokenKind.number:
         const numberStringVal = token.value;
         return [() => Number(numberStringVal), remainder];
