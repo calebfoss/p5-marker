@@ -1,4 +1,4 @@
-import { multiCharToken } from "./lexer.js";
+import { tokenKind } from "./lexer.js";
 
 const commaSeparateSections = (
   tokens,
@@ -152,13 +152,13 @@ export const parse = (element, attrName, fullListOfTokens) => {
   const primary = (tokens) => {
     const [token, ...remainder] = tokens;
     switch (token.kind) {
-      case multiCharToken.number:
+      case tokenKind.number:
         const numberStringVal = token.value;
         return [() => Number(numberStringVal), remainder];
-      case multiCharToken.boolean:
+      case tokenKind.boolean:
         const booleanValue = token.value === "true";
         return [() => booleanValue, remainder];
-      case multiCharToken.until:
+      case tokenKind.until:
         return [() => !parseTokens(remainder)(), []];
       case "(":
         return parentheses(remainder);
@@ -175,7 +175,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
     console.log("AFTER PRIMARY", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== multiCharToken.logical) return [left, afterLeft];
+    if (operator.kind !== tokenKind.logical) return [left, afterLeft];
     const right = parseTokens(rightTokens);
     if (operator.value === "and") return [() => left() && right(), []];
     return [() => left() || right(), []];
@@ -186,7 +186,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
     console.log("AFTER LOGICAL", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== multiCharToken.equality) return [left, afterLeft];
+    if (operator.kind !== tokenKind.equality) return [left, afterLeft];
     const right = parseTokens(rightTokens);
     if (operator.value === "is") return [() => Object.is(left(), right()), []];
     return [() => !Object.is(left(), right()), []];
@@ -197,7 +197,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
     console.log("AFTER EQUALITY", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== multiCharToken.comparison) return [left, afterLeft];
+    if (operator.kind !== tokenKind.comparison) return [left, afterLeft];
     const right = parseTokens(rightTokens);
     const getCompareFn = () => {
       switch (operator.value) {
@@ -235,7 +235,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
     console.log("AFTER MULT LEFT", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return left;
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== "+" && operator.kind !== "-") {
+    if (operator.kind !== tokenKind.additive) {
       console.error(
         `Parsed reaching additive expression with no tokens on the right`
       );
