@@ -155,6 +155,11 @@ export const parse = (element, attrName, fullListOfTokens) => {
       case multiCharToken.number:
         const numberStringVal = token.value;
         return [() => Number(numberStringVal), remainder];
+      case multiCharToken.boolean:
+        const booleanValue = token.value === "true";
+        return [() => booleanValue, remainder];
+      case multiCharToken.until:
+        return [() => !parseTokens(remainder)(), []];
       case "(":
         return parentheses(remainder);
       default:
@@ -171,9 +176,9 @@ export const parse = (element, attrName, fullListOfTokens) => {
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== multiCharToken.logical) return [left, afterLeft];
-    const [right, remainder] = logical(rightTokens);
-    if (operator.value === "and") return [() => left() && right(), remainder];
-    return [() => left() || right(), remainder];
+    const right = parseTokens(rightTokens);
+    if (operator.value === "and") return [() => left() && right(), []];
+    return [() => left() || right(), []];
   };
 
   const equality = (tokens) => {
@@ -182,10 +187,9 @@ export const parse = (element, attrName, fullListOfTokens) => {
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== multiCharToken.equality) return [left, afterLeft];
-    const [right, remainder] = equality(rightTokens);
-    if (operator.value === "is")
-      return [() => Object.is(left(), right()), remainder];
-    return [() => !Object.is(left(), right()), remainder];
+    const right = parseTokens(rightTokens);
+    if (operator.value === "is") return [() => Object.is(left(), right()), []];
+    return [() => !Object.is(left(), right()), []];
   };
 
   const comparison = (tokens) => {
@@ -194,20 +198,24 @@ export const parse = (element, attrName, fullListOfTokens) => {
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== multiCharToken.comparison) return [left, afterLeft];
-    const [right, remainder] = comparison(rightTokens);
+    const right = parseTokens(rightTokens);
     const getCompareFn = () => {
       switch (operator.value) {
-        case "less_than":
+        case "less than":
           return () => left() < right();
-        case "no_more_than":
+        case "no more than":
           return () => left() <= right();
-        case "at_least":
+        case "at least":
           return () => left() >= right();
-        case "greater_than":
+        case "greater than":
           return () => left() > right();
+        default:
+          console.error(
+            `On ${element.tagName}'s ${attrName}, comparison token was found with value '${operator.value}', but this value could not be matched with a function.`
+          );
       }
     };
-    return [getCompareFn(), remainder];
+    return [getCompareFn(), []];
   };
 
   const multiplicative = (tokens) => {
@@ -235,9 +243,11 @@ export const parse = (element, attrName, fullListOfTokens) => {
     }
     if (rightTokens.length > 1)
       console.error(
-        `Parser reached additive expression with remaining tokens: ${tokens
+        `Parser reached additive expression with remaining tokens: ${rightTokens
+          .slice(1)
           .map((t) => t.value)
-          .join(" ")}`
+          .join(" ")}`,
+        rightTokens.slice(1)
       );
     const right = additive(rightTokens);
     if (operator.kind === "+") return () => left() + right();
