@@ -1,8 +1,9 @@
-const singleCharTokens = new Set("()[]{},:+-/*%?");
-export const multiCharToken = {
+const singleCharTokens = new Set("()[]{},:/*%?");
+export const tokenKind = {
   number: "number",
   property: "property",
   boolean: "boolean",
+  additive: "additive",
   not: "not",
   comparison: "comparison",
   equality: "equality",
@@ -38,19 +39,20 @@ export const lex = (str) => {
     const numberMatch = strFromStart.match(/^-?\d+(?:\.\d+)?/);
     if (numberMatch) {
       const end = start + numberMatch[0].length;
-      const numberToken = token(
-        multiCharToken.number,
-        start,
-        end,
-        numberMatch[0]
-      );
+      const numberToken = token(tokenKind.number, start, end, numberMatch[0]);
       return getTokens(end, tokens.concat(numberToken));
+    }
+    const additiveMatch = strFromStart.match(/^[+-]/);
+    if (additiveMatch) {
+      const end = start + additiveMatch[0].length;
+      const addToken = token(tokenKind.additive, start, end, additiveMatch[0]);
+      return getTokens(end, tokens.concat(addToken));
     }
     const booleanMatch = strFromStart.match(/^(?:true|false)/);
     if (booleanMatch) {
       const end = start + booleanMatch[0].length;
       const booleanToken = token(
-        multiCharToken.boolean,
+        tokenKind.boolean,
         start,
         end,
         booleanMatch[0]
@@ -60,7 +62,7 @@ export const lex = (str) => {
     const notMatch = strFromStart.match(/^not/);
     if (notMatch) {
       const end = start + notMatch[0].length;
-      const notToken = token(multiCharToken.not, start, end, notMatch[0]);
+      const notToken = token(tokenKind.not, start, end, notMatch[0]);
       return getTokens(end, tokens.concat(notToken));
     }
     const comparisonMatch = strFromStart.match(
@@ -70,14 +72,14 @@ export const lex = (str) => {
       const end = start + comparisonMatch[0].length;
       //  Remove "is" at beginning and replace multiple spaces with single
       const val = comparisonMatch[0].replace(/is\s+/, "").replace(/\s+/g, " ");
-      const comparisonToken = token(multiCharToken.comparison, start, end, val);
+      const comparisonToken = token(tokenKind.comparison, start, end, val);
       return getTokens(end, tokens.concat(comparisonToken));
     }
     const equalityMatch = strFromStart.match(/^(?:is\s+not|is)/);
     if (equalityMatch) {
       const end = start + equalityMatch[0].length;
       const equalityToken = token(
-        multiCharToken.equality,
+        tokenKind.equality,
         start,
         end,
         equalityMatch[0]
@@ -88,7 +90,7 @@ export const lex = (str) => {
     if (logicalMatch) {
       const end = start + logicalMatch[0].length;
       const logicalToken = token(
-        multiCharToken.logical,
+        tokenKind.logical,
         start,
         end,
         logicalMatch[0]
@@ -98,14 +100,14 @@ export const lex = (str) => {
     const untilMatch = strFromStart.match(/^until/);
     if (untilMatch) {
       const end = start + untilMatch[0].length;
-      const untilToken = token(multiCharToken.until, start, end, untilMatch[0]);
+      const untilToken = token(tokenKind.until, start, end, untilMatch[0]);
       return getTokens(end, tokens.concat(untilToken));
     }
     const propertyMatch = strFromStart.match(/^[a-zA-Z]\w*(?:\.[a-zA-Z]\w*)*/);
     if (propertyMatch) {
       const end = start + propertyMatch[0].length;
       const propertyToken = token(
-        multiCharToken.property,
+        tokenKind.property,
         start,
         end,
         propertyMatch[0]
@@ -116,7 +118,7 @@ export const lex = (str) => {
     if (stringMatch) {
       const end = start + stringMatch[0].length;
       const stringToken = token(
-        multiCharToken.string,
+        tokenKind.string,
         start,
         end,
         stringMatch[0].slice(1, -1)

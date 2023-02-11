@@ -7,6 +7,6 @@ export const interpret = (element, attrName, attrValue) => {
   return getValue;
 };
 
-const test = "prop: 123, ternary: 1 less_than 2 ? 3 : 4";
+const test = "1 is less than 1 + 1 - 2";
 const testInterpretation = interpret({ prop: "value" }, "test", test);
 console.log(testInterpretation());
