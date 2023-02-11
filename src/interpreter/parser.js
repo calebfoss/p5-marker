@@ -76,7 +76,7 @@ const hasColonOutsideTernaryAndParentheses = (tokens) =>
   });
 
 export const parse = (element, attrName, fullListOfTokens) => {
-  const parseObjectLiteral = (tokens) => {
+  const objectLiteral = (tokens) => {
     const sections = commaSeparateSections(tokens);
     const getKeyValuePairs = sections.map((sectionTokens, i) => {
       const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
@@ -111,7 +111,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
     return () => Object.fromEntries(getKeyValuePairs.map((fn) => fn()));
   };
 
-  const parseTernary = (tokens) => {
+  const ternary = (tokens) => {
     const questionIndex = tokens.findIndex((token) => token.kind === "?");
     const left = parseTokens(tokens.slice(0, questionIndex));
     const colonIndex = tokens.findIndex((token) => token.kind === ":");
@@ -120,7 +120,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
     return () => (left() ? middle() : right());
   };
 
-  const parsePrimary = (tokens) => {
+  const primary = (tokens) => {
     const [token, ...remainder] = tokens;
     switch (token.kind) {
       case multiCharToken.number:
@@ -160,36 +160,36 @@ export const parse = (element, attrName, fullListOfTokens) => {
     }
   };
 
-  const parseLogical = (tokens) => {
-    const [left, afterLeft] = parsePrimary(tokens);
+  const logical = (tokens) => {
+    const [left, afterLeft] = primary(tokens);
     console.log("AFTER PRIMARY", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== multiCharToken.logical) return [left, afterLeft];
-    const [right, remainder] = parseLogical(rightTokens);
+    const [right, remainder] = logical(rightTokens);
     if (operator.value === "and") return [() => left() && right(), remainder];
     return [() => left() || right(), remainder];
   };
 
-  const parseEquality = (tokens) => {
-    const [left, afterLeft] = parseLogical(tokens);
+  const equality = (tokens) => {
+    const [left, afterLeft] = logical(tokens);
     console.log("AFTER LOGICAL", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== multiCharToken.equality) return [left, afterLeft];
-    const [right, remainder] = parseEquality(rightTokens);
+    const [right, remainder] = equality(rightTokens);
     if (operator.value === "is")
       return [() => Object.is(left(), right()), remainder];
     return [() => !Object.is(left(), right()), remainder];
   };
 
-  const parseComparison = (tokens) => {
-    const [left, afterLeft] = parseEquality(tokens);
+  const comparison = (tokens) => {
+    const [left, afterLeft] = equality(tokens);
     console.log("AFTER EQUALITY", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== multiCharToken.comparison) return [left, afterLeft];
-    const [right, remainder] = parseComparison(rightTokens);
+    const [right, remainder] = comparison(rightTokens);
     const getCompareFn = () => {
       switch (operator.value) {
         case "less_than":
@@ -205,20 +205,20 @@ export const parse = (element, attrName, fullListOfTokens) => {
     return [getCompareFn(), remainder];
   };
 
-  const parseMultiplicative = (tokens) => {
-    const [left, afterLeft] = parseComparison(tokens);
+  const multiplicative = (tokens) => {
+    const [left, afterLeft] = comparison(tokens);
     console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== "*" && operator.kind !== "/")
       return [left, afterLeft];
-    const [right, remainder] = parseMultiplicative(rightTokens);
+    const [right, remainder] = multiplicative(rightTokens);
     if (operator.kind === "*") return [() => left() * right(), remainder];
     return [() => left() / right(), remainder];
   };
 
-  const parseAdditive = (tokens) => {
-    const [left, afterLeft] = parseMultiplicative(tokens);
+  const additive = (tokens) => {
+    const [left, afterLeft] = multiplicative(tokens);
     console.log("AFTER MULT LEFT", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return left;
     const [operator, ...rightTokens] = afterLeft;
@@ -234,7 +234,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
           .map((t) => t.value)
           .join(" ")}`
       );
-    const right = parseAdditive(rightTokens);
+    const right = additive(rightTokens);
     if (operator.kind === "+") return () => left() + right();
     return () => left() - right();
   };
@@ -242,7 +242,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
   const parseTokens = (tokens) => {
     console.log(`Parsing ${tokens.map((t) => t.value).join(" ")}`);
     if (hasColonOutsideTernaryAndParentheses(tokens))
-      return parseObjectLiteral(tokens);
+      return objectLiteral(tokens);
     /*
     If this is a comma-separated list, return a function that returns
     the values of each of the sections in an array.
@@ -250,9 +250,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
     if (firstIndexOutsideParentheses(tokens, ",") > -1)
       return () =>
         commaSeparateSections(tokens).map((section) => parseTokens(section)());
-    if (firstIndexOutsideParentheses(tokens, "?") > -1)
-      return parseTernary(tokens);
-    return parseAdditive(tokens);
+    if (firstIndexOutsideParentheses(tokens, "?") > -1) return ternary(tokens);
+    return additive(tokens);
   };
   return parseTokens(fullListOfTokens);
 };
