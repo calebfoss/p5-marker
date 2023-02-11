@@ -64,19 +64,16 @@ export const lex = (str) => {
       return getTokens(end, tokens.concat(notToken));
     }
     const comparisonMatch = strFromStart.match(
-      /^(?:less_than|greater_than|no_more_than|at_least)/
+      /^(?:(?:is\s)?\s*less\s+than|(?:is\s)?\s*greater\s+than|(?:is\s)?\s*no\s+more\s+than|(?:is\s)?\s*at\s+least)/
     );
     if (comparisonMatch) {
       const end = start + comparisonMatch[0].length;
-      const comparisonToken = token(
-        multiCharToken.comparison,
-        start,
-        end,
-        comparisonMatch[0]
-      );
+      //  Remove "is" at beginning and replace multiple spaces with single
+      const val = comparisonMatch[0].replace(/is\s+/, "").replace(/\s+/g, " ");
+      const comparisonToken = token(multiCharToken.comparison, start, end, val);
       return getTokens(end, tokens.concat(comparisonToken));
     }
-    const equalityMatch = strFromStart.match(/^(?:is|is_not)/);
+    const equalityMatch = strFromStart.match(/^(?:is\s+not|is)/);
     if (equalityMatch) {
       const end = start + equalityMatch[0].length;
       const equalityToken = token(
