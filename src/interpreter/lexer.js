@@ -1,4 +1,4 @@
-const singleCharTokens = new Set("()[]{},:?");
+const singleCharTokens = new Set("()[],:?");
 export const tokenKind = {
   number: "number",
   property: "property",
