@@ -120,6 +120,35 @@ export const parse = (element, attrName, fullListOfTokens) => {
     return () => (left() ? middle() : right());
   };
 
+  const parentheses = (tokensAfterLeftParenthesis) => {
+    const getRightParenthesisIndex = (tks, index = 0, depth = 0) => {
+      const [t, ...r] = tks;
+      if (t.kind === "(")
+        return getRightParenthesisIndex(r, index + 1, depth + 1);
+      if (t.kind !== ")") return getRightParenthesisIndex(r, index + 1, depth);
+      if (depth === 0) return index;
+      return getRightParenthesisIndex(r, index + 1, depth - 1);
+    };
+    const rightParenthesisIndex = getRightParenthesisIndex(
+      tokensAfterLeftParenthesis
+    );
+    if (rightParenthesisIndex < 0) {
+      console.error(
+        "Found a left parenthesis ( without a matching right parenthesis )"
+      );
+      return [() => {}, tokensAfterLeftParenthesis];
+    }
+    const tokensBetweenParentheses = tokensAfterLeftParenthesis.slice(
+      0,
+      rightParenthesisIndex
+    );
+    const getInnerValue = parseTokens(tokensBetweenParentheses);
+    const tokensAfterParentheses = tokensAfterLeftParenthesis.slice(
+      rightParenthesisIndex + 1
+    );
+    return [getInnerValue, tokensAfterParentheses];
+  };
+
   const primary = (tokens) => {
     const [token, ...remainder] = tokens;
     switch (token.kind) {
@@ -127,31 +156,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
         const numberStringVal = token.value;
         return [() => Number(numberStringVal), remainder];
       case "(":
-        const getRightParenthesisIndex = (tks, index = 0, depth = 0) => {
-          const [t, ...r] = tks;
-          if (t.kind === "(")
-            return getRightParenthesisIndex(r, index + 1, depth + 1);
-          if (t.kind !== ")")
-            return getRightParenthesisIndex(r, index + 1, depth);
-          if (depth === 0) return index;
-          return getRightParenthesisIndex(r, index + 1, depth - 1);
-        };
-        const rightParenthesisIndex = getRightParenthesisIndex(remainder);
-        if (rightParenthesisIndex < 0) {
-          console.error(
-            "Found a left parenthesis ( without a matching right parenthesis )"
-          );
-          return [() => {}, remainder];
-        }
-        const tokensBetweenParentheses = remainder.slice(
-          0,
-          rightParenthesisIndex
-        );
-        const getInnerValue = parseTokens(tokensBetweenParentheses);
-        const tokensAfterParentheses = remainder.slice(
-          rightParenthesisIndex + 1
-        );
-        return [getInnerValue, tokensAfterParentheses];
+        return parentheses(remainder);
       default:
         console.error(
           `Parser failed on ${tokens.map((t) => t.value).join(" ")}`
