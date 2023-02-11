@@ -149,6 +149,30 @@ export const parse = (element, attrName, fullListOfTokens) => {
     return [getInnerValue, tokensAfterParentheses];
   };
 
+  const property = (token) => {
+    const getRef = (obj, str) => {
+      const [prop, ...remainder] = Array.isArray(str) ? str : str.split(".");
+      if (prop in obj === false) {
+        console.error(
+          `On ${element.tagName}'s ${attrName}, ${prop} could not be found. Check that this property is passed to this element's parent`
+        );
+        return () => undefined;
+      }
+      if (remainder.length) return getRef(obj[prop], remainder);
+      return () => obj[prop];
+    };
+    if (
+      element instanceof HTMLCanvasElement ||
+      attrName === "repeat" ||
+      attrName === "change" ||
+      token.value === "above_sibling" ||
+      token.value === "parent" ||
+      token.value === "above_siblings_off"
+    )
+      return getRef(element, token.value);
+    return getRef(element.parent, token.value);
+  };
+
   const primary = (tokens) => {
     const [token, ...remainder] = tokens;
     switch (token.kind) {
@@ -162,6 +186,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
         return [() => booleanValue, remainder];
       case tokenKind.until:
         return [() => !parseTokens(remainder)(), []];
+      case tokenKind.property:
+        return [property(token), remainder];
       case "(":
         return parentheses(remainder);
       default:
