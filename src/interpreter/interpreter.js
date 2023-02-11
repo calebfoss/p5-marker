@@ -7,6 +7,6 @@ export const interpret = (element, attrName, attrValue) => {
   return getValue;
 };
 
-const test = "1 is less than 1 + 1 - 2";
+const test = "10 % 5";
 const testInterpretation = interpret({ prop: "value" }, "test", test);
 console.log(testInterpretation());

@@ -223,10 +223,9 @@ export const parse = (element, attrName, fullListOfTokens) => {
     console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== "*" && operator.kind !== "/")
-      return [left, afterLeft];
+    if (operator.kind !== tokenKind.multiplicative) return [left, afterLeft];
     const [right, remainder] = multiplicative(rightTokens);
-    if (operator.kind === "*") return [() => left() * right(), remainder];
+    if (operator.value === "*") return [() => left() * right(), remainder];
     return [() => left() / right(), remainder];
   };
 
@@ -250,7 +249,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
         rightTokens.slice(1)
       );
     const right = additive(rightTokens);
-    if (operator.kind === "+") return () => left() + right();
+    if (operator.value === "+") return () => left() + right();
     return () => left() - right();
   };
 
