@@ -2,6 +2,7 @@ const singleCharTokens = new Set("(),:?");
 export const tokenKind = {
   number: "number",
   property: "property",
+  member: "member",
   boolean: "boolean",
   additive: "additive",
   multiplicative: "multiplicative",
@@ -115,7 +116,18 @@ export const lex = (str) => {
       const untilToken = token(tokenKind.until, start, end, untilMatch[0]);
       return getTokens(end, tokens.concat(untilToken));
     }
-    const propertyMatch = strFromStart.match(/^[a-zA-Z]\w*(?:\.[a-zA-Z]\w*)*/);
+    const memberMatch = strFromStart.match(/^\.[a-zA-Z]\w*/);
+    if (memberMatch) {
+      const end = start + memberMatch[0].length;
+      const memberToken = token(
+        tokenKind.member,
+        start,
+        end,
+        memberMatch[0].slice(1)
+      );
+      return getTokens(end, tokens.concat(memberToken));
+    }
+    const propertyMatch = strFromStart.match(/^[a-zA-Z]\w*/);
     if (propertyMatch) {
       const end = start + propertyMatch[0].length;
       const propertyToken = token(
