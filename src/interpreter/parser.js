@@ -62,18 +62,26 @@ const firstIndexOutsideParentheses = (tokens, kind) =>
     tokenOfKindOutsideParentheses(token, kind, tokens.slice(0, i))
   );
 
-const hasColonOutsideTernaryAndParentheses = (tokens) =>
-  tokens.some((token, i) => {
-    const prevTokens = tokens.slice(0, i);
-    if (!tokenOfKindOutsideParentheses(token, ":", prevTokens)) return false;
-    const prevCommaIndex = tokens.findLastIndex((t) =>
-      tokenOfKindOutsideParentheses(t, ",", prevTokens)
-    );
-    const questionBetweenCommaAndColon = tokens
-      .slice(Math.max(prevCommaIndex, 0), i)
-      .find((t) => t.kind === "?");
-    return !questionBetweenCommaAndColon;
-  });
+const hasColonOutsideTernaryAndParentheses = (tokens) => {
+  const sections = commaSeparateSections(tokens);
+  for (const section of sections) {
+    const colonIndex = section.findIndex((token) => token.kind === ":");
+    const questionIndex = section.findIndex((token) => token.kind === "?");
+    if (colonIndex > -1 && colonIndex < questionIndex) return true;
+  }
+  return false;
+};
+// tokens.some((token, i) => {
+//   const prevTokens = tokens.slice(0, i);
+//   if (!tokenOfKindOutsideParentheses(token, ":", prevTokens)) return false;
+//   const prevCommaIndex = tokens.findLastIndex((t) =>
+//     tokenOfKindOutsideParentheses(t, ",", prevTokens)
+//   );
+//   const questionBetweenCommaAndColon = tokens
+//     .slice(Math.max(prevCommaIndex, 0), i)
+//     .find((t) => t.kind === "?");
+//   return !questionBetweenCommaAndColon;
+// });
 
 export const parse = (element, attrName, fullListOfTokens) => {
   const objectLiteral = (tokens) => {
@@ -150,27 +158,33 @@ export const parse = (element, attrName, fullListOfTokens) => {
   };
 
   const property = (token) => {
-    const getRef = (obj, str) => {
-      const [prop, ...remainder] = Array.isArray(str) ? str : str.split(".");
+    const getRef = (obj, props) => {
+      const [prop, ...remainder] = props;
       if (prop in obj === false) {
+        if ("pInst" in element && prop in element.pInst)
+          return getRef(element.pInst, [prop, ...remainder]);
         console.error(
           `On ${element.tagName}'s ${attrName}, ${prop} could not be found. Check that this property is passed to this element's parent`
         );
         return () => undefined;
       }
       if (remainder.length) return getRef(obj[prop], remainder);
-      return () => obj[prop];
+      return () =>
+        typeof obj[prop] === "function" ? obj[prop].bind(obj) : obj[prop];
     };
+    const splitTokenValue = token.value.split(".");
+    const [firstProp] = splitTokenValue;
     if (
       element instanceof HTMLCanvasElement ||
       attrName === "repeat" ||
       attrName === "change" ||
-      token.value === "above_sibling" ||
-      token.value === "parent" ||
-      token.value === "above_siblings_off"
+      firstProp === "above_sibling" ||
+      firstProp === "parent" ||
+      firstProp === "canvas" ||
+      firstProp === "above_siblings_off"
     )
-      return getRef(element, token.value);
-    return getRef(element.parent, token.value);
+      return getRef(element, splitTokenValue);
+    return getRef(element.parentElement, splitTokenValue);
   };
 
   const primary = (tokens) => {
@@ -201,6 +215,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
   const call = (tokens) => {
     const [firstToken] = tokens;
     const [left, afterLeft] = primary(tokens);
+    console.log("AFTER PRIMARY", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     if (firstToken.kind !== tokenKind.property && firstToken.kind !== "(")
       return [left, afterLeft];
@@ -221,35 +236,39 @@ export const parse = (element, attrName, fullListOfTokens) => {
     ];
   };
 
-  const logical = (tokens) => {
+  const multiplicative = (tokens) => {
     const [left, afterLeft] = call(tokens);
-    console.log("AFTER CALL", afterLeft.map((t) => t.value).join(" "));
+    console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== tokenKind.logical) return [left, afterLeft];
-    const right = parseTokens(rightTokens);
-    if (operator.value === "and") return [() => left() && right(), []];
-    return [() => left() || right(), []];
+    if (operator.kind !== tokenKind.multiplicative) return [left, afterLeft];
+    const [right, remainder] = call(rightTokens);
+    if (operator.value === "*") return [() => left() * right(), remainder];
+    return [() => left() / right(), remainder];
   };
 
-  const equality = (tokens) => {
-    const [left, afterLeft] = logical(tokens);
-    console.log("AFTER LOGICAL", afterLeft.map((t) => t.value).join(" "));
+  const additive = (tokens) => {
+    const [firstToken] = tokens;
+    const [left, afterLeft] =
+      firstToken.kind === tokenKind.additive && firstToken.value === "-"
+        ? [() => 0, tokens]
+        : multiplicative(tokens);
+    console.log("AFTER MULT LEFT", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== tokenKind.equality) return [left, afterLeft];
-    const right = parseTokens(rightTokens);
-    if (operator.value === "is") return [() => Object.is(left(), right()), []];
-    return [() => !Object.is(left(), right()), []];
+    if (operator.kind !== tokenKind.additive) return [left, afterLeft];
+    const [right, remainder] = multiplicative(rightTokens);
+    if (operator.value === "+") return [() => left() + right(), remainder];
+    return [() => left() - right(), remainder];
   };
 
   const comparison = (tokens) => {
-    const [left, afterLeft] = equality(tokens);
+    const [left, afterLeft] = additive(tokens);
     console.log("AFTER EQUALITY", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.comparison) return [left, afterLeft];
-    const right = parseTokens(rightTokens);
+    const [right, remainder] = additive(rightTokens);
     const getCompareFn = () => {
       switch (operator.value) {
         case "less than":
@@ -266,46 +285,38 @@ export const parse = (element, attrName, fullListOfTokens) => {
           );
       }
     };
-    return [getCompareFn(), []];
+    return [getCompareFn(), remainder];
   };
 
-  const multiplicative = (tokens) => {
+  const equality = (tokens) => {
     const [left, afterLeft] = comparison(tokens);
-    console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
+    console.log("AFTER LOGICAL", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== tokenKind.multiplicative) return [left, afterLeft];
-    const [right, remainder] = multiplicative(rightTokens);
-    if (operator.value === "*") return [() => left() * right(), remainder];
-    return [() => left() / right(), remainder];
+    if (operator.kind !== tokenKind.equality) return [left, afterLeft];
+    const [right, remainder] = comparison(rightTokens);
+    if (operator.value === "is")
+      return [() => Object.is(left(), right()), remainder];
+    return [() => !Object.is(left(), right()), remainder];
   };
 
-  const additive = (tokens) => {
-    const [left, afterLeft] = multiplicative(tokens);
-    console.log("AFTER MULT LEFT", afterLeft.map((t) => t.value).join(" "));
-    if (afterLeft.length === 0) return left;
+  const logical = (tokens) => {
+    const [left, afterLeft] = equality(tokens);
+    console.log("AFTER CALL", afterLeft.map((t) => t.value).join(" "));
+    if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
-    if (operator.kind !== tokenKind.additive) {
-      console.error(
-        `Parsed reaching additive expression with no tokens on the right`
-      );
-      return left;
-    }
-    if (rightTokens.length > 1)
-      console.error(
-        `Parser reached additive expression with remaining tokens: ${rightTokens
-          .slice(1)
-          .map((t) => t.value)
-          .join(" ")}`,
-        rightTokens.slice(1)
-      );
-    const right = additive(rightTokens);
-    if (operator.value === "+") return () => left() + right();
-    return () => left() - right();
+    if (operator.kind !== tokenKind.logical) return [left, afterLeft];
+    const [right, remainder] = equality(rightTokens);
+    if (operator.value === "and") return [() => left() && right(), remainder];
+    return [() => left() || right(), remainder];
   };
 
   const parseTokens = (tokens) => {
-    console.log(`Parsing ${tokens.map((t) => t.value).join(" ")}`);
+    console.log(
+      `On ${element.tagName}'s ${attrName}, parsing ${tokens
+        .map((t) => t.value)
+        .join(" ")}`
+    );
     if (tokens.length === 0) return () => {};
     if (hasColonOutsideTernaryAndParentheses(tokens))
       return objectLiteral(tokens);
@@ -317,7 +328,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
       return () =>
         commaSeparateSections(tokens).map((section) => parseTokens(section)());
     if (firstIndexOutsideParentheses(tokens, "?") > -1) return ternary(tokens);
-    return additive(tokens);
+    const [expressionFunction, remainder] = logical(tokens);
+    return expressionFunction;
   };
   return parseTokens(fullListOfTokens);
 };
