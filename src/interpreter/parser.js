@@ -198,9 +198,32 @@ export const parse = (element, attrName, fullListOfTokens) => {
     }
   };
 
-  const logical = (tokens) => {
+  const call = (tokens) => {
+    const [firstToken] = tokens;
     const [left, afterLeft] = primary(tokens);
-    console.log("AFTER PRIMARY", afterLeft.map((t) => t.value).join(" "));
+    if (afterLeft.length === 0) return [left, afterLeft];
+    if (firstToken.kind !== tokenKind.property && firstToken.kind !== "(")
+      return [left, afterLeft];
+    const [nextToken, ...afterNextToken] = afterLeft;
+    if (nextToken.kind !== "(") return [left, afterLeft];
+    const [getInnerParentheses, remainder] = parentheses(afterNextToken);
+    return [
+      () => {
+        const property = left();
+        const innerParentheses = getInnerParentheses();
+        const args = Array.isArray(innerParentheses)
+          ? innerParentheses
+          : [innerParentheses];
+        if (typeof property === "function") return property(...args);
+        return args.reduce((p, arg) => p[arg], property);
+      },
+      remainder,
+    ];
+  };
+
+  const logical = (tokens) => {
+    const [left, afterLeft] = call(tokens);
+    console.log("AFTER CALL", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.logical) return [left, afterLeft];
@@ -283,6 +306,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
 
   const parseTokens = (tokens) => {
     console.log(`Parsing ${tokens.map((t) => t.value).join(" ")}`);
+    if (tokens.length === 0) return () => {};
     if (hasColonOutsideTernaryAndParentheses(tokens))
       return objectLiteral(tokens);
     /*
