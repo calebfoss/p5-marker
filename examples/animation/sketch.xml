@@ -6,9 +6,9 @@
     <square x="width / 2" y="height / 2" size="width / 5"
         speed_x="3" speed_y="2"
     >
-        <_ on="x at_least canvas.width - size or x no_more_than 0"
+        <_ on="x at least canvas.width - size or x no more than 0"
             parent.speed_x="-speed_x" />
-        <_ on="y at_least canvas.height - size or y no_more_than 0"
+        <_ on="y at least canvas.height - size or y no more than 0"
             parent.speed_y="-speed_y" />
         <_
             parent.x="x + speed_x"
