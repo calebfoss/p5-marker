@@ -1,5 +1,7 @@
+import { interpret } from "../interpreter/interpreter";
+
 export const defineCustomElement = (el) => {
-  const name = el.getAttribute("name");
+  const name = interpret(el, "name", el.getAttribute("name"))();
   //  Trick custom-elements-manifest into ignoring this
   customElements["define"](
     `p-${name}`,
