@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <_>
-    <_ name="ball" ball="this_element">
-        <_ on="first_frame"
-            ball.x="mouse_pos_x" ball.y="mouse_pos_y"
-            ball.speed_x="random(-2, 2)"
-            ball.speed_y="random(-2, 2)"
-            ball.fill_hue="random(360)"></_>
-        <circle
-            color_mode="HSB"
-            fill="fill_hue, 100, 100"
-            stroke="NONE"
-        >
-            <circle on="mouse_over" stroke_weight="5" stroke="0"></circle>
-        </circle>
-        <_ ball.x="ball.x + ball.speed_x" ball.y="ball.y + ball.speed_y"></_>
-        <_ on="ball.x no_more_than 0 OR ball.x at_least width" ball.speed_x="-ball.speed_x"></_>
-        <_ on="ball.y no_more_than 0 OR ball.y at_least height" ball.speed_y="-ball.speed_y"></_>
-    </_>
-
+    <circle name="[ball]" color_mode="HSB" stroke="NONE" fill="NONE" speed_x="0" speed_y="0">
+        <circle on="mouse_over" stroke_weight="5" stroke="0" />
+        <_ ball="parent">
+            <_ on="first_frame"
+                ball.x="mouse_pos_x" ball.y="mouse_pos_y"
+                ball.speed_x="random(-2, 2)"
+                ball.speed_y="random(-2, 2)"
+                ball.fill="random(360), 100, 100" />
+            <_ ball.x="ball.x + ball.speed_x" ball.y="ball.y + ball.speed_y" />
+            <_ on="ball.x no more than 0 or ball.x at least width" ball.speed_x="-ball.speed_x" />
+            <_ on="ball.y no more than 0 or ball.y at least height" ball.speed_y="-ball.speed_y" />
+        </_>
+    </circle>
     <canvas width="window.width" height="window.height" background="255">
-        <_ on="mouse_down" ball="create_canvas_element('p-ball')"></_>
+        <_ on="mouse_down" ball="create_canvas_element([p-ball])"></_>
     </canvas>
 </_>

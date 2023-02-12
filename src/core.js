@@ -10,7 +10,7 @@ import { addCollide } from "./methods/collide_methods";
 import { defineCustomElement } from "./elements/beyond_canvas_elements";
 import { addMathProps } from "./properties/math_props";
 import { addMathMethods } from "./methods/math_methods";
-import { interpret } from "./interpreter";
+import { interpret } from "./interpreter/interpreter";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -601,12 +601,7 @@ export const addP5PropsAndMethods = (baseClass) =>
         return getAssignPropRef(afterDot, obj[beforeDot]);
       };
       const [assignObj, assignPropName] = getAssignPropRef(attr.name);
-      const interpretation = interpret(
-        this,
-        assignObj,
-        assignPropName,
-        attr.value
-      );
+      const interpretation = interpret(this, attr.name, attr.value);
       if (typeof interpretation !== "function")
         console.log(
           `INTERPRETATION FAILED for ${this.tagName}'s ${attr.name} with value ${attr.value}`,

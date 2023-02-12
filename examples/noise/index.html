@@ -8,12 +8,13 @@
   </head>
   <body>
     <canvas width="100" height="100" is="p-canvas" background="220">
-      <p-_
-        pix="canvas.pixels"
-        noise_seed="frame_count"
-        pix_holder="this_element"
-      >
-        <p-_ i="0" repeat="i less_than pix.length" change="i: i + 4">
+      <p-_ pix="canvas.pixels" noise_seed="frame_count">
+        <p-_
+          i="0"
+          repeat="i less than pix.length"
+          change="i: i + 4"
+          pix_holder="parent"
+        >
           <p-_ x="(i / 4) % width" y="floor(i / (width * 4))">
             <p-_ n="noise(x * 0.01, y * 0.01) * 255">
               <p-_

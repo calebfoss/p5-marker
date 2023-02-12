@@ -16,6 +16,6 @@
                 specular_material="150"></sphere>
         </point-light>
         <_ on="mouse_down"
-            parent.set_red_specular_color="!parent.set_red_specular_color" />
+            parent.set_red_specular_color="not parent.set_red_specular_color" />
     </_>
 </canvas-3d>
