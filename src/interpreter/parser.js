@@ -147,53 +147,39 @@ export const parse = (element, attrName, fullListOfTokens) => {
     return [getInnerValue, tokensAfterParentheses];
   };
 
-  const call = (obj, propName, tokens) => {
-    const [getInnerParentheses, remainder] = parentheses(tokens.slice(1));
-    return [
-      () => {
-        const innerParentheses = getInnerParentheses();
-        const args = Array.isArray(innerParentheses)
-          ? innerParentheses
-          : [innerParentheses];
-        const isFunction = typeof obj[propName] === "function";
-        if (isFunction) return obj[propName](...args);
-        return args.reduce((p, arg) => p[arg], obj[propName]);
-      },
-      remainder,
-    ];
-  };
-
   const property = (propertyToken, remainingTokens) => {
-    const getRef = (obj, props) => {
-      const [prop, ...remainingProps] = props;
-      if (prop in obj === false) {
-        if ("pInst" in element && prop in element.pInst)
-          return getRef(element.pInst, [prop, ...remainingProps]);
-        console.error(
-          `On ${element.tagName}'s ${attrName}, ${prop} could not be found. Check that this property is passed to this element's parent`
-        );
-        return () => undefined;
-      }
-      if (remainingProps.length) return getRef(obj[prop], remainingProps);
-      return [obj, prop];
-    };
-    const splitTokenValue = propertyToken.value.split(".");
-    const [firstProp] = splitTokenValue;
-    const baseObj =
+    const propName = propertyToken.value;
+    const obj =
       element instanceof HTMLCanvasElement ||
       attrName === "repeat" ||
       attrName === "change" ||
-      firstProp === "above_sibling" ||
-      firstProp === "parent" ||
-      firstProp === "canvas" ||
-      firstProp === "above_siblings_off"
+      propName === "above_sibling" ||
+      propName === "parent" ||
+      propName === "canvas" ||
+      propName === "above_siblings_off"
         ? element
         : element.parentElement;
-    const [obj, propName] = getRef(baseObj, splitTokenValue);
-    const [nextToken] = remainingTokens;
-    if (!nextToken || nextToken.kind !== "(")
-      return [() => obj[propName], remainingTokens];
-    return call(obj, propName, remainingTokens);
+    if (propName in obj === false) {
+      if (propName in element.pInst) {
+        return [
+          () =>
+            typeof element.pInst[propName] === "function"
+              ? element.pInst[propName].bind(element.pInst)
+              : element.pInst[propName],
+          remainingTokens,
+        ];
+      }
+      console.error(
+        `On ${element.tagName}'s ${attrName}, couldn't find ${propName}`
+      );
+    }
+    return [
+      () =>
+        typeof obj[propName] === "function"
+          ? obj[propName].bind(obj)
+          : obj[propName],
+      remainingTokens,
+    ];
   };
 
   const primary = (tokens) => {
@@ -221,13 +207,50 @@ export const parse = (element, attrName, fullListOfTokens) => {
     }
   };
 
-  const multiplicative = (tokens) => {
+  const member = (tokens) => {
     const [left, afterLeft] = primary(tokens);
+    if (afterLeft.length === 0) return [left, afterLeft];
+    const [nextToken, ...afterNextToken] = afterLeft;
+    if (nextToken.kind !== tokenKind.member) return [left, afterLeft];
+    const memberName = nextToken.value;
+    return [() => left()[memberName], afterNextToken];
+  };
+
+  const call = (tokens) => {
+    const [left, afterLeft] = member(tokens);
+    if (afterLeft.length === 0) return [left, afterLeft];
+    const [nextToken, ...afterNextToken] = afterLeft;
+    if (nextToken.kind !== "(") return [left, afterLeft];
+    const [getInnerParentheses, tokensAfterParentheses] =
+      parentheses(afterNextToken);
+    console.log(left());
+    return [
+      () => {
+        const isFunction = typeof left() === "function";
+        const innerParentheses = getInnerParentheses();
+        const args = Array.isArray(innerParentheses)
+          ? innerParentheses
+          : [innerParentheses];
+        if (isFunction) return left()(...args);
+        return args.reduce((p, arg) => p[arg], left());
+      },
+      tokensAfterParentheses,
+    ];
+  };
+
+  const not = (tokens) => {
+    if (tokens[0].kind !== tokenKind.not) return call(tokens);
+    const [right, remainder] = call(tokens.slice(1));
+    return [() => !right(), remainder];
+  };
+
+  const multiplicative = (tokens) => {
+    const [left, afterLeft] = not(tokens);
     console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.multiplicative) return [left, afterLeft];
-    const [right, remainder] = primary(rightTokens);
+    const [right, remainder] = not(rightTokens);
     if (operator.value === "*") return [() => left() * right(), remainder];
     return [() => left() / right(), remainder];
   };
