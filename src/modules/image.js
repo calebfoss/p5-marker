@@ -1,6 +1,7 @@
 import { defineRendererGetterSetters } from "../utils/p5Modifiers";
 import { RenderedElement } from "../core";
 import { addWidthHeight, addXY } from "../properties/shape_props";
+import { constants } from "../properties/constants";
 
 /**
  * Draw an image to the canvas.
@@ -71,7 +72,7 @@ class Image extends addXY(addWidthHeight(RenderedElement)) {
     return this.pInst.color(this.pInst._renderer._tint);
   }
   set tint(val) {
-    if (val === this.pInst.NONE) this.pInst.noTint();
+    if (val === constants.NONE) this.pInst.noTint();
     else this.pInst.tint(...arguments);
   }
 }
