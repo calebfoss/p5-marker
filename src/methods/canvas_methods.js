@@ -8,38 +8,6 @@ export const addCanvasMethods = (baseClass) =>
     runCode() {
       const canvas = this;
       const sketch = (pInst) => {
-        canvas.defaults = {
-          x: 0,
-          x1: 0,
-          x2: 0,
-          x3: 100,
-          x4: 100,
-          cx: 0,
-          y: 0,
-          y1: 0,
-          y2: 100,
-          y3: 100,
-          y4: 0,
-          cy: 0,
-          z: 0,
-          w: 100,
-          h: 100,
-          d: 100,
-          size: 100,
-          start_angle: 0,
-          stop_angle: pInst.PI,
-          v1: 255,
-          v2: 255,
-          v3: 255,
-          rx: 1,
-          ry: 1,
-          rz: -1,
-          img: pInst.createImage(100, 100),
-          on: true,
-          repeat: false,
-          change: {},
-        };
-
         pInst.preload = () => pInst.loadAssets();
 
         pInst.setup = function () {
@@ -53,7 +21,7 @@ export const addCanvasMethods = (baseClass) =>
         };
         pInst.draw = function () {
           if (canvas.orbit_control) canvas.pInst.orbitControl();
-          canvas.draw(canvas.defaults);
+          canvas.draw();
         };
       };
       new p5(sketch);
