@@ -1,3 +1,5 @@
+import { constants } from "./constants";
+
 export const addCanvasProperties = (baseClass) =>
   class extends baseClass {
     #background;
@@ -17,7 +19,8 @@ export const addCanvasProperties = (baseClass) =>
     }
     set background(c) {
       if (c instanceof p5.Color || c instanceof p5.Image) this.#background = c;
-      this.#background = this.pInst.color(c);
+      else if (c === constants.NONE) this.#background = this.pInst.color(0, 0);
+      else this.#background = this.pInst.color(c);
     }
     /**
      * Sets the cursor when hovering over the canvas.
