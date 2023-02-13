@@ -2,7 +2,6 @@ import { pascalToKebab, kebabToCamel } from "./utils/caseConvert";
 import { AttrParseUtil } from "./utils/attrParse";
 import { wrapMethod, defineProperties } from "./utils/p5Modifiers";
 import { addWebGLMethods } from "./methods/3d_methods";
-import { addColorConstants } from "./properties/color_props";
 import { addColorMethods } from "./methods/color_methods";
 import { addStorage } from "./properties/data_props";
 import { addDataMethods } from "./methods/data_methods";
@@ -95,12 +94,10 @@ const attributePriorities = [
 ];
 export const addP5PropsAndMethods = (baseClass) =>
   class P5Extension extends addColorMethods(
-    addColorConstants(
-      addWebGLMethods(
-        addEventProps(
-          addCollide(
-            addMathMethods(addMathProps(addStorage(addDataMethods(baseClass))))
-          )
+    addWebGLMethods(
+      addEventProps(
+        addCollide(
+          addMathMethods(addMathProps(addStorage(addDataMethods(baseClass))))
         )
       )
     )

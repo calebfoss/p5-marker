@@ -1,9 +1,4 @@
-export const addColorConstants = (baseClass) =>
-  class extends baseClass {
-    get NONE() {
-      return "#0000";
-    }
-  };
+import { constants } from "./constants";
 
 export const addStroke = (baseClass) =>
   class extends baseClass {
@@ -21,9 +16,9 @@ export const addStroke = (baseClass) =>
     }
     set stroke(val) {
       const { pInst } = this;
-      if (val === this.NONE) {
+      if (val === constants.NONE) {
         pInst.noStroke();
-        this.#stroke = this.NONE;
+        this.#stroke = pInst.color(0, 0);
       } else {
         pInst.stroke(val);
         this.#stroke = pInst.color(
@@ -66,9 +61,9 @@ export const addFill = (baseClass) =>
     }
     set fill(val) {
       const { pInst } = this;
-      if (val === this.NONE) {
+      if (val === constants.NONE) {
         pInst.noFill();
-        this.#fill = pInst.color(this.NONE);
+        this.#fill = pInst.color(0, 0);
       } else {
         pInst.fill(val);
         this.#fill = pInst.color(
