@@ -1,3 +1,5 @@
+import { constants } from "../properties/constants";
+
 const singleCharTokens = new Set("(),:?");
 export const tokenKind = {
   number: "number",
@@ -10,6 +12,7 @@ export const tokenKind = {
   comparison: "comparison",
   equality: "equality",
   string: "string",
+  constant: "constant",
   logical: "logical",
   until: "until",
 };
@@ -126,6 +129,19 @@ export const lex = (str) => {
         memberMatch[0].slice(1)
       );
       return getTokens(end, tokens.concat(memberToken));
+    }
+    const constantMatch = Object.entries(constants).find(
+      ([key]) => key === strFromStart.slice(0, key.length)
+    );
+    if (constantMatch) {
+      const end = start + constantMatch[0].length;
+      const constantToken = token(
+        tokenKind.constant,
+        start,
+        end,
+        constantMatch[1]
+      );
+      return getTokens(end, tokens.concat(constantToken));
     }
     const propertyMatch = strFromStart.match(/^[a-zA-Z]\w*/);
     if (propertyMatch) {

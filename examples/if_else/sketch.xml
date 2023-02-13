@@ -6,15 +6,15 @@
 >
   <_ diameter="width" anchor="width/2, height/2">
     <circle
-      fill="'red'"
+      fill="[red]"
       on="frame_count less than 60"
     ></circle>
     <circle
-      fill="'yellow'"
+      fill="[yellow]"
       on="above_siblings_off and frame_count less than 120"
     ></circle>
     <circle
-      fill="'green'"
+      fill="[green]"
       on="above_siblings_off"
     ></circle>
   </_>

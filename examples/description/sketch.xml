@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://p5js.org/reference/#/p5/describeElement -->
-<canvas width="100" height="100" background="'pink'" stroke="NONE">
-    <ellipse x="25" y="25" width="40" height="40" fill="'yellow'"
-        name="'Circle'">Yellow circle in the top left corner</ellipse>
+<canvas width="100" height="100" background="[pink]" stroke="NONE">
+    <ellipse x="25" y="25" width="40" height="40" fill="[yellow]"
+        name="[Circle]">Yellow circle in the top left corner</ellipse>
     <ellipse x="66.6" y="66.6" width="20"
-        height="20" fill="'red'"
-        name="'Heart'">red heart in the bottom right corner <ellipse x="83.2" />
+        height="20" fill="[red]"
+        name="[Heart]">red heart in the bottom right corner <ellipse x="83.2" />
         <triangle x1="91.2"
             y1="72.6" x2="75" y2="95" x3="58.6" y3="72.6" />
     </ellipse>

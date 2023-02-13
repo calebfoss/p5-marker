@@ -1,7 +1,7 @@
 <_>
-    <canvas width="window.width" height="window.height" background="0" left_paddle="null"
-        right_paddle="null" left_score="0" right_score="0" count_down="120" wait_time="120"
-        state="'start'" winner="[]" fill="255" ball_speed_mag="canvas.height/100"
+    <canvas width="window.width" height="window.height" background="0" left_score="0"
+        right_score="0" count_down="120" wait_time="120"
+        state="[start]" winner="[]" fill="255" ball_speed_mag="canvas.height/100"
         default_ball_speed_mag="canvas.height/100" game="this_element">
         <!-- SCORE -->
         <text x="canvas.width * 0.3" y="canvas.height * 0.1"
@@ -19,27 +19,27 @@
         <!-- STATE MANAGEMENT -->
         <_ x="canvas.width/2" y="canvas.height/2" align="CENTER"
             font_size="canvas.height/15"> <!-- TODO - fix newline -->
-            <text on="state is 'start'"
+            <text on="state is [start]"
             >Left: W for up, S for down\nRight: up/down\n\nClick to start <_
-                    on="mouse_down" game.state="'play'"></_>
+                    on="mouse_down" game.state="[play]"></_>
             </text>
             <text
-                on="above_siblings_off and state is 'pause'">Paused <_ on="mouse_down"
-                    game.state="'play'"></_>
+                on="above_siblings_off and state is [pause]">Paused <_ on="mouse_down"
+                    game.state="[play]"></_>
             </text>
             <_
-                on="above_siblings_off and state is 'play'" game.count_down="count_down - 1">
-                <_ on="mouse_down" game.state="'pause'"></_>
+                on="above_siblings_off and state is [play]" game.count_down="count_down - 1">
+                <_ on="mouse_down" game.state="[pause]"></_>
             </_>
             <text
-                on="above_siblings_off and state is 'gameover'"
+                on="above_siblings_off and state is [gameover]"
             >$winner wins!\n Click to play again! <_
-                    on="mouse_down" game.state="'play'" game.left_score="0" game.right_score="0"></_>
+                    on="mouse_down" game.state="[play]" game.left_score="0" game.right_score="0"></_>
             </text>
         </_>
     </canvas>
     <!-- BALL -->
-    <_ name="ball" size="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
+    <_ name="[ball]" size="canvas.height/50" stroke="NONE" fill="255" rect_mode="CENTER"
         speed="createVector()" ball="this_element">
         <!-- POSITION CHECKS -->
         <_ ball_left="x - size/2" ball_right="x + size/2" ball_top="y - size/2"
@@ -47,7 +47,7 @@
             moving_left="speed.x less than 0">
             <!-- RESET -->
             <_ on="count_down is 0" random_angle="random(HALF_PI) - QUARTER_PI + random([0, PI])"
-                ball.x="canvas.width/2" ball.y="canvas.height/2" ball.reset="false"
+                ball.x="canvas.width/2" ball.y="canvas.height/2"
                 ball_speed_mag="default_ball_speed_mag">
                 <_ ball.speed="p5.Vector.fromAngle(random_angle, ball_speed_mag)"></_>
             </_>
@@ -66,8 +66,8 @@
                         <_ on="count_down less than 0" game.count_down="120"
                             game.right_score="right_score + 1">
                             <_ on="game.right_score is 7"
-                                game.state="'gameover'"
-                                game.winner="'Right'"></_>
+                                game.state="[gameover]"
+                                game.winner="[Right]"></_>
                         </_>
                     </_>
                     <!-- LEFT PADDLE HIT -->
@@ -93,8 +93,8 @@
                     <_ on="ball_right greater than canvas.width">
                         <_ on="count_down less than 0" game.count_down="120"
                             game.left_score="left_score + 1">
-                            <_ on="game.left_score is 7" game.state="'gameover'"
-                                game.winner="'Left'"></_>
+                            <_ on="game.left_score is 7" game.state="[gameover]"
+                                game.winner="[Left]"></_>
                         </_>
                     </_>
                     <!-- RIGHT PADDLE HIT -->
@@ -113,12 +113,12 @@
                 </_>
             </_>
         </_>
-        <_ on="game.state is 'play'" ball.x="ball.x + speed.x" ball.y="ball.y + speed.y"
+        <_ on="game.state is [play]" ball.x="ball.x + speed.x" ball.y="ball.y + speed.y"
             ball_left="x - w/2" ball_right="x + w/2"></_>
         <square></square>
     </_>
     <!-- PADDLE -->
-    <_ name="paddle" x="canvas.width * 0.9" y="canvas.height/2"
+    <_ name="[paddle]" x="canvas.width * 0.9" y="canvas.height/2"
         width="canvas.height/50" height="canvas.height/5"
         stroke="NONE" fill="255" rect_mode="CENTER" up=" UP_ARROW" down="DOWN_ARROW"
         speed="canvas.height/75" paddle=" this_element">

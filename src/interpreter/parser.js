@@ -73,7 +73,7 @@ const hasColonOutsideTernaryAndParentheses = (tokens) => {
   return false;
 };
 
-export const parse = (element, attrName, fullListOfTokens) => {
+export const parse = (element, attrName, fullListOfTokens, debug = false) => {
   const objectLiteral = (tokens) => {
     const sections = commaSeparateSections(tokens);
     const getKeyValuePairs = sections.map((sectionTokens, i) => {
@@ -186,6 +186,7 @@ export const parse = (element, attrName, fullListOfTokens) => {
     const [token, ...remainder] = tokens;
     switch (token.kind) {
       case tokenKind.string:
+      case tokenKind.constant:
         return [() => token.value, remainder];
       case tokenKind.number:
         const numberStringVal = token.value;
@@ -223,7 +224,6 @@ export const parse = (element, attrName, fullListOfTokens) => {
     if (nextToken.kind !== "(") return [left, afterLeft];
     const [getInnerParentheses, tokensAfterParentheses] =
       parentheses(afterNextToken);
-    console.log(left());
     return [
       () => {
         const isFunction = typeof left() === "function";
@@ -246,7 +246,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
 
   const multiplicative = (tokens) => {
     const [left, afterLeft] = not(tokens);
-    console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
+    if (debug)
+      console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.multiplicative) return [left, afterLeft];
@@ -261,7 +262,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
       firstToken.kind === tokenKind.additive && firstToken.value === "-"
         ? [() => 0, tokens]
         : multiplicative(tokens);
-    console.log("AFTER MULT LEFT", afterLeft.map((t) => t.value).join(" "));
+    if (debug)
+      console.log("AFTER MULT LEFT", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.additive) return [left, afterLeft];
@@ -272,7 +274,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
 
   const comparison = (tokens) => {
     const [left, afterLeft] = additive(tokens);
-    console.log("AFTER EQUALITY", afterLeft.map((t) => t.value).join(" "));
+    if (debug)
+      console.log("AFTER EQUALITY", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.comparison) return [left, afterLeft];
@@ -298,7 +301,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
 
   const equality = (tokens) => {
     const [left, afterLeft] = comparison(tokens);
-    console.log("AFTER LOGICAL", afterLeft.map((t) => t.value).join(" "));
+    if (debug)
+      console.log("AFTER LOGICAL", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.equality) return [left, afterLeft];
@@ -310,7 +314,8 @@ export const parse = (element, attrName, fullListOfTokens) => {
 
   const logical = (tokens) => {
     const [left, afterLeft] = equality(tokens);
-    console.log("AFTER CALL", afterLeft.map((t) => t.value).join(" "));
+    if (debug)
+      console.log("AFTER CALL", afterLeft.map((t) => t.value).join(" "));
     if (afterLeft.length === 0) return [left, afterLeft];
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.logical) return [left, afterLeft];
