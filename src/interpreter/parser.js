@@ -337,9 +337,11 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     If this is a comma-separated list, return a function that returns
     the values of each of the sections in an array.
     */
-    if (firstIndexOutsideParentheses(tokens, ",") > -1)
-      return () =>
-        commaSeparateSections(tokens).map((section) => parseTokens(section)());
+    if (firstIndexOutsideParentheses(tokens, ",") > -1) {
+      const sections = commaSeparateSections(tokens);
+      const parsedSections = sections.map((section) => parseTokens(section));
+      return () => parsedSections.map((section) => section());
+    }
     if (firstIndexOutsideParentheses(tokens, "?") > -1) return ternary(tokens);
     const [expressionFunction, remainder] = logical(tokens);
     return expressionFunction;
