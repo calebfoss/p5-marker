@@ -1,8 +1,7 @@
 export const addCanvasMethods = (baseClass) =>
   class extends baseClass {
     attributeInherited(attributeName) {
-      if (this.hasAttribute(attributeName) || attributeName in this.defaults)
-        return true;
+      if (this.hasAttribute(attributeName)) return true;
       return super.attributeInherited(attributeName);
     }
     runCode() {
