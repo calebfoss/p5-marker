@@ -4,7 +4,7 @@
     demonstrating the antialias attribute of the renderer being switch on and off <!-- Click to
     toggle antialias true/false -->
     <_ on="mouse_down"
-        webgl_attributes="antialias: not webgl_attributes.antialias"></_>
+        webgl_attributes="antialias: not webgl_attributes.antialias" />
     <box width="50"
         fill="0, 0, 0"
         angle_x="twist" angle_y="twist" angle_z="twist"></box>

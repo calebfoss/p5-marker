@@ -1,5 +1,5 @@
 <_>
-    <_ name="cloud" stroke="NONE">
+    <_ name="[cloud]" stroke="NONE">
         <_ anchor="x, y">
             <circle x="-diameter/2" y="-diameter/4" fill="220"></circle>
             <circle x="-diameter/2" y="-diameter/4" fill="210"></circle>
