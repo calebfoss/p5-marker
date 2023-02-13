@@ -3,8 +3,8 @@
     ortho="true"
     stroke="NONE"
 > Two spheres with different falloff values show different intensity of light <_
-        loc_x="mouse_pos_x - width / 2"
-        loc_y="mouse_pos_y - height / 2"
+        loc_x="mouse.x - width / 2"
+        loc_y="mouse.y - height / 2"
         v1="250" v2="250" v3="250">
         <point-light
             x="loc_x - 25"

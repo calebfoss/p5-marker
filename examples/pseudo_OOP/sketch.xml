@@ -2,7 +2,7 @@
 <_>
     <_ name="ball" ball="this_element">
         <_ on="first_frame"
-            ball.x="mouse_pos_x" ball.y="mouse_pos_y"
+            ball.x="mouse.x" ball.y="mouse.y"
             ball.speed_x="random(-2, 2)"
             ball.speed_y="random(-2, 2)"
             ball.fill_hue="random(360)"></_>

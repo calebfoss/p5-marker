@@ -10,6 +10,7 @@ import { addCollide } from "./methods/collide_methods";
 import { defineCustomElement } from "./elements/beyond_canvas_elements";
 import { addMathProps } from "./properties/math_props";
 import { addMathMethods } from "./methods/math_methods";
+import { addEventProps } from "./properties/event_props";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -99,8 +100,10 @@ export const addP5PropsAndMethods = (baseClass) =>
   class P5Extension extends addColorMethods(
     addColorConstants(
       addWebGLMethods(
-        addCollide(
-          addMathMethods(addMathProps(addStorage(addDataMethods(baseClass))))
+        addEventProps(
+          addCollide(
+            addMathMethods(addMathProps(addStorage(addDataMethods(baseClass))))
+          )
         )
       )
     )

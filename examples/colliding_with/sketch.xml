@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas width="400" height="400" background="220">
-    <circle x="mouse_pos_x" y="mouse_pos_y" stroke_weight="4" fill="NONE"
+    <circle x="mouse.x" y="mouse.y" stroke_weight="4" fill="NONE"
         highlight="color(255, 255, 0, 128)">
         <square x="25" y="25" fill="colliding_with(parent) ? highlight : NONE"></square>
         <triangle x1="150" y1="25" x2="150" y2="125" x3="250" y3="125"

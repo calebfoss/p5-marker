@@ -208,74 +208,9 @@ defineProperties({
       return this.keyCode;
     },
   },
-  mouse_button: {
-    get: function () {
-      return this.mouseButton;
-    },
-  },
-  mouse_pos: {
-    get: function () {
-      return this.createVector(this.mouseX, this.mouseY);
-    },
-  },
-  mouse_pos_x: {
-    get: function () {
-      return this.mouseX;
-    },
-  },
-  mouse_pos_y: {
-    get: function () {
-      return this.mouseY;
-    },
-  },
-  mouse_prev_pos: {
-    get: function () {
-      return this.createVector(this.pmouseX, this.pmouseY);
-    },
-  },
-  mouse_prev_pos_x: {
-    get: function () {
-      return this.pmouseX;
-    },
-  },
-  mouse_prev_pos_y: {
-    get: function () {
-      return this.pmouseY;
-    },
-  },
   mouse_wheel: {
     get: function () {
       return this._mouseWheel;
-    },
-  },
-  mouse_window_pos: {
-    get: function () {
-      return this.createVector(this.winMouseX, this.winMouseY);
-    },
-  },
-  mouse_window_pos_x: {
-    get: function () {
-      return this.winMouseX;
-    },
-  },
-  mouse_window_pos_y: {
-    get: function () {
-      return this.winMouseY;
-    },
-  },
-  mouse_prev_window_pos: {
-    get: function () {
-      return this.createVector(this.pwinMouseX, this.pwinMouseY);
-    },
-  },
-  mouse_window_prev_pos_x: {
-    get: function () {
-      return this.pwinMouseX;
-    },
-  },
-  mouse_window_prev_pos_y: {
-    get: function () {
-      return this.pwinMouseY;
     },
   },
   move_threshold: {
@@ -284,21 +219,6 @@ defineProperties({
     },
     set: function (val) {
       this.setMoveThreshold(val);
-    },
-  },
-  moved: {
-    get: function () {
-      return this.createVector(this.movedX, this.movedY);
-    },
-  },
-  moved_x: {
-    get: function () {
-      return this.movedX;
-    },
-  },
-  moved_y: {
-    get: function () {
-      return this.movedY;
     },
   },
   pointer_lock_request: {

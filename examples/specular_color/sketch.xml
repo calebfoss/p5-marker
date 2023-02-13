@@ -7,8 +7,8 @@
         set_red_specular_color="true">
         <point-light specular_color="set_red_specular_color ? color(255, 0, 0) : 255"
             v1="200" v2="200" v3="200"
-            x="mouse_pos_x - width / 2"
-            y="mouse_pos_y - height / 2"
+            x="mouse.x - width / 2"
+            y="mouse.y - height / 2"
             z="50">
             <sphere radius="30" detail_x="64" detail_y="64"
                 stroke="NONE"

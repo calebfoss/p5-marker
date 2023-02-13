@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <canvas width="400" height="400" background="NONE">
-    <circle on="touch_moved" anchor="mouse_pos"></circle>
+    <circle on="touch_moved" anchor="mouse"></circle>
 </canvas>
