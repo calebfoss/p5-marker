@@ -54,41 +54,6 @@ const hasColonOutsideTernaryAndParentheses = (tokens) => {
 };
 
 export const parse = (element, attrName, fullListOfTokens, debug = false) => {
-  const objectLiteral = (tokens) => {
-    const sections = commaSeparateSections(tokens);
-    const getKeyValuePairs = sections.map((sectionTokens, i) => {
-      const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
-      if (colonIndex < 0) {
-        if (sectionTokens.length > 1)
-          console.error(
-            "Couldn't figure out what to do with these:",
-            sectionTokens
-          );
-        const propName = sectionTokens[0].value;
-
-        const getValue = parseTokens(sectionTokens);
-        return () => [propName, getValue()];
-      }
-      if (colonIndex === 0) {
-        console.error("FOUND COLON AT BEGINNING OF SECTION");
-        return () => [];
-      }
-      if (colonIndex === 1) {
-        const propName = sectionTokens[0].value;
-        const tokensAfterColon = sectionTokens.slice(2);
-        const getValue = parseTokens(tokensAfterColon);
-        return () => [propName, getValue()];
-      }
-
-      const getPropName = parseTokens(sectionTokens.slice(0, colonIndex));
-
-      const getValue = parseTokens(sectionTokens.slice(colonIndex));
-
-      return () => [getPropName(), getValue()];
-    });
-    return () => Object.fromEntries(getKeyValuePairs.map((fn) => fn()));
-  };
-
   const parentheses = (tokensAfterLeftParenthesis) => {
     const getRightParenthesisIndex = (tks, index = 0, depth = 0) => {
       const [t, ...r] = tks;
@@ -370,6 +335,43 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     return list(remainder, allExpressions);
   };
 
+  const objectLiteral = (tokens) => {
+    if (hasColonOutsideTernaryAndParentheses(tokens) === false)
+      return list(tokens);
+    const sections = commaSeparateSections(tokens);
+    const getKeyValuePairs = sections.map((sectionTokens, i) => {
+      const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
+      if (colonIndex < 0) {
+        if (sectionTokens.length > 1)
+          console.error(
+            "Couldn't figure out what to do with these:",
+            sectionTokens
+          );
+        const propName = sectionTokens[0].value;
+
+        const getValue = parseTokens(sectionTokens);
+        return () => [propName, getValue()];
+      }
+      if (colonIndex === 0) {
+        console.error("FOUND COLON AT BEGINNING OF SECTION");
+        return () => [];
+      }
+      if (colonIndex === 1) {
+        const propName = sectionTokens[0].value;
+        const tokensAfterColon = sectionTokens.slice(2);
+        const getValue = parseTokens(tokensAfterColon);
+        return () => [propName, getValue()];
+      }
+
+      const getPropName = parseTokens(sectionTokens.slice(0, colonIndex));
+
+      const getValue = parseTokens(sectionTokens.slice(colonIndex));
+
+      return () => [getPropName(), getValue()];
+    });
+    return [() => Object.fromEntries(getKeyValuePairs.map((fn) => fn())), []];
+  };
+
   const parseTokens = (tokens) => {
     if (debug)
       console.log(
@@ -378,9 +380,7 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
           .join(" ")}`
       );
     if (tokens.length === 0) return () => {};
-    if (hasColonOutsideTernaryAndParentheses(tokens))
-      return objectLiteral(tokens);
-    const [expressionFunction, remainder] = list(tokens);
+    const [expressionFunction, remainder] = objectLiteral(tokens);
     return expressionFunction;
   };
   return parseTokens(fullListOfTokens);
