@@ -801,7 +801,7 @@ export const addP5PropsAndMethods = (baseClass) =>
       return this.pInst._glAttributes;
     }
     set webgl_attributes(val) {
-      this.pInst.setAttributes(...arguments);
+      this.pInst.setAttributes(val);
     }
   };
 export class P5Element extends addP5PropsAndMethods(HTMLElement) {}
