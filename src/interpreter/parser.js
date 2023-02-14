@@ -183,11 +183,15 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     const [left, afterLeft] = primary(tokens);
     if (debug)
       console.log("AFTER PRIMARY", afterLeft.map((t) => t.value).join(" "));
-    if (afterLeft.length === 0) return [left, afterLeft];
-    const [nextToken, ...afterNextToken] = afterLeft;
-    if (nextToken.kind !== tokenKind.member) return [left, afterLeft];
-    const memberName = nextToken.value;
-    return [() => left()[memberName], afterNextToken];
+    const getPropertyMember = (left, afterLeft) => {
+      if (afterLeft.length === 0) return [left, afterLeft];
+      const [nextToken, ...afterNextToken] = afterLeft;
+      if (nextToken.kind !== tokenKind.member) return [left, afterLeft];
+      const memberName = nextToken.value;
+      const nextLeft = () => left()[memberName];
+      return getPropertyMember(nextLeft, afterNextToken);
+    };
+    return getPropertyMember(left, afterLeft);
   };
 
   const call = (tokens) => {
