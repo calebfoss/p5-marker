@@ -83,7 +83,7 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     return [getInnerValue, tokensAfterParentheses];
   };
 
-  const property = (propertyToken, remainingTokens) => {
+  const getObjectWithProperty = (propertyToken) => {
     const propName = propertyToken.value;
     const obj =
       element instanceof HTMLCanvasElement ||
@@ -96,25 +96,82 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
         ? element
         : element.parentElement;
     if (propName in obj === false) {
-      if (propName in element.pInst) {
-        return [
-          () =>
-            typeof element.pInst[propName] === "function"
-              ? element.pInst[propName].bind(element.pInst)
-              : element.pInst[propName],
-          remainingTokens,
-        ];
-      }
+      if (propName in element.pInst) return [() => element.pInst, propName];
       console.error(
         `On ${element.tagName}'s ${attrName}, couldn't find ${propName}`
       );
     }
+    return [() => obj, propName];
+  };
+
+  const property = (propertyToken, tokensAfterProperty) => {
+    const [getBaseObj, propName] = getObjectWithProperty(propertyToken);
+    if (debug)
+      console.log(
+        `AFTER getObjectWithProperty propName: ${propName} remaining tokens: ${tokensAfterProperty
+          .map((t) => t.value)
+          .join(" ")}`
+      );
+    return [getBaseObj, propName, tokensAfterProperty];
+  };
+
+  const member = (propertyToken, tokensAfterProperty) => {
+    const [getBaseObj, firstMember, tokensAfterFirstMember] = property(
+      propertyToken,
+      tokensAfterProperty
+    );
+    if (debug)
+      console.log(
+        `AFTER property, first member: ${firstMember} remainder: ${tokensAfterProperty
+          .map((t) => t.value)
+          .join(" ")}`
+      );
+    const getObjFromMemberChain = (
+      getObj,
+      lastMemberName,
+      tokensAfterLastMember
+    ) => {
+      const [nextToken, ...remainder] = tokensAfterLastMember;
+      if (nextToken.kind !== tokenKind.member)
+        return [getObj, lastMemberName, tokensAfterLastMember];
+      const getObjWithLastMember = () => getObj()[lastMemberName];
+      const nextMember = nextToken.value;
+      return getObjFromMemberChain(getObjWithLastMember, nextMember, remainder);
+    };
+    return getObjFromMemberChain(
+      getBaseObj,
+      firstMember,
+      tokensAfterFirstMember
+    );
+  };
+
+  const call = (propertyToken, tokensAfterProperty) => {
+    const [getObj, memberName, afterMember] = member(
+      propertyToken,
+      tokensAfterProperty
+    );
+    const [nextToken, ...afterNextToken] = afterMember;
+    if (debug)
+      console.log(
+        `AFTER member, member name: ${memberName} remaining tokens ${afterMember
+          .map((t) => t.value)
+          .join(" ")}`
+      );
+    if (nextToken.kind !== "(")
+      return [() => getObj()[memberName], afterMember];
+    const [getInnerParentheses, tokensAfterParentheses] =
+      parentheses(afterNextToken);
     return [
-      () =>
-        typeof obj[propName] === "function"
-          ? obj[propName].bind(obj)
-          : obj[propName],
-      remainingTokens,
+      () => {
+        const isFunction = typeof getObj()[memberName] === "function";
+        const innerParentheses = getInnerParentheses();
+        const args = Array.isArray(innerParentheses)
+          ? innerParentheses
+          : [innerParentheses];
+        if (isFunction) return getObj()[memberName](...args);
+        return args.reduce((p, arg) => p[arg], getObj()[memberName]);
+      },
+      tokensAfterParentheses,
     ];
   };
 
@@ -134,7 +191,7 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
         const [rightOfNot, afterRightOfNot] = objectLiteral(remainder);
         return [() => !rightOfNot(), afterRightOfNot];
       case tokenKind.property:
-        return property(token, remainder);
+        return call(token, remainder);
       case "(":
         return parentheses(remainder);
       default:
@@ -145,48 +202,12 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     }
   };
 
-  const member = (tokens) => {
-    const [left, afterLeft] = primary(tokens);
-    if (debug)
-      console.log("AFTER PRIMARY", afterLeft.map((t) => t.value).join(" "));
-    const getPropertyMember = (left, afterLeft) => {
-      const [nextToken, ...afterNextToken] = afterLeft;
-      if (nextToken.kind !== tokenKind.member) return [left, afterLeft];
-      const memberName = nextToken.value;
-      const nextLeft = () => left()[memberName];
-      return getPropertyMember(nextLeft, afterNextToken);
-    };
-    return getPropertyMember(left, afterLeft);
-  };
-
-  const call = (tokens) => {
-    const [left, afterLeft] = member(tokens);
-    if (debug)
-      console.log("AFTER MEMBER", afterLeft.map((t) => t.value).join(" "));
-    const [nextToken, ...afterNextToken] = afterLeft;
-    if (nextToken.kind !== "(") return [left, afterLeft];
-    const [getInnerParentheses, tokensAfterParentheses] =
-      parentheses(afterNextToken);
-    return [
-      () => {
-        const isFunction = typeof left() === "function";
-        const innerParentheses = getInnerParentheses();
-        const args = Array.isArray(innerParentheses)
-          ? innerParentheses
-          : [innerParentheses];
-        if (isFunction) return left()(...args);
-        return args.reduce((p, arg) => p[arg], left());
-      },
-      tokensAfterParentheses,
-    ];
-  };
-
   const not = (tokens) => {
-    if (tokens[0].kind !== tokenKind.not) return call(tokens);
+    if (tokens[0].kind !== tokenKind.not) return primary(tokens);
     const afterNot = tokens.slice(1);
     if (debug)
-      console.log("AFTER CALL", afterNot.map((t) => t.value).join(" "));
-    const [right, remainder] = call(afterNot);
+      console.log("AFTER PRIMARY", afterNot.map((t) => t.value).join(" "));
+    const [right, remainder] = primary(afterNot);
     return [() => !right(), remainder];
   };
 
@@ -295,6 +316,7 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
   const objectLiteral = (tokens) => {
     if (hasColonOutsideTernaryAndParentheses(tokens) === false)
       return list(tokens);
+    console.log("OBJECT LITERAL");
     const beforeEnd = tokens.slice(0, -1);
     const remainder = tokens.slice(-1);
     if (remainder[0].kind !== tokenKind.end)
