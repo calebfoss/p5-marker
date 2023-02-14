@@ -15,9 +15,11 @@ export const tokenKind = {
   constant: "constant",
   logical: "logical",
   until: "until",
+  end: "end",
 };
 
 const token = (kind, start, end, value) => ({ kind, start, end, value });
+export const endToken = token(tokenKind.end, -1, -1, "END");
 
 export const lex = (str) => {
   const getTokens = (start = 0, tokens = []) => {
