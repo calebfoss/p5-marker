@@ -36,4 +36,17 @@ export const addEventProps = (baseClass) =>
         },
       };
     }
+    get device_rotation() {
+      const { pInst } = this;
+      return {
+        x: pInst.rotationX,
+        y: pInst.rotationY,
+        z: pInst.rotationZ,
+        previous: {
+          x: pInst.pRotationX,
+          y: pInst.pRotationY,
+          z: pInst.pRotationZ,
+        },
+      };
+    }
   };
