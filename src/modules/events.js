@@ -152,26 +152,6 @@ p5.prototype._shakeThreshold = 30;
 
 defineProperties({
   //  TODO - test on mobile device
-  device_acceleration: {
-    get: function () {
-      return this.createVector(
-        this.accelerationX,
-        this.accelerationY,
-        this.accelerationZ
-      );
-    },
-  },
-  //  TODO - test on mobile device
-  device_prev_acceleration: {
-    get: function () {
-      return this.createVector(
-        this.pAccelerationX,
-        this.pAccelerationY,
-        this.pAccelerationZ
-      );
-    },
-  },
-  //  TODO - test on mobile device
   device_rotation: {
     get: function () {
       return this.createVector(this.rotationX, this.rotationY, this.rotationZ);

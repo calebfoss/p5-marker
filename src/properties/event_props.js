@@ -23,4 +23,17 @@ export const addEventProps = (baseClass) =>
         button: this.pInst.mouseButton,
       };
     }
+    get acceleration() {
+      const { pInst } = this;
+      return {
+        x: pInst.accelerationX,
+        y: pInst.accelerationY,
+        z: pInst.accelerationZ,
+        previous: {
+          x: pInst.pAccelerationX,
+          y: pInst.pAccelerationY,
+          z: pInst.pAccelerationZ,
+        },
+      };
+    }
   };
