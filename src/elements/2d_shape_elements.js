@@ -375,11 +375,24 @@ class Rect extends addXY(
   ];
   collider = collider_type.rect;
   get collision_args() {
-    const { x, y } = this.local_to_canvas_position(this.x, this.y);
+    const { rect_mode } = this;
     const { pixel_density } = this.canvas;
     const w = this.width * this.pInst.pow(pixel_density, 2);
     const h = this.height * this.pInst.pow(pixel_density, 2);
-    return [x, y, w, h];
+    if (rect_mode === "corner") {
+      const { x, y } = this.local_to_canvas_position(this.x, this.y);
+      return [x, y, w, h];
+    }
+    if (rect_mode === "center") {
+      const { x, y } = this.local_to_canvas_position(
+        this.x - this.width / 2,
+        this.y - this.height / 2
+      );
+      return [x, y, w, h];
+    }
+    console.error(
+      `Collision detection with rect_mode ${rect_mode} is not yet supported`
+    );
   }
   get mouse_over() {
     const { x: local_mouse_x, y: local_mouse_y } =
@@ -421,12 +434,25 @@ class Square extends addXY(
   ];
   collider = collider_type.rect;
   get collision_args() {
-    const { x, y } = this.local_to_canvas_position(this.x, this.y);
     const { pixel_density } = this.canvas;
-    const { size } = this;
+    const { size, rect_mode } = this;
     const w = size * this.pInst.pow(pixel_density, 2);
     const h = w;
-    return [x, y, w, h];
+    if (rect_mode === "corner") {
+      const { x, y } = this.local_to_canvas_position(this.x, this.y);
+      return [x, y, w, h];
+    }
+    if (rect_mode === "center") {
+      const { x, y } = this.local_to_canvas_position(
+        this.x - size / 2,
+        this.y - this.size / 2
+      );
+      return [x, y, w, h];
+    }
+    console.error(
+      `Collision detection for rect_mode ${rect_mode} is not yet supported`
+    );
+    return [];
   }
   get mouse_over() {
     const { x: local_mouse_x, y: local_mouse_y } =

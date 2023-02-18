@@ -2,7 +2,7 @@
 <canvas-3d width="100" height="100" background="0"
     ortho="true"
     stroke="NONE"
-> Two spheres with different falloff values show different intensity of light <_
+> Two spheres with different falloff values show different intensity of light <_-3d
         loc_x="mouse_pos_x - width / 2"
         loc_y="mouse_pos_y - height / 2"
         v1="250" v2="250" v3="250">
@@ -20,6 +20,6 @@
             light_falloff="0.97, 0.03, 0">
             <sphere anchor="25, 0, 0" radius="20"></sphere>
         </point-light>
-    </_>
+    </_-3d>
 
 </canvas-3d>

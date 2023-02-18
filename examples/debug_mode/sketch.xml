@@ -6,9 +6,9 @@
     camera="0, -30, 100, 0, 0, 0, 0, 1, 0"
 > White square repeatedly grows to fill canvas and then
     shrinks. An interactive example of a red cube with 3 sliders for moving it across x, y, z axis
-    and 3 sliders for shifting its center. <_ on="first_frame" parent.camera="parent.camera"></_>
+    and 3 sliders for shifting its center. <_-3d on="first_frame" parent.camera="parent.camera" />
     <box
         normal_material="true" width="15" height="30"></box>
-    <_ on="key_is_down(32)"
-        parent.debug_mode="false"></_>
+    <_-3d on="key_is_down(32)"
+        parent.debug_mode="false"></_-3d>
 </canvas-3d>

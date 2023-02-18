@@ -4,14 +4,14 @@
     <rect width="width/2" height="height/2">
         <_ on="parent.mouse_over" canvas.cursor="CROSS"></_>
         <rect x="canvas.width/2">
-            <_ on="parent.mouse_over" canvas.cursor="[progress]"></_>
+            <_ on="parent.mouse_over" canvas.cursor=";progress;"></_>
         </rect>
         <rect y="canvas.height/2">
             <_ on="parent.mouse_over"
-                canvas.cursor="[https://avatars0.githubusercontent.com/u/1617169?s=16]"></_>
+                canvas.cursor=";https://avatars0.githubusercontent.com/u/1617169?s=16;"></_>
         </rect>
         <rect x="canvas.width/2" y="canvas.height/2">
-            <_ on="parent.mouse_over" canvas.cursor="[grab]"></_>
+            <_ on="parent.mouse_over" canvas.cursor=";grab;"></_>
         </rect>
     </rect>
 </canvas>

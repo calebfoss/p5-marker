@@ -1,8 +1,25 @@
 import { tokenKind, endToken } from "./lexer.js";
 
+const isArray = (tokens, parenthesesDepth = 0) => {
+  const [token, ...remainder] = tokens;
+  if (typeof token === "undefined") return false;
+  switch (token.kind) {
+    case "(":
+      return isArray(remainder, parenthesesDepth + 1);
+    case ")":
+      return isArray(remainder, parenthesesDepth - 1);
+    case ",":
+      if (parenthesesDepth === 0) return true;
+    default:
+      return isArray(remainder, parenthesesDepth);
+  }
+};
+
 const commaSeparateSections = (
   tokens,
   parenthesesDepth = 0,
+  squareBracketDepth = 0,
+  curlyBracketDepth = 0,
   sections = [[]]
 ) => {
   const [token, ...remainder] = tokens;
@@ -18,25 +35,69 @@ const commaSeparateSections = (
       return commaSeparateSections(
         remainder,
         parenthesesDepth + 1,
+        squareBracketDepth,
+        curlyBracketDepth,
         sectionsConcatenated
       );
     case ")":
       return commaSeparateSections(
         remainder,
         parenthesesDepth - 1,
+        squareBracketDepth,
+        curlyBracketDepth,
+        sectionsConcatenated
+      );
+    case "[":
+      return commaSeparateSections(
+        remainder,
+        parenthesesDepth,
+        squareBracketDepth + 1,
+        curlyBracketDepth,
+        sectionsConcatenated
+      );
+    case "]":
+      return commaSeparateSections(
+        remainder,
+        parenthesesDepth,
+        squareBracketDepth - 1,
+        curlyBracketDepth,
+        sectionsConcatenated
+      );
+    case "{":
+      return commaSeparateSections(
+        remainder,
+        parenthesesDepth,
+        squareBracketDepth,
+        curlyBracketDepth + 1,
+        sectionsConcatenated
+      );
+    case "}":
+      return commaSeparateSections(
+        remainder,
+        parenthesesDepth,
+        squareBracketDepth,
+        curlyBracketDepth - 1,
         sectionsConcatenated
       );
     case ",":
-      if (parenthesesDepth === 0)
+      if (
+        parenthesesDepth === 0 &&
+        squareBracketDepth === 0 &&
+        curlyBracketDepth === 0
+      )
         return commaSeparateSections(
           remainder,
           parenthesesDepth,
+          squareBracketDepth,
+          curlyBracketDepth,
           sections.concat([[]])
         );
     default:
       return commaSeparateSections(
         remainder,
         parenthesesDepth,
+        squareBracketDepth,
+        curlyBracketDepth,
         sectionsConcatenated
       );
   }
@@ -53,16 +114,18 @@ const hasColonOutsideTernaryAndParentheses = (tokens) => {
   return false;
 };
 
+const getRightParenthesisIndex = (tokens, index = 0, depth = 0) => {
+  const [token, ...remainder] = tokens;
+  if (token.kind === "(")
+    return getRightParenthesisIndex(remainder, index + 1, depth + 1);
+  if (token.kind !== ")")
+    return getRightParenthesisIndex(remainder, index + 1, depth);
+  if (depth === 0) return index;
+  return getRightParenthesisIndex(remainder, index + 1, depth - 1);
+};
+
 export const parse = (element, attrName, fullListOfTokens, debug = false) => {
   const parentheses = (tokensAfterLeftParenthesis) => {
-    const getRightParenthesisIndex = (tks, index = 0, depth = 0) => {
-      const [t, ...r] = tks;
-      if (t.kind === "(")
-        return getRightParenthesisIndex(r, index + 1, depth + 1);
-      if (t.kind !== ")") return getRightParenthesisIndex(r, index + 1, depth);
-      if (depth === 0) return index;
-      return getRightParenthesisIndex(r, index + 1, depth - 1);
-    };
     const rightParenthesisIndex = getRightParenthesisIndex(
       tokensAfterLeftParenthesis
     );
@@ -76,11 +139,50 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
       0,
       rightParenthesisIndex
     );
-    const getInnerValue = getExpressionAsArray(tokensBetweenParentheses);
+    const getInnerValue = parseAndAutoEnclose(tokensBetweenParentheses);
     const tokensAfterParentheses = tokensAfterLeftParenthesis.slice(
       rightParenthesisIndex + 1
     );
     return [getInnerValue, tokensAfterParentheses];
+  };
+
+  const objectLiteral = (tokensBetweenBrackets) => {
+    if (debug) console.log("OBJECT LITERAL");
+    const sections = commaSeparateSections(tokensBetweenBrackets);
+    const keyValuePairs = sections.map((sectionTokens, i) => {
+      const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
+      if (colonIndex < 0) {
+        if (sectionTokens.length > 1)
+          console.error(
+            "Couldn't figure out what to do with these:",
+            sectionTokens
+          );
+        const propName = sectionTokens[0].value;
+        const getValue = parseExpression(sectionTokens);
+        return () => [propName, getValue()];
+      }
+      if (colonIndex === 0) {
+        console.error("FOUND COLON AT BEGINNING OF SECTION");
+        return () => [];
+      }
+      if (colonIndex === 1) {
+        const propName = sectionTokens[0].value;
+        const tokensAfterColon = sectionTokens.slice(2);
+        const getValue = parseExpression(tokensAfterColon);
+        return () => [propName, getValue()];
+      }
+      const getPropName = parseExpression(sectionTokens.slice(0, colonIndex));
+      const getValue = parseAndAutoEnclose(sectionTokens.slice(colonIndex));
+      return () => [getPropName(), getValue()];
+    });
+    return () => Object.fromEntries(keyValuePairs.map((fn) => fn()));
+  };
+
+  const array = (tokensBetweenBrackets) => {
+    const sections = commaSeparateSections(tokensBetweenBrackets);
+    const getSectionExpressions = sections.map((s) => parseExpression(s));
+    const getArray = () => getSectionExpressions.map((s) => s());
+    return getArray;
   };
 
   const getObjectWithProperty = (propertyToken) => {
@@ -104,72 +206,80 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     return [() => obj, propName];
   };
 
-  const property = (propertyToken, tokensAfterProperty) => {
-    const [getBaseObj, propName] = getObjectWithProperty(propertyToken);
-    if (debug)
-      console.log(
-        `AFTER getObjectWithProperty propName: ${propName} remaining tokens: ${tokensAfterProperty
-          .map((t) => t.value)
-          .join(" ")}`
-      );
-    return [getBaseObj, propName, tokensAfterProperty];
+  const member = (getObj, getPreviousMemberName, afterPreviousMember) => {
+    const [nextToken, ...remainder] = afterPreviousMember;
+    if (nextToken.kind !== tokenKind.member)
+      return [getObj, getPreviousMemberName, afterPreviousMember];
+    return member(
+      () => getObj()[getPreviousMemberName()],
+      () => nextToken.value,
+      remainder
+    );
   };
 
-  const member = (propertyToken, tokensAfterProperty) => {
-    const [getBaseObj, firstMember, tokensAfterFirstMember] = property(
-      propertyToken,
-      tokensAfterProperty
-    );
-    if (debug)
-      console.log(
-        `AFTER property, first member: ${firstMember} remainder: ${tokensAfterProperty
-          .map((t) => t.value)
-          .join(" ")}`
-      );
-    const getObjFromMemberChain = (
-      getObj,
-      lastMemberName,
-      tokensAfterLastMember
-    ) => {
-      const [nextToken, ...remainder] = tokensAfterLastMember;
-      if (nextToken.kind !== tokenKind.member)
-        return [getObj, lastMemberName, tokensAfterLastMember];
-      const getObjWithLastMember = () => getObj()[lastMemberName];
-      const nextMember = nextToken.value;
-      return getObjFromMemberChain(getObjWithLastMember, nextMember, remainder);
-    };
-    return getObjFromMemberChain(
+  const computedMember = (getBaseObj, firstMemberName, afterPreviousMember) => {
+    const getFirstMemberName = () => firstMemberName;
+    const [getObj, getNextMemberName, afterNextMember] = member(
       getBaseObj,
-      firstMember,
-      tokensAfterFirstMember
+      getFirstMemberName,
+      afterPreviousMember
     );
-  };
-
-  const call = (propertyToken, tokensAfterProperty) => {
-    const [getObj, memberName, afterMember] = member(
-      propertyToken,
-      tokensAfterProperty
-    );
-    const [nextToken, ...afterNextToken] = afterMember;
     if (debug)
       console.log(
-        `AFTER member, member name: ${memberName} remaining tokens ${afterMember
+        `AFTER member, member name: ${getNextMemberName()} remaining tokens ${afterNextMember
           .map((t) => t.value)
           .join(" ")}`
       );
+    const [nextToken, ...afterNext] = afterNextMember;
+    if (nextToken.kind !== "[")
+      return [getObj, getNextMemberName, afterNextMember];
+    const rightSquareBracketIndex = afterNext.findIndex((t) => t.kind === "]");
+    const tokensBetweenBrackets = afterNext.slice(0, rightSquareBracketIndex);
+    const getComputedMemberName = parseExpression(tokensBetweenBrackets);
+    const tokensAfterBrackets = afterNext.slice(rightSquareBracketIndex + 1);
+    return member(
+      () => getObj()[getNextMemberName()],
+      getComputedMemberName,
+      tokensAfterBrackets
+    );
+  };
+
+  const call = (getBaseObj, firstMemberName, afterFirstMember) => {
+    const [getObj, getLastMemberName, afterLastMember] = computedMember(
+      getBaseObj,
+      firstMemberName,
+      afterFirstMember
+    );
+    if (debug)
+      console.log(
+        `AFTER computed member, member name: ${getLastMemberName()} remaining tokens ${afterLastMember
+          .map((t) => t.value)
+          .join(" ")}`
+      );
+    const [nextToken, ...afterNextToken] = afterLastMember;
     if (nextToken.kind !== "(")
-      return [() => getObj()[memberName], afterMember];
-    const [getInnerParentheses, tokensAfterParentheses] =
-      parentheses(afterNextToken);
+      return [() => getObj()[getLastMemberName()], afterLastMember];
+    const rightParenthesisIndex = getRightParenthesisIndex(afterNextToken);
+    afterNextToken.findIndex((t) => t.kind === ")");
+    const getArguments = array(afterNextToken.slice(0, rightParenthesisIndex));
+    const tokensAfterParentheses = afterNextToken.slice(
+      rightParenthesisIndex + 1
+    );
     return [
-      () => {
-        const isFunction = typeof getObj()[memberName] === "function";
-        const args = getInnerParentheses();
-        if (isFunction) return getObj()[memberName](...args);
-        return args.reduce((p, arg) => p[arg], getObj()[memberName]);
-      },
+      () => getObj()[getLastMemberName()](...getArguments()),
       tokensAfterParentheses,
     ];
+  };
+
+  const property = (propertyToken, remainder) => {
+    const [getObj, memberName] = getObjectWithProperty(propertyToken);
+    if (debug)
+      console.log(
+        `AFTER getObjectWithProperty propName: ${memberName} remaining tokens: ${remainder
+          .map((t) => t.value)
+          .join(" ")}`
+      );
+    return call(getObj, memberName, remainder);
   };
 
   const primary = (tokens) => {
@@ -184,13 +294,40 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
       case tokenKind.boolean:
         const booleanValue = token.value === "true";
         return [() => booleanValue, remainder];
+      case tokenKind.not:
       case tokenKind.until:
-        const rightOfNot = expressionsAsOneValue(remainder.slice(0, -1));
+        const rightOfNot = parseExpression(remainder.slice(0, -1));
         return [() => !rightOfNot(), remainder.slice(-1)];
       case tokenKind.property:
-        return call(token, remainder);
+        return property(token, remainder);
       case "(":
         return parentheses(remainder);
+      case "[":
+        const rightSquareBracketIndex = remainder.findIndex(
+          (t) => t.kind === "]"
+        );
+        if (rightSquareBracketIndex < 0)
+          console.error(
+            `On ${element.tagName}'s ${attrName}, found a [ left square bracket without matching right square bracket]`
+          );
+        return [
+          array(remainder.slice(0, rightSquareBracketIndex)),
+          remainder.slice(rightSquareBracketIndex + 1),
+        ];
+      case "{":
+        const rightCurlyBracketIndex = remainder.findIndex(
+          (t) => t.kind === "}"
+        );
+        if (rightCurlyBracketIndex < 0)
+          console.error(
+            `On ${element.tagName}'s ${attrName}, found a { left curly bracket without matching right curly bracket}`
+          );
+        return [
+          objectLiteral(remainder.slice(0, rightCurlyBracketIndex)),
+          remainder.slice(rightCurlyBracketIndex + 1),
+        ];
+      case tokenKind.additive:
+        return [() => 0, tokens];
       default:
         console.error(
           `Parser failed on ${tokens.map((t) => t.value).join(" ")}`
@@ -199,37 +336,25 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     }
   };
 
-  const not = (tokens) => {
-    if (tokens[0].kind !== tokenKind.not) return primary(tokens);
-    const afterNot = tokens.slice(1);
-    if (debug)
-      console.log("AFTER PRIMARY", afterNot.map((t) => t.value).join(" "));
-    const [right, remainder] = primary(afterNot);
-    return [() => !right(), remainder];
-  };
-
   const multiplicative = (tokens) => {
-    const [left, afterLeft] = not(tokens);
+    const [left, afterLeft] = primary(tokens);
     if (debug)
-      console.log("AFTER NOT", afterLeft.map((t) => t.value).join(" "));
+      console.log("AFTER PRIMARY", afterLeft.map((t) => t.value).join(" "));
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.multiplicative) return [left, afterLeft];
-    const [right, remainder] = not(rightTokens);
+    const [right, remainder] = multiplicative(rightTokens);
     if (operator.value === "*") return [() => left() * right(), remainder];
+    if (operator.value === "%") return [() => left() % right(), remainder];
     return [() => left() / right(), remainder];
   };
 
   const additive = (tokens) => {
-    const [firstToken] = tokens;
-    const [left, afterLeft] =
-      firstToken.kind === tokenKind.additive && firstToken.value === "-"
-        ? [() => 0, tokens]
-        : multiplicative(tokens);
+    const [left, afterLeft] = multiplicative(tokens);
     if (debug)
       console.log("AFTER MULT LEFT", afterLeft.map((t) => t.value).join(" "));
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.additive) return [left, afterLeft];
-    const [right, remainder] = multiplicative(rightTokens);
+    const [right, remainder] = additive(rightTokens);
     if (operator.value === "+") return [() => left() + right(), remainder];
     return [() => left() - right(), remainder];
   };
@@ -290,113 +415,50 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
     const [nextToken, ...afterNextToken] = afterLeft;
     if (nextToken.kind !== "?") return [left, afterLeft];
     const colonIndex = afterNextToken.findIndex((token) => token.kind === ":");
-    const middle = expressionsAsOneValue(afterNextToken.slice(0, colonIndex));
+    const middle = parseAndAutoEnclose(afterNextToken.slice(0, colonIndex));
     const [right, afterRight] = ternary(afterNextToken.slice(colonIndex + 1));
     return [() => (left() ? middle() : right()), afterRight];
   };
 
-  const list = (tokens, beforeLeftExpressions = []) => {
-    const [left, afterLeft] = ternary(tokens);
-    if (debug)
-      console.log(
-        "AFTER TERNARY LEFT",
-        afterLeft.map((t) => t.value).join(" ")
-      );
-    const [nextToken, ...afterNextToken] = afterLeft;
-    if (nextToken.kind === ",")
-      return list(afterNextToken, beforeLeftExpressions.concat(left));
-    const allExpressions = beforeLeftExpressions.concat(left);
-    return [allExpressions, afterLeft];
-  };
-
-  const objectLiteral = (tokens) => {
-    if (hasColonOutsideTernaryAndParentheses(tokens) === false)
-      return list(tokens);
-    if (debug) console.log("OBJECT LITERAL");
-    const beforeEnd = tokens.slice(0, -1);
-    const remainder = tokens.slice(-1);
-    if (remainder[0].kind !== tokenKind.end)
-      console.error(
-        `On ${element.tagName}'s ${attrName}, found a token at the end that is not an end token`,
-        end
-      );
-    const sections = commaSeparateSections(beforeEnd);
-    const keyValuePairs = sections.map((sectionTokens, i) => {
-      const colonIndex = sectionTokens.findIndex((token) => token.kind === ":");
-      if (colonIndex < 0) {
-        if (sectionTokens.length > 1)
-          console.error(
-            "Couldn't figure out what to do with these:",
-            sectionTokens
-          );
-        const propName = sectionTokens[0].value;
-
-        const getValue = expressionsAsOneValue(sectionTokens);
-        return () => [propName, getValue()];
-      }
-      if (colonIndex === 0) {
-        console.error("FOUND COLON AT BEGINNING OF SECTION");
-        return () => [];
-      }
-      if (colonIndex === 1) {
-        const propName = sectionTokens[0].value;
-        const tokensAfterColon = sectionTokens.slice(2);
-        const getValue = expressionsAsOneValue(tokensAfterColon);
-        return () => [propName, getValue()];
-      }
-      const getPropName = expressionsAsOneValue(
-        sectionTokens.slice(0, colonIndex)
-      );
-      const getValue = expressionsAsOneValue(sectionTokens.slice(colonIndex));
-      return () => [getPropName(), getValue()];
-    });
-    return [
-      [() => Object.fromEntries(keyValuePairs.map((fn) => fn()))],
-      remainder,
-    ];
-  };
-
   const end = (tokens) => {
-    const [expressions, afterExpressions] = objectLiteral(tokens);
+    if (tokens[0].kind === tokenKind.end) return () => {};
+    const [getExpression, afterExpression] = ternary(tokens);
     if (
-      afterExpressions.length === 0 ||
-      (afterExpressions.length === 1 &&
-        afterExpressions[0].kind !== tokenKind.end)
+      afterExpression.length === 0 ||
+      (afterExpression.length === 1 &&
+        afterExpression[0].kind !== tokenKind.end)
     )
       console.error(
         `On ${element.tagName}'s ${attrName}, reached end of expression without an end token`
       );
-    else if (afterExpressions.length > 1)
+    else if (afterExpression.length > 1)
       console.error(
         `On ${
           element.tagName
-        }'s ${attrName}, reached end of expression and found remaining tokens: ${afterExpressions
+        }'s ${attrName}, reached end of expression and found remaining tokens: ${afterExpression
           .map((t) => t.value)
           .join(" ")}`
       );
-    return expressions;
+    return getExpression;
   };
-
-  const listExpressions = (tokens) => {
+  const parseExpression = (tokens) => {
     if (debug)
       console.log(
-        `On ${element.tagName}'s ${attrName}, parsing ${tokens
-          .map((t) => t.value)
-          .join(" ")}`
+        `%cParsing ${tokens.map((t) => t.value).join(" ")}`,
+        "background: yellow; color: black; padding: 10px;"
       );
     return end(tokens.concat(endToken));
   };
-  const getExpressionAsArray = (tokens) => {
-    const expressions = listExpressions(tokens);
-    return () => expressions.map((exp) => exp());
+  const parseAndAutoEnclose = (tokens) => {
+    if (debug)
+      console.log(
+        `%cAuto enclosing ${tokens.map((t) => t.value).join(" ")}`,
+        "background: lightblue; color: black; padding: 10px;"
+      );
+    if (hasColonOutsideTernaryAndParentheses(tokens))
+      return objectLiteral(tokens);
+    if (isArray(tokens)) return array(tokens);
+    return parseExpression(tokens);
   };
-  const expressionsAsOneValue = (tokens) => {
-    const expressions = listExpressions(tokens);
-    const completeExpression =
-      expressions.length > 1
-        ? () => expressions.map((exp) => exp())
-        : expressions[0];
-    return completeExpression;
-  };
-  return expressionsAsOneValue(fullListOfTokens);
+  return parseAndAutoEnclose(fullListOfTokens);
 };

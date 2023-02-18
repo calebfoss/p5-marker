@@ -3,7 +3,7 @@
     background="0"
 >Sphere with specular highlight. Clicking the mouse toggles the specular highlight
     color between red and the default white. <ambient-light gray="60"></ambient-light>
-    <_
+    <_-3d
         set_red_specular_color="true">
         <point-light specular_color="set_red_specular_color ? color(255, 0, 0) : 255"
             v1="200" v2="200" v3="200"
@@ -15,7 +15,7 @@
                 shininess="50"
                 specular_material="150"></sphere>
         </point-light>
-        <_ on="mouse_down"
+        <_-3d on="mouse_down"
             parent.set_red_specular_color="not parent.set_red_specular_color" />
-    </_>
+    </_-3d>
 </canvas-3d>

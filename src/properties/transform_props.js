@@ -63,8 +63,8 @@ const addScale = (baseClass) =>
     }
     set scale(val) {
       if (val instanceof p5.Vector) this.#scale = val;
-      if (Array.isArray(val)) this.#scale = new p5.Vector(...val);
-      this.#scale = new p5.Vector(val, val, val);
+      else if (Array.isArray(val)) this.#scale = new p5.Vector(...val);
+      else this.#scale = new p5.Vector(val, val, val);
     }
   };
 
