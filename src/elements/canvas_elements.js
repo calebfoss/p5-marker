@@ -2,6 +2,14 @@ import { addP5PropsAndMethods } from "../core";
 import { addCanvasProperties } from "../properties/canvas_props";
 import { addCanvasMethods } from "../methods/canvas_methods";
 import { addEnvironmentProps } from "../properties/environment_props";
+import {
+  add2DTransformProps,
+  add3DTransformProps,
+} from "../properties/transform_props";
+import {
+  add2DTransformMethods,
+  add3DTransformMethods,
+} from "../methods/transform_methods";
 
 /**
  * The `<canvas>` element is a rectangular area of the window for rendering
@@ -12,7 +20,11 @@ import { addEnvironmentProps } from "../properties/environment_props";
  */
 class Canvas extends addCanvasMethods(
   addCanvasProperties(
-    addP5PropsAndMethods(addEnvironmentProps(HTMLCanvasElement))
+    addP5PropsAndMethods(
+      addEnvironmentProps(
+        add2DTransformProps(add2DTransformMethods(HTMLCanvasElement))
+      )
+    )
   )
 ) {
   static renderer = "p2d";
@@ -30,7 +42,11 @@ customElements.define("p-canvas", Canvas, { extends: "canvas" });
  */
 class WebGLCanvas extends addCanvasMethods(
   addCanvasProperties(
-    addP5PropsAndMethods(addEnvironmentProps(HTMLCanvasElement))
+    addP5PropsAndMethods(
+      addEnvironmentProps(
+        add3DTransformProps(add3DTransformMethods(HTMLCanvasElement))
+      )
+    )
   )
 ) {
   #bezier_detail;

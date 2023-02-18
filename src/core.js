@@ -11,6 +11,14 @@ import { addMathProps } from "./properties/math_props";
 import { addMathMethods } from "./methods/math_methods";
 import { addEventProps } from "./properties/event_props";
 import { interpret } from "./interpreter/interpreter";
+import {
+  add2DTransformProps,
+  add3DTransformProps,
+} from "./properties/transform_props";
+import {
+  add2DTransformMethods,
+  add3DTransformMethods,
+} from "./methods/transform_methods";
 
 wrapMethod(
   "_createFriendlyGlobalFunctionBinder",
@@ -678,6 +686,10 @@ export const addP5PropsAndMethods = (baseClass) =>
       }
       for (const propName of inheritedAttributes) {
         if (this.hasAttribute(propName)) continue;
+        if (
+          ["anchor", "scale", "angle", "shear_x", "shear_y"].includes(propName)
+        )
+          continue;
         if (propName in this)
           this.#updateFunctions.set(propName, () => {
             return (this[propName] = this.parent[propName]);
@@ -880,9 +892,11 @@ export class RenderedElement extends P5Element {
  * for adjusting attributes for child elements.
  * @element _
  */
-class _ extends P5Element {
+class _ extends add2DTransformProps(add2DTransformMethods(P5Element)) {
   constructor() {
     super();
   }
 }
 customElements.define("p-_", _);
+class _3D extends add3DTransformProps(add3DTransformMethods(P5Element)) {}
+customElements.define("p-_-3d", _3D);

@@ -1,2 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" background="220"></canvas>
+<canvas width="400" height="400" background="220">
+    <_ test="1 + 2 + 3"></_>
+</canvas>

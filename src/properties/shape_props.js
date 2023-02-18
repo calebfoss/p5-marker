@@ -308,7 +308,7 @@ export const addXYZ4 = (baseClass) => class extends addXY4(addZ4(baseClass)) {};
 
 export const addRectMode = (baseClass) =>
   class extends baseClass {
-    #rect_mode;
+    #rect_mode = "corner";
     /**
      * Modifies the location from which rectangles are drawn by changing the way
      * in which x and y coordinates are interpreted.

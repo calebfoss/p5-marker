@@ -1,32 +1,28 @@
 <_>
-    <_ name="[cloud]" stroke="NONE">
-        <_ anchor="x, y">
-            <circle x="-diameter/2" y="-diameter/4" fill="220"></circle>
-            <circle x="-diameter/2" y="-diameter/4" fill="210"></circle>
-            <circle x="-diameter/4" y="-diameter/2" fill="250"></circle>
-            <circle x="diameter/4" y="-diameter/2" fill="210"></circle>
-            <circle x="0" y="0" fill="180"></circle>
-            <circle x="diameter/2" y="0" fill="200"></circle>
-            <circle x="-diameter/2" y="0" fill="240"></circle>
-            <circle x="0" y="-diameter/8" fill="235"></circle>
-        </_>
+    <_ name=";cloud;" stroke="NONE" speed="0.25" diameter="40" x="0" y="75">
+        <_ on="first_frame" parent.x="random(width)" parent.y="random(height)"
+            parent.speed="random(0.1, 0.5)" />
+        <circle x="x - diameter/2" y="y - diameter/4" fill="220" />
+        <circle x="x - diameter/2" y="y - diameter/4" fill="210" />
+        <circle x="x - diameter/4" y="y - diameter/2" fill="250" />
+        <circle x="x + diameter/4" y="y - diameter/2" fill="210" />
+        <circle x="x" y="y" fill="180" />
+        <circle x="x + diameter/2" y="y" fill="200" />
+        <circle x="x - diameter/2" y="y" fill="240" />
+        <circle x="x" y="y - diameter/8" fill="235" />
+        <_ parent.x="x + speed" />
+        <_ on="parent.x is greater than canvas.width + diameter"
+            parent.x="random(1, 3) * -diameter"
+            parent.y="random(height)" />
     </_>
     <canvas
         width="400"
         height="400"
         background="100, 140, 200"
     >
-        <_ start_x="0">
-            <cloud
-                y="75"
-                x="start_x - width * 0.25"
-                diameter="40"
-                change="x: x + width * 0.25"
-                repeat="x less than width"
-            >
-            </cloud>
-            <_ parent.start_x="start_x + 0.25" />
-            <_ on="start_x at least width * 0.25" parent.start_x="0"></_>
+        <_ on="first_frame" cloud_count="0" repeat="until cloud_count is 6"
+            change="cloud_count: cloud_count + 1">
+            <_ created_cloud="create_canvas_element(;p-cloud;)" />
         </_>
     </canvas>
 </_>
