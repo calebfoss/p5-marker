@@ -1,5 +1,4 @@
 import { pascalToKebab, kebabToCamel } from "./utils/caseConvert";
-import { AttrParseUtil } from "./utils/attrParse";
 import { wrapMethod, defineProperties } from "./utils/p5Modifiers";
 import { addWebGLMethods } from "./methods/3d_methods";
 import { addColorMethods } from "./methods/color_methods";
@@ -593,15 +592,6 @@ export const addP5PropsAndMethods = (baseClass) =>
      * @private
      */
     #setupEvalFn(attr) {
-      //  The attribute's value will be modified, then run as JS
-      const attrJsStr = attr.value;
-      //  TODO - catch improperly ordered quote marks: "foo'var"'
-      if (AttrParseUtil.allQuotesMatched(attrJsStr) === false)
-        console.error(
-          `It looks like a ${this.tagName}'s ${attr.name} ` +
-            `attribute has an open string. Check that each string has a beginning and end character.`
-        );
-
       const getAssignPropRef = (str, obj = this) => {
         //  If string isn't already an array, split it on '.' characters
         const [beforeDot, ...afterDot] = Array.isArray(str)
@@ -612,56 +602,26 @@ export const addP5PropsAndMethods = (baseClass) =>
       };
       const [assignObj, assignPropName] = getAssignPropRef(attr.name);
       const interpretation = interpret(this, attr.name, attr.value);
-      if (typeof interpretation !== "function")
-        console.log(
-          `INTERPRETATION FAILED for ${this.tagName}'s ${attr.name} with value ${attr.value}`,
-          interpretation
-        );
-      else {
-        this.#updateFunctions.set(
-          attr.name,
-          () => (assignObj[assignPropName] = interpretation())
-        );
-        if (assignObj === this && attr.name in this === false) {
-          this.#state[attr.name] = interpretation();
-          Object.defineProperty(this, attr.name, {
-            get: function () {
-              return this.#state[attr.name];
-            },
-            set: function (val) {
-              this.#state[attr.name] = val;
-            },
-          });
-        }
-        try {
-          console.log(this.tagName, attr.name, interpretation());
-        } catch (err) {
-          console.warn(err);
-        }
-        return;
+      this.#updateFunctions.set(
+        attr.name,
+        () => (assignObj[assignPropName] = interpretation())
+      );
+      if (assignObj === this && attr.name in this === false) {
+        this.#state[attr.name] = interpretation();
+        Object.defineProperty(this, attr.name, {
+          get: function () {
+            return this.#state[attr.name];
+          },
+          set: function (val) {
+            this.#state[attr.name] = val;
+          },
+        });
       }
-      if (assignObj === this && assignPropName in this === false)
-        this.#customAttributeToProperty(assignPropName);
-      const attrValueVarsReplaced = AttrParseUtil.replacePropNames(
-        this,
-        attr.name === "name" ? `'${attrJsStr}'` : attrJsStr,
-        this instanceof HTMLCanvasElement ||
-          assignPropName === "repeat" ||
-          assignPropName === "change"
-      );
-      const varValue = AttrParseUtil.enclose(attrValueVarsReplaced);
-      const evalFnName = `${this.tagName.toLowerCase()}_${attr.name}`.replace(
-        /[^a-z0-9]/g,
-        "_"
-      );
-      const fnHeader = `return function ${evalFnName}() {`;
-      const fnBody = `return ${varValue};\n}`;
-      const fnStr = [fnHeader, ...this.#comments, fnBody].join("\n");
-      const evalFn = new Function(fnStr)();
-      const updateFn = function () {
-        return (assignObj[assignPropName] = evalFn.call(this));
-      };
-      this.#updateFunctions.set(attr.name, updateFn);
+      try {
+        console.log(this.tagName, attr.name, interpretation());
+      } catch (err) {
+        console.warn(err);
+      }
     }
     /**
      * @private
