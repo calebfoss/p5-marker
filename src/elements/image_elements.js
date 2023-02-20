@@ -1,4 +1,3 @@
-import { defineRendererGetterSetters } from "../utils/p5Modifiers";
 import { RenderedElement } from "../core";
 import { addWidthHeight, addXY } from "../properties/shape_props";
 import { constants } from "../properties/constants";
@@ -23,35 +22,13 @@ import { constants } from "../properties/constants";
  * CONTAIN, as the name suggests, contains the whole image within the specified destination box
  * without distorting the image ratio.
  * COVER covers the entire destination box.
- *
- *
- *
- * @element image
- * @attribute  {p5.Image|p5.Element|p5.Texture} img    the image to display
- * @attribute  {p5.Image|p5.Element|p5.Texture} img
- * @attribute  {Number}   dx     the x-coordinate of the destination
- *                           rectangle in which to draw the source image
- * @attribute  {Number}   dy     the y-coordinate of the destination
- *                           rectangle in which to draw the source image
- * @attribute  {Number}   dWidth  the width of the destination rectangle
- * @attribute  {Number}   dHeight the height of the destination rectangle
- * @attribute  {Number}   sx     the x-coordinate of the subsection of the source
- * image to draw into the destination rectangle
- * @attribute  {Number}   sy     the y-coordinate of the subsection of the source
- * image to draw into the destination rectangle
- * @attribute {Number}    [sWidth] the width of the subsection of the
- *                           source image to draw into the destination
- *                           rectangle
- * @attribute {Number}    [sHeight] the height of the subsection of the
- *                            source image to draw into the destination rectangle
- * @attribute {Constant} [fit] either CONTAIN or COVER
- * @attribute {Constant} [xAlign] either LEFT, RIGHT or CENTER default is CENTER
- * @attribute {Constant} [yAlign] either TOP, BOTTOM or CENTER default is CENTER
  */
 class Image extends addXY(addWidthHeight(RenderedElement)) {
+  #image_mode = constants.CORNER;
+  #tint = constants.NONE;
   static overloads = [
     "img, x, y, [width], [height]",
-    "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight]",
+    "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight], [fit], [xAlign], [yAlign]",
   ];
   /**
    * Sets the fill value for displaying images. Images can be tinted to
@@ -69,13 +46,34 @@ class Image extends addXY(addWidthHeight(RenderedElement)) {
    * @type {p5.Color}
    */
   get tint() {
-    return this.pInst.color(this.pInst._renderer._tint);
+    return this.#tint;
   }
   set tint(val) {
     if (val === constants.NONE) this.pInst.noTint();
-    else this.pInst.tint(...arguments);
+    else if (val instanceof p5.Color) this.pInst.tint(val);
+    else this.pInst.tint(...val);
+    this.#tint = this.pInst.color(this.pInst._renderer._tint);
+  }
+  /**
+   * Set image mode. Modifies the location from which images are drawn by
+   * changing the way in which an image's properties are interpreted.
+   * The default mode is image_mode="CORNER", which interprets x and
+   * y as the upper-left corner of the image.
+   *
+   * image_mode="CORNERS" interprets x and y
+   * as the location of one corner, and width and height as the
+   * opposite corner.
+   *
+   * image_mode="CENTER" interprets x and y
+   * as the image's center point.
+   * @type {CORNER|CORNERS|CENTER}
+   */
+  get image_mode() {
+    return this.#image_mode;
+  }
+  set image_mode(val) {
+    this.pInst.imageMode(val);
+    this.#image_mode = val;
   }
 }
 customElements.define("p-image", Image);
-
-defineRendererGetterSetters("imageMode");
