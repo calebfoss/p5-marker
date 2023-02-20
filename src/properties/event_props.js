@@ -14,8 +14,10 @@ export const addEventProps = (baseClass) =>
      * - mouse.moved.x - horizontal movement of the mouse since last frame
      * - mouse.moved.y - vertical movement of the mouse since last frame
      * - mouse.pressed - boolean that is true while the mouse button is held down
+     * - mouse.dragging - boolean that true while the mouse is pressed and moving
      * - mouse.button - which mouse button is currently pressed: LEFT, RIGHT, CENTER,
      *    or 0 for none.
+     *
      * @type {Object}
      */
     get mouse() {
@@ -40,6 +42,9 @@ export const addEventProps = (baseClass) =>
         },
         pressed: this.pInst.mouseIsPressed,
         button: this.pInst.mouseButton,
+        dragging:
+          this.pInst.mouseIsPressed &&
+          (this.pInst.movedX !== 0 || this.pInst.movedY !== 0),
       };
     }
     get acceleration() {

@@ -64,7 +64,6 @@ wrapMethod(
   (base) =>
     function (e) {
       base.call(this, e);
-      this._setProperty("mouse_dragging", this.mouseIsPressed);
       this._setProperty("touch_moved", this.mouseIsPressed);
     }
 );
@@ -136,7 +135,6 @@ p5.prototype.registerMethod("pre", function () {
 p5.prototype.registerMethod("post", function () {
   this._setProperty("device_moved", false);
   this._setProperty("mouse_down", false);
-  this._setProperty("mouse_dragging", false);
   this._setProperty("mouse_double_clicked", false);
   this._setProperty("_mouseWheel", false);
   this._setProperty("key_up", false);
