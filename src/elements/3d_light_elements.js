@@ -3,6 +3,8 @@ import {
   addLightFalloff,
   addSpecularColor,
 } from "../properties/3d_props";
+import { addXYZ } from "../properties/shape_props";
+import { addColorVals } from "../properties/color_props";
 
 /**
  * Creates an ambient light with the given color.
@@ -54,25 +56,6 @@ customElements.define("p-ambient-light", AmbientLight);
  * therefore cannot be positioned closer or farther away from a geometry.
  *
  * A maximum of **5** directional lights can be active at once.
- * @element    directional-light
- * @attribute  {Number}   v1     red or hue value relative to the current color
- *                                range
- * @attribute  {Number}   v2     green or saturation value relative to the
- *                                current color range
- * @attribute  {Number}   v3     blue or brightness value relative to the
- *                                current color range
- * @attribute  {Number}   x      x component of direction (inclusive range of
- *                                -1 to 1)
- * @attribute  {Number}   y      y component of direction (inclusive range of
- *                                -1 to 1)
- * @attribute  {Number}   z      z component of direction (inclusive range of
- *                                -1 to 1)
- * @attribute  {p5.Vector} direction  direction of light as a <a
- *                             href="https://p5js.org/reference/#/p5.Vector"
- *                             >p5.Vector</a>
- * @attribute {p5.Color} color  color as a <a
- *                                 href="https://p5js.org/reference/#/p5.Color"
- *                                 target="_blank">p5.Color</a>
  */
 class DirectionalLight extends addSpecularColor(WebGLLight) {
   static overloads = [
@@ -93,24 +76,10 @@ customElements.define("p-directional-light", DirectionalLight);
  * an object.
  *
  * A maximum of **5** point lights can be active at once.
- *
- * @attribute  {Number}   v1   red or hue value relative to the current color
- *                                range
- * @attribute  {Number}   v2   green or saturation value relative to the
- *                                current color range
- * @attribute  {Number}   v3   blue or brightness value relative to the
- *                                current color range
- * @attribute  {Number}    x   x component of position
- * @attribute  {Number}    y   y component of position
- * @attribute  {Number}    z   z component of position
- * @attribute  {p5.Vector}  position position of light as a <a
- *                            href="https://p5js.org/reference/#/p5.Vector"
- *                            >p5.Vector</a>
- * @attribute  {p5.Color|Number[]|String} color  color as a <a
- *                href="https://p5js.org/reference/#/p5.Color">p5.Color</a>,
- *                as an array, or as a CSS string
  */
-class PointLight extends addLightFalloff(addSpecularColor(WebGLLight)) {
+class PointLight extends addXYZ(
+  addColorVals(addLightFalloff(addSpecularColor(WebGLLight)))
+) {
   static overloads = [
     "v1, v2, v3, x, y, z",
     "v1, v2, v3, position",
@@ -124,7 +93,6 @@ customElements.define("p-point-light", PointLight);
  * Places an ambient and directional light in the scene.
  * The lights are set to <ambient-light v1="128" v2="128" v3="128"> and
  * <directional-light v1="128" v2="128" v3'="128" x="0" y="0" z="-1">.
- * @element lights
  */
 class Lights extends addSpecularColor(WebGLLight) {
   static overloads = [""];
@@ -152,26 +120,6 @@ customElements.define("p-lights", Lights);
  * The minimum concentration value is 1.
  *
  * A maximum of **5** spot lights can be active at once.
- *
- * @element spot-light
- * @attribute  {Number}    v1             red or hue value relative to the
- *                                            current color range
- * @attribute  {Number}    v2             green or saturation value relative
- *                                            to the current color range
- * @attribute  {Number}    v3             blue or brightness value relative
- *                                            to the current color range
- * @attribute  {Number}    x              x component of position
- * @attribute  {Number}    y              y component of position
- * @attribute  {Number}    z              z component of position
- * @attribute  {Number}    rx             x component of light direction
- *                                            (inclusive range of -1 to 1)
- * @attribute  {Number}    ry             y component of light direction
- *                                            (inclusive range of -1 to 1)
- * @attribute  {Number}    rz             z component of light direction
- *                                            (inclusive range of -1 to 1)
- * @attribute  {Number}    angle          angle of cone. Defaults to PI/3
- * @attribute  {Number}    concentration  concentration of cone. Defaults to
- *                                            100
  */
 class SpotLight extends addLightFalloff(addSpecularColor(WebGLLight)) {
   static overloads = [

@@ -73,3 +73,40 @@ export const addFill = (baseClass) =>
   };
 export const addFillStroke = (baseClass) =>
   class extends addFill(addStroke(baseClass)) {};
+
+export const addColorVals = (baseClass) =>
+  class extends baseClass {
+    #v1;
+    #v2;
+    #v3;
+    /**
+     * red or hue value using current color_mode
+     * @type {number}
+     */
+    get v1() {
+      return this.#v1;
+    }
+    set v1(val) {
+      this.#v1 = val;
+    }
+    /**
+     * green or saturation value using current color_mode
+     * @type {number}
+     */
+    get v2() {
+      return this.#v2;
+    }
+    set v2(val) {
+      this.#v2 = val;
+    }
+    /**
+     * blue, brightness, or lightness value using current color_mode
+     * @type {number}
+     */
+    get v3() {
+      return this.#v3;
+    }
+    set v3(val) {
+      this.#v3 = val;
+    }
+  };
