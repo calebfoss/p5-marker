@@ -365,7 +365,7 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
       console.log("AFTER ADDITIVE", afterLeft.map((t) => t.value).join(" "));
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.comparison) return [left, afterLeft];
-    const [right, remainder] = additive(rightTokens);
+    const [right, remainder] = comparison(rightTokens);
     const getCompareFn = () => {
       switch (operator.value) {
         case "less than":
@@ -391,7 +391,7 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
       console.log("AFTER COMPARE", afterLeft.map((t) => t.value).join(" "));
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.equality) return [left, afterLeft];
-    const [right, remainder] = comparison(rightTokens);
+    const [right, remainder] = equality(rightTokens);
     if (operator.value === "is")
       return [() => Object.is(left(), right()), remainder];
     return [() => !Object.is(left(), right()), remainder];
@@ -403,7 +403,7 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
       console.log("AFTER EQUALITY", afterLeft.map((t) => t.value).join(" "));
     const [operator, ...rightTokens] = afterLeft;
     if (operator.kind !== tokenKind.logical) return [left, afterLeft];
-    const [right, remainder] = equality(rightTokens);
+    const [right, remainder] = logical(rightTokens);
     if (operator.value === "and") return [() => left() && right(), remainder];
     return [() => left() || right(), remainder];
   };
