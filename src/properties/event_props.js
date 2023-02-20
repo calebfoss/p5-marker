@@ -21,30 +21,30 @@ export const addEventProps = (baseClass) =>
      * @type {Object}
      */
     get mouse() {
+      const { pInst } = this;
       return {
-        x: this.pInst.mouseX,
-        y: this.pInst.mouseY,
+        x: pInst.mouseX,
+        y: pInst.mouseY,
         previous: {
-          x: this.pInst.pmouseX,
-          y: this.pInst.pmouseY,
+          x: pInst.pmouseX,
+          y: pInst.pmouseY,
         },
         window: {
-          x: this.pInst.winMouseX,
-          y: this.pInst.winMouseY,
+          x: pInst.winMouseX,
+          y: pInst.winMouseY,
           previous: {
-            x: this.pInst.pwinMouseX,
-            y: this.pInst.pwinMouseY,
+            x: pInst.pwinMouseX,
+            y: pInst.pwinMouseY,
           },
         },
         moved: {
-          x: this.pInst.movedX,
-          y: this.pInst.movedY,
+          x: pInst.movedX,
+          y: pInst.movedY,
         },
-        pressed: this.pInst.mouseIsPressed,
-        button: this.pInst.mouseButton,
+        pressed: pInst.mouseIsPressed,
+        button: pInst.mouseButton,
         dragging:
-          this.pInst.mouseIsPressed &&
-          (this.pInst.movedX !== 0 || this.pInst.movedY !== 0),
+          pInst.mouseIsPressed && (pInst.movedX !== 0 || pInst.movedY !== 0),
       };
     }
     get acceleration() {
