@@ -106,13 +106,11 @@ export const addCanvasProperties = (baseClass) =>
       this.setAttribute("height", h * pInst._pixelDensity);
       this.style.width = `${w}px`;
       this.style.height = `${h}px`;
-      pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
       for (const savedKey in props) {
         try {
           pInst.drawingContext[savedKey] = props[savedKey];
         } catch (err) {}
       }
-      pInst.drawingContext.scale(pInst._pixelDensity, pInst._pixelDensity);
       pInst.redraw();
     }
     /**
