@@ -497,12 +497,14 @@ export const addP5PropsAndMethods = (baseClass) =>
     }
     get name() {
       if (this.#name) return this.#name;
-      const elementsWithThisTag = Array.from(
+      const elementName = this.tagName.slice(2).toLowerCase();
+      const otherDescribedElementsWithThisName = Array.from(
         document.querySelectorAll(this.tagName)
-      );
-      return `${this.tagName
-        .slice(2)
-        .toLowerCase()}_${elementsWithThisTag.indexOf(this)}`;
+      ).filter((el) => el !== this && el.content.length);
+      if (otherDescribedElementsWithThisName.length)
+        this.#name = `${elementName} ${otherDescribedElementsWithThisName.length}`;
+      else this.#name = elementName;
+      return this.#name;
     }
     set name(val) {
       this.#name = val;
