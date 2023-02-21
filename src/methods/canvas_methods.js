@@ -11,8 +11,8 @@ export const addCanvasMethods = (baseClass) =>
 
         pInst.setup = function () {
           canvas.setup(pInst, canvas);
-          //  Set default background to transparent
-          canvas.background = pInst.color(0, 0);
+          //  Set default background to light gray
+          canvas.background = pInst.color(220);
           pInst.assignCanvas(canvas, canvas.constructor.renderer);
           // Set default dimensions (100, 100)
           canvas.width = 100;

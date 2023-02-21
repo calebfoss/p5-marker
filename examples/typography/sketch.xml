@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" background="220" loop="false" margin="10">
+<canvas width="400" height="400" loop="false" margin="10">
     <_ font_size="int(random(12, 30))">
         <text x="margin" y="margin" width="width - margin * 2" height="height - margin * 2"
             align="random((LEFT, CENTER, RIGHT))"

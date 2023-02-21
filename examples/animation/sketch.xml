@@ -1,7 +1,6 @@
 <canvas
     width="400"
     height="400"
-    background="220"
 >
     <square x="width / 2" y="height / 2" size="width / 5"
         speed_x="3" speed_y="2"

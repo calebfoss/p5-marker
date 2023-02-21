@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" background="220" stroke_weight="4" fill="NONE">
+<canvas width="400" height="400" stroke_weight="4" fill="NONE">
     <circle x="mouse.x" y="mouse.y" />
     <_ mouse_circle="above_sibling" highlight="color(255, 255, 0, 128)">
         <square x="25" y="25">

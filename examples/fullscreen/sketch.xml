@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="window.width" height="window.height" background="220">
+<canvas width="window.width" height="window.height">
     <_ on="mouse_down" canvas.fullscreen="not canvas.fullscreen" />
 </canvas>

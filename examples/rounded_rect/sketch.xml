@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" background="220"> Four squares arranged in the four quadrants of
-    the canvas, each with a different rounded corner <_ x="width / 4" y="height / 4"
+<canvas width="400" height="400"> Four squares arranged in the four quadrants of the canvas, each with a different rounded corner <_ x="width / 4" y="height / 4"
         size="width / 4" rect_mode="CENTER">
         <square top_left_radius="20" />
         <square x="width * 0.75" top_right_radius="30" />

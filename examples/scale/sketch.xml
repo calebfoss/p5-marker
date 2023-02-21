@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://p5js.org/reference/#/p5/scale -->
-<canvas width="100" height="100" background="220">
+<canvas width="100" height="100">
     <rect x="30" y="20" width="50" height="50">
         <rect scale="0.5"></rect>
     </rect>

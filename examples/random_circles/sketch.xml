@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<canvas width="400" height="400" background="220" loop="false">
+<canvas width="400" height="400" loop="false">
     <circle anchor="random(width), random(height)"
         fill="random(255), random(255), random(255)"
         stroke="NONE"
