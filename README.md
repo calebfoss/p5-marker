@@ -7,7 +7,6 @@ Featuring collision detection using the [p5.collide2D](https://github.com/bmoren
 ## Contents
 
 - [Motivation](#motivation)
-- [Syntax](#syntax)
 - [Core Concepts](#core-concepts)
   - [Elements](#elements)
   - [Properties](#properties)
@@ -27,11 +26,9 @@ Take this example:
 
 ![a large rotating red square with a small blue circle in front of it](img/rotatingRedSquareWithBlueCircle.gif)
 
-In English, I might describe this as "a large rotating red square with a small blue circle in front of it."
-
 To produce it in p5.js, I need to break that down into a series of steps to produce it:
 
-```
+```javascript
 let squareAngle = 0;
 
 function setup() {
@@ -43,64 +40,70 @@ function setup() {
 function draw() {
   background(20);
   push();
-  translate(width / 2, height/2);
+  translate(width / 2, height / 2);
   rotate(squareAngle);
   fill(180, 40, 20);
   rectMode(CENTER);
   square(0, 0, 200);
+  describeElement(
+    "square",
+    "Large red square rotating in the center of the canvas."
+  );
   squareAngle = squareAngle + 1;
   pop();
   fill(20, 60, 180);
   circle(width / 2, height * 0.75, 100);
+  describeElement(
+    "circle",
+    "Small blue circle in front of the square toward the bottom."
+  );
 }
 ```
 
-Given the simplicity of the resulting image, I think there are a surprising number of concepts that need to be introduced in order to produce it. Without intentional code organization, I think it's quite easy to lose track of which styling/transformations will affect which things on the canvas.
+Given the simplicity of the resulting image, I think there are a surprising number of concepts that need to be introduced in order to produce it. Without careful code organization, I think it's quite easy to lose track of which styling and transformations will affect which things on the canvas.
 
 Here's how to produce that same example in Marker:
 
-```
+```xml
 <canvas
     width="400"
     height="400"
     angle_mode="DEGREES"
     background="20"
-    stroke="NONE"
->
+    stroke="NONE">
+
     <square
         anchor="width / 2, height / 2"
         size="200"
         rect_mode="CENTER"
         fill="180, 40, 20"
         angle="0"
-    >
-        <_ parent.angle="angle + 1" />
+    >Large red square rotating in the center of the canvas.<_
+            parent.angle="angle + 1" />
     </square>
-    <circle x="width / 2" y="height * 0.75" d="100" fill="20, 60, 180" />
+
+    <circle
+        x="width / 2"
+        y="height * 0.75"
+        diameter="100"
+        fill="20, 60, 180"
+    >Small blue circle in front of the square toward the bottom.</circle>
 </canvas>
 ```
 
-My goal is to provide a way to create sketches based on what you want to see, rather than how to produce it. Marker uses XML for its declarative syntax.
+Styling and transformation properties are directly associated with the visual elements they affect. The elements' inner text generates screen reader accessible descriptions.
 
-For folks who want a foundation to build towards more complex imperative programming languages, the implementations of Processing in [Java](https://processing.org/), [JavaScript](https://p5js.org/), and [Python](https://py.processing.org/) work fabulously.
-
-My target audience for Marker are folks focused on creative work, rather than learning programming concepts.
-
-## Syntax
-
-Property values are evaluated as JavaScript, so JS syntax applies.
-
-All names are written in snake case, which looks_like_this: all lowercase with words separated by underscores. This is because DOM properties are case insensitive.
+Marker offers a way to harness the creative possibilities of programming while focusing on what the creator wants to see, rather than the steps to produce it.
 
 ## Core concepts
 
 ### Elements
 
+Elements are Marker's building blocks.
+
 The canvas and everything that appears on it are represented by elements.
 
-The general rule is that p5.js methods that render something to the canvas have a corresponding element.
-
-For situations in which it's helpful to have an invisible element, you can use the blank <\_> element.
+When you want to change settings without rendering anything, you can use the blank `<_>` element.
 
 Examples:
 
@@ -112,11 +115,9 @@ Examples:
 
 Properties change the way an element is rendered.
 
-The general rule is that the required parameters for a p5.js method are required properties on its corresponding Marker element.
-
 For example, \<square> has x, y, and size properties, which adjust its horizontal position, vertical position, and size respectively.
 
-```
+```xml
 <square x="25" y="25" size="50" />
 ```
 
@@ -124,19 +125,19 @@ For example, \<square> has x, y, and size properties, which adjust its horizonta
 
 Property values are passed down to an element's children.
 
-```
+```xml
 <square x="25" y="100" size="50">
-  <circle d="25" />
+  <circle diameter="25" />
 </square>
 ```
 
 ![a square with upper left corner at (100, 100) and size 50 and a circle with its center at the same position with diameter 25](img/childExample.png)
 
-Elements can reference property values passed down from parents. Elements cannot reference their own properties.
+An element can reference property values passed down its parent. Elements cannot reference their own properties.
 
-```
+```xml
 <square x="25" y="25" size="50">
-  <circle x="x + 50" d="25" />
+  <circle x="x + 50" diameter="25" />
 </square>
 ```
 
@@ -144,9 +145,9 @@ Elements can reference property values passed down from parents. Elements cannot
 
 Properties can be set to multiple values, separated by commas.
 
-```
+```xml
 <square x="25" y="25" size="50" fill="180, 40, 20">
-  <circle d="25" />
+  <circle diameter="25" />
 </square>
 ```
 
@@ -154,13 +155,15 @@ Properties can be set to multiple values, separated by commas.
 
 An element can change the properties of elements above it on the XML document. This change will override the target element's initially set property value. This can be used for animation.
 
-```
+```xml
 <square x="0" y="25" size="50">
-  <_ parent_element.x="x + 1" />
+  <_ parent.x="x + 1" />
 </square>
 ```
 
 ![Square moving across the canvas from left to right](img/animationExample.gif)
+
+Property names are written in snake case, which looks_like_this: all lowercase with words separated by underscores.
 
 ### Methods
 
@@ -168,10 +171,12 @@ Methods are called within property values to calculate a value.
 
 p5.js methods that return a value, rather than render something to the canvas, have a snake case alias.
 
-```
+```xml
 <canvas width="100" height="100" background="255">
     <square x="25" y="25" size="50" fill="0">
-        <circle d="25" fill="lerp_color(fill, canvas.background, 0.5)" />
+        <circle
+          diameter="25"
+          fill="lerp_color(fill, canvas.background, 0.5)" />
     </square>
 </canvas>
 ```
@@ -180,18 +185,33 @@ p5.js methods that return a value, rather than render something to the canvas, h
 
 ## Logic
 
-### Conditions
+### Operators
 
-Because pointy brackets (< >) and ampersands (&) may not be used in an XML property's value, Marker uses the following
-escape sequences instead:
-|escape sequence|replaces
-|--|--
-|LESS_THAN|<
-|NO_MORE_THAN|<=
-|AT_LEAST|>=
-|GREATER_THAN|>
-|AND|&&
-|OR|\|\|
+Because pointy brackets (< >) and ampersands (&) may not be used in an XML attribute value, Marker uses the following
+phrases in place of comparison operators:
+
+| phrase       | replaces |
+| ------------ | -------- |
+| less than    | <        |
+| no more than | <=       |
+| at least     | >=       |
+| greater than | >        |
+
+These may optionally be preceded with "is" as in "x is less than width."
+
+Marker uses the following as logical operators:
+
+| keyword   | replaces |
+| --------- | -------- |
+| and       | &&       |
+| or        | \|\|     |
+| not/until | !        |
+
+"is" on its own acts as a strict equality operator.
+
+| keyword | replaces |
+| ------- | -------- |
+| is      | ===      |
 
 ### Branching
 
@@ -199,28 +219,19 @@ The "on" property is evaluated before any other properties. If and only if its v
 
 The above_siblings_off property is true if the siblings directly above the element either have "on" set to false or do not have an "on" property. This may be used to switch between sibling elements based on conditions, similar to if/else.
 
-```
+```xml
   <circle
-    fill="'red'"
-    x="0"
-    y="0"
-    d="width"
-    on="frame_count LESS_THAN 60"
-  ></circle>
+    fill=";red;"
+    on="frame_count less than 60"
+  />
   <circle
-    fill="'yellow'"
-    x="0"
-    y="0"
-    d="width"
-    on="above_siblings_off AND frame_count LESS_THAN 120"
-  ></circle>
+    fill=";yellow;"
+    on="above_siblings_off and frame_count is less than 120"
+  />
   <circle
-    fill="'green'"
-    x="0"
-    y="0"
-    d="width"
+    fill=";green;"
     on="above_siblings_off"
-  ></circle>
+  />
 ```
 
 ### Iteration
@@ -236,15 +247,17 @@ Change's value is an object literal. Each property key is the name of a property
 value represents what that property will be set to with each iteration. The curly brackets may be omitted
 in the change properties value (e.g. change="x: x + 1").
 
-```
+```xml
 <_
     x="0"
     y="0"
     width="canvas.width / 10"
     height="canvas.height / 10"
     change="x: x + w"
-    repeat="UNTIL x AT_LEAST canvas.width">
-    <rect change="y: y + h" repeat="UNTIL y AT_LEAST canvas.height"></rect>
+    repeat="until x is at least canvas.width">
+    <rect
+      change="y: y + h"
+      repeat="until y is at least canvas.height" />
 </_>
 ```
 
