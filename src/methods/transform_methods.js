@@ -15,9 +15,7 @@ const addPositionConverters = (baseClass) =>
       }
       const canvas_position = new DOMPoint(x, y, z);
       const inverted_matrix = this.transform_matrix.inverse();
-      const scaled_matrix = inverted_matrix.scale(
-        1 / this.pInst.pixelDensity()
-      );
+      const scaled_matrix = inverted_matrix.scale(this.pInst.pixelDensity());
       const canvas_point = scaled_matrix.transformPoint(canvas_position);
       return this.pInst.createVector(
         canvas_point.x,

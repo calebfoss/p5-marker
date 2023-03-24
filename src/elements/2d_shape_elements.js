@@ -117,10 +117,7 @@ const addEllipse2DCollisionProps = (baseClass) =>
     collider = collider_type.ellipse;
     get collision_args() {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
-      const { pixel_density } = this.canvas;
-      const { w } = this.width * pixel_density;
-      const { h } = this.height * pixel_density || w;
-      return [x, y, w, h];
+      return [x, y, this.width, this.height];
     }
     get mouse_over() {
       const { x: local_mouse_x, y: local_mouse_y } =
@@ -156,15 +153,10 @@ customElements.define("p-ellipse", Ellipse);
 
 const addCircle2DCollisionProps = (baseClass) =>
   class extends baseClass {
-    constructor() {
-      super(["x, y, d"]);
-    }
     collider = collider_type.circle;
     get collision_args() {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
-      const scaledDiameter =
-        this.diameter * this.pInst.pow(this.canvas.pixel_density, 2);
-      return [x, y, scaledDiameter];
+      return [x, y, this.diameter];
     }
     get mouse_over() {
       const { mouseX, mouseY } = this.pInst;
@@ -244,17 +236,14 @@ const addPointCollisionProps = (baseClass) =>
     collider = collider_type.circle;
     get collision_args() {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
-      const { stroke_weight } = this;
-      const { pixel_density } = this.canvas;
-      const d = stroke_weight * this.pInst.pow(pixel_density, 2);
+      const d = this.stroke_weight;
       return [x, y, d];
     }
     get mouse_over() {
       const { x, y, stroke_weight } = this;
-      const { pixel_density } = this.canvas;
       const { x: local_mouse_x, y: local_mouse_y } =
         this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
-      const d = stroke_weight * this.pInst.pow(pixel_density, 2);
+      const d = stroke_weight;
       return this.collide.point_circle(local_mouse_x, local_mouse_y, x, y, d);
     }
   };
@@ -376,19 +365,17 @@ class Rect extends addXY(
   collider = collider_type.rect;
   get collision_args() {
     const { rect_mode } = this;
-    const { pixel_density } = this.canvas;
-    const w = this.width * this.pInst.pow(pixel_density, 2);
-    const h = this.height * this.pInst.pow(pixel_density, 2);
+    const { width, height } = this;
     if (rect_mode === "corner") {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
-      return [x, y, w, h];
+      return [x, y, width, height];
     }
     if (rect_mode === "center") {
       const { x, y } = this.local_to_canvas_position(
         this.x - this.width / 2,
         this.y - this.height / 2
       );
-      return [x, y, w, h];
+      return [x, y, width, height];
     }
     console.error(
       `Collision detection with rect_mode ${rect_mode} is not yet supported`
@@ -434,9 +421,8 @@ class Square extends addXY(
   ];
   collider = collider_type.rect;
   get collision_args() {
-    const { pixel_density } = this.canvas;
     const { size, rect_mode } = this;
-    const w = size * this.pInst.pow(pixel_density, 2);
+    const w = size;
     const h = w;
     if (rect_mode === "corner") {
       const { x, y } = this.local_to_canvas_position(this.x, this.y);
