@@ -1,7 +1,6 @@
 <canvas
   width="400"
   height="400"
-  is="p-canvas"
   loop="false"
 >
   <_
