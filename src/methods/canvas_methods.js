@@ -11,12 +11,10 @@ export const addCanvasMethods = (baseClass) =>
 
         pInst.setup = function () {
           canvas.setup(pInst, canvas);
+          canvas.updateState();
           //  Set default background to light gray
           canvas.background = pInst.color(220);
           pInst.assignCanvas(canvas, canvas.constructor.renderer);
-          // Set default dimensions (100, 100)
-          canvas.width = 100;
-          canvas.height = 100;
         };
         pInst.draw = function () {
           if (canvas.orbit_control) canvas.pInst.orbitControl();
