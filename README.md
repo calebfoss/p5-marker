@@ -239,9 +239,8 @@ The above_siblings_off property is true if the siblings directly above the eleme
 Elements and their children can be iterated using two properties in combination: "repeat" and "change".
 
 Repeat's value is a boolean evaluated with each iteration. If the value is true, the element and its
-children will be iterated again. The WHILE and UNTIL escapes can be used to improve legibility
-(e.g. repeat="WHILE x LESS_THAN width" or repeat="UNTIL x AT_LEAST width"). UNTIL is the equivalent of
-wrapping the proceeding condition with !(). WHILE serves no programmatic purpose.
+children will be iterated again. The keyword `until` is the equivalent of
+wrapping the proceeding condition with !().
 
 Change's value is an object literal. Each property key is the name of a property, and the corresponding
 value represents what that property will be set to with each iteration. The curly brackets may be omitted
