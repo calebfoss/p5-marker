@@ -213,6 +213,8 @@ Marker uses the following as logical operators:
 | ------- | -------- |
 | is      | ===      |
 
+Currently these keywords are only available in English, but because Marker uses its own interpreter, these could be translated in future versions of the tool.
+
 ### Branching
 
 The "on" property is evaluated before any other properties. If and only if its value is true, the element's other properties will be evaluated, the element will be rendered, and the element's children will be evaluated and rendered.
