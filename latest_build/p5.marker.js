@@ -1,4 +1,4 @@
-// p5-marker v0.2.0 Tue Feb 21 2023 https://github.com/calebfoss/p5-marker.git
+// p5-marker v0.2.1 Fri Mar 24 2023 https://github.com/calebfoss/p5-marker.git
 const $7a53813bc2528edd$var$upperCaseChar = /([A-Z])/g;
 const $7a53813bc2528edd$var$upperCaseCharAfterFirst = /(?<!^)[A-Z]/g;
 //  js string replace 2nd param
@@ -1613,7 +1613,7 @@ const $3a08fcf437e8d724$var$addPositionConverters = (baseClass)=>class extends b
             }
             const canvas_position = new DOMPoint(x, y, z);
             const inverted_matrix = this.transform_matrix.inverse();
-            const scaled_matrix = inverted_matrix.scale(1 / this.pInst.pixelDensity());
+            const scaled_matrix = inverted_matrix.scale(this.pInst.pixelDensity());
             const canvas_point = scaled_matrix.transformPoint(canvas_position);
             return this.pInst.createVector(canvas_point.x, canvas_point.y, canvas_point.z);
         }
@@ -2178,11 +2178,6 @@ const $79ce0e365a23b6d5$export$a11dc51f2ecd743e = (baseClass)=>class P5Extension
                     }
                 });
             }
-            try {
-                console.log(this.tagName, attr.name, interpretation());
-            } catch (err) {
-                console.warn(err);
-            }
         }
         /**
      * @private
@@ -2511,12 +2506,10 @@ const $76bd26c91fab8e7c$export$5eb092502585022b = (baseClass)=>class extends bas
                 pInst.preload = ()=>pInst.loadAssets();
                 pInst.setup = function() {
                     canvas.setup(pInst, canvas);
+                    canvas.updateState();
                     //  Set default background to light gray
                     canvas.background = pInst.color(220);
                     pInst.assignCanvas(canvas, canvas.constructor.renderer);
-                    // Set default dimensions (100, 100)
-                    canvas.width = 100;
-                    canvas.height = 100;
                 };
                 pInst.draw = function() {
                     if (canvas.orbit_control) canvas.pInst.orbitControl();
@@ -3412,14 +3405,11 @@ const $f83208cc1173e373$var$addEllipse2DCollisionProps = (baseClass)=>class exte
         collider = (0, $16ac526ed636526d$export$c8dddae6889b41c4).ellipse;
         get collision_args() {
             const { x: x , y: y  } = this.local_to_canvas_position(this.x, this.y);
-            const { pixel_density: pixel_density  } = this.canvas;
-            const { w: w  } = this.width * pixel_density;
-            const { h: h  } = this.height * pixel_density || w;
             return [
                 x,
                 y,
-                w,
-                h
+                this.width,
+                this.height
             ];
         }
         get mouse_over() {
@@ -3443,19 +3433,13 @@ const $f83208cc1173e373$var$addEllipse2DCollisionProps = (baseClass)=>class exte
 }
 customElements.define("p-ellipse", $f83208cc1173e373$var$Ellipse);
 const $f83208cc1173e373$var$addCircle2DCollisionProps = (baseClass)=>class extends baseClass {
-        constructor(){
-            super([
-                "x, y, d"
-            ]);
-        }
         collider = (0, $16ac526ed636526d$export$c8dddae6889b41c4).circle;
         get collision_args() {
             const { x: x , y: y  } = this.local_to_canvas_position(this.x, this.y);
-            const scaledDiameter = this.diameter * this.pInst.pow(this.canvas.pixel_density, 2);
             return [
                 x,
                 y,
-                scaledDiameter
+                this.diameter
             ];
         }
         get mouse_over() {
@@ -3519,9 +3503,7 @@ const $f83208cc1173e373$var$addPointCollisionProps = (baseClass)=>class extends 
         collider = (0, $16ac526ed636526d$export$c8dddae6889b41c4).circle;
         get collision_args() {
             const { x: x , y: y  } = this.local_to_canvas_position(this.x, this.y);
-            const { stroke_weight: stroke_weight  } = this;
-            const { pixel_density: pixel_density  } = this.canvas;
-            const d = stroke_weight * this.pInst.pow(pixel_density, 2);
+            const d = this.stroke_weight;
             return [
                 x,
                 y,
@@ -3530,9 +3512,8 @@ const $f83208cc1173e373$var$addPointCollisionProps = (baseClass)=>class extends 
         }
         get mouse_over() {
             const { x: x , y: y , stroke_weight: stroke_weight  } = this;
-            const { pixel_density: pixel_density  } = this.canvas;
             const { x: local_mouse_x , y: local_mouse_y  } = this.canvas_to_local_position(this.pInst.mouseX, this.pInst.mouseY);
-            const d = stroke_weight * this.pInst.pow(pixel_density, 2);
+            const d = stroke_weight;
             return this.collide.point_circle(local_mouse_x, local_mouse_y, x, y, d);
         }
     };
@@ -3637,16 +3618,14 @@ const $f83208cc1173e373$var$addCornerRadius = (baseClass)=>class extends baseCla
     collider = (0, $16ac526ed636526d$export$c8dddae6889b41c4).rect;
     get collision_args() {
         const { rect_mode: rect_mode  } = this;
-        const { pixel_density: pixel_density  } = this.canvas;
-        const w = this.width * this.pInst.pow(pixel_density, 2);
-        const h = this.height * this.pInst.pow(pixel_density, 2);
+        const { width: width , height: height  } = this;
         if (rect_mode === "corner") {
             const { x: x , y: y  } = this.local_to_canvas_position(this.x, this.y);
             return [
                 x,
                 y,
-                w,
-                h
+                width,
+                height
             ];
         }
         if (rect_mode === "center") {
@@ -3654,8 +3633,8 @@ const $f83208cc1173e373$var$addCornerRadius = (baseClass)=>class extends baseCla
             return [
                 x1,
                 y1,
-                w,
-                h
+                width,
+                height
             ];
         }
         console.error(`Collision detection with rect_mode ${rect_mode} is not yet supported`);
@@ -3689,9 +3668,8 @@ customElements.define("p-rect", $f83208cc1173e373$var$Rect);
     ];
     collider = (0, $16ac526ed636526d$export$c8dddae6889b41c4).rect;
     get collision_args() {
-        const { pixel_density: pixel_density  } = this.canvas;
         const { size: size , rect_mode: rect_mode  } = this;
-        const w = size * this.pInst.pow(pixel_density, 2);
+        const w = size;
         const h = w;
         if (rect_mode === "corner") {
             const { x: x , y: y  } = this.local_to_canvas_position(this.x, this.y);
