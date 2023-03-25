@@ -619,11 +619,6 @@ export const addP5PropsAndMethods = (baseClass) =>
           },
         });
       }
-      try {
-        console.log(this.tagName, attr.name, interpretation());
-      } catch (err) {
-        console.warn(err);
-      }
     }
     /**
      * @private
