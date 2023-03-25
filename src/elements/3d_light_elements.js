@@ -31,6 +31,9 @@ import { addColorVals } from "../properties/color_props";
  *                                 target="_blank">p5.Color</a>
  */
 class AmbientLight extends WebGLLight {
+  /**
+   * @private
+   */
   static overloads = [
     "v1, v2, v3, [alpha]",
     "gray, [alpha]",
@@ -58,6 +61,9 @@ customElements.define("p-ambient-light", AmbientLight);
  * A maximum of **5** directional lights can be active at once.
  */
 class DirectionalLight extends addSpecularColor(WebGLLight) {
+  /**
+   * @private
+   */
   static overloads = [
     "v1, v2, v3, x, y, z",
     "v1, v2, v3, direction",
@@ -80,6 +86,9 @@ customElements.define("p-directional-light", DirectionalLight);
 class PointLight extends addXYZ(
   addColorVals(addLightFalloff(addSpecularColor(WebGLLight)))
 ) {
+  /**
+   * @private
+   */
   static overloads = [
     "v1, v2, v3, x, y, z",
     "v1, v2, v3, position",
@@ -95,6 +104,9 @@ customElements.define("p-point-light", PointLight);
  * <directional-light v1="128" v2="128" v3'="128" x="0" y="0" z="-1">.
  */
 class Lights extends addSpecularColor(WebGLLight) {
+  /**
+   * @private
+   */
   static overloads = [""];
 }
 customElements.define("p-lights", Lights);
@@ -122,6 +134,9 @@ customElements.define("p-lights", Lights);
  * A maximum of **5** spot lights can be active at once.
  */
 class SpotLight extends addLightFalloff(addSpecularColor(WebGLLight)) {
+  /**
+   * @private
+   */
   static overloads = [
     "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",
     "color, position, direction, [angle], [concentration]",

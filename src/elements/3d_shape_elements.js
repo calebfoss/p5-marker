@@ -25,26 +25,41 @@ class WebGLGeometry extends addFillStroke(
 ) {}
 
 class Normal extends addXYZ(RenderedElement) {
+  /**
+   * @private
+   */
   static overloads = ["vector", "x, y, z"];
 }
 customElements.define("p-normal", Normal);
 
 class Plane extends addWidthHeight(WebGLGeometry) {
+  /**
+   * @private
+   */
   static overloads = "[width], [height], [detail_x], [detail_y]";
 }
 customElements.define("p-plane", Plane);
 
 class Box extends addWidthHeight(WebGLGeometry) {
+  /**
+   * @private
+   */
   static overloads = ["[width], [height], [depth], [detail_x], [detail_y]"];
 }
 customElements.define("p-box", Box);
 
 class Sphere extends WebGLGeometry {
+  /**
+   * @private
+   */
   static overloads = ["[radius], [detail_x], [detail_y]"];
 }
 customElements.define("p-sphere", Sphere);
 
 class Cylinder extends WebGLGeometry {
+  /**
+   * @private
+   */
   static overloads = [
     "[radius], [height], [detail_x], [detail_y], [bottomCap], [topCap]",
   ];
@@ -52,11 +67,17 @@ class Cylinder extends WebGLGeometry {
 customElements.define("p-cylinder", Cylinder);
 
 class Cone extends WebGLGeometry {
+  /**
+   * @private
+   */
   static overloads = ["[radius], [height], [detail_x], [detail_y], [cap]"];
 }
 customElements.define("p-cone", Cone);
 
 class Ellipsoid extends WebGLGeometry {
+  /**
+   * @private
+   */
   static overloads = [
     "[radius_x], [radius_y], [radius_z], [detail_x], [detail_y]",
   ];
@@ -64,12 +85,18 @@ class Ellipsoid extends WebGLGeometry {
 customElements.define("p-ellipsoid", Ellipsoid);
 
 class Torus extends WebGLGeometry {
+  /**
+   * @private
+   */
   static overloads = ["[radius], [tubeRadius], [detailX], [detailY]"];
 }
 customElements.define("p-torus", Torus);
 
 //  TODO - test when preload implemented
 class LoadModel extends RenderedElement {
+  /**
+   * @private
+   */
   static overloads = [
     "path, normalize, [successCallback], [failureCallback], [fileType]",
     "path, [successCallback], [failureCallback], [fileType]",
@@ -78,6 +105,9 @@ class LoadModel extends RenderedElement {
 customElements.define("p-load-model", LoadModel);
 
 class Model extends WebGLGeometry {
+  /**
+   * @private
+   */
   static overloads = ["model"];
 }
 customElements.define("p-model", Model);
@@ -145,6 +175,9 @@ const addDetailXY = (baseClass) =>
 class Arc3D extends remove3DFromRenderFunctionName(
   addXY(addArcProps(addDetail(add3DProps(RenderedElement))))
 ) {
+  /**
+   * @private
+   */
   static overloads = [
     "x, y, width, height, start_angle, stop_angle, [mode], [detail]",
   ];
@@ -164,6 +197,9 @@ class Base2DTo3D extends add3DTransformProps(add3DProps(RenderedElement)) {}
 class Ellipse3D extends remove3DFromRenderFunctionName(
   addXY(addWidthHeight(addFillStroke(Base2DTo3D)))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, width, [height], [detail]"];
 }
 customElements.define("p-ellipse-3d", Ellipse3D);
@@ -177,6 +213,9 @@ customElements.define("p-ellipse-3d", Ellipse3D);
 class Circle3D extends remove3DFromRenderFunctionName(
   addXY(addDiameter(addFillStroke(Base2DTo3D)))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, diameter"];
 }
 customElements.define("p-circle-3d", Circle3D);
@@ -191,6 +230,9 @@ customElements.define("p-circle-3d", Circle3D);
 class Line3D extends remove3DFromRenderFunctionName(
   addXYZ1(addXYZ2(addStroke(Base2DTo3D)))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, z1, x2, y2, z2"];
 }
 customElements.define("p-line-3d", Line3D);
@@ -204,6 +246,9 @@ customElements.define("p-line-3d", Line3D);
 class Point3D extends remove3DFromRenderFunctionName(
   addXYZ(addStroke(Base2DTo3D))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, z"];
 }
 customElements.define("p-point-3d", Point3D);
@@ -219,6 +264,9 @@ customElements.define("p-point-3d", Point3D);
 class Quad3D extends remove3DFromRenderFunctionName(
   addXYZ1(addXYZ2(addXYZ3(addXYZ4(addDetailXY(addFillStroke(Base2DTo3D))))))
 ) {
+  /**
+   * @private
+   */
   static overloads = [
     "x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4, [detail_x], [detail_y]",
   ];
@@ -235,6 +283,9 @@ customElements.define("p-quad-3d", Quad3D);
 class Rect3D extends remove3DFromRenderFunctionName(
   addXY(addWidthHeight(addFillStroke(Base2DTo3D)))
 ) {
+  /**
+   * @private
+   */
   static overloads = [
     "x, y, width, [height], [top_left_radius], [top_right_radius], [bottom_right_radius], [bottom_left_radius]",
   ];
@@ -251,6 +302,9 @@ customElements.define("p-rect-3d", Rect3D);
 class Triangle3D extends remove3DFromRenderFunctionName(
   addXYZ1(addXYZ2(addXYZ3(addFillStroke(Base2DTo3D))))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3"];
 }
 customElements.define("p-triangle-3d", Triangle3D);
@@ -277,6 +331,9 @@ class Bezier3D extends remove3DFromRenderFunctionName(
     )
   )
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
 }
 customElements.define("p-bezier-3d", Bezier3D);
@@ -307,6 +364,9 @@ class Curve3D extends remove3DFromRenderFunctionName(
     )
   )
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4"];
 }
 customElements.define("p-curve-3d", Curve3D);
@@ -381,6 +441,9 @@ const addUV = (baseClass) =>
  * @element vertex
  */
 class Vertex3D extends addXYZ(addUV(RenderedElement)) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, z, [u], [v]"];
 }
 customElements.define("p-vertex-3d", Vertex3D);
@@ -398,6 +461,9 @@ customElements.define("p-vertex-3d", Vertex3D);
  */
 
 class QuadraticVertex3D extends addXYZ3(RenderedElement) {
+  /**
+   * @private
+   */
   static overloads = ["cx, cy, cz, x3, y3, z3"];
 }
 customElements.define("p-quadratic-vertex-3d", QuadraticVertex3D);
@@ -419,6 +485,9 @@ customElements.define("p-quadratic-vertex-3d", QuadraticVertex3D);
 class CurveVertex3D extends remove3DFromRenderFunctionName(
   addXYZ(addCurveTightness(addFillStroke(add3DProps(RenderedElement))))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, z"];
 }
 customElements.define("p-curve-vertex-3d", CurveVertex3D);

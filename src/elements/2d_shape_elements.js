@@ -108,6 +108,9 @@ export const addArcProps = (baseClass) =>
 class Arc extends addXY(
   addWidthHeight(addArcProps(add2DFillStroke(Transformed2DElement)))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, width, height, start_angle, stop_angle, [mode]"];
 }
 customElements.define("p-arc", Arc);
@@ -147,6 +150,9 @@ class Ellipse extends addXY(
     addFillStroke(addEllipse2DCollisionProps(Transformed2DElement))
   )
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, width, [height]"];
 }
 customElements.define("p-ellipse", Ellipse);
@@ -191,6 +197,9 @@ export const addDiameter = (baseClass) =>
 class Circle extends addXY(
   addDiameter(add2DFillStroke(addCircle2DCollisionProps(Transformed2DElement)))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y, diameter"];
 }
 customElements.define("p-circle", Circle);
@@ -227,6 +236,9 @@ const addLine2DCollisionProps = (baseClass) =>
 class Line extends addXY12(
   add2DStroke(addLine2DCollisionProps(Transformed2DElement))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, x2, y2"];
 }
 customElements.define("p-line", Line);
@@ -256,6 +268,9 @@ const addPointCollisionProps = (baseClass) =>
 class Point extends addXY(
   add2DStroke(addPointCollisionProps(Transformed2DElement))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x, y"];
 }
 customElements.define("p-point", Point);
@@ -296,6 +311,9 @@ const addQuad2DCollisionProps = (baseClass) =>
 class Quad extends addXY12(
   addXY3(addXY4(add2DFillStroke(addQuad2DCollisionProps(Transformed2DElement))))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-quad", Quad);
@@ -359,6 +377,9 @@ class Rect extends addXY(
     addRectMode(addCornerRadius(add2DFillStroke(Transformed2DElement)))
   )
 ) {
+  /**
+   * @private
+   */
   static overloads = [
     "x, y, width, height, top_left_radius, top_right_radius, bottom_right_radius, bottom_left_radius",
   ];
@@ -416,6 +437,9 @@ class Square extends addXY(
   addRectMode(addCornerRadius(add2DFillStroke(Transformed2DElement)))
 ) {
   #size = 100;
+  /**
+   * @private
+   */
   static overloads = [
     "x, y, size, top_left_radius, top_right_radius, bottom_right_radius, bottom_left_radius",
   ];
@@ -477,6 +501,9 @@ customElements.define("p-square", Square);
  * @element triangle
  */
 class Triangle extends addXY12(addXY3(add2DFillStroke(Transformed2DElement))) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, x2, y2, x3, y3"];
   collider = collider_type.poly;
   get collision_args() {
@@ -524,6 +551,9 @@ customElements.define("p-triangle", Triangle);
 class Bezier extends addXY12(
   addXY3(addXY4(add2DFillStroke(addBezierMethods(RenderedElement))))
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-bezier", Bezier);
@@ -547,6 +577,9 @@ class Curve extends addXY12(
     )
   )
 ) {
+  /**
+   * @private
+   */
   static overloads = ["x1, y1, x2, y2, x3, y3, x4, y4"];
 }
 customElements.define("p-curve", Curve);
@@ -635,6 +668,9 @@ export const addShapeElementProps = (baseClass) =>
     #kind;
     #mode;
     renderFunctionName = "beginShape";
+    /**
+     * @private
+     */
     static overloads = ["[kind]"];
 
     endRender() {
@@ -707,6 +743,9 @@ customElements.define("p-shape", Shape);
  * @element vertex
  */
 class Vertex extends addXY(RenderedElement) {
+  /**
+   * @private
+   */
   static overloads = ["x, y"];
 }
 customElements.define("p-vertex", Vertex);
@@ -722,6 +761,9 @@ customElements.define("p-vertex", Vertex);
  *  ```<shape>```.
  */
 class QuadraticVertex extends addCXY(addXY3(RenderedElement)) {
+  /**
+   * @private
+   */
   static overloads = ["cx, cy, x3, y3"];
 }
 customElements.define("p-quadratic-vertex", QuadraticVertex);
@@ -740,6 +782,9 @@ customElements.define("p-quadratic-vertex", QuadraticVertex);
  * splines.
  */
 class CurveVertex extends addXYZ(addCurveTightness(RenderedElement)) {
+  /**
+   * @private
+   */
   static overloads = ["x, y"];
 }
 customElements.define("p-curve-vertex", CurveVertex);

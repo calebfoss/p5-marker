@@ -51,6 +51,9 @@ class Text extends addXY(
     )
   )
 ) {
+  /**
+   * @private
+   */
   static overloads = ["content, x, y, [width], [height]"];
 }
 customElements.define("p-text", Text);
@@ -106,6 +109,9 @@ class Text3D extends addXY(
     )
   )
 ) {
+  /**
+   * @private
+   */
   static overloads = ["content, x, y, [width], [height]"];
 }
 customElements.define("p-text-3d", Text3D);

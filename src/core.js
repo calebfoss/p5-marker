@@ -776,6 +776,9 @@ export const addP5PropsAndMethods = (baseClass) =>
 export class P5Element extends addP5PropsAndMethods(HTMLElement) {}
 
 export class RenderedElement extends P5Element {
+  /**
+   * @private
+   */
   static overloads = [""];
   constructor() {
     super();

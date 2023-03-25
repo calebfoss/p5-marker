@@ -26,6 +26,9 @@ import { constants } from "../properties/constants";
 class Image extends addXY(addWidthHeight(RenderedElement)) {
   #image_mode = constants.CORNER;
   #tint = constants.NONE;
+  /**
+   * @private
+   */
   static overloads = [
     "img, x, y, [width], [height]",
     "img, dx, dy, dWidth, dHeight, sx, sy, [sWidth], [sHeight], [fit], [xAlign], [yAlign]",
