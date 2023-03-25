@@ -133,7 +133,7 @@ Property values are passed down to an element's children.
 
 ![a square with upper left corner at (100, 100) and size 50 and a circle with its center at the same position with diameter 25](img/childExample.png)
 
-An element can reference property values passed down its parent. Elements cannot reference their own properties.
+An element can reference property values passed down from its parent. Elements cannot reference their own properties.
 
 ```xml
 <square x="25" y="25" size="50">
