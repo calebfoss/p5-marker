@@ -43,7 +43,7 @@ export const lex = (str) => {
       return getTokens(end, tokens.concat(singleCharToken));
     }
 
-    const numberMatch = strFromStart.match(/^-?\d+(?:\.\d+)?/);
+    const numberMatch = strFromStart.match(/^\d+(?:\.\d+)?/);
     if (numberMatch) {
       const end = start + numberMatch[0].length;
       const numberToken = token(tokenKind.number, start, end, numberMatch[0]);
