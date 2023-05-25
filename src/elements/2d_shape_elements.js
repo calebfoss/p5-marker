@@ -1,6 +1,6 @@
 import { RenderedElement } from "../core";
 import { addBezierMethods, addCurveMethods } from "../methods/shape_methods";
-import { addStroke, addFillStroke } from "../properties/color_props";
+import { addStroke, addFill } from "../properties/color_props";
 import {
   addXY,
   addXYZ,
@@ -16,10 +16,6 @@ import {
 import { collider_type } from "../methods/collide_methods";
 import { add2DTransformProps } from "../properties/transform_props";
 import { add2DTransformMethods } from "../methods/transform_methods";
-
-const add2DStroke = (baseClass) => addStroke(add2DStrokeStyling(baseClass));
-const add2DFillStroke = (baseClass) =>
-  addFillStroke(add2DStrokeStyling(baseClass));
 
 const transformVertexFn = (el) => (v) => {
   const { x, y } = el.local_to_canvas_position(v.x, v.y);
@@ -106,7 +102,9 @@ export const addArcProps = (baseClass) =>
  * @element arc
  */
 class Arc extends addXY(
-  addWidthHeight(addArcProps(add2DFillStroke(Transformed2DElement)))
+  addWidthHeight(
+    addArcProps(addFill(addStroke(add2DStrokeStyling(Transformed2DElement))))
+  )
 ) {
   /**
    * @private
@@ -147,7 +145,11 @@ const addEllipse2DCollisionProps = (baseClass) =>
  */
 class Ellipse extends addXY(
   addWidthHeight(
-    addFillStroke(addEllipse2DCollisionProps(Transformed2DElement))
+    addFill(
+      addStroke(
+        add2DStrokeStyling(addEllipse2DCollisionProps(Transformed2DElement))
+      )
+    )
   )
 ) {
   /**
@@ -195,7 +197,13 @@ export const addDiameter = (baseClass) =>
  * @element circle
  */
 class Circle extends addXY(
-  addDiameter(add2DFillStroke(addCircle2DCollisionProps(Transformed2DElement)))
+  addDiameter(
+    addFill(
+      addStroke(
+        add2DStrokeStyling(addCircle2DCollisionProps(Transformed2DElement))
+      )
+    )
+  )
 ) {
   /**
    * @private
@@ -234,7 +242,7 @@ const addLine2DCollisionProps = (baseClass) =>
  * @element line
  */
 class Line extends addXY12(
-  add2DStroke(addLine2DCollisionProps(Transformed2DElement))
+  addStroke(add2DStrokeStyling(addLine2DCollisionProps(Transformed2DElement)))
 ) {
   /**
    * @private
@@ -266,7 +274,7 @@ const addPointCollisionProps = (baseClass) =>
  * @element point
  */
 class Point extends addXY(
-  add2DStroke(addPointCollisionProps(Transformed2DElement))
+  addStroke(add2DStrokeStyling(addPointCollisionProps(Transformed2DElement)))
 ) {
   /**
    * @private
@@ -309,7 +317,15 @@ const addQuad2DCollisionProps = (baseClass) =>
  * @element quad
  */
 class Quad extends addXY12(
-  addXY3(addXY4(add2DFillStroke(addQuad2DCollisionProps(Transformed2DElement))))
+  addXY3(
+    addXY4(
+      addFill(
+        addStroke(
+          add2DStrokeStyling(addQuad2DCollisionProps(Transformed2DElement))
+        )
+      )
+    )
+  )
 ) {
   /**
    * @private
@@ -374,7 +390,11 @@ const addCornerRadius = (baseClass) =>
  */
 class Rect extends addXY(
   addWidthHeight(
-    addRectMode(addCornerRadius(add2DFillStroke(Transformed2DElement)))
+    addRectMode(
+      addCornerRadius(
+        addFill(addStroke(add2DStrokeStyling(Transformed2DElement)))
+      )
+    )
   )
 ) {
   /**
@@ -434,7 +454,11 @@ customElements.define("p-rect", Rect);
  * @element square
  */
 class Square extends addXY(
-  addRectMode(addCornerRadius(add2DFillStroke(Transformed2DElement)))
+  addRectMode(
+    addCornerRadius(
+      addFill(addStroke(add2DStrokeStyling(Transformed2DElement)))
+    )
+  )
 ) {
   #size = 100;
   /**
@@ -500,7 +524,9 @@ customElements.define("p-square", Square);
  * third point.
  * @element triangle
  */
-class Triangle extends addXY12(addXY3(add2DFillStroke(Transformed2DElement))) {
+class Triangle extends addXY12(
+  addXY3(addFill(addStroke(add2DStrokeStyling(Transformed2DElement))))
+) {
   /**
    * @private
    */
@@ -549,7 +575,11 @@ customElements.define("p-triangle", Triangle);
  * @element bezier
  */
 class Bezier extends addXY12(
-  addXY3(addXY4(add2DFillStroke(addBezierMethods(RenderedElement))))
+  addXY3(
+    addXY4(
+      addFill(addStroke(add2DStrokeStyling(addBezierMethods(RenderedElement))))
+    )
+  )
 ) {
   /**
    * @private
@@ -573,7 +603,11 @@ customElements.define("p-bezier", Bezier);
 class Curve extends addXY12(
   addXY3(
     addXY4(
-      addCurveTightness(add2DFillStroke(addCurveMethods(Transformed2DElement)))
+      addCurveTightness(
+        addFill(
+          addStroke(add2DStrokeStyling(addCurveMethods(Transformed2DElement)))
+        )
+      )
     )
   )
 ) {
@@ -629,7 +663,7 @@ customElements.define("p-curve", Curve);
  * </canvas>
  * ```
  */
-class Contour extends add2DFillStroke(RenderedElement) {
+class Contour extends addFill(addStroke(add2DStrokeStyling(RenderedElement))) {
   renderFunctionName = "beginContour";
   endRender() {
     this.pInst.endContour();
@@ -732,7 +766,11 @@ export const addShapeElementProps = (baseClass) =>
  * @element shape
  */
 class Shape extends addShapeElementProps(
-  add2DFillStroke(addShape2DCollisionProps(Transformed2DElement))
+  addFill(
+    addStroke(
+      add2DStrokeStyling(addShape2DCollisionProps(Transformed2DElement))
+    )
+  )
 ) {}
 customElements.define("p-shape", Shape);
 
