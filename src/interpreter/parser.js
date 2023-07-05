@@ -188,7 +188,8 @@ export const parse = (element, attrName, fullListOfTokens, debug = false) => {
   const getObjectWithProperty = (propertyToken) => {
     const propName = propertyToken.value;
     const obj =
-      element instanceof HTMLCanvasElement ||
+      element.tagName === "P-CANVAS" ||
+      element.tagName === "P-CANVAS-3D" ||
       attrName === "repeat" ||
       attrName === "change" ||
       propName === "above_sibling" ||

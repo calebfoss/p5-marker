@@ -1,22 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="../../node_modules/p5/lib/p5.js"></script>
-    <script src="../../dist/p5.marker.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <meta charset="utf-8" />
-  </head>
-  <body>
-    <canvas width="100" height="100" is="p-canvas">
-      <p-_ on="mouse_down" pointer_lock_request="true"></p-_>
-      <p-_ on="pointer_lock_request">
-        <p-circle
-          anchor="width/2, height/2"
-          x="mouse.moved.x"
-          y="mouse.moved.y"
-          diameter="width"
-        ></p-circle>
-      </p-_>
-    </canvas>
-  </body>
+
+<head>
+  <script src="../../node_modules/p5/lib/p5.js"></script>
+  <script src="../../dist/p5.marker.js" defer></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <p-canvas width="100" height="100">
+    <p-_ on="mouse_down" pointer_lock_request="true"></p-_>
+    <p-_ on="pointer_lock_request">
+      <p-circle anchor="width/2, height/2" x="mouse.moved.x" y="mouse.moved.y" diameter="width"></p-circle>
+    </p-_>
+  </p-canvas>
+</body>
+
 </html>

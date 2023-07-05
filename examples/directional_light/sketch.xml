@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<canvas-3d width="100" height="100" background="0"> scene with sphere and directional light. The
+    direction of the light is controlled with the mouse position. <directional-light
+        direction="-2 * (mouse.x / width - 0.5), -2 * (mouse.y / height - 0.5), -1">
+        <sphere radius="40" stroke="NONE"></sphere>
+    </directional-light>
+</canvas-3d>

@@ -1,56 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="../../node_modules/p5/lib/p5.js"></script>
-    <script src="../../dist/p5.marker.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <meta charset="utf-8" />
-  </head>
-  <body>
-    <canvas
-      width="400"
-      height="400"
-      is="p-canvas"
-      background="200, 160, 240"
-      loop="false"
-    >
-      <p-_
-        x_base="0"
-        repeat="x_base less than width"
-        change="x_base: x_base + width / 10"
-      >
-        <p-curve
-          x1="x_base + width"
-          x2="x_base"
-          y1="height"
-          y2="0"
-          x3="x_base"
-          y3="height"
-          x4="x_base - width"
-          y4="height"
-          stroke_weight="2"
-          fill="NONE"
-        >
-          <p-_
-            c1="color(60, 180, 20)"
-            c2="color(20, 60, 180)"
-            stroke_weight="4"
-            t="0"
-            repeat="t less than 1"
-            change="t: t + 0.1"
-            base_curve="parent"
-          >
-            <p-circle
-              anchor="base_curve.point_at(t)"
-              x="0"
-              y="0"
-              diameter="20"
-              fill="lerp_color(c2, c1, t)"
-              stroke="lerp_color(c1, c2, t)"
-            ></p-circle>
-          </p-_>
-        </p-curve>
-      </p-_>
-    </canvas>
-  </body>
+
+<head>
+  <script src="../../node_modules/p5/lib/p5.js"></script>
+  <script src="../../dist/p5.marker.js" defer></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <p-canvas width="400" height="400" background="200, 160, 240" loop="false">
+    <p-_ x_base="0" repeat="x_base less than width" change="x_base: x_base + width / 10">
+      <p-curve x1="x_base + width" x2="x_base" y1="height" y2="0" x3="x_base" y3="height" x4="x_base - width"
+        y4="height" stroke_weight="2" fill="NONE">
+        <p-_ c1="color(60, 180, 20)" c2="color(20, 60, 180)" stroke_weight="4" t="0" repeat="t less than 1"
+          change="t: t + 0.1" base_curve="parent">
+          <p-circle anchor="base_curve.point_at(t)" x="0" y="0" diameter="20" fill="lerp_color(c2, c1, t)"
+            stroke="lerp_color(c1, c2, t)"></p-circle>
+        </p-_>
+      </p-curve>
+    </p-_>
+  </p-canvas>
+</body>
+
 </html>

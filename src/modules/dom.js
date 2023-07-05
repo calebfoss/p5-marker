@@ -18,6 +18,5 @@ defineSnakeAlias(
   "createFileInput",
   "createVideo",
   "createAudio",
-  "createCapture",
-  "createElement"
+  "createCapture"
 );

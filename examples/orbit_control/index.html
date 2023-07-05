@@ -1,26 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="../../node_modules/p5/lib/p5.js"></script>
-    <script src="../../dist/p5.marker.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <meta charset="utf-8" />
-  </head>
-  <body>
-    <!-- https://p5js.org/reference/#/p5/orbitControl -->
-    <canvas
-      width="100"
-      height="100"
-      is="p-canvas-3d"
-      background="200"
-      orbit_control="true"
-    >
-      <p-box
-        width="30"
-        height="50"
-        angle_y="0.5"
-        normal_material="true"
-      ></p-box>
-    </canvas>
-  </body>
+
+<head>
+  <script src="../../node_modules/p5/lib/p5.js"></script>
+  <script src="../../dist/p5.marker.js" defer></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <!-- https://p5js.org/reference/#/p5/orbitControl -->
+  <p-canvas width="100" height="100" is="p-canvas-3d" background="200" orbit_control="true">
+    <p-box width="30" height="50" angle_y="0.5" normal_material="true"></p-box>
+  </p-canvas>
+</body>
+
 </html>

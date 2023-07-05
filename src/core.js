@@ -66,12 +66,6 @@ p5.prototype.loadAssets = async function () {
 };
 p5.prototype.registerPreloadMethod("loadAssets", p5.prototype);
 p5.prototype._debug_attributes = true;
-p5.prototype.create_canvas_element = function (elementName) {
-  const createdElement = document.createElement(elementName);
-  this.canvas.appendChild(createdElement);
-  createdElement.setup(this, this.canvas);
-  return createdElement.this_element;
-};
 defineProperties({
   object_assign: {
     set: function ([target, ...sources]) {
@@ -636,7 +630,7 @@ export const addP5PropsAndMethods = (baseClass) =>
       let obj = this.parent;
       while (obj) {
         for (const { name } of obj.attributes) {
-          inheritedAttributes.add(name);
+          if (name !== "style") inheritedAttributes.add(name);
         }
         if (obj.parent && obj.parent !== obj) obj = obj.parent;
         else break;

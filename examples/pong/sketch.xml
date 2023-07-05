@@ -1,7 +1,7 @@
 <_>
     <canvas width="window.width" height="window.height" background="0" left_score="0"
         right_score="0" count_down="120" wait_time="120"
-        state=";start;" winner=";;" fill="255" ball_speed_mag="canvas.width/10"
+        state="'start'" winner="''" fill="255" ball_speed_mag="canvas.width/10"
         default_ball_speed_mag="canvas.height/200" rect_mode="CENTER">
         <!-- SCORE -->
         <text x="canvas.width * 0.3" y="canvas.height * 0.1"
@@ -19,29 +19,29 @@
         <!-- STATE MANAGEMENT -->
         <_ x="canvas.width/2" y="canvas.height/2" align="CENTER"
             font_size="canvas.height/15"> <!-- TODO - fix newline -->
-            <text on="state is ;start;"
+            <text on="state is 'start'"
             >Left: W for up, S for down\nRight: up/down\n\nClick to start <_
-                    on="mouse_down" canvas.state=";play;"></_>
+                    on="mouse_down" canvas.state="'play'"></_>
             </text>
             <text
-                on="above_siblings_off and state is ;pause;">Paused <_ on="mouse_down"
-                    canvas.state=";play;"></_>
+                on="above_siblings_off and state is 'pause'">Paused <_ on="mouse_down"
+                    canvas.state="'play'"></_>
             </text>
             <_
-                on="above_siblings_off and state is ;play;" canvas.count_down="count_down - 1">
-                <_ on="mouse_down" canvas.state=";pause;"></_>
+                on="above_siblings_off and state is 'play'" canvas.count_down="count_down - 1">
+                <_ on="mouse_down" canvas.state="'pause'"></_>
             </_>
             <text
-                on="above_siblings_off and state is ;gameover;"
+                on="above_siblings_off and state is 'gameover'"
             >$winner wins!\n Click to play again! <_
-                    on="mouse_down" canvas.state=";play;" canvas.left_score="0"
+                    on="mouse_down" canvas.state="'play'" canvas.left_score="0"
                     canvas.right_score="0"></_>
             </text>
         </_>
     </canvas>
     <!-- BALL -->
     <square
-        name=";ball;"
+        name="'ball'"
         size="canvas.height/50"
         stroke="NONE"
         fill="255"
@@ -78,7 +78,7 @@
         </_>
     </square>
     <!-- PADDLE -->
-    <rect name=";paddle;" x="canvas.width * 0.9" y="canvas.height/ 2"
+    <rect name="'paddle'" x="canvas.width * 0.9" y="canvas.height/ 2"
         width=" canvas.height/ 50" height=" canvas.height/ 5"
         stroke=" NONE" fill=" 255"
         up=" UP_ARROW" down="DOWN_ARROW"

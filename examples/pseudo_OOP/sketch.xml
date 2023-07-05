@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <_>
-    <circle name=";ball;" color_mode="HSB" stroke="NONE" fill="NONE" speed_x="0" speed_y="0">
+    <circle name="'ball'" color_mode="HSB" stroke="NONE" fill="NONE" speed_x="0" speed_y="0">
         <circle on="mouse_over" stroke_weight="5" stroke="0" x="x" y="y" />
         <_ ball="parent">
             <_ on="first_frame"
@@ -14,6 +14,6 @@
         </_>
     </circle>
     <canvas width="window.width" height="window.height" background="255">
-        <_ on="mouse_down" ball="create_canvas_element(;p-ball;)"></_>
+        <_ on="mouse_down" ball="canvas.create_element('p-ball')"></_>
     </canvas>
 </_>

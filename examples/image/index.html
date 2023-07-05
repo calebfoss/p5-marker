@@ -1,22 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="../../node_modules/p5/lib/p5.js"></script>
-    <script src="../../dist/p5.marker.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <meta charset="utf-8" />
-  </head>
-  <body>
-    <p-asset type="image" path="./pronouns.png" name="pronouns"></p-asset>
-    <canvas width="400" height="400" is="p-canvas" loop="false">
-      <p-image
-        img="assets.pronouns"
-        x="0"
-        y="0"
-        width="canvas.width"
-        height="canvas.height"
-        tint="255, 0, 0"
-      ></p-image>
-    </canvas>
-  </body>
+
+<head>
+  <script src="../../node_modules/p5/lib/p5.js"></script>
+  <script src="../../dist/p5.marker.js" defer></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <p-asset type="image" path="./pronouns.png" name="pronouns"></p-asset>
+  <p-canvas width="400" height="400" loop="false">
+    <p-image img="assets.pronouns" x="0" y="0" width="canvas.width" height="canvas.height" tint="255, 0, 0"></p-image>
+  </p-canvas>
+</body>
+
 </html>

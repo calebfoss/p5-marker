@@ -1,6 +1,4 @@
 import { addP5PropsAndMethods } from "../core";
-import { addCanvasProperties } from "../properties/canvas_props";
-import { addCanvasMethods } from "../methods/canvas_methods";
 import { addEnvironmentProps } from "../properties/environment_props";
 import {
   add2DTransformProps,
@@ -10,6 +8,209 @@ import {
   add2DTransformMethods,
   add3DTransformMethods,
 } from "../methods/transform_methods";
+import { constants } from "../properties/constants";
+import { interpret } from "../interpreter/interpreter";
+
+const addCanvasProperties = (baseClass) =>
+  class extends baseClass {
+    #background;
+    #dom_element;
+    /**
+     * The background property sets the color or image used
+     * for the background of the p5.js canvas. The default background is transparent.
+     * A <a href="https://p5js.org/reference/#/p5.Color">p5.Color</a> object can be provided to set the background color.
+     *
+     * A <a href="https://p5js.org/reference/#/p5.Image">p5.Image</a> can also be provided to set the background image.
+     *
+     * The arguments to <a href="https://p5js.org/reference/#/p5/color">color()</a> can also be provided,
+     * separated by commas.
+     * @type {p5.Color|p5.Image}
+     */
+    get background() {
+      return this.#background;
+    }
+    set background(c) {
+      if (c instanceof p5.Color || c instanceof p5.Image) this.#background = c;
+      else if (c === constants.NONE) this.#background = this.pInst.color(0, 0);
+      else this.#background = this.pInst.color(c);
+    }
+    /**
+     * The canvas element rendering on the document.
+     * @type {HTMLCanvasElement}
+     */
+    get canvas_element() {
+      return this.pInst.canvas;
+    }
+    /**
+     * Sets the cursor when hovering over the canvas.
+     *
+     * You can set cursor to any of the following constants:
+     * ARROW, CROSS, HAND, MOVE, TEXT and WAIT
+     *
+     * You may also set cursor to the URL of an image file. The recommended size
+     * is 16x16 or 32x32 pixels. (Allowed File extensions: .cur, .gif, .jpg, .jpeg, .png)
+     *
+     * For more information on Native CSS cursors and url visit:
+     * https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
+     *
+     * You may also set cursor to "type, x, y", where type is one of the types above,
+     * x is the horizontal active spot of the cursor (must be less than 32)
+     * and
+     * y is the vertical active spot of the cursor (must be less than 32)
+     * @type {string}
+     */
+    get cursor() {
+      return this.style.cursor;
+    }
+    set cursor(val) {
+      const { pInst } = this;
+      if (val === this.NONE) pInst.noCursor();
+      else if (Array.isArray(val)) pInst.cursor(...val);
+      else pInst.cursor(val);
+    }
+
+    /**
+     * The height of the canvas in pixels.
+     * @type {number}
+     */
+    get height() {
+      return this.pInst.height;
+    }
+    set height(val) {
+      if (isNaN(val)) {
+        console.error(
+          `The canvas' height was set to ${val}, but it can only be set to a number`
+        );
+        return;
+      }
+      if (val === this.height) return;
+      this.pInst.resizeCanvas(this.width, val);
+    }
+    get orderedAttributeNames() {
+      //  Remove 'is' and 'style' from attrNames
+      return super.orderedAttributeNames.filter(
+        (v) => v !== "is" && v != "style"
+      );
+    }
+    get marker_element() {
+      return this;
+    }
+    /**
+     * Array containing the values for all the pixels in the display window.
+     * These values are numbers. This array is the size (include an appropriate
+     * factor for pixel_density) of the display window x4,
+     * representing the R, G, B, A values in order for each pixel, moving from
+     * left to right across each row, then down each column. Retina and other
+     * high density displays may have more pixels (by a factor of
+     * pixel_density^2).
+     * For example, if the image is 100×100 pixels, there will be 40,000. With
+     * pixel_density = 2, there will be 160,000. The first four values
+     * (indices 0-3) in the array will be the R, G, B, A values of the pixel at
+     * (0, 0). The second four values (indices 4-7) will contain the R, G, B, A
+     * values of the pixel at (1, 0).
+     * @type {number[]}
+     */
+    get pixels() {
+      this.pInst.loadPixels();
+      return this.pInst.pixels;
+    }
+    set pixels(px) {
+      this.pInst.pixels = px;
+      this.pInst.updatePixels();
+    }
+    set loop(val) {
+      if (val) this.pInst.loop();
+      else this.pInst.noLoop();
+    }
+    /**
+     * The width of the canvas in pixels.
+     * @type {number}
+     */
+    get width() {
+      return this.pInst.width;
+    }
+    set width(val) {
+      if (isNaN(val)) {
+        console.error(
+          `The canvas' width was set to ${val}, but it can only be set to a number`
+        );
+        return;
+      }
+      if (val === this.width) return;
+      this.pInst.resizeCanvas(val, this.height);
+    }
+  };
+
+const addCanvasMethods = (baseClass) =>
+  class extends baseClass {
+    attributeInherited(attributeName) {
+      if (this.hasAttribute(attributeName)) return true;
+      return super.attributeInherited(attributeName);
+    }
+    create_element(tagName) {
+      const firstTryElement = document.createElement(tagName);
+      if (firstTryElement.constructor.name !== "HTMLUnknownElement") {
+        if (tagName.slice(0, 2) === "p-") {
+          this.marker_element.appendChild(firstTryElement);
+          firstTryElement.setup(this.pInst, this.canvas);
+          return firstTryElement;
+        } else return this.pInst.createElement(tagName);
+      }
+      firstTryElement.remove();
+      const secondTryElement = document.createElement(`p-${tagName}`);
+      if (secondTryElement.constructor.name === "HTMLUnknownElement") {
+        console.error(
+          `create_element() was called with tag ${tagName}, but this is not a recognized tag. ` +
+            `This may be due to a difference in spelling.`
+        );
+      } else {
+        this.marker_element.appendChild(secondTryElement);
+        secondTryElement.setup(this.pInst, this.canvas);
+      }
+      return secondTryElement;
+    }
+    runCode() {
+      const markerCanvas = this;
+      const sketch = (pInst) => {
+        pInst.preload = () => pInst.loadAssets();
+
+        pInst.setup = function () {
+          markerCanvas.setup(pInst, markerCanvas);
+          const canvasWidth = markerCanvas.hasAttribute("width")
+            ? interpret(
+                markerCanvas,
+                "width",
+                markerCanvas.getAttribute("width")
+              )()
+            : markerCanvas.window.width;
+          const canvasHeight = markerCanvas.hasAttribute("height")
+            ? interpret(
+                markerCanvas,
+                "height",
+                markerCanvas.getAttribute("height")
+              )()
+            : markerCanvas.window.height;
+          pInst.createCanvas(
+            canvasWidth,
+            canvasHeight,
+            markerCanvas.constructor.renderer
+          );
+          //  Set default background to light gray
+          markerCanvas.background = pInst.color(220);
+          if (markerCanvas.style.display === "")
+            markerCanvas.style.display = "none";
+        };
+        pInst.draw = function () {
+          if (markerCanvas.orbit_control) markerCanvas.pInst.orbitControl();
+          markerCanvas.draw();
+        };
+      };
+      new p5(sketch);
+    }
+    render() {
+      this.pInst.background(this.background);
+    }
+  };
 
 /**
  * The `<canvas>` element is a rectangular area of the window for rendering
@@ -22,7 +223,7 @@ class Canvas extends addCanvasMethods(
   addCanvasProperties(
     addP5PropsAndMethods(
       addEnvironmentProps(
-        add2DTransformProps(add2DTransformMethods(HTMLCanvasElement))
+        add2DTransformProps(add2DTransformMethods(HTMLElement))
       )
     )
   )
@@ -34,7 +235,7 @@ class Canvas extends addCanvasMethods(
     window.addEventListener("customElementsDefined", this.runCode.bind(this));
   }
 }
-customElements.define("p-canvas", Canvas, { extends: "canvas" });
+customElements.define("p-canvas", Canvas);
 
 /**
  * The ```<canvas-3d>``` element is a ```<canvas>``` element
@@ -44,7 +245,7 @@ class WebGLCanvas extends addCanvasMethods(
   addCanvasProperties(
     addP5PropsAndMethods(
       addEnvironmentProps(
-        add3DTransformProps(add3DTransformMethods(HTMLCanvasElement))
+        add3DTransformProps(add3DTransformMethods(HTMLElement))
       )
     )
   )
@@ -172,6 +373,4 @@ class WebGLCanvas extends addCanvasMethods(
     else if (val !== false) this.pInst.ortho(val);
   }
 }
-customElements.define("p-canvas-3d", WebGLCanvas, {
-  extends: "canvas",
-});
+customElements.define("p-canvas-3d", WebGLCanvas);

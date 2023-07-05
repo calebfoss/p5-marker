@@ -6,41 +6,67 @@ import {
 import { addXYZ } from "../properties/shape_props";
 import { addColorVals } from "../properties/color_props";
 
+const addLightColor = (baseClass) =>
+  class extends baseClass {
+    #light_color;
+    /**
+     * The color of light produced by this element.
+     * @type {p5.Color}
+     */
+    get light_color() {
+      return this.#light_color;
+    }
+    set light_color(val) {
+      if (Array.isArray(val)) this.#light_color = this.pInst.color(...val);
+      else if (val instanceof p5.Color) this.#light_color = val;
+      else if (typeof val === "number" || typeof val === "string")
+        this.#light_color = this.pInst.color(val);
+      else
+        console.error(
+          `On ${this.tagName}, light_color was set to ${typeof val}, ` +
+            `but it can only be set to a color, string, or comma-separated list of numbers.`
+        );
+    }
+    setup(pInst, canvas) {
+      super.setup(...arguments);
+      if (!this.hasAttribute("light_color"))
+        this.light_color = pInst.color(255);
+    }
+  };
+const addDirection = (baseClass) =>
+  class extends baseClass {
+    #direction = new p5.Vector();
+    /**
+     * Direction the light is pointing.
+     * @type {p5.Vector}
+     */
+    get direction() {
+      return this.#direction;
+    }
+    set direction(val) {
+      if (val instanceof p5.Vector) this.#direction = val;
+      else if (Array.isArray(val)) this.#direction = this.vector(...val);
+      else if (typeof val === "number") this.#direction = this.vector(val);
+      else
+        console.error(
+          `On ${this.tagName}, directoin was set to ${typeof val}, ` +
+            "but it can only be set to a vector or comma-separated list of numbers."
+        );
+    }
+  };
+
 /**
  * Creates an ambient light with the given color.
  *
  * Ambient light does not come from a specific direction.
  * Objects are evenly lit from all sides. Ambient lights are
  * almost always used in combination with other types of lights.
- * @element ambient-light
- * @attribute {Number}   v1     red or hue value relative to the current color
- *                                range
- * @attribute {Number}   v2     green or saturation value relative to the
- *                                current color range
- * @attribute {Number}   v3     blue or brightness value relative to the current
- *                                color range
- * @attribute {Number}   alpha  alpha value relative to current color range
- *                                (default is 0-255)
- * @attribute {Number}   gray   number specifying value between
- *                                white and black
- * @attribute {String}   value  a color string
- * @attribute {Number[]} values an array containing the red,green,blue &
- *                                 and alpha components of the color
- * @attribute {p5.Color} color  color as a <a
- *                                 href="https://p5js.org/reference/#/p5.Color"
- *                                 target="_blank">p5.Color</a>
  */
-class AmbientLight extends WebGLLight {
+class AmbientLight extends addLightColor(WebGLLight) {
   /**
    * @private
    */
-  static overloads = [
-    "v1, v2, v3, [alpha]",
-    "gray, [alpha]",
-    "value",
-    "values",
-    "color",
-  ];
+  static overloads = ["light_color"];
 }
 customElements.define("p-ambient-light", AmbientLight);
 
@@ -60,16 +86,13 @@ customElements.define("p-ambient-light", AmbientLight);
  *
  * A maximum of **5** directional lights can be active at once.
  */
-class DirectionalLight extends addSpecularColor(WebGLLight) {
+class DirectionalLight extends addDirection(
+  addLightColor(addSpecularColor(WebGLLight))
+) {
   /**
    * @private
    */
-  static overloads = [
-    "v1, v2, v3, x, y, z",
-    "v1, v2, v3, direction",
-    "color, x, y, z",
-    "color, direction",
-  ];
+  static overloads = ["light_color, direction"];
 }
 customElements.define("p-directional-light", DirectionalLight);
 
@@ -84,17 +107,12 @@ customElements.define("p-directional-light", DirectionalLight);
  * A maximum of **5** point lights can be active at once.
  */
 class PointLight extends addXYZ(
-  addColorVals(addLightFalloff(addSpecularColor(WebGLLight)))
+  addLightColor(addColorVals(addLightFalloff(addSpecularColor(WebGLLight))))
 ) {
   /**
    * @private
    */
-  static overloads = [
-    "v1, v2, v3, x, y, z",
-    "v1, v2, v3, position",
-    "color, x, y, z",
-    "color, position",
-  ];
+  static overloads = ["light_color, x, y, z"];
 }
 customElements.define("p-point-light", PointLight);
 
@@ -133,19 +151,46 @@ customElements.define("p-lights", Lights);
  *
  * A maximum of **5** spot lights can be active at once.
  */
-class SpotLight extends addLightFalloff(addSpecularColor(WebGLLight)) {
+class SpotLight extends addXYZ(
+  addDirection(addLightColor(addLightFalloff(addSpecularColor(WebGLLight))))
+) {
+  #cone_angle = Math.PI / 3;
+  #concentration = 100;
   /**
    * @private
    */
   static overloads = [
-    "v1, v2, v3, x, y, z, rx, ry, rz, [angle], [concentration]",
-    "color, position, direction, [angle], [concentration]",
-    "v1, v2, v3, position, direction, [angle], [concentration]",
-    "color, x, y, z, direction, [angle], [concentration]",
-    "color, position, rx, ry, rz, [angle], [concentration]",
-    "v1, v2, v3, x, y, z, direction, [angle], [concentration]",
-    "v1, v2, v3, position, rx, ry, rz, [angle], [concentration]",
-    "color, x, y, z, rx, ry, rz, [angle], [concentration]",
+    "light_color, x, y, z, direction, [cone_angle], [concentration]",
   ];
+  /**
+   * Angle of cone of light.
+   * @type {number}
+   */
+  get cone_angle() {
+    return this.#cone_angle;
+  }
+  set cone_angle(val) {
+    if (typeof val !== "number")
+      console.error(
+        `On ${this.tagName}, cone_angle was set to ${typeof val}, ` +
+          "but it can only be set to a number"
+      );
+    else this.#cone_angle = val;
+  }
+  /**
+   * Concentration of cone of light
+   * @type {number}
+   */
+  get concentration() {
+    return this.#concentration;
+  }
+  set concentration(val) {
+    if (typeof val !== "number")
+      console.error(
+        `On ${this.tagName}, concentration was set to ${typeof val}, ` +
+          "but it can only be set to a number"
+      );
+    else this.#concentration = val;
+  }
 }
 customElements.define("p-spot-light", SpotLight);

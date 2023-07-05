@@ -1,5 +1,5 @@
 <_>
-    <_ name=";cloud;" stroke="NONE" speed="0.25" diameter="40" x="0" y="75">
+    <_ name="'cloud'" stroke="NONE" speed="0.25" diameter="40" x="0" y="75">
         <_ on="first_frame" parent.x="random(width)" parent.y="random(height)"
             parent.speed="random(0.1, 0.5)" />
         <circle x="x - diameter/2" y="y - diameter/4" fill="220" />
@@ -22,7 +22,7 @@
     >
         <_ on="first_frame" cloud_count="0" repeat="until cloud_count is 6"
             change="cloud_count: cloud_count + 1">
-            <_ created_cloud="create_canvas_element(;p-cloud;)" />
+            <_ created_cloud="canvas.create_element('cloud')" />
         </_>
     </canvas>
 </_>

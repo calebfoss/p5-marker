@@ -1,40 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="../../node_modules/p5/lib/p5.js"></script>
-    <script src="../../dist/p5.marker.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <meta charset="utf-8" />
-  </head>
-  <body>
-    <canvas
-      width="400"
-      height="400"
-      is="p-canvas"
-      background="255"
-      loop="false"
-      stroke="NONE"
-      debug_attributes="false"
-    >
-      <p-_ i="0" repeat="until i is 1000" change="i: i + 1">
-        <p-circle
-          x="random(width)"
-          y="random(height)"
-          diameter="40"
-          fill="random(255), random(255), random(255)"
-        ></p-circle>
+
+<head>
+  <script src="../../node_modules/p5/lib/p5.js"></script>
+  <script src="../../dist/p5.marker.js" defer></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <p-canvas width="400" height="400" background="255" loop="false" stroke="NONE" debug_attributes="false">
+    <p-_ i="0" repeat="until i is 1000" change="i: i + 1">
+      <p-circle x="random(width)" y="random(height)" diameter="40"
+        fill="random(255), random(255), random(255)"></p-circle>
+    </p-_>
+    <p-_ pix="canvas.pixels">
+      <p-_ p="0" repeat="until p at least pix.length" change="p: p + 4" pix_holder="parent">
+        <p-_ pix_holder.pix[p]="0"></p-_>
       </p-_>
-      <p-_ pix="canvas.pixels">
-        <p-_
-          p="0"
-          repeat="until p at least pix.length"
-          change="p: p + 4"
-          pix_holder="parent"
-        >
-          <p-_ pix_holder.pix[p]="0"></p-_>
-        </p-_>
-        <p-_ canvas.pixels="pix"></p-_>
-      </p-_>
-    </canvas>
-  </body>
+      <p-_ canvas.pixels="pix"></p-_>
+    </p-_>
+  </p-canvas>
+</body>
+
 </html>

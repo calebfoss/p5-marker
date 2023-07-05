@@ -48,11 +48,20 @@ export const defineCustomElement = (el) => {
  * </html>
  * ```
  */
-class Sketch extends HTMLLinkElement {
+class Sketch extends HTMLElement {
   static elementName = "p-sketch";
   constructor() {
     super();
-    this.#loadXML(this.href);
+    if (this.hasAttribute("path")) {
+      if (this.children.length) {
+        console.error(
+          "A sketch element has both a 'path' attribute and children, but it may only have one or the other."
+        );
+      } else {
+        const path = this.getAttribute("path");
+        this.#loadXML(path);
+      }
+    }
   }
   #convertElement(xmlEl) {
     const xmlTag = xmlEl.tagName;
@@ -70,7 +79,10 @@ class Sketch extends HTMLLinkElement {
   #convertXML(e) {
     const xml = e.target.response.documentElement;
     document.body.appendChild(this.#convertElement(xml));
-    document.querySelectorAll("canvas").forEach((canvas) => canvas.runCode());
+    const markerCanvasElements = document.querySelectorAll(
+      "p-canvas, p-canvas-3d"
+    );
+    markerCanvasElements.forEach((canvas) => canvas.runCode());
   }
   #copyAttributes(orig, copy) {
     const attrs = orig.attributes;
@@ -94,12 +106,10 @@ class Sketch extends HTMLLinkElement {
   }
   #xmlTagToCreateElementArguments(xmlTag) {
     if (xmlTag.slice(0, 2) === "p-") return [xmlTag];
-    if (xmlTag === "canvas") return [xmlTag, { is: "p-canvas" }];
-    if (xmlTag === "canvas-3d") return ["canvas", { is: "p-canvas-3d" }];
     return ["p-" + xmlTag];
   }
 }
-customElements.define("p-sketch", Sketch, { extends: "link" });
+customElements.define("p-sketch", Sketch);
 
 class Asset extends HTMLElement {
   static elementName = "p-asset";
