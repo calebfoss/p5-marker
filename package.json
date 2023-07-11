@@ -10,7 +10,7 @@
       "optimize": true
     }
   },
-  "source": "src/index.js",
+  "source": "src/index.ts",
   "directories": {
     "example": "example"
   },
@@ -35,6 +35,7 @@
     "esm": "^3.2.25",
     "jsdoc": "^3.6.11",
     "mocha": "x",
+    "os-browserify": "^0.3.0",
     "p5": "x",
     "parcel": "latest"
   },

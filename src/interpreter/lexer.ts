@@ -18,11 +18,21 @@ export const tokenKind = {
   end: "end",
 };
 
-const token = (kind, start, end, value) => ({ kind, start, end, value });
+const token = (
+  kind: string,
+  start: number,
+  end: number,
+  value: string
+): Token => ({
+  kind,
+  start,
+  end,
+  value,
+});
 export const endToken = token(tokenKind.end, -1, -1, "END");
 
-export const lex = (str) => {
-  const getTokens = (start = 0, tokens = []) => {
+export const lex = (str: string) => {
+  const getTokens = (start = 0, tokens = [] as Token[]) => {
     if (start === str.length) return tokens;
     const strFromStart = str.slice(start);
 
