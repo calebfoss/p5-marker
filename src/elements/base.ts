@@ -1,14 +1,12 @@
-import { interpret } from "./interpreter/interpreter";
+import { interpret } from "../interpreter/interpreter";
 
-class MarkerElement extends HTMLElement {
+export class MarkerElement extends HTMLElement {
   #count = 0;
   #changers: (() => void)[] = [];
   #each_modifiers: { [key in keyof this]?: () => void } = {};
   #max_count = 10000;
   #repeat = false;
   get canvas() {
-    if (this.parentElement === null || this.parentElement instanceof Canvas)
-      return this.parentElement;
     if (this.parentElement instanceof MarkerElement)
       return this.parentElement.canvas;
     return null;
@@ -178,132 +176,3 @@ class MarkerElement extends HTMLElement {
     this.setFirstTime("width", "number", arg);
   }
 }
-customElements.define("m-setting", MarkerElement);
-
-class Window extends MarkerElement {
-  #mouse_x = 0;
-  #mouse_y = 0;
-  constructor() {
-    super();
-    window.addEventListener("customElementsDefined", () => this.setup());
-    window.addEventListener("mousemove", (e) => {
-      this.#mouse_x = e.x;
-      this.#mouse_y = e.y;
-    });
-  }
-  get height() {
-    return window.innerHeight;
-  }
-  get mouse() {
-    return {
-      x: this.#mouse_x,
-      y: this.#mouse_y,
-    };
-  }
-  get width() {
-    return window.innerWidth;
-  }
-}
-customElements.define("m-window", Window);
-
-class Canvas extends MarkerElement {
-  #canvas_element: HTMLCanvasElement;
-  #frame = 0;
-  constructor() {
-    super();
-    this.#canvas_element = document.createElement("canvas");
-    this.#canvas_element.width = this.width;
-    this.#canvas_element.height = this.height;
-    const shadow = this.attachShadow({ mode: "open" });
-    shadow.appendChild(this.#canvas_element);
-    const context = this.#canvas_element.getContext("2d");
-    if (context === null) return;
-    const drawFrame = () => {
-      this.draw(context);
-      this.#frame++;
-      requestAnimationFrame(drawFrame);
-    };
-    requestAnimationFrame(drawFrame);
-  }
-  get background() {
-    return "#fff";
-  }
-  set background(arg) {
-    this.setFirstTime("background", "string", arg);
-  }
-  get canvas() {
-    return this;
-  }
-  render(context: CanvasRenderingContext2D): void {
-    const canvas = this.#canvas_element as HTMLCanvasElement;
-    if (canvas.width !== this.width || canvas.height !== this.height) {
-      const contextCopy = JSON.parse(JSON.stringify(context));
-      canvas.width = this.width;
-      canvas.height = this.height;
-      Object.assign(context, contextCopy);
-    }
-    context.fillStyle = this.background;
-    context.fillRect(0, 0, this.width, this.height);
-  }
-}
-customElements.define("m-canvas", Canvas);
-
-const xy = (baseClass: typeof MarkerElement) =>
-  class extends baseClass {
-    get x() {
-      return this.optionalInherit("x", 0);
-    }
-    set x(arg) {
-      this.setFirstTime("x", "number", arg);
-    }
-    get y() {
-      return this.optionalInherit("y", 0);
-    }
-    set y(arg) {
-      this.setFirstTime("y", "number", arg);
-    }
-  };
-
-const fill = (baseClass: typeof MarkerElement) =>
-  class extends baseClass {
-    set fill(arg: string) {
-      this.setFirstTime("fill", "string", arg);
-      const baseRender = this.render.bind(this);
-      this.render = (context) => {
-        context.fillStyle = this.fill;
-        baseRender(context);
-      };
-    }
-    setup() {
-      super.setup();
-      const fill_default = "#000000";
-      const fill_value = this.optionalInherit("fill", fill_default);
-      if (fill_value !== fill_default) this.fill = fill_value;
-    }
-  };
-
-const stroke = (baseClass: typeof MarkerElement) =>
-  class extends baseClass {
-    get stroke() {
-      return "#000000";
-    }
-    set stroke(argument) {
-      this.setFirstTime("stroke", "string", argument);
-      const baseRender = this.render.bind(this);
-      this.render = (context) => {
-        context.strokeStyle = this.stroke;
-        baseRender(this, context);
-      };
-    }
-  };
-
-class Rectangle extends xy(fill(stroke(MarkerElement))) {
-  render(context: CanvasRenderingContext2D) {
-    super.render(context);
-    context.strokeRect(this.x, this.y, this.width, this.height);
-    context.fillRect(this.x, this.y, this.width, this.height);
-  }
-}
-customElements.define("m-rectangle", Rectangle);
-
-dispatchEvent(new Event("customElementsDefined"));
