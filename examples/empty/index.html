@@ -11,17 +11,12 @@
 <body>
   <m-window>
     <m-canvas>
-      <m-rectangle id="test" fill="'#000000'" x="0" y="height / 2" width="100" height="100"
-        canvas.background="'blue'">This is a description.
-      </m-rectangle>
+      <m-setting x="0" width="width / 100" each.x="x + width" repeat="until x is at least canvas.width">This is a
+        <m-rectangle y="0" height="height / 100" each.y="y + height"
+          repeat="until y is at least canvas.height"></m-rectangle>
+      </m-setting>
     </m-canvas>
   </m-window>
-  <script>
-    const test = document.querySelector('#test');
-    test.addEventListener("setupComplete", () => {
-      test.fill = "orange";
-    })
-  </script>
 </body>
 
 </html>

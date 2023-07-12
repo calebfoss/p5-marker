@@ -176,6 +176,7 @@ class MarkerElement extends HTMLElement {
     this.setFirstTime("width", "number", arg);
   }
 }
+customElements.define("m-setting", MarkerElement);
 
 class Window extends MarkerElement {
   #mouse_x = 0;
