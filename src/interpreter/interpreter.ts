@@ -1,8 +1,9 @@
+import { MarkerElement } from "../elements/base";
 import { lex } from "./lexer";
 import { parse, parseAttributeName } from "./parser";
 
 export const interpret = (
-  element: HTMLElement,
+  element: MarkerElement,
   attribute: Attr
 ): [() => object, () => string, () => any] => {
   const nameTokens = lex(attribute.name);

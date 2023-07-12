@@ -16,16 +16,30 @@ export class MarkerElement extends HTMLElement {
   }
   change = new Proxy(this, {
     get(element, propName) {
-      return new Proxy(element[propName], {
-        set(prop, memberName, memberValue) {
-          prop[memberName] = memberValue;
-          Object.defineProperty(element, propName, {
-            writable: true,
-            value: prop,
-          });
-          return true;
-        },
-      });
+      const getProperty = (
+        owner: object,
+        key: PropertyKey,
+        setOwner: (value: any) => void
+      ) => {
+        const prop = owner[key];
+        if (typeof prop !== "object") return prop;
+        const propProxy = new Proxy(prop, {
+          set(p, k, value) {
+            p[k] = value;
+            setOwner(p);
+            return true;
+          },
+          get(p, k) {
+            return getProperty(p, k, (value) => (propProxy[k] = value));
+          },
+        });
+        return propProxy;
+      };
+      return getProperty(
+        element,
+        propName,
+        (value) => (element[propName] = value)
+      );
     },
     set(element, propName, value) {
       if (typeof value !== "function") return false;

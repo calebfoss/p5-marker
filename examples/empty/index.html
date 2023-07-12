@@ -11,9 +11,8 @@
 <body>
   <m-window>
     <m-canvas>
-      <m-setting x="0" width="width / 100" each.x="x + width" repeat="until x is at least canvas.width">This is a
-        <m-rectangle y="0" height="height / 100" each.y="y + height"
-          repeat="until y is at least canvas.height"></m-rectangle>
+      <m-setting test="[['red', 'green'], ['blue']]" change.test[0][1]="'orange'">
+        <m-rectangle fill="test[0][1]"></m-rectangle>
       </m-setting>
     </m-canvas>
   </m-window>
