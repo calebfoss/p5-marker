@@ -155,6 +155,7 @@ class MarkerElement extends HTMLElement {
         });
       }
     }
+    this.dispatchEvent(new Event("setupComplete"));
     for (const child of this.children) {
       if (child instanceof MarkerElement) child.setup();
     }

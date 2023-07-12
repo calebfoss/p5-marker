@@ -11,13 +11,17 @@
 <body>
   <m-window>
     <m-canvas>
-      <m-rectangle fill="'#000000'" x="0" y="height / 2" width="100" height="100" test="['purple', 'yellow'], []"
-        change.test[1][0]="'blue'">
-        <m-rectangle fill="test[0][0]"></m-rectangle>
+      <m-rectangle id="test" fill="'#000000'" x="0" y="height / 2" width="100" height="100"
+        test="'purple', 'yellow', 'pink'">
       </m-rectangle>
     </m-canvas>
   </m-window>
-
+  <script>
+    const test = document.querySelector('#test');
+    test.addEventListener("setupComplete", () => {
+      test.fill = "orange";
+    })
+  </script>
 </body>
 
 </html>
