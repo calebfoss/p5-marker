@@ -197,17 +197,15 @@ class Window extends MarkerElement {
 customElements.define("m-window", Window);
 
 class Canvas extends MarkerElement {
-  #canvas_element: HTMLCanvasElement | null = null;
+  #canvas_element: HTMLCanvasElement;
   #frame = 0;
   constructor() {
     super();
     this.#canvas_element = document.createElement("canvas");
     this.#canvas_element.width = this.width;
     this.#canvas_element.height = this.height;
-    const main =
-      document.querySelector("main") ||
-      document.body.appendChild(document.createElement("main"));
-    main.appendChild(this.#canvas_element);
+    const shadow = this.attachShadow({ mode: "open" });
+    shadow.appendChild(this.#canvas_element);
     const context = this.#canvas_element.getContext("2d");
     if (context === null) return;
     const drawFrame = () => {
