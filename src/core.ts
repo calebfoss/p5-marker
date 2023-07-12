@@ -44,6 +44,7 @@ class MarkerElement extends HTMLElement {
     for (const propName of Object.keys(this.#each_modifiers)) {
       cachedValues[propName] = this[propName];
     }
+    context.save();
     while (
       this.#count === 0 ||
       (this.repeat && this.#count < this.#max_count)
@@ -63,6 +64,7 @@ class MarkerElement extends HTMLElement {
     for (const changer of this.#changers) {
       changer();
     }
+    context.restore();
   }
   each = new Proxy(this, {
     set(target, propName, value) {
@@ -264,16 +266,19 @@ const xy = (baseClass: typeof MarkerElement) =>
 
 const fill = (baseClass: typeof MarkerElement) =>
   class extends baseClass {
-    get fill() {
-      return this.optionalInherit("fill", "#000000");
-    }
-    set fill(arg) {
+    set fill(arg: string) {
       this.setFirstTime("fill", "string", arg);
       const baseRender = this.render.bind(this);
       this.render = (context) => {
         context.fillStyle = this.fill;
         baseRender(context);
       };
+    }
+    setup() {
+      super.setup();
+      const fill_default = "#000000";
+      const fill_value = this.optionalInherit("fill", fill_default);
+      if (fill_value !== fill_default) this.fill = fill_value;
     }
   };
 
