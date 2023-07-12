@@ -9,6 +9,19 @@ export class MarkerElement extends HTMLElement {
   constructor(...args: any[]) {
     super();
   }
+  assertType(propertyName: string, argument: any, ...types: string[]) {
+    const argumentType = typeof argument;
+    const isCorrectType = types.includes(argumentType);
+    if (!isCorrectType)
+      console.error(
+        `${
+          this.tagName
+        }'s ${propertyName} was set to ${argument}, which is of type ${argumentType}, but it may only be set to type: ${types.join(
+          "or "
+        )}`
+      );
+    return isCorrectType;
+  }
   get canvas() {
     if (this.parentElement instanceof MarkerElement)
       return this.parentElement.canvas;

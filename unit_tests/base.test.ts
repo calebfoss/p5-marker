@@ -15,6 +15,12 @@ test("create elements", () => {
 
 windowElement.appendChild(canvasElement).appendChild(settingElement);
 
+test("assert type", () => {
+  expect(settingElement.assertType("test", 1, "number")).toBe(true);
+  expect(settingElement.assertType("test", 1, "boolean")).toBe(false);
+  expect(settingElement.assertType("test", 1, "boolean", "number")).toBe(true);
+});
+
 test("canvas property", () => {
   expect(settingElement.canvas).toBe(canvasElement);
 });
