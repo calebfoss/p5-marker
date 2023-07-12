@@ -1,6 +1,6 @@
 import { MarkerElement } from "../elements/base";
 
-export const xy = (baseClass: typeof MarkerElement) =>
+export const xy = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
     get x() {
       return this.optionalInherit("x", 0);

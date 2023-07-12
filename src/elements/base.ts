@@ -6,6 +6,9 @@ export class MarkerElement extends HTMLElement {
   #each_modifiers: { [key in keyof this]?: () => void } = {};
   #max_count = 10000;
   #repeat = false;
+  constructor(...args: any[]) {
+    super();
+  }
   get canvas() {
     if (this.parentElement instanceof MarkerElement)
       return this.parentElement.canvas;

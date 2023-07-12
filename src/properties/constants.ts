@@ -1,5 +1,5 @@
 export const constants = {
-  NONE: "none",
+  NONE: null,
   CORNER: "corner",
   CORNERS: "corners",
   CENTER: "center",
