@@ -4,7 +4,7 @@ import { Canvas } from "./elements/canvas";
 import { Rectangle } from "./elements/2d_shapes";
 
 import { stroke, fill } from "./properties/color";
-import { xy } from "./properties/space";
+import { xy } from "./properties/coordinates";
 
 //  BASE
 customElements.define("m-setting", MarkerElement);
