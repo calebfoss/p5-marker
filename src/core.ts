@@ -6,6 +6,13 @@ class MarkerElement extends HTMLElement {
   #each_modifiers: { [key in keyof this]?: () => void } = {};
   #max_count = 10000;
   #repeat = false;
+  get canvas() {
+    if (this.parentElement === null || this.parentElement instanceof Canvas)
+      return this.parentElement;
+    if (this.parentElement instanceof MarkerElement)
+      return this.parentElement.canvas;
+    return null;
+  }
   get count() {
     return this.#count;
   }
@@ -220,6 +227,9 @@ class Canvas extends MarkerElement {
   }
   set background(arg) {
     this.setFirstTime("background", "string", arg);
+  }
+  get canvas() {
+    return this;
   }
   render(context: CanvasRenderingContext2D): void {
     const canvas = this.#canvas_element as HTMLCanvasElement;
