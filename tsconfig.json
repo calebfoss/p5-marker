@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "isolatedModules": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "target": "ESNext"
+  }
+}

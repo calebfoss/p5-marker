@@ -1,6 +1,4 @@
-import exp from "constants";
 import { tokenKind, endToken } from "./lexer";
-import { get } from "http";
 
 const isArray = (tokens: Token[], parenthesesDepth = 0) => {
   const [token, ...remainder] = tokens;

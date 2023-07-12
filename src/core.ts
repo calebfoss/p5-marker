@@ -10,10 +10,22 @@ class MarkerElement extends HTMLElement {
     return this.#count;
   }
   change = new Proxy(this, {
-    set(target, propName, value) {
+    get(element, propName) {
+      return new Proxy(element[propName], {
+        set(prop, memberName, memberValue) {
+          prop[memberName] = memberValue;
+          Object.defineProperty(element, propName, {
+            writable: true,
+            value: prop,
+          });
+          return true;
+        },
+      });
+    },
+    set(element, propName, value) {
       if (typeof value !== "function") return false;
-      target.#changers.push(() => {
-        target[propName] = value();
+      element.#changers.push(() => {
+        element[propName] = value();
       });
       return true;
     },
@@ -247,10 +259,10 @@ const fill = (baseClass: typeof MarkerElement) =>
     }
     set fill(arg) {
       this.setFirstTime("fill", "string", arg);
-      const baseRender = this.render;
+      const baseRender = this.render.bind(this);
       this.render = (context) => {
         context.fillStyle = this.fill;
-        baseRender.call(this, context);
+        baseRender(context);
       };
     }
   };
