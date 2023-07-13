@@ -2,28 +2,30 @@ import { MarkerElement } from "../elements/base";
 
 export const position = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
+    #getX = () => this.optionalInherit(0, "position", "x");
+    #getY = () => this.optionalInherit(0, "position", "y");
     get position(): Vector {
-      const el = this;
-      let getX = () => 0;
-      let getY = () => 0;
+      const el: typeof this = this;
       return {
-        get x() {
-          return getX();
+        get x(): number {
+          const x = el.#getX();
+          return x;
         },
-        set x(argument) {
-          if (typeof argument === "function") getX = argument;
-          else if (el.assertType("position.x", argument, "number")) {
-            getX = () => argument;
-          }
+        set x(argument: unknown) {
+          if (typeof argument === "function" && typeof argument() === "number")
+            el.#getX = argument as () => number;
+          el.assertType<number>("position.x", argument, "number");
+          el.#getX = () => argument;
         },
-        get y() {
-          return getY();
+        get y(): number {
+          const y = el.#getY();
+          return y;
         },
-        set y(argument) {
-          if (typeof argument === "function") getY = argument;
-          else if (el.assertType("position.y", argument, "number")) {
-            getY = () => argument;
-          }
+        set y(argument: unknown) {
+          if (typeof argument === "function" && typeof argument() === "number")
+            el.#getY = argument as () => number;
+          el.assertType<number>("position.y", argument, "number");
+          el.#getY = () => argument;
         },
       };
     }

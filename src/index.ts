@@ -1,13 +1,13 @@
 import { MarkerElement } from "./elements/base";
 import { Window } from "./elements/window";
 import { Canvas } from "./elements/canvas";
+import { Setting } from "./elements/setting";
 import { Rectangle } from "./elements/2d_shapes";
-
 import { stroke, fill } from "./properties/style";
 import { position } from "./properties/position";
 
 //  BASE
-customElements.define("m-setting", MarkerElement);
+customElements.define("m-setting", Setting);
 
 //  WINDOW
 customElements.define("m-window", Window);
@@ -25,6 +25,7 @@ const Marker = {
     MarkerElement: MarkerElement,
     Window: Window,
     Canvas: Canvas,
+    Setting: Setting,
     Rectangle: Rectangle,
   },
   propertyMixins: {

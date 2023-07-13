@@ -16,9 +16,11 @@ test("create elements", () => {
 windowElement.appendChild(canvasElement).appendChild(settingElement);
 
 test("assert type", () => {
-  expect(settingElement.assertType("test", 1, "number")).toBe(true);
-  expect(settingElement.assertType("test", 1, "boolean")).toBe(false);
-  expect(settingElement.assertType("test", 1, "boolean", "number")).toBe(true);
+  expect(() => settingElement.assertType("test", 1, "number")).not.toThrow();
+  expect(() => settingElement.assertType("test", 1, "boolean")).toThrow();
+  expect(() =>
+    settingElement.assertType("test", 1, "boolean", "number")
+  ).not.toThrow();
 });
 
 test("canvas property", () => {
@@ -42,7 +44,7 @@ const setupComplete = new Promise((resolve) => {
 
 test("optionalInherit", async () => {
   await setupComplete;
-  expect(settingElement.optionalInherit("test", 0)).toBe(
+  expect(settingElement.optionalInherit(0, "test")).toBe(
     optionalInheritTestValue
   );
 });

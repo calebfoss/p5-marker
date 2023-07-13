@@ -10,7 +10,28 @@ export class MarkerElement extends HTMLElement {
     super();
   }
   get anchor() {
-    return this.xy(0, 0);
+    const el: MarkerElement = this;
+    let getX = () => 0;
+    let getY = () => 0;
+    return {
+      get x(): number {
+        return getX();
+      },
+      set x(argument: unknown) {
+        if (typeof argument === "function" && typeof argument() === "number")
+          getX = argument as () => number;
+        el.assertType<number>("anchor.x", argument, "number");
+        getX = () => argument;
+      },
+      get y(): number {
+        return getY();
+      },
+      set y(argument: unknown) {
+        if (typeof argument === "function") getY = argument as () => number;
+        el.assertType<number>("anchor.y", argument, "number");
+        getY = () => argument;
+      },
+    };
   }
   set anchor(argument: Vector) {
     this.setFirstTime("anchor", "object", argument);
@@ -21,18 +42,21 @@ export class MarkerElement extends HTMLElement {
   set angle(argument) {
     this.setFirstTime("angle", "number", argument);
   }
-  assertType(propertyName: string, argument: any, ...types: string[]) {
+  assertType<T>(
+    propertyName: string,
+    argument: unknown,
+    ...types: string[]
+  ): asserts argument is T {
     const argumentType = typeof argument;
     const isCorrectType = types.includes(argumentType);
     if (!isCorrectType)
-      console.error(
+      throw new Error(
         `${
           this.tagName
         }'s ${propertyName} was set to ${argument}, which is of type ${argumentType}, but it may only be set to type: ${types.join(
           "or "
         )}`
       );
-    return isCorrectType;
   }
   get canvas() {
     if (this.parentElement instanceof MarkerElement)
@@ -133,14 +157,20 @@ export class MarkerElement extends HTMLElement {
   set on(arg) {
     this.setFirstTime("on", "boolean", arg);
   }
-  optionalInherit<T>(attributeName: string, defaultValue: T): T {
+  optionalInherit<T>(defaultValue: T, ...propertyNames: string[]): T {
     if (this.parentElement === null) return defaultValue;
     if (this.parentElement instanceof MarkerElement === false)
       return defaultValue;
-    if (attributeName in this.parentElement === false) return defaultValue;
-    const inherited = this.parentElement[attributeName];
-    if (typeof inherited === "undefined") return defaultValue;
-    return inherited;
+    const getInherited = (object: object, remainingNames: string[]): T => {
+      if (remainingNames.length) {
+        const [nextName, ...afterNext] = remainingNames;
+        if (nextName in object)
+          return getInherited(object[nextName], afterNext);
+        return defaultValue;
+      }
+      return object as T;
+    };
+    return getInherited(this.parentElement, propertyNames);
   }
   get parent() {
     return this.parentElement;
@@ -162,32 +192,31 @@ export class MarkerElement extends HTMLElement {
   set scale(argument) {
     this.setFirstTime("scale", "object", argument);
   }
-  setFirstTime(
+  setFirstTime<T>(
     propertyName: string,
     type: string,
-    argument: any,
+    argument: unknown,
     beforeRender?: (context: CanvasRenderingContext2D) => void
   ) {
     if (typeof argument === "function") {
       Object.defineProperty(this, propertyName, {
-        get: argument,
-        set: (arg) => {
-          if (this.assertType(propertyName, arg, type))
-            Object.defineProperty(this, propertyName, {
-              value: arg,
-              writable: true,
-            });
+        get: argument as () => any,
+        set: (argument: unknown) => {
+          this.assertType<T>(propertyName, argument, type);
+          Object.defineProperty(this, propertyName, {
+            value: argument,
+            writable: true,
+          });
         },
         configurable: true,
       });
-    } else if (this.assertType(propertyName, argument, type)) {
+    } else {
+      this.assertType<T>(propertyName, argument, type);
       Object.defineProperty(this, propertyName, {
         value: argument,
         writable: true,
       });
       this[propertyName] = argument;
-    } else {
-      return;
     }
     if (typeof beforeRender === "function") {
       const baseRender = this.render.bind(this);
