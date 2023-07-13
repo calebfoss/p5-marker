@@ -67,26 +67,23 @@ export class MarkerElement extends HTMLElement {
     return this.#count;
   }
   color = {
-    hsb(h: number, s: number, b: number) {
-      return this.hsba(h, s, b, 1);
+    gray(value: number, alpha?: number) {
+      return this.rgb(value, value, value, alpha);
     },
-    hsba(h: number, s: number, b: number, a: number) {
+    hsb(h: number, s: number, b: number, a?: number) {
       const l = b * (1 - s / 200);
       const sl =
         l === 0 || l === 100 ? 0 : ((b - l) / Math.min(l, 100 - l)) * 100;
-      return this.hsla(h, sl, l, a);
+      if (typeof a !== "undefined") return this.hsla(h, sl, l, a);
+      return this.hsl(h, sl, l);
     },
-    hsl(h: number, s: number, l: number) {
+    hsl(h: number, s: number, l: number, a?: number) {
+      if (typeof a !== "undefined") return `hsl(${h} ${s}% ${l}% / ${a})`;
       return `hsl(${h} ${s}% ${l}%)`;
     },
-    hsla(h: number, s: number, l: number, a: number) {
-      return `hsl(${h} ${s}% ${l}% / ${a})`;
-    },
-    rgb(r: number, g: number, b: number) {
+    rgb(r: number, g: number, b: number, a?: number) {
+      if (typeof a !== "undefined") return `rgb(${r} ${g} ${b} / ${a})`;
       return `rgb(${r} ${g} ${b})`;
-    },
-    rgba(r: number, g: number, b: number, a: number) {
-      return `rgb(${r} ${g} ${b} / ${a})`;
     },
   };
   change = new Proxy(this, {
