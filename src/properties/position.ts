@@ -14,8 +14,10 @@ export const position = <T extends typeof MarkerElement>(baseClass: T) =>
         set x(argument: unknown) {
           if (typeof argument === "function" && typeof argument() === "number")
             el.#getX = argument as () => number;
-          el.assertType<number>("position.x", argument, "number");
-          el.#getX = () => argument;
+          else {
+            el.assertType<number>("position.x", argument, "number");
+            el.#getX = () => argument;
+          }
         },
         get y(): number {
           const y = el.#getY();
@@ -24,8 +26,10 @@ export const position = <T extends typeof MarkerElement>(baseClass: T) =>
         set y(argument: unknown) {
           if (typeof argument === "function" && typeof argument() === "number")
             el.#getY = argument as () => number;
-          el.assertType<number>("position.y", argument, "number");
-          el.#getY = () => argument;
+          else {
+            el.assertType<number>("position.y", argument, "number");
+            el.#getY = () => argument;
+          }
         },
       };
     }

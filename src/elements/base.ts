@@ -86,47 +86,55 @@ export class MarkerElement extends HTMLElement {
       return `rgb(${r} ${g} ${b})`;
     },
   };
-  change = new Proxy(this, {
-    get(element, propName) {
-      const getProperty = (
-        owner: object,
-        key: PropertyKey,
-        setOwner: (value: any) => void
-      ) => {
-        const prop = owner[key];
-        if (typeof prop !== "object") return prop;
-        const propProxy = new Proxy(prop, {
-          set(p, k, value) {
-            p[k] = value;
-            setOwner(p);
-            return true;
-          },
-          get(p, k) {
-            return getProperty(p, k, (value) => (propProxy[k] = value));
-          },
-        });
-        return propProxy;
-      };
-      return getProperty(
-        element,
-        propName,
-        (value) => (element[propName] = value)
-      );
-    },
-    set(element, propName, value) {
-      if (typeof value !== "function") return false;
-      element.#changers.push(() => {
-        element[propName] = value();
-      });
-      return true;
-    },
+  change = this.#deepProxy((element, propertyName, value) => {
+    element.#changers.push(() => {
+      element[propertyName] = typeof value === "function" ? value() : value;
+    });
+    return true;
   });
+  #deepProxy(
+    set: (target: MarkerElement, propertyName: string, value: any) => boolean
+  ) {
+    function getProperty(
+      owner: object,
+      propertyName: PropertyKey,
+      ownerReceiver: any
+    ) {
+      const property = owner[propertyName];
+      if (typeof property !== "object") return property;
+      return new Proxy(property, {
+        get(property, subPropertyName, propertyReceiver) {
+          return getProperty(property, subPropertyName, propertyReceiver);
+        },
+        set(property, subPropertyName, value) {
+          if (typeof value === "function")
+            ownerReceiver[propertyName] = () => ({
+              ...property,
+              [subPropertyName]: value(),
+            });
+          else
+            ownerReceiver[propertyName] = {
+              ...property,
+              [subPropertyName]: value,
+            };
+          return true;
+        },
+      });
+    }
+    return new Proxy(this, {
+      get(element, propertyName, receiver) {
+        return getProperty(element, propertyName, receiver);
+      },
+      set,
+    });
+  }
   draw(context: CanvasRenderingContext2D) {
     if (this.on === false) return;
     this.#count = 0;
     const cachedValues = {};
     for (const propName of Object.keys(this.#each_modifiers)) {
-      cachedValues[propName] = this[propName];
+      const test = this[propName];
+      cachedValues[propName] = test;
     }
     while (
       this.#count === 0 ||
@@ -150,12 +158,10 @@ export class MarkerElement extends HTMLElement {
       changer();
     }
   }
-  each = new Proxy(this, {
-    set(target, propName, value) {
-      if (typeof value !== "function") return false;
-      target.#each_modifiers[propName] = value;
-      return true;
-    },
+  each = this.#deepProxy((target, propName, value) => {
+    target.#each_modifiers[propName] =
+      typeof value === "function" ? value : () => value;
+    return true;
   });
   get height() {
     if (this.parentElement instanceof MarkerElement)
@@ -254,21 +260,19 @@ export class MarkerElement extends HTMLElement {
       const target = getTarget();
       const propName = getPropName();
 
-      if (target === this || target === this.change || target === this.each) {
-        if (propName in target) {
-          target[propName] = getValue;
-        } else {
-          Object.defineProperty(target, propName, {
-            get: getValue,
-            set: (value) => {
-              this.setFirstTime(propName, typeof getValue(), value);
-            },
-            configurable: true,
-          });
-        }
-      } else {
+      if (target instanceof MarkerElement && target !== this) {
         this.#changers.push(() => {
           target[propName] = getValue();
+        });
+      } else if (propName in target) {
+        target[propName] = getValue;
+      } else {
+        Object.defineProperty(target, propName, {
+          get: getValue,
+          set: (value) => {
+            this.setFirstTime(propName, typeof getValue(), value);
+          },
+          configurable: true,
         });
       }
     }
