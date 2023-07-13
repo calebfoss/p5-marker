@@ -289,6 +289,11 @@ export class MarkerElement extends HTMLElement {
   set width(arg: number) {
     this.setFirstTime("width", "number", arg);
   }
+  get window() {
+    if (this.parentElement instanceof MarkerElement)
+      return this.parentElement.window;
+    return null;
+  }
   xy(x: number, y?: number): Vector {
     if (typeof y === "undefined") return { x, y: x };
     return { x, y };

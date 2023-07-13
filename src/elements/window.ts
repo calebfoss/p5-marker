@@ -1,8 +1,6 @@
 import { MarkerElement } from "./base";
 
 export class Window extends MarkerElement {
-  #mouse_x = 0;
-  #mouse_y = 0;
   constructor() {
     super();
     window.addEventListener("customElementsDefined", () => this.setup());
@@ -14,6 +12,8 @@ export class Window extends MarkerElement {
   get height() {
     return window.innerHeight;
   }
+  #mouse_x = 0;
+  #mouse_y = 0;
   get mouse() {
     return {
       x: this.#mouse_x,
@@ -22,5 +22,8 @@ export class Window extends MarkerElement {
   }
   get width() {
     return window.innerWidth;
+  }
+  get window() {
+    return this;
   }
 }
