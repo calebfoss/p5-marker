@@ -4,3 +4,8 @@ type Token = {
   end: number;
   value: string;
 };
+
+type Vector = {
+  x: number;
+  y: number;
+};

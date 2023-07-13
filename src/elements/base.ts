@@ -9,6 +9,18 @@ export class MarkerElement extends HTMLElement {
   constructor(...args: any[]) {
     super();
   }
+  get anchor() {
+    return this.vector(0, 0);
+  }
+  set anchor(argument: Vector) {
+    this.setFirstTime("anchor", "object", argument);
+  }
+  get angle() {
+    return 0;
+  }
+  set angle(argument) {
+    this.setFirstTime("angle", "number", argument);
+  }
   assertType(propertyName: string, argument: any, ...types: string[]) {
     const argumentType = typeof argument;
     const isCorrectType = types.includes(argumentType);
@@ -72,11 +84,11 @@ export class MarkerElement extends HTMLElement {
     for (const propName of Object.keys(this.#each_modifiers)) {
       cachedValues[propName] = this[propName];
     }
-    context.save();
     while (
       this.#count === 0 ||
       (this.repeat && this.#count < this.#max_count)
     ) {
+      context.save();
       this.render(context);
       this.#count++;
       for (const child of this.children) {
@@ -87,12 +99,12 @@ export class MarkerElement extends HTMLElement {
       for (const [propName, modifier] of Object.entries(this.#each_modifiers)) {
         this[propName] = modifier();
       }
+      context.restore();
     }
     Object.assign(this, cachedValues);
     for (const changer of this.#changers) {
       changer();
     }
-    context.restore();
   }
   each = new Proxy(this, {
     set(target, propName, value) {
@@ -133,37 +145,42 @@ export class MarkerElement extends HTMLElement {
   get parent() {
     return this.parentElement;
   }
-  render(context: CanvasRenderingContext2D) {}
+  render(context: CanvasRenderingContext2D) {
+    context.translate(this.anchor.x, this.anchor.y);
+    context.rotate(this.angle);
+    context.scale(this.scale.x, this.scale.y);
+  }
   get repeat() {
     return this.#repeat;
   }
   set repeat(arg) {
     this.setFirstTime("repeat", "boolean", arg);
   }
-  setFirstTime(attributeName: string, type: string, argument: any) {
-    const argumentType = typeof argument;
-    if (typeof argument === type) {
-      Object.defineProperty(this, attributeName, {
+  get scale() {
+    return this.vector(1, 1);
+  }
+  set scale(argument) {
+    this.setFirstTime("scale", "object", argument);
+  }
+  setFirstTime(propertyName: string, type: string, argument: any) {
+    if (typeof argument === "function") {
+      Object.defineProperty(this, propertyName, {
+        get: argument,
+        set: (arg) => {
+          if (this.assertType(propertyName, arg, type))
+            Object.defineProperty(this, propertyName, {
+              value: arg,
+              writable: true,
+            });
+        },
+        configurable: true,
+      });
+    } else if (this.assertType(propertyName, argument, type)) {
+      Object.defineProperty(this, propertyName, {
         value: argument,
         writable: true,
       });
-      this[attributeName] = argument;
-    } else if (typeof argument === "function") {
-      Object.defineProperty(this, attributeName, {
-        get: argument,
-        set: (arg) =>
-          Object.defineProperty(this, attributeName, {
-            value: arg,
-            writable: true,
-          }),
-        configurable: true,
-      });
-    } else {
-      console.error(
-        `${this.tagName}'s ${attributeName} was set to ${argument}, ` +
-          `which is of type ${argumentType}, ` +
-          `but ${attributeName} can only be set to a value of type ${type}`
-      );
+      this[propertyName] = argument;
     }
   }
   setup() {
@@ -171,6 +188,7 @@ export class MarkerElement extends HTMLElement {
       const [getTarget, getPropName, getValue] = interpret(this, attribute);
       const target = getTarget();
       const propName = getPropName();
+
       if (target === this || target === this.change || target === this.each) {
         if (propName in target) {
           target[propName] = getValue;
@@ -196,6 +214,10 @@ export class MarkerElement extends HTMLElement {
     for (const child of this.children) {
       if (child instanceof MarkerElement) child.setup();
     }
+  }
+  vector(x: number, y?: number): Vector {
+    if (typeof y === "undefined") return { x, y: x };
+    return { x, y };
   }
   get width() {
     if (this.parentElement instanceof MarkerElement)
