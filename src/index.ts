@@ -4,7 +4,7 @@ import { Canvas } from "./elements/canvas";
 import { Rectangle } from "./elements/2d_shapes";
 
 import { stroke, fill } from "./properties/style";
-import { xy } from "./properties/coordinates";
+import { position } from "./properties/position";
 
 //  BASE
 customElements.define("m-setting", MarkerElement);
@@ -30,7 +30,7 @@ const Marker = {
   propertyMixins: {
     stroke: stroke,
     fill: fill,
-    xy: xy,
+    xy: position,
   },
 };
 export { Marker };

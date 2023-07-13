@@ -10,7 +10,7 @@ export class MarkerElement extends HTMLElement {
     super();
   }
   get anchor() {
-    return this.vector(0, 0);
+    return this.xy(0, 0);
   }
   set anchor(argument: Vector) {
     this.setFirstTime("anchor", "object", argument);
@@ -133,13 +133,13 @@ export class MarkerElement extends HTMLElement {
   set on(arg) {
     this.setFirstTime("on", "boolean", arg);
   }
-  optionalInherit(attributeName: string, privateValue: any) {
-    if (this.parentElement === null) return privateValue;
+  optionalInherit<T>(attributeName: string, defaultValue: T): T {
+    if (this.parentElement === null) return defaultValue;
     if (this.parentElement instanceof MarkerElement === false)
-      return privateValue;
-    if (attributeName in this.parentElement === false) return privateValue;
+      return defaultValue;
+    if (attributeName in this.parentElement === false) return defaultValue;
     const inherited = this.parentElement[attributeName];
-    if (typeof inherited === "undefined") return privateValue;
+    if (typeof inherited === "undefined") return defaultValue;
     return inherited;
   }
   get parent() {
@@ -157,7 +157,7 @@ export class MarkerElement extends HTMLElement {
     this.setFirstTime("repeat", "boolean", arg);
   }
   get scale() {
-    return this.vector(1, 1);
+    return this.xy(1, 1);
   }
   set scale(argument) {
     this.setFirstTime("scale", "object", argument);
@@ -226,10 +226,6 @@ export class MarkerElement extends HTMLElement {
       if (child instanceof MarkerElement) child.setup();
     }
   }
-  vector(x: number, y?: number): Vector {
-    if (typeof y === "undefined") return { x, y: x };
-    return { x, y };
-  }
   get width() {
     if (this.parentElement instanceof MarkerElement)
       return this.parentElement.width;
@@ -237,5 +233,9 @@ export class MarkerElement extends HTMLElement {
   }
   set width(arg: number) {
     this.setFirstTime("width", "number", arg);
+  }
+  xy(x: number, y?: number): Vector {
+    if (typeof y === "undefined") return { x, y: x };
+    return { x, y };
   }
 }
