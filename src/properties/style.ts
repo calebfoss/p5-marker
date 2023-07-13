@@ -6,12 +6,9 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
       return "#000000";
     }
     set fill(argument: string | null) {
-      this.setFirstTime("fill", "string", argument);
-      const baseRender = this.render.bind(this);
-      this.render = (context) => {
+      this.setFirstTime("fill", "string", argument, (context) => {
         context.fillStyle = this.fill;
-        baseRender(context);
-      };
+      });
     }
     setup() {
       super.setup();
@@ -23,16 +20,37 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
 
 export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
+    get line_cap(): CanvasLineCap {
+      return "butt";
+    }
+    set line_cap(argument) {
+      this.setFirstTime("line_cap", "string", argument, (context) => {
+        context.lineCap = this.line_cap;
+      });
+    }
+    get line_join(): CanvasLineJoin {
+      return "miter";
+    }
+    set line_join(argument) {
+      this.setFirstTime("line_join", "string", argument, (context) => {
+        context.lineJoin = this.line_join;
+      });
+    }
+    get line_width() {
+      return 1;
+    }
+    set line_width(argument) {
+      this.setFirstTime("line_width", "number", argument, (context) => {
+        context.lineWidth = this.line_width;
+      });
+    }
     get stroke() {
       return "#000000";
     }
     set stroke(argument: string | null) {
-      this.setFirstTime("stroke", "string", argument);
-      const baseRender = this.render.bind(this);
-      this.render = (context) => {
+      this.setFirstTime("stroke", "string", argument, (context) => {
         context.strokeStyle = this.stroke;
-        baseRender(context);
-      };
+      });
     }
     setup() {
       super.setup();

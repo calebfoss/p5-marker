@@ -3,7 +3,7 @@ import { Window } from "./elements/window";
 import { Canvas } from "./elements/canvas";
 import { Rectangle } from "./elements/2d_shapes";
 
-import { stroke, fill } from "./properties/color";
+import { stroke, fill } from "./properties/style";
 import { xy } from "./properties/coordinates";
 
 //  BASE

@@ -162,7 +162,12 @@ export class MarkerElement extends HTMLElement {
   set scale(argument) {
     this.setFirstTime("scale", "object", argument);
   }
-  setFirstTime(propertyName: string, type: string, argument: any) {
+  setFirstTime(
+    propertyName: string,
+    type: string,
+    argument: any,
+    beforeRender?: (context: CanvasRenderingContext2D) => void
+  ) {
     if (typeof argument === "function") {
       Object.defineProperty(this, propertyName, {
         get: argument,
@@ -181,6 +186,15 @@ export class MarkerElement extends HTMLElement {
         writable: true,
       });
       this[propertyName] = argument;
+    } else {
+      return;
+    }
+    if (typeof beforeRender === "function") {
+      const baseRender = this.render.bind(this);
+      this.render = (context) => {
+        beforeRender(context);
+        baseRender(context);
+      };
     }
   }
   setup() {
@@ -196,10 +210,7 @@ export class MarkerElement extends HTMLElement {
           Object.defineProperty(target, propName, {
             get: getValue,
             set: (value) => {
-              Object.defineProperty(target, propName, {
-                value,
-                writable: true,
-              });
+              this.setFirstTime(propName, typeof getValue(), value);
             },
             configurable: true,
           });
