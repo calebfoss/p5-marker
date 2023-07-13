@@ -66,6 +66,29 @@ export class MarkerElement extends HTMLElement {
   get count() {
     return this.#count;
   }
+  color = {
+    hsb(h: number, s: number, b: number) {
+      return this.hsba(h, s, b, 1);
+    },
+    hsba(h: number, s: number, b: number, a: number) {
+      const l = b * (1 - s / 200);
+      const sl =
+        l === 0 || l === 100 ? 0 : ((b - l) / Math.min(l, 100 - l)) * 100;
+      return this.hsla(h, sl, l, a);
+    },
+    hsl(h: number, s: number, l: number) {
+      return `hsl(${h} ${s}% ${l}%)`;
+    },
+    hsla(h: number, s: number, l: number, a: number) {
+      return `hsl(${h} ${s}% ${l}% / ${a})`;
+    },
+    rgb(r: number, g: number, b: number) {
+      return `rgb(${r} ${g} ${b})`;
+    },
+    rgba(r: number, g: number, b: number, a: number) {
+      return `rgb(${r} ${g} ${b} / ${a})`;
+    },
+  };
   change = new Proxy(this, {
     get(element, propName) {
       const getProperty = (
@@ -145,6 +168,7 @@ export class MarkerElement extends HTMLElement {
   set height(arg: number) {
     this.setFirstTime("height", "number", arg);
   }
+
   get max_count() {
     return this.#max_count;
   }
@@ -180,6 +204,7 @@ export class MarkerElement extends HTMLElement {
     context.rotate(this.angle);
     context.scale(this.scale.x, this.scale.y);
   }
+
   get repeat() {
     return this.#repeat;
   }
