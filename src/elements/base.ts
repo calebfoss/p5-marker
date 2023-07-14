@@ -281,6 +281,27 @@ export class MarkerElement extends HTMLElement {
       if (child instanceof MarkerElement) child.setup();
     }
   }
+  toSVG(element: SVGElement) {
+    element.setAttribute("width", this.width.toString());
+    element.setAttribute("height", this.height.toString());
+    if (
+      this.anchor.x !== 0 ||
+      this.anchor.y !== 0 ||
+      this.angle !== 0 ||
+      this.scale.x !== 1 ||
+      this.scale.y !== 1
+    ) {
+      element.setAttribute(
+        "transform",
+        `translate(${this.anchor.x} ${this.anchor.y}) rotate(${
+          this.angle * (180 / Math.PI)
+        }) scale(${this.scale.x} ${this.scale.y})`
+      );
+    }
+    for (const child of this.children) {
+      if (child instanceof MarkerElement) child.toSVG(element);
+    }
+  }
   get width() {
     if (this.parentElement instanceof MarkerElement)
       return this.parentElement.width;

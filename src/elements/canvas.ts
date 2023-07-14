@@ -44,26 +44,40 @@ export class Canvas extends MarkerElement {
   get canvas() {
     return this;
   }
-  download(filename = "MarkerSketch.jpg") {
+  set download(filename: string) {
     const extension = filename.slice(filename.lastIndexOf(".") + 1);
     let mimeType = "image/png";
+    let dataURL = "";
     switch (extension) {
+      case "svg":
+        const doc = this.toSVG();
+        const serializer = new XMLSerializer();
+        const xmlString = serializer.serializeToString(doc);
+        const blob = new Blob([xmlString], { type: "image/svg" });
+        dataURL = URL.createObjectURL(blob);
+        break;
       case "jpg":
       case "jpeg":
         mimeType = "image/jpeg";
       case "png":
       default:
-        const dataURL = this.#canvasElement.toDataURL(mimeType);
-        const anchor = document.createElement("a");
-        anchor.href = dataURL;
-        anchor.click();
+        dataURL = this.#canvasElement.toDataURL(mimeType);
     }
+    const anchor = document.createElement("a");
+    anchor.href = dataURL;
+    anchor.download = filename;
+    anchor.click();
+  }
+  get frame() {
+    return this.#frame;
   }
   get mouse() {
     const down =
+      this.frame > 0 &&
       this.#mouseDownAt < this.#currentFrameStartAt &&
       this.#mouseDownAt >= this.#previousFrameStartAt;
     const up =
+      this.frame > 0 &&
       this.#mouseUpAt < this.#currentFrameStartAt &&
       this.#mouseUpAt >= this.#previousFrameStartAt;
     const held = this.#mouseUpAt < this.#mouseDownAt;
@@ -90,5 +104,26 @@ export class Canvas extends MarkerElement {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
+  }
+  toSVG() {
+    const svgDoc = document.implementation.createDocument(
+      "http://www.w3.org/2000/svg",
+      "svg"
+    );
+    const root = svgDoc.documentElement as HTMLElement & SVGElement;
+    root.setAttribute("viewBox", `0 0 ${this.width} ${this.height}`);
+    if (this.background !== null) {
+      const backgroundElement = svgDoc.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect"
+      );
+      backgroundElement.setAttribute("stroke", "none");
+      backgroundElement.setAttribute("fill", this.background);
+      backgroundElement.setAttribute("width", this.width.toString());
+      backgroundElement.setAttribute("height", this.height.toString());
+      root.appendChild(backgroundElement);
+    }
+    super.toSVG(root);
+    return svgDoc;
   }
 }

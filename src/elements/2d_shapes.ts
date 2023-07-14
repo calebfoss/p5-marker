@@ -20,4 +20,12 @@ export class Rectangle extends position(fill(stroke(MarkerElement))) {
         this.height
       );
   }
+  toSVG(parentElement: SVGElement): void {
+    const doc = parentElement.ownerDocument as XMLDocument;
+    const element = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
+    parentElement.appendChild(element);
+    element.setAttribute("x", this.position.x.toString());
+    element.setAttribute("y", this.position.y.toString());
+    super.toSVG(element);
+  }
 }

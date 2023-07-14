@@ -10,6 +10,10 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
         context.fillStyle = this.fill;
       });
     }
+    toSVG(element: SVGElement): void {
+      element.setAttribute("fill", this.fill === null ? "none" : this.fill);
+      super.toSVG(element);
+    }
   };
 
 export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
@@ -45,5 +49,15 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       this.setFirstTime<string>("stroke", "string", argument, (context) => {
         context.strokeStyle = this.stroke;
       });
+    }
+    toSVG(element: SVGElement): void {
+      element.setAttribute(
+        "stroke",
+        this.stroke === null ? "none" : this.stroke
+      );
+      element.setAttribute("stroke-linecap", this.line_cap);
+      element.setAttribute("stroke-linejoin", this.line_join);
+      element.setAttribute("stroke-width", this.line_width.toString());
+      super.toSVG(element);
     }
   };
