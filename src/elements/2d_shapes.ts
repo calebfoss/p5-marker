@@ -26,6 +26,8 @@ export class Rectangle extends position(fill(stroke(MarkerElement))) {
     parentElement.appendChild(element);
     element.setAttribute("x", this.position.x.toString());
     element.setAttribute("y", this.position.y.toString());
+    element.setAttribute("width", this.width.toString());
+    element.setAttribute("height", this.height.toString());
     super.toSVG(element);
   }
 }
