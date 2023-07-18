@@ -5,14 +5,14 @@ import { fill, stroke } from "../properties/style";
 export class Rectangle extends position(fill(stroke(MarkerElement))) {
   render(context: CanvasRenderingContext2D) {
     super.render(context);
-    if (this.stroke !== null)
+    if (this.stroke !== "none")
       context.strokeRect(
         this.position.x,
         this.position.y,
         this.width,
         this.height
       );
-    if (this.fill !== null)
+    if (this.fill !== "none")
       context.fillRect(
         this.position.x,
         this.position.y,

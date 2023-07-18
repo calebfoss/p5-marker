@@ -1,6 +1,6 @@
-import { MarkerElement } from "./base";
+import { Setting } from "./setting";
 
-export class Canvas extends MarkerElement {
+export class Canvas extends Setting {
   #canvasElement: HTMLCanvasElement;
   #frame = 0;
   #previousFrameStartAt = 0;
@@ -10,6 +10,7 @@ export class Canvas extends MarkerElement {
   #mouseMoveAt = 0;
   constructor() {
     super();
+    this.propertyManager.background = this.#background;
     window.addEventListener("mousedown", (e) => {
       this.#mouseDownAt = performance.now();
     });
@@ -35,11 +36,15 @@ export class Canvas extends MarkerElement {
     };
     requestAnimationFrame(drawFrame);
   }
+  #background: Property<string> = {
+    value: this.color.gray(220),
+    get: () => this.#background.value,
+  };
   get background() {
-    return "#fff";
+    return this.#background.get();
   }
-  set background(arg) {
-    this.setFirstTime("background", "string", arg);
+  set background(argument) {
+    this.#background.value = argument;
   }
   get canvas() {
     return this;
@@ -68,9 +73,20 @@ export class Canvas extends MarkerElement {
     anchor.download = filename;
     anchor.click();
   }
+  #fill: Property<string> = {
+    value: "#ffffff",
+    get: () => this.#fill.value,
+  };
+  get fill() {
+    return this.#fill.get();
+  }
   get frame() {
     return this.#frame;
   }
+  #line_cap: Property<CanvasLineCap> = {
+    value: "butt",
+    get: () => this.#line_cap.value,
+  };
   get mouse() {
     const down =
       this.frame > 0 &&
@@ -92,6 +108,13 @@ export class Canvas extends MarkerElement {
       dragging,
     };
   }
+  #position: Property<Vector> = {
+    value: this.xy(0, 0),
+    get: () => this.#position.value,
+  };
+  get position() {
+    return this.#position.get();
+  }
   render(context: CanvasRenderingContext2D): void {
     const canvas = this.#canvasElement as HTMLCanvasElement;
     if (canvas.width !== this.width || canvas.height !== this.height) {
@@ -104,6 +127,13 @@ export class Canvas extends MarkerElement {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
+  }
+  #stroke: Property<string> = {
+    value: "#000000",
+    get: () => this.#stroke.value,
+  };
+  get stroke() {
+    return this.#stroke.get();
   }
   toSVG() {
     const svgDoc = document.implementation.createDocument(

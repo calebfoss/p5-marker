@@ -2,13 +2,23 @@ import { MarkerElement } from "../elements/base";
 
 export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
-    get fill(): string {
-      return "#000000";
+    constructor(...args: any[]) {
+      super();
+      this.propertyManager.fill = this.#fill;
     }
-    set fill(argument: unknown) {
-      this.setFirstTime("fill", "string", argument, (context) => {
-        context.fillStyle = this.fill;
-      });
+    #fill: Property<string> = {
+      value: null,
+      get: () => this.#fill.value || this.inherit("fill"),
+    };
+    get fill() {
+      return this.#fill.get();
+    }
+    set fill(value) {
+      this.#fill.value = value;
+    }
+    render(context: CanvasRenderingContext2D) {
+      context.fillStyle = this.fill || context.fillStyle;
+      super.render(context);
     }
     toSVG(element: SVGElement): void {
       element.setAttribute("fill", this.fill === null ? "none" : this.fill);
@@ -18,37 +28,55 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
 
 export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
+    constructor(...args: any[]) {
+      super();
+    }
+    #line_cap: Property<CanvasLineCap> = {
+      value: null,
+      get: () => this.#line_cap.value || this.inherit("line_cap"),
+    };
     get line_cap(): CanvasLineCap {
-      return "butt";
+      return this.#line_cap.get();
     }
-    set line_cap(argument: unknown) {
-      this.setFirstTime("line_cap", "string", argument, (context) => {
-        context.lineCap = this.line_cap;
-      });
+    set line_cap(value) {
+      this.#line_cap.value = value;
     }
+    #line_join: Property<CanvasLineJoin> = {
+      value: null,
+      get: () => this.#line_join.value || this.inherit("line_join"),
+    };
     get line_join(): CanvasLineJoin {
-      return "miter";
+      return this.#line_join.get();
     }
-    set line_join(argument: unknown) {
-      this.setFirstTime("line_join", "string", argument, (context) => {
-        context.lineJoin = this.line_join;
-      });
+    set line_join(value) {
+      this.#line_join.value = value;
     }
-    get line_width(): number {
-      return this.optionalInherit(1, "line_width");
+    #line_width: Property<number> = {
+      value: null,
+      get: () => this.#line_width.value || this.inherit("line_width"),
+    };
+    get line_width() {
+      return this.#line_width.get();
     }
-    set line_width(argument: unknown) {
-      this.setFirstTime("line_width", "number", argument, (context) => {
-        context.lineWidth = this.line_width;
-      });
+    set line_width(value) {
+      this.#line_width.value = value;
     }
+    render(context: CanvasRenderingContext2D) {
+      context.lineCap = this.line_cap || context.lineCap;
+      context.lineJoin = this.line_join || context.lineJoin;
+      context.lineWidth = this.line_width || context.lineWidth;
+      context.strokeStyle = this.stroke || context.strokeStyle;
+      super.render(context);
+    }
+    #stroke: Property<string> = {
+      value: null,
+      get: () => this.#stroke.value || this.inherit("stroke"),
+    };
     get stroke(): string {
-      return this.optionalInherit("#000000", "stroke");
+      return this.#stroke.get();
     }
-    set stroke(argument: unknown) {
-      this.setFirstTime<string>("stroke", "string", argument, (context) => {
-        context.strokeStyle = this.stroke;
-      });
+    set stroke(value) {
+      this.#stroke.value = value;
     }
     toSVG(element: SVGElement): void {
       element.setAttribute(

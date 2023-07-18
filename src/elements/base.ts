@@ -2,45 +2,29 @@ import { interpret } from "../interpreter/interpreter";
 
 export class MarkerElement extends HTMLElement {
   #count = 0;
-  #changers: (() => void)[] = [];
-  #each_modifiers: { [key in keyof this]?: () => void } = {};
-  #max_count = 10000;
-  #repeat = false;
+  #frames_on = 0;
   constructor(...args: any[]) {
     super();
   }
+  #anchor: Property<Vector> = {
+    value: this.xy(0, 0),
+    get: () => this.#anchor.value,
+  };
   get anchor() {
-    const el: MarkerElement = this;
-    let getX = () => 0;
-    let getY = () => 0;
-    return {
-      get x(): number {
-        return getX();
-      },
-      set x(argument: unknown) {
-        if (typeof argument === "function" && typeof argument() === "number")
-          getX = argument as () => number;
-        el.assertType<number>("anchor.x", argument, "number");
-        getX = () => argument;
-      },
-      get y(): number {
-        return getY();
-      },
-      set y(argument: unknown) {
-        if (typeof argument === "function") getY = argument as () => number;
-        el.assertType<number>("anchor.y", argument, "number");
-        getY = () => argument;
-      },
-    };
+    return this.#anchor.get();
   }
   set anchor(argument: Vector) {
-    this.setFirstTime("anchor", "object", argument);
+    this.#anchor.value = argument;
   }
+  #angle: Property<number> = {
+    value: 0,
+    get: () => this.#angle.value,
+  };
   get angle() {
-    return 0;
+    return this.#angle.get();
   }
   set angle(argument) {
-    this.setFirstTime("angle", "number", argument);
+    this.#angle.value = argument;
   }
   assertType<T>(
     propertyName: string,
@@ -86,15 +70,11 @@ export class MarkerElement extends HTMLElement {
       return `rgb(${r} ${g} ${b})`;
     },
   };
-  change = this.#deepProxy((element, propertyName, value) => {
-    element.#changers.push(() => {
-      element[propertyName] = typeof value === "function" ? value() : value;
-    });
+  change = this.#deepProxy((element, propertyName, getChangeValue) => {
+    element.propertyManager[propertyName].get = getChangeValue;
     return true;
   });
-  #deepProxy(
-    set: (target: MarkerElement, propertyName: string, value: any) => boolean
-  ) {
+  #deepProxy(set: (target: this, propertyName: string, value: any) => boolean) {
     function getProperty(
       owner: object,
       propertyName: PropertyKey,
@@ -106,17 +86,11 @@ export class MarkerElement extends HTMLElement {
         get(property, subPropertyName, propertyReceiver) {
           return getProperty(property, subPropertyName, propertyReceiver);
         },
-        set(property, subPropertyName, value) {
-          if (typeof value === "function")
-            ownerReceiver[propertyName] = () => ({
-              ...property,
-              [subPropertyName]: value(),
-            });
-          else
-            ownerReceiver[propertyName] = {
-              ...property,
-              [subPropertyName]: value,
-            };
+        set(property, subPropertyName, getValue) {
+          ownerReceiver[propertyName] = () => ({
+            ...property,
+            [subPropertyName]: getValue(),
+          });
           return true;
         },
       });
@@ -130,59 +104,77 @@ export class MarkerElement extends HTMLElement {
   }
   draw(context: CanvasRenderingContext2D) {
     if (this.on === false) return;
-    this.#count = 0;
-    const cachedValues = {};
-    for (const propName of Object.keys(this.#each_modifiers)) {
-      const test = this[propName];
-      cachedValues[propName] = test;
-    }
-    while (
-      this.#count === 0 ||
-      (this.repeat && this.#count < this.#max_count)
+    for (
+      this.#count = 0;
+      this.#count === 0 || (this.repeat && this.#count < this.max_count);
+      this.#count++
     ) {
       context.save();
       this.render(context);
-      this.#count++;
       for (const child of this.children) {
         if (child instanceof MarkerElement) {
           child.draw(context);
         }
       }
-      for (const [propName, modifier] of Object.entries(this.#each_modifiers)) {
-        this[propName] = modifier();
-      }
       context.restore();
     }
-    Object.assign(this, cachedValues);
-    for (const changer of this.#changers) {
-      changer();
-    }
+    this.#frames_on++;
   }
-  each = this.#deepProxy((target, propName, value) => {
-    target.#each_modifiers[propName] =
-      typeof value === "function" ? value : () => value;
+  each = this.#deepProxy((element, propertyName, getEachValue) => {
+    const getValue = element.propertyManager[propertyName].bind(element);
+    let count = 0;
+    element.propertyManager[propertyName].get = () => {
+      if (count > element.count) count = 0;
+      let value = getValue();
+      if (count === element.count) return value;
+      while (count < element.count) {
+        value = getEachValue();
+      }
+      return value;
+    };
     return true;
   });
+  get frames_on() {
+    return this.#frames_on;
+  }
+  #height: Property<number> = {
+    value: null,
+    get: () => this.#height.value || this.inherit("height"),
+  };
   get height() {
-    if (this.parentElement instanceof MarkerElement)
-      return this.parentElement.height;
-    return 0;
+    return this.#height.get();
   }
-  set height(arg: number) {
-    this.setFirstTime("height", "number", arg);
+  set height(value) {
+    this.#height.value = value;
   }
-
+  inherit(propertyName: PropertyKey) {
+    if (!(this.parentElement instanceof MarkerElement)) return null;
+    if (
+      propertyName in this.parentElement &&
+      this.parentElement[propertyName] !== null
+    )
+      return this.parentElement[propertyName];
+    return this.parentElement.inherit(propertyName);
+  }
+  #max_count: Property<number> = {
+    value: 10000,
+    get: () => this.#max_count.value,
+  };
   get max_count() {
-    return this.#max_count;
+    return this.#max_count.get();
   }
-  set max_count(arg) {
-    this.setFirstTime("max_count", "number", arg);
+  set max_count(value) {
+    this.#max_count.value = value;
   }
+  #on: Property<boolean> = {
+    value: true,
+    get: () => this.#on.value,
+  };
   get on() {
-    return true;
+    return this.#on.get();
   }
-  set on(arg) {
-    this.setFirstTime("on", "boolean", arg);
+  set on(value) {
+    this.#on.value = value;
   }
   optionalInherit<T>(defaultValue: T, ...propertyNames: string[]): T {
     if (this.parentElement === null) return defaultValue;
@@ -207,73 +199,74 @@ export class MarkerElement extends HTMLElement {
     context.rotate(this.angle);
     context.scale(this.scale.x, this.scale.y);
   }
-
+  #repeat: Property<boolean> = {
+    value: false,
+    get: () => this.#repeat.value,
+  };
   get repeat() {
-    return this.#repeat;
+    return this.#repeat.get();
   }
-  set repeat(arg) {
-    this.setFirstTime("repeat", "boolean", arg);
+  set repeat(value) {
+    this.#repeat.value = value;
   }
+  #scale: Property<Vector> = {
+    value: this.xy(1, 1),
+    get: () => this.#scale.value,
+  };
   get scale() {
-    return this.xy(1, 1);
+    return this.#scale.get();
   }
-  set scale(argument) {
-    this.setFirstTime("scale", "object", argument);
-  }
-  setFirstTime<T>(
-    propertyName: string,
-    type: string,
-    argument: unknown,
-    beforeRender?: (context: CanvasRenderingContext2D) => void
-  ) {
-    if (typeof argument === "function") {
-      Object.defineProperty(this, propertyName, {
-        get: argument as () => any,
-        set: (argument: unknown) => {
-          this.assertType<T>(propertyName, argument, type);
-          Object.defineProperty(this, propertyName, {
-            value: argument,
-            writable: true,
-          });
-        },
-        configurable: true,
-      });
-    } else {
-      this.assertType<T>(propertyName, argument, type);
-      Object.defineProperty(this, propertyName, {
-        value: argument,
-        writable: true,
-      });
-      this[propertyName] = argument;
-    }
-    if (typeof beforeRender === "function") {
-      const baseRender = this.render.bind(this);
-      this.render = (context) => {
-        beforeRender(context);
-        baseRender(context);
-      };
-    }
+  set scale(value) {
+    this.#scale.value = value;
   }
   setup() {
     for (const attribute of this.attributes) {
       const [getTarget, getPropName, getValue] = interpret(this, attribute);
       const target = getTarget();
-      const propName = getPropName();
-
-      if (target instanceof MarkerElement && target !== this) {
-        this.#changers.push(() => {
-          target[propName] = getValue();
-        });
-      } else if (propName in target) {
-        target[propName] = getValue;
+      const propertyName = getPropName();
+      let lastUpdated = 0;
+      const setPropertyOnThis = () => {
+        if (propertyName in this) {
+          const baseGet = this.propertyManager[propertyName].get;
+          this.propertyManager[propertyName].get = () => {
+            while (lastUpdated < this.frames_on) {
+              lastUpdated++;
+              this.propertyManager[propertyName].value = getValue();
+            }
+            return baseGet();
+          };
+        } else {
+          const property: Property<unknown> = {
+            value: null,
+            get: getValue,
+          };
+          Object.defineProperty(this, propertyName, {
+            get() {
+              return property.get();
+            },
+            set(value) {
+              property.value = value;
+            },
+          });
+          this.propertyManager[propertyName] = property;
+        }
+      };
+      if (!(target instanceof MarkerElement)) {
+        target[propertyName] = getValue;
+      } else if (
+        target === this ||
+        Object.getPrototypeOf(target) === Object.getPrototypeOf(this)
+      ) {
+        setPropertyOnThis();
       } else {
-        Object.defineProperty(target, propName, {
-          get: getValue,
-          set: (value) => {
-            this.setFirstTime(propName, typeof getValue(), value);
-          },
-          configurable: true,
-        });
+        const baseGet = target.propertyManager[propertyName].get.bind(target);
+        target.change[propertyName] = () => {
+          while (lastUpdated < this.frames_on) {
+            lastUpdated++;
+            target[propertyName].value = getValue();
+          }
+          return baseGet();
+        };
       }
     }
     this.dispatchEvent(new Event("setupComplete"));
@@ -302,13 +295,15 @@ export class MarkerElement extends HTMLElement {
       if (child instanceof MarkerElement) child.toSVG(element);
     }
   }
+  #width: Property<number> = {
+    value: null,
+    get: () => this.#width.value || this.inherit("width"),
+  };
   get width() {
-    if (this.parentElement instanceof MarkerElement)
-      return this.parentElement.width;
-    else return 0;
+    return this.#width.get();
   }
-  set width(arg: number) {
-    this.setFirstTime("width", "number", arg);
+  set width(value) {
+    this.#width.value = value;
   }
   get window() {
     if (this.parentElement instanceof MarkerElement)
@@ -319,4 +314,10 @@ export class MarkerElement extends HTMLElement {
     if (typeof y === "undefined") return { x, y: x };
     return { x, y };
   }
+  propertyManager: { [key in keyof this]?: Property<any> } = {
+    anchor: this.#anchor,
+    angle: this.#angle,
+    height: this.#height,
+    width: this.#width,
+  };
 }
