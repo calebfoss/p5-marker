@@ -6,18 +6,6 @@ import { Rectangle } from "./elements/2d_shapes";
 import { stroke, fill } from "./properties/style";
 import { position } from "./properties/position";
 
-//  BASE
-customElements.define("m-setting", Setting);
-
-//  WINDOW
-customElements.define("m-window", Window);
-
-//  CANVAS
-customElements.define("m-canvas", Canvas);
-
-//  2D SHAPES
-customElements.define("m-rectangle", Rectangle);
-
 dispatchEvent(new Event("customElementsDefined"));
 
 const Marker = {

@@ -1,29 +1,9 @@
 import { MarkerElement } from "../elements/base";
 import { lex } from "./lexer";
-import { parse, parseAttributeName } from "./parser";
+import { parse } from "./parser";
 
-export const interpret = (
-  element: MarkerElement,
-  attribute: Attr
-): [() => object, () => string, () => any] => {
+export const interpret = (element: MarkerElement, attribute: Attr): void => {
   const nameTokens = lex(attribute.name);
-  const firstNameTokenValue = nameTokens[0].value;
-  const referenceOwnProperties =
-    firstNameTokenValue === "change" ||
-    firstNameTokenValue === "each" ||
-    firstNameTokenValue === "repeat";
-  const [getTarget, getPropName] = parseAttributeName(
-    element,
-    attribute.name,
-    nameTokens
-  );
-
   const valTokens = lex(attribute.value);
-  const getValue = parse(
-    element,
-    attribute.name,
-    valTokens,
-    referenceOwnProperties
-  );
-  return [getTarget, getPropName, getValue];
+  parse(element, attribute.name, nameTokens, valTokens);
 };

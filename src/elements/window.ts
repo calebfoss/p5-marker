@@ -27,3 +27,4 @@ export class Window extends MarkerElement {
     return this;
   }
 }
+customElements.define("m-window", Window);

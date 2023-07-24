@@ -1,3 +1,4 @@
+import { identity } from "./base";
 import { Setting } from "./setting";
 
 export class Canvas extends Setting {
@@ -37,14 +38,13 @@ export class Canvas extends Setting {
     requestAnimationFrame(drawFrame);
   }
   #background: Property<string> = {
-    value: this.color.gray(220),
-    get: () => this.#background.value,
+    get: identity(this.color.gray(220)),
   };
   get background() {
     return this.#background.get();
   }
-  set background(argument) {
-    this.#background.value = argument;
+  set background(value) {
+    this.#background.get = identity(value);
   }
   get canvas() {
     return this;
@@ -74,8 +74,7 @@ export class Canvas extends Setting {
     anchor.click();
   }
   #fill: Property<string> = {
-    value: "#ffffff",
-    get: () => this.#fill.value,
+    get: identity("#ffffff"),
   };
   get fill() {
     return this.#fill.get();
@@ -84,8 +83,7 @@ export class Canvas extends Setting {
     return this.#frame;
   }
   #line_cap: Property<CanvasLineCap> = {
-    value: "butt",
-    get: () => this.#line_cap.value,
+    get: identity("butt"),
   };
   get mouse() {
     const down =
@@ -109,8 +107,8 @@ export class Canvas extends Setting {
     };
   }
   #position: Property<Vector> = {
-    value: this.xy(0, 0),
-    get: () => this.#position.value,
+    object: this.xy(0, 0),
+    get: () => this.#position.object,
   };
   get position() {
     return this.#position.get();
@@ -129,8 +127,7 @@ export class Canvas extends Setting {
     }
   }
   #stroke: Property<string> = {
-    value: "#000000",
-    get: () => this.#stroke.value,
+    get: identity("#000000"),
   };
   get stroke() {
     return this.#stroke.get();
@@ -157,3 +154,4 @@ export class Canvas extends Setting {
     return svgDoc;
   }
 }
+customElements.define("m-canvas", Canvas);

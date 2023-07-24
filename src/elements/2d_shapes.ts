@@ -31,3 +31,4 @@ export class Rectangle extends position(fill(stroke(MarkerElement))) {
     super.toSVG(element);
   }
 }
+customElements.define("m-rectangle", Rectangle);

@@ -1,4 +1,4 @@
-import { MarkerElement } from "../elements/base";
+import { MarkerElement, identity } from "../elements/base";
 
 export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
@@ -7,14 +7,13 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
       this.propertyManager.fill = this.#fill;
     }
     #fill: Property<string> = {
-      value: null,
-      get: () => this.#fill.value || this.inherit("fill"),
+      get: () => this.inherit("fill"),
     };
-    get fill() {
+    get fill(): string {
       return this.#fill.get();
     }
     set fill(value) {
-      this.#fill.value = value;
+      this.#fill.get = identity(value);
     }
     render(context: CanvasRenderingContext2D) {
       context.fillStyle = this.fill || context.fillStyle;
@@ -32,34 +31,31 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       super();
     }
     #line_cap: Property<CanvasLineCap> = {
-      value: null,
-      get: () => this.#line_cap.value || this.inherit("line_cap"),
+      get: () => this.inherit("line_cap"),
     };
     get line_cap(): CanvasLineCap {
       return this.#line_cap.get();
     }
     set line_cap(value) {
-      this.#line_cap.value = value;
+      this.#line_cap.get = identity(value);
     }
     #line_join: Property<CanvasLineJoin> = {
-      value: null,
-      get: () => this.#line_join.value || this.inherit("line_join"),
+      get: () => this.inherit("line_join"),
     };
     get line_join(): CanvasLineJoin {
       return this.#line_join.get();
     }
     set line_join(value) {
-      this.#line_join.value = value;
+      this.#line_join.get = identity(value);
     }
     #line_width: Property<number> = {
-      value: null,
-      get: () => this.#line_width.value || this.inherit("line_width"),
+      get: () => this.inherit("line_width"),
     };
-    get line_width() {
+    get line_width(): number {
       return this.#line_width.get();
     }
     set line_width(value) {
-      this.#line_width.value = value;
+      this.#line_width.get = identity(value);
     }
     render(context: CanvasRenderingContext2D) {
       context.lineCap = this.line_cap || context.lineCap;
@@ -69,14 +65,13 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       super.render(context);
     }
     #stroke: Property<string> = {
-      value: null,
-      get: () => this.#stroke.value || this.inherit("stroke"),
+      get: () => this.inherit("stroke"),
     };
     get stroke(): string {
       return this.#stroke.get();
     }
     set stroke(value) {
-      this.#stroke.value = value;
+      this.#stroke.get = identity(value);
     }
     toSVG(element: SVGElement): void {
       element.setAttribute(

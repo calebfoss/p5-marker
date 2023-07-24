@@ -1,4 +1,4 @@
-import { MarkerElement } from "../elements/base";
+import { MarkerElement, identity, markerObject } from "../elements/base";
 import { tokenKind, endToken } from "./lexer";
 
 const isArray = (tokens: Token[], parenthesesDepth = 0) => {
@@ -109,7 +109,7 @@ const getRightTokenIndex = (
   leftTokenKind: "(" | "[",
   index = 0,
   depth = 0
-) => {
+): number => {
   const rightTokenKind = leftTokenKind === "(" ? ")" : "]";
   const [token, ...remainder] = tokens;
   if (token.kind === leftTokenKind)
@@ -120,81 +120,66 @@ const getRightTokenIndex = (
   return getRightTokenIndex(remainder, leftTokenKind, index + 1, depth - 1);
 };
 
-const member = (
-  getObj: () => object,
-  getPreviousMemberName: () => string,
-  afterPreviousMember: Token[]
-): [() => object, () => string, Token[]] => {
-  const [nextToken, ...remainder] = afterPreviousMember;
-  if (nextToken.kind !== tokenKind.member)
-    return [getObj, getPreviousMemberName, afterPreviousMember];
-  return member(
-    () => getObj()[getPreviousMemberName()],
-    () => nextToken.value,
-    remainder
-  );
-};
-
-const computedMember = (
-  element: MarkerElement,
-  attrName: string,
-  getBaseObj: () => object,
-  getBaseMember: () => string,
-  afterPreviousMember: Token[]
-): [() => object, () => string, Token[]] => {
-  const [getObj, getNextMemberName, afterNextMember] = member(
-    getBaseObj,
-    getBaseMember,
-    afterPreviousMember
-  );
-  const [nextToken, ...afterNext] = afterNextMember;
-  if (nextToken.kind !== "[")
-    return [getObj, getNextMemberName, afterNextMember];
-  const rightSquareBracketIndex = getRightTokenIndex(afterNext, "[");
-  const tokensBetweenBrackets = afterNext.slice(0, rightSquareBracketIndex);
-  const getComputedMemberName = parse(element, attrName, tokensBetweenBrackets);
-  const tokensAfterBrackets = afterNext.slice(rightSquareBracketIndex + 1);
-  return computedMember(
-    element,
-    attrName,
-    () => getObj()[getNextMemberName()],
-    getComputedMemberName,
-    tokensAfterBrackets
-  );
-};
-
-export const parseAttributeName = (
-  element: MarkerElement,
-  attrName: string,
-  tokens: Token[]
-): [() => object, () => string] => {
-  if (tokens[0].kind !== "property") {
-    console.error(
-      `On ${element.tagName}'s ${attrName}, expected a property name ` +
-        `but got ${tokens[0].value} of kind ${tokens[0].kind}`
-    );
-    return;
-  }
-  const getBaseObj = () => element;
-  const firstMemberName = tokens[0].value;
-  const [getTarget, getPropName, remainder] = computedMember(
-    element,
-    attrName,
-    getBaseObj,
-    () => firstMemberName,
-    tokens.slice(1).concat(endToken)
-  );
-  if (remainder.length > 1) console.error(remainder);
-  return [getTarget, getPropName];
-};
-
 export const parse = (
   element: MarkerElement,
   attrName: string,
-  fullListOfTokens: Token[],
-  referenceOwnProperties = false,
+  attrNameTokens: Token[],
+  attrValTokens: Token[],
   debug = false
 ) => {
+  const [firstNameToken, ...remainingNameTokens] = attrNameTokens;
+  const action = (() => {
+    switch (firstNameToken.value) {
+      case "repeat":
+      case "change":
+      case "each":
+        return firstNameToken.value;
+      default:
+        if (element[firstNameToken.value] instanceof MarkerElement)
+          return "change";
+        return "get";
+    }
+  })();
+
+  const member = (
+    getObj: () => MarkerObject<object>,
+    getPreviousMemberName: () => string,
+    afterPreviousMember: Token[]
+  ): [() => MarkerObject<object>, () => string, Token[]] => {
+    const [nextToken, ...remainder] = afterPreviousMember;
+    if (nextToken.kind !== tokenKind.member)
+      return [getObj, getPreviousMemberName, afterPreviousMember];
+    return member(
+      () => getObj()[getPreviousMemberName()],
+      () => nextToken.value,
+      remainder
+    );
+  };
+
+  const computedMember = (
+    getBaseObj: () => MarkerObject<object>,
+    getBaseMember: () => string,
+    afterPreviousMember: Token[]
+  ): [() => MarkerObject<object>, () => string, Token[]] => {
+    const [getObj, getNextMemberName, afterNextMember] = member(
+      getBaseObj,
+      getBaseMember,
+      afterPreviousMember
+    );
+    const [nextToken, ...afterNext] = afterNextMember;
+    if (nextToken.kind !== "[")
+      return [getObj, getNextMemberName, afterNextMember];
+    const rightSquareBracketIndex = getRightTokenIndex(afterNext, "[");
+    const tokensBetweenBrackets = afterNext.slice(0, rightSquareBracketIndex);
+    const getComputedMemberName = parseExpression(tokensBetweenBrackets);
+    const tokensAfterBrackets = afterNext.slice(rightSquareBracketIndex + 1);
+    return computedMember(
+      () => getObj()[getNextMemberName()],
+      getComputedMemberName,
+      tokensAfterBrackets
+    );
+  };
+
   const parentheses = (
     tokensAfterLeftParenthesis: Token[]
   ): [() => any, Token[]] => {
@@ -264,8 +249,6 @@ export const parse = (
     afterFirstMember: Token[]
   ): [() => any, Token[]] => {
     const [getObj, getLastMemberName, afterLastMember] = computedMember(
-      element,
-      attrName,
       getBaseObj,
       () => firstMemberName,
       afterFirstMember
@@ -291,34 +274,33 @@ export const parse = (
   };
 
   const getObjectWithProperty = (
-    propertyToken: Token,
-    referenceOwnProperties: boolean
-  ): [() => HTMLElement | undefined, string] => {
-    const propName = propertyToken.value;
-    if (referenceOwnProperties && propName in element)
-      return [() => element, propName];
-    const findAttributeInParent = (el: HTMLElement) => {
+    propertyToken: Token
+  ): [() => HTMLElement, string] => {
+    const propertyName = propertyToken.value;
+    const findAttributeInParent = (el: HTMLElement): HTMLElement => {
       if (el.parentElement === null) {
-        console.error(
-          `${element.tagName}'s ${attrName} is referencing ${propName}, ` +
+        throw new Error(
+          `${element.tagName}'s ${attrName} is referencing ${propertyName}, ` +
             `but this attribute could not be found on a parent element.`
         );
-        return undefined;
       }
-      if (propName in el.parentElement) return el.parentElement;
+      if (propertyName in el.parentElement) return el.parentElement;
       return findAttributeInParent(el.parentElement);
     };
-    return [() => findAttributeInParent(element), propName];
+    if (action === "get")
+      return [() => findAttributeInParent(element), propertyName];
+    return [
+      () =>
+        propertyName in element ? element : findAttributeInParent(element),
+      propertyName,
+    ];
   };
 
   const property = (
     propertyToken: Token,
     remainder: Token[]
   ): [() => any, Token[]] => {
-    const [getObj, memberName] = getObjectWithProperty(
-      propertyToken,
-      referenceOwnProperties
-    );
+    const [getObj, memberName] = getObjectWithProperty(propertyToken);
     if (debug)
       console.log(
         `AFTER getObjectWithProperty propName: ${memberName} remaining tokens: ${remainder
@@ -354,10 +336,20 @@ export const parse = (
           console.error(
             `On ${element.tagName}'s ${attrName}, found a [ left square bracket without matching right square bracket]`
           );
-        return [
-          array(remainder.slice(0, rightSquareBracketIndex)),
-          remainder.slice(rightSquareBracketIndex + 1),
-        ];
+        const getArray = array(remainder.slice(0, rightSquareBracketIndex));
+        const tokensAfterArray = remainder.slice(rightSquareBracketIndex + 1);
+        const [nextToken, ...afterNext] = tokensAfterArray;
+        if (nextToken.kind !== "[") return [getArray, tokensAfterArray];
+        const nextRightIndex = getRightTokenIndex(afterNext, "[");
+        const tokensBetweenNextBrackets = afterNext.slice(0, nextRightIndex);
+        const tokensAfterNextBrackets = afterNext.slice(nextRightIndex + 1);
+        const [getObject, getMemberName, afterComputedMember] = computedMember(
+          () => markerObject(getArray),
+          parseExpression(tokensBetweenNextBrackets),
+          tokensAfterNextBrackets
+        );
+        return [() => getObject[getMemberName()], afterComputedMember];
+
       case "{":
         const rightCurlyBracketIndex = remainder.findIndex(
           (t) => t.kind === "}"
@@ -472,11 +464,11 @@ export const parse = (
       (afterExpression.length === 1 &&
         afterExpression[0].kind !== tokenKind.end)
     )
-      console.error(
+      throw new Error(
         `On ${element.tagName}'s ${attrName}, reached end of expression without an end token`
       );
-    else if (afterExpression.length > 1)
-      console.error(
+    if (afterExpression.length > 1)
+      throw new Error(
         `On ${
           element.tagName
         }'s ${attrName}, reached end of expression and found remaining tokens: ${afterExpression
@@ -493,5 +485,93 @@ export const parse = (
       );
     return end(tokens.concat(endToken));
   };
-  return parseExpression(fullListOfTokens);
+
+  const getValue = parseExpression(attrValTokens);
+  switch (action) {
+    case "each": {
+      const [nextToken, ...remainder] = remainingNameTokens;
+      const [getOwner, getMemberName, afterComputedMember] = computedMember(
+        () => element,
+        () => nextToken.value,
+        remainder.concat(endToken)
+      );
+      if (afterComputedMember.length > 1)
+        throw new Error(
+          `Failed to parse ${
+            element.tagName
+          }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
+        );
+      let baseGet: () => any;
+      element.addEach((reset: boolean) => {
+        const property = getOwner().propertyManager[getMemberName()];
+        if (element.count === 0) {
+          baseGet = property.get.bind(this);
+          return;
+        }
+        if (reset) {
+          property.get = baseGet;
+          return;
+        }
+        const eachValue = getValue();
+        property.get = identity(eachValue);
+      });
+      return;
+    }
+    case "change": {
+      const [nextToken, ...remainder] =
+        firstNameToken.value === "change"
+          ? remainingNameTokens
+          : attrNameTokens;
+      const [getOwner, getMemberName, afterComputedMember] = computedMember(
+        () => element,
+        () => nextToken.value,
+        remainder.concat(endToken)
+      );
+      if (afterComputedMember.length > 1)
+        throw new Error(
+          `Failed to parse ${
+            element.tagName
+          }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
+        );
+      element.addChange(() => {
+        getOwner().propertyManager[getMemberName()].changed = true;
+        getOwner()[getMemberName()] = getValue();
+      });
+      return;
+    }
+    default: {
+      const propertyName = firstNameToken.value;
+
+      const [getOwner, getMemberName, afterComputedMember] = computedMember(
+        () => element,
+        () => propertyName,
+        remainingNameTokens.concat(endToken)
+      );
+      if (afterComputedMember.length > 1)
+        throw new Error(
+          `Failed to parse ${
+            element.tagName
+          }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
+        );
+      if (!(propertyName in element)) {
+        element.propertyManager[propertyName] = {
+          get: () => undefined,
+        };
+        Object.defineProperty(element, propertyName, {
+          get: () => element.propertyManager[propertyName].get(),
+          set: (value) => {
+            element.propertyManager[propertyName].get = identity(value);
+          },
+        });
+      }
+      element.addGetter(() => {
+        const property = getOwner().propertyManager[getMemberName()];
+        if (property.changed) return;
+        if (typeof getValue() === "object") {
+          (property as Property<object>).object = getValue();
+        } else property.get = getValue;
+      });
+    }
+  }
+  return;
 };
