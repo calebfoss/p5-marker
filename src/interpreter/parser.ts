@@ -1,4 +1,9 @@
-import { MarkerElement, identity, markerObject } from "../elements/base";
+import {
+  MarkerElement,
+  identity,
+  markerObject,
+  property as createProperty,
+} from "../elements/base";
 import { tokenKind, endToken } from "./lexer";
 
 const isArray = (tokens: Token[], parenthesesDepth = 0) => {
@@ -344,7 +349,7 @@ export const parse = (
         const tokensBetweenNextBrackets = afterNext.slice(0, nextRightIndex);
         const tokensAfterNextBrackets = afterNext.slice(nextRightIndex + 1);
         const [getObject, getMemberName, afterComputedMember] = computedMember(
-          () => markerObject(getArray),
+          () => markerObject(getArray()),
           parseExpression(tokensBetweenNextBrackets),
           tokensAfterNextBrackets
         );
@@ -554,9 +559,7 @@ export const parse = (
           }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
         );
       if (!(propertyName in element)) {
-        element.propertyManager[propertyName] = {
-          get: () => undefined,
-        };
+        element.propertyManager[propertyName] = createProperty(undefined);
         Object.defineProperty(element, propertyName, {
           get: () => element.propertyManager[propertyName].get(),
           set: (value) => {
@@ -567,7 +570,7 @@ export const parse = (
       element.addGetter(() => {
         const property = getOwner().propertyManager[
           getMemberName()
-        ] as Property<object>;
+        ] as ObjectProperty<object>;
         if (property.changed) return;
         if (typeof getValue() === "object") {
           property.object = getValue();

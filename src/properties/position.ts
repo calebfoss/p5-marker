@@ -1,4 +1,4 @@
-import { MarkerElement, identity } from "../elements/base";
+import { MarkerElement, identity, property } from "../elements/base";
 
 export const position = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
@@ -6,45 +6,20 @@ export const position = <T extends typeof MarkerElement>(baseClass: T) =>
       super();
       this.propertyManager.position = this.#position;
     }
-    #position: Property<MarkerObject<Vector>> = {
-      get changed() {
-        return (
-          this.object.propertyManager.x.changed ||
-          this.object.propertyManager.y.changed
-        );
-      },
-      set changed(value) {
-        if (value) {
-          this.object.propertyManager.x.changed = true;
-          this.object.propertyManager.y.changed = true;
-        }
-      },
-      object: {
-        get x() {
-          return this.propertyManager.x.get();
+    #position = (() => {
+      const element = this;
+      return property<Vector>({
+        get x(): number {
+          return element.inherit("position", element.xy(0, 0)).x;
         },
-        set x(value) {
-          this.propertyManager.x.get = identity(value);
+        get y(): number {
+          return element.inherit("position", element.xy(0, 0)).y;
         },
-        get y() {
-          return this.propertyManager.y.get();
-        },
-        set y(value) {
-          this.propertyManager.y.get = identity(value);
-        },
-        propertyManager: {
-          x: {
-            get: () => this.inherit("position").x,
-          },
-          y: {
-            get: () => this.inherit("position").y,
-          },
-        },
-      },
-      get: () => this.#position.object,
-    };
+      });
+    })();
     get position(): Vector {
-      return this.#position.get();
+      const pos = this.#position.get();
+      return pos;
     }
     set position(value) {
       this.#position.object.propertyManager.x.get = identity(value.x);
