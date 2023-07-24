@@ -505,7 +505,7 @@ export const parse = (
       element.addEach((reset: boolean) => {
         const property = getOwner().propertyManager[getMemberName()];
         if (element.count === 0) {
-          baseGet = property.get.bind(this);
+          baseGet = property.get;
           return;
         }
         if (reset) {

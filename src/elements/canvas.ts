@@ -106,7 +106,7 @@ export class Canvas extends Setting {
       dragging,
     };
   }
-  #position: Property<Vector> = {
+  #position: Property<MarkerObject<Vector>> = {
     object: this.xy(0, 0),
     get: () => this.#position.object,
   };
