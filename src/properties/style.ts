@@ -27,6 +27,10 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
     constructor(...args: any[]) {
       super();
+      this.propertyManager.line_width = this.#line_width;
+      this.propertyManager.line_cap = this.#line_cap;
+      this.propertyManager.line_join = this.#line_join;
+      this.propertyManager.stroke = this.#stroke;
     }
     #line_cap = property(() => this.inherit("line_cap", "butt"));
     get line_cap(): CanvasLineCap {
