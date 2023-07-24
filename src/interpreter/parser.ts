@@ -565,10 +565,13 @@ export const parse = (
         });
       }
       element.addGetter(() => {
-        const property = getOwner().propertyManager[getMemberName()];
+        const property = getOwner().propertyManager[
+          getMemberName()
+        ] as Property<object>;
         if (property.changed) return;
         if (typeof getValue() === "object") {
-          (property as Property<object>).object = getValue();
+          property.object = getValue();
+          property.get = () => property.object;
         } else property.get = getValue;
       });
     }
