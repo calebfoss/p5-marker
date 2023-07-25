@@ -1,7 +1,6 @@
-import { identity, property } from "./base";
-import { Setting } from "./setting";
+import { MarkerElement, identity, property } from "./base";
 
-export class Canvas extends Setting {
+export class Canvas extends MarkerElement {
   #canvasElement: HTMLCanvasElement;
   #frame = 0;
   #previousFrameStartAt = 0;
@@ -37,7 +36,7 @@ export class Canvas extends Setting {
     };
     requestAnimationFrame(drawFrame);
   }
-  #background = property(this.color.gray(220));
+  #background = property(this.gray(220));
   get background() {
     return this.#background.get();
   }

@@ -1,11 +1,11 @@
 import "../src/index";
 import { Window } from "../src/elements/window";
 import { Canvas } from "../src/elements/canvas";
-import { MarkerElement } from "../src/elements/base";
+import { Setting } from "../src/elements/setting";
 
 const windowElement = document.createElement("m-window") as Window;
 const canvasElement = document.createElement("m-canvas") as Canvas;
-const settingElement = document.createElement("m-setting") as MarkerElement;
+const settingElement = document.createElement("m-setting") as Setting;
 
 test("create elements", () => {
   expect(windowElement).not.toBe(null);

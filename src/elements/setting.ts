@@ -1,6 +1,6 @@
 import { MarkerElement } from "./base";
-import { position } from "../properties/position";
-import { stroke, fill } from "../properties/style";
+import { position } from "../mixins/position";
+import { stroke, fill } from "../mixins/style";
 
 export class Setting extends position(stroke(fill(MarkerElement))) {}
 customElements.define("m-setting", Setting);

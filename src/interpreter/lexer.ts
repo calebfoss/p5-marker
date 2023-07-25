@@ -1,4 +1,4 @@
-import { constants } from "../properties/constants";
+import { constants } from "../mixins/constants";
 
 const singleCharTokens = new Set("(),:?[]{}");
 export const tokenKind = {
