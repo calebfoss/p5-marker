@@ -9,9 +9,6 @@ export class Window extends MarkerElement {
       this.#mouse_y = e.y;
     });
   }
-  get height() {
-    return window.innerHeight;
-  }
   #mouse_x = 0;
   #mouse_y = 0;
   get mouse() {
@@ -19,9 +16,6 @@ export class Window extends MarkerElement {
       x: this.#mouse_x,
       y: this.#mouse_y,
     };
-  }
-  get width() {
-    return window.innerWidth;
   }
   get window() {
     return this;
