@@ -1,5 +1,5 @@
 import {
-  MarkerElement,
+  Base,
   identity,
   markerObject,
   property as createProperty,
@@ -126,7 +126,7 @@ const getRightTokenIndex = (
 };
 
 export const parse = (
-  element: MarkerElement,
+  element: Base,
   attrName: string,
   attrNameTokens: Token[],
   attrValTokens: Token[],
@@ -140,8 +140,7 @@ export const parse = (
       case "each":
         return firstNameToken.value;
       default:
-        if (element[firstNameToken.value] instanceof MarkerElement)
-          return "change";
+        if (element[firstNameToken.value] instanceof Base) return "change";
         return "get";
     }
   })();

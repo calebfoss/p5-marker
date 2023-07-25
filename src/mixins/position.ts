@@ -1,6 +1,6 @@
-import { MarkerElement, identity, property } from "../elements/base";
+import { Base, identity, property } from "../elements/base";
 
-export const position = <T extends typeof MarkerElement>(baseClass: T) =>
+export const position = <T extends typeof Base>(baseClass: T) =>
   class extends baseClass {
     constructor(...args: any[]) {
       super();

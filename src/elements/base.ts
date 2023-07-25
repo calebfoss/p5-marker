@@ -1,4 +1,7 @@
 import { interpret } from "../interpreter/interpreter";
+import { color } from "../mixins/color";
+import { dimensions } from "../mixins/dimensions";
+import { transform } from "../mixins/transform";
 
 export const identity =
   <T>(value: T) =>
@@ -63,7 +66,7 @@ export function property<T>(argument: T) {
   return output;
 }
 
-export class MarkerElement extends HTMLElement {
+export class Base extends HTMLElement {
   #count = 0;
   #frames_on = 0;
   #getters: (() => void)[] = [];
@@ -80,20 +83,6 @@ export class MarkerElement extends HTMLElement {
   }
   addGetter(getter: () => void) {
     this.#getters.push(getter);
-  }
-  #anchor = property(this.xy(0, 0));
-  get anchor() {
-    return this.#anchor.get();
-  }
-  set anchor(argument: Vector) {
-    this.#anchor.object = markerObject(argument);
-  }
-  #angle = property(0);
-  get angle() {
-    return this.#angle.get();
-  }
-  set angle(value) {
-    this.#angle.get = identity(value);
   }
   assertType<T>(
     propertyName: string,
@@ -112,33 +101,12 @@ export class MarkerElement extends HTMLElement {
       );
   }
   get canvas() {
-    if (this.parentElement instanceof MarkerElement)
-      return this.parentElement.canvas;
+    if (this.parentElement instanceof Base) return this.parentElement.canvas;
     return null;
   }
   get count() {
     return this.#count;
   }
-  color = {
-    gray(value: number, alpha?: number): string {
-      return this.rgb(value, value, value, alpha);
-    },
-    hsb(h: number, s: number, b: number, a?: number) {
-      const l = b * (1 - s / 200);
-      const sl =
-        l === 0 || l === 100 ? 0 : ((b - l) / Math.min(l, 100 - l)) * 100;
-      if (typeof a !== "undefined") return this.hsla(h, sl, l, a);
-      return this.hsl(h, sl, l);
-    },
-    hsl(h: number, s: number, l: number, a?: number) {
-      if (typeof a !== "undefined") return `hsl(${h} ${s}% ${l}% / ${a})`;
-      return `hsl(${h} ${s}% ${l}%)`;
-    },
-    rgb(r: number, g: number, b: number, a?: number): string {
-      if (typeof a !== "undefined") return `rgb(${r} ${g} ${b} / ${a})`;
-      return `rgb(${r} ${g} ${b})`;
-    },
-  };
   draw(context: CanvasRenderingContext2D) {
     if (this.on === false) return;
     for (this.#count = 0; this.#count === 0 || this.repeat; this.#count++) {
@@ -148,7 +116,7 @@ export class MarkerElement extends HTMLElement {
       }
       this.render(context);
       for (const child of this.children) {
-        if (child instanceof MarkerElement) {
+        if (child instanceof Base) {
           child.draw(context);
         }
       }
@@ -177,15 +145,8 @@ export class MarkerElement extends HTMLElement {
   get frames_on() {
     return this.#frames_on;
   }
-  #height = property(() => this.inherit("height", window.innerHeight));
-  get height() {
-    return this.#height.get();
-  }
-  set height(value) {
-    this.#height.get = identity(value);
-  }
   inherit<T>(propertyName: PropertyKey, defaultValue: T) {
-    if (!(this.parentElement instanceof MarkerElement)) return defaultValue;
+    if (!(this.parentElement instanceof Base)) return defaultValue;
     if (
       propertyName in this.parentElement &&
       this.parentElement[propertyName] !== null
@@ -210,24 +171,13 @@ export class MarkerElement extends HTMLElement {
   get parent() {
     return this.parentElement;
   }
-  render(context: CanvasRenderingContext2D) {
-    context.translate(this.anchor.x, this.anchor.y);
-    context.rotate(this.angle);
-    context.scale(this.scale.x, this.scale.y);
-  }
+  render(context: CanvasRenderingContext2D) {}
   #repeat = property(false);
   get repeat() {
     return this.#repeat.get();
   }
   set repeat(value) {
     this.#repeat.get = identity(value);
-  }
-  #scale = property(this.xy(1, 1));
-  get scale() {
-    return this.#scale.get();
-  }
-  set scale(value) {
-    this.#scale.get = identity(value);
   }
   setup() {
     for (const attribute of this.attributes) {
@@ -238,8 +188,29 @@ export class MarkerElement extends HTMLElement {
     }
     this.dispatchEvent(new Event("setupComplete"));
     for (const child of this.children) {
-      if (child instanceof MarkerElement) child.setup();
+      if (child instanceof Base) child.setup();
     }
+  }
+  get window() {
+    if (this.parentElement instanceof Base) return this.parentElement.window;
+    return null;
+  }
+  xy(x: number, y?: number): MarkerObject<Vector> {
+    if (typeof y === "undefined") return markerObject({ x, y: x });
+    return markerObject({ x, y });
+  }
+  propertyManager: PropertyManager = {
+    max_count: this.#max_count,
+    repeat: this.#repeat,
+  };
+}
+
+export class MarkerElement extends dimensions(transform(color(Base))) {
+  render(context: CanvasRenderingContext2D) {
+    context.translate(this.anchor.x, this.anchor.y);
+    context.rotate(this.angle);
+    context.scale(this.scale.x, this.scale.y);
+    super.render(context);
   }
   toSVG(element: SVGElement) {
     element.setAttribute("width", this.width.toString());
@@ -262,28 +233,4 @@ export class MarkerElement extends HTMLElement {
       if (child instanceof MarkerElement) child.toSVG(element);
     }
   }
-  #width = property(() => this.inherit("width", window.innerWidth));
-  get width() {
-    return this.#width.get();
-  }
-  set width(value) {
-    this.#width.get = identity(value);
-  }
-  get window() {
-    if (this.parentElement instanceof MarkerElement)
-      return this.parentElement.window;
-    return null;
-  }
-  xy(x: number, y?: number): MarkerObject<Vector> {
-    if (typeof y === "undefined") return markerObject({ x, y: x });
-    return markerObject({ x, y });
-  }
-  propertyManager: PropertyManager = {
-    anchor: this.#anchor,
-    angle: this.#angle,
-    height: this.#height,
-    max_count: this.#max_count,
-    width: this.#width,
-    repeat: this.#repeat,
-  };
 }

@@ -1,6 +1,6 @@
 import { MarkerElement } from "./base";
-import { position } from "../properties/position";
-import { fill, stroke } from "../properties/style";
+import { position } from "../mixins/position";
+import { fill, stroke } from "../mixins/style";
 
 export class Rectangle extends position(fill(stroke(MarkerElement))) {
   render(context: CanvasRenderingContext2D) {
