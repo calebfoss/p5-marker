@@ -198,6 +198,11 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.setup();
     }
   }
+  toSVG(element: SVGElement) {
+    for (const child of this.children) {
+      if (child instanceof MarkerElement) child.toSVG(element);
+    }
+  }
   get window() {
     if (this.parentElement instanceof Base) return this.parentElement.window;
     return null;
@@ -212,32 +217,4 @@ export class Base extends HTMLElement {
   };
 }
 
-export class MarkerElement extends dimensions(transform(color(Base))) {
-  render(context: CanvasRenderingContext2D) {
-    context.translate(this.anchor.x, this.anchor.y);
-    context.rotate(this.angle);
-    context.scale(this.scale.x, this.scale.y);
-    super.render(context);
-  }
-  toSVG(element: SVGElement) {
-    element.setAttribute("width", this.width.toString());
-    element.setAttribute("height", this.height.toString());
-    if (
-      this.anchor.x !== 0 ||
-      this.anchor.y !== 0 ||
-      this.angle !== 0 ||
-      this.scale.x !== 1 ||
-      this.scale.y !== 1
-    ) {
-      element.setAttribute(
-        "transform",
-        `translate(${this.anchor.x} ${this.anchor.y}) rotate(${
-          this.angle * (180 / Math.PI)
-        }) scale(${this.scale.x} ${this.scale.y})`
-      );
-    }
-    for (const child of this.children) {
-      if (child instanceof MarkerElement) child.toSVG(element);
-    }
-  }
-}
+export class MarkerElement extends dimensions(transform(color(Base))) {}

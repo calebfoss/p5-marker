@@ -112,6 +112,7 @@ export class Canvas extends MarkerElement {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
+    super.render(context);
   }
   toSVG() {
     const svgDoc = document.implementation.createDocument(

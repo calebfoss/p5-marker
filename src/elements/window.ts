@@ -1,6 +1,6 @@
-import { Base } from "./base";
+import { MarkerElement } from "./base";
 
-export class Window extends Base {
+export class Window extends MarkerElement {
   constructor() {
     super();
     window.addEventListener("customElementsDefined", () => this.setup());

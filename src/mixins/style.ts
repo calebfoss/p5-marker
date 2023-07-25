@@ -74,7 +74,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       );
       element.setAttribute("stroke-linecap", this.line_cap);
       element.setAttribute("stroke-linejoin", this.line_join);
-      element.setAttribute("stroke-width", this.line_width.toString());
+      element.setAttribute("stroke-width", `${this.line_width / 2}px`);
       super.toSVG(element);
     }
   };
