@@ -505,19 +505,14 @@ export const parse = (
             element.tagName
           }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
         );
-      let baseGet: () => any;
-      element.addEach((reset: boolean) => {
+      let baseGet = getOwner().propertyManager[getMemberName()].get;
+      element.addEach((reset: boolean = false) => {
         const property = getOwner().propertyManager[getMemberName()];
         if (element.count === 0) {
           baseGet = property.get;
           return;
         }
-        if (reset) {
-          property.get = baseGet;
-          return;
-        }
-        const eachValue = getValue();
-        property.get = identity(eachValue);
+        property.get = reset ? baseGet : identity(getValue());
       });
       return;
     }

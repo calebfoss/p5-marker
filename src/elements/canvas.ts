@@ -2,6 +2,7 @@ import { MarkerElement, identity, property } from "./base";
 
 export class Canvas extends MarkerElement {
   #canvasElement: HTMLCanvasElement;
+  #context: CanvasRenderingContext2D;
   #frame = 0;
   #previousFrameStartAt = 0;
   #currentFrameStartAt = 0;
@@ -25,12 +26,14 @@ export class Canvas extends MarkerElement {
     this.#canvasElement.height = this.height;
     const shadow = this.attachShadow({ mode: "open" });
     shadow.appendChild(this.#canvasElement);
-    const context = this.#canvasElement.getContext("2d");
-    if (context === null) return;
+    this.#context = this.#canvasElement.getContext("2d");
+    if (this.#context === null) return;
+    const drawEvent = new Event("draw");
     const drawFrame = () => {
+      this.dispatchEvent(drawEvent);
       this.#previousFrameStartAt = this.#currentFrameStartAt;
       this.#currentFrameStartAt = performance.now();
-      this.draw(context);
+      this.draw(this.#context);
       this.#frame++;
       requestAnimationFrame(drawFrame);
     };
@@ -69,6 +72,9 @@ export class Canvas extends MarkerElement {
     anchor.href = dataURL;
     anchor.download = filename;
     anchor.click();
+  }
+  get drawing_context() {
+    return this.#context;
   }
   get frame() {
     return this.#frame;

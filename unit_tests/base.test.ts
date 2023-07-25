@@ -35,14 +35,61 @@ test("dimensions", () => {
 const optionalInheritTestValue = 123456;
 canvasElement.setAttribute("test", optionalInheritTestValue.toString());
 
+settingElement.setAttribute("change.position.x", "position.x + 1");
+settingElement.setAttribute("each.position.x", "position.x + 1");
+settingElement.setAttribute("repeat", "until position.x is at least 10");
+settingElement.setAttribute("position.y", "angle");
+
 const setupComplete = new Promise((resolve) => {
-  windowElement.addEventListener("setupComplete", () => {
+  windowElement.addEventListener("setup", () => {
     resolve(true);
   });
   windowElement.setup();
 });
 
-test("optionalInherit", async () => {
+let frame = 0;
+
+test("each", async () => {
+  const baseRender = settingElement.render.bind(settingElement);
+  let calls = 0;
+  settingElement.render = (context) => {
+    calls++;
+    baseRender(context);
+  };
+  settingElement.draw(canvasElement.drawing_context);
+  frame++;
+  expect(calls).toBe(10);
+});
+
+test("getter", async () => {
+  await setupComplete;
+  while (frame < 10) {
+    canvasElement.angle = frame;
+    settingElement.draw(canvasElement.drawing_context);
+    expect(settingElement.position.y).toBe(frame);
+    frame++;
+  }
+});
+
+test("change", async () => {
+  await setupComplete;
+  while (frame < 20) {
+    expect(settingElement.position.x).toBe(frame);
+    settingElement.draw(canvasElement.drawing_context);
+    frame++;
+  }
+  settingElement.addChange(() => {
+    settingElement.position.x = settingElement.position.x + 1;
+  });
+  const startingFrame = frame;
+  while (frame < 21) {
+    expect(settingElement.position.x).toBe(frame + (frame - startingFrame));
+    settingElement.draw(canvasElement.drawing_context);
+    frame++;
+  }
+});
+
+test("inherit", async () => {
   await setupComplete;
   expect(settingElement.inherit("test", 0)).toBe(optionalInheritTestValue);
   expect(settingElement.inherit("nonexistent", 0)).toBe(0);

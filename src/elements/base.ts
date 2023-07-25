@@ -71,14 +71,14 @@ export class Base extends HTMLElement {
   #frames_on = 0;
   #getters: (() => void)[] = [];
   #changers: (() => void)[] = [];
-  #eachModifiers: ((reset: boolean) => void)[] = [];
+  #eachModifiers: ((reset?: boolean) => void)[] = [];
   constructor(...args: any[]) {
     super();
   }
   addChange(changer: () => void) {
     this.#changers.push(changer);
   }
-  addEach(updater: (reset: boolean) => void) {
+  addEach(updater: (reset?: boolean) => void) {
     this.#eachModifiers.push(updater);
   }
   addGetter(getter: () => void) {
@@ -109,11 +109,12 @@ export class Base extends HTMLElement {
   }
   draw(context: CanvasRenderingContext2D) {
     if (this.on === false) return;
-    for (this.#count = 0; this.#count === 0 || this.repeat; this.#count++) {
+    this.#count = 0;
+    for (const each of this.#eachModifiers) {
+      each();
+    }
+    while (true) {
       context.save();
-      for (const each of this.#eachModifiers) {
-        each(false);
-      }
       this.render(context);
       for (const child of this.children) {
         if (child instanceof Base) {
@@ -121,7 +122,12 @@ export class Base extends HTMLElement {
         }
       }
       context.restore();
-      if (this.#count === this.max_count) {
+      this.#count++;
+      for (const each of this.#eachModifiers) {
+        each();
+      }
+      if (!this.repeat) break;
+      if (this.#count > this.max_count) {
         console.warn(
           `${this.tagName} reached its maximum iteration count of ${this.max_count}`
         );
@@ -181,12 +187,13 @@ export class Base extends HTMLElement {
   }
   setup() {
     for (const attribute of this.attributes) {
+      if (attribute.name === "id") continue;
       interpret(this, attribute);
     }
     for (const getter of this.#getters) {
       getter();
     }
-    this.dispatchEvent(new Event("setupComplete"));
+    this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();
     }
