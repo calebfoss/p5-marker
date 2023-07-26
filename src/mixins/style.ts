@@ -20,9 +20,9 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
       }
       super.renderToCanvas(context);
     }
-    renderToSVG(element: SVGElement): void {
+    styleSVGElement(element: SVGElement): void {
       element.setAttribute("fill", this.fill === null ? "none" : this.fill);
-      super.renderToSVG(element);
+      super.styleSVGElement(element);
     }
     styleDOMElement(element: HTMLElement): void {
       element.style.background = this.fill;
@@ -77,21 +77,20 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     set stroke(value) {
       this.#stroke.get = identity(value);
     }
-    renderToSVG(element: SVGElement): void {
-      element.setAttribute(
-        "stroke",
-        this.stroke === null ? "none" : this.stroke
-      );
-      element.setAttribute("stroke-linecap", this.line_cap);
-      element.setAttribute("stroke-linejoin", this.line_join);
-      element.setAttribute("stroke-width", `${this.line_width / 2}px`);
-      super.renderToSVG(element);
-    }
     styleDOMElement(element: HTMLElement): void {
       if (this.stroke === "none") element.style.outline = "none";
       else {
-        element.style.outline = `${this.line_width}px solid ${this.stroke}`;
+        element.style.outlineColor = this.stroke;
+        element.style.outlineWidth = `${this.line_width}px`;
+        element.style.outlineStyle = "solid";
       }
       super.styleDOMElement(element);
+    }
+    styleSVGElement(element: SVGElement): void {
+      element.style.stroke = this.stroke;
+      element.style.strokeLinecap = this.line_cap;
+      element.style.strokeLinejoin = this.line_join;
+      element.style.strokeWidth = `${this.line_width}px`;
+      super.styleSVGElement(element);
     }
   };

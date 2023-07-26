@@ -34,7 +34,13 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     set scale(value) {
       this.#scale.get = identity(value);
     }
-    renderToSVG(element: SVGElement) {
+    styleDOMElement(element: HTMLElement): void {
+      element.style.translate = `${this.anchor.x} ${this.anchor.y}`;
+      element.style.rotate = `${this.angle}rad`;
+      element.style.scale = `${this.scale.x} ${this.scale.y}`;
+      super.styleDOMElement(element);
+    }
+    styleSVGElement(element: SVGElement) {
       if (
         this.anchor.x !== 0 ||
         this.anchor.y !== 0 ||
@@ -49,6 +55,6 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
           }) scale(${this.scale.x} ${this.scale.y})`
         );
       }
-      super.renderToSVG(element);
+      super.styleSVGElement(element);
     }
   };

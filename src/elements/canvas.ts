@@ -30,9 +30,13 @@ export class Canvas extends dimensions(MarkerElement) {
     let dataURL = "";
     switch (extension) {
       case "svg":
-        const doc = this.renderToSVG();
+        const svgParent = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg"
+        );
+        this.renderToSVG(svgParent);
         const serializer = new XMLSerializer();
-        const xmlString = serializer.serializeToString(doc);
+        const xmlString = serializer.serializeToString(svgParent);
         const blob = new Blob([xmlString], { type: "image/svg" });
         dataURL = URL.createObjectURL(blob);
         break;
@@ -77,26 +81,36 @@ export class Canvas extends dimensions(MarkerElement) {
     }
     this.renderToCanvas(this.#context);
   }
-  renderToSVG() {
-    const svgDoc = document.implementation.createDocument(
-      "http://www.w3.org/2000/svg",
-      "svg"
-    );
-    const root = svgDoc.documentElement as HTMLElement & SVGElement;
-    root.setAttribute("viewBox", `0 0 ${this.width} ${this.height}`);
-    if (this.background !== null) {
-      const backgroundElement = svgDoc.createElementNS(
+  #svg_element: SVGElement;
+  #svg_background_element: SVGElement;
+  renderToSVG(parentElement: SVGElement) {
+    if (typeof this.#svg_element === "undefined") {
+      this.#svg_element = document.createElementNS(
         "http://www.w3.org/2000/svg",
-        "rect"
+        "view"
       );
-      backgroundElement.setAttribute("stroke", "none");
-      backgroundElement.setAttribute("fill", this.background);
-      backgroundElement.setAttribute("width", this.width.toString());
-      backgroundElement.setAttribute("height", this.height.toString());
-      root.appendChild(backgroundElement);
     }
-    super.renderToSVG(root);
-    return svgDoc;
+    this.#svg_element.setAttribute(
+      "viewBox",
+      `0 0 ${this.width} ${this.height}`
+    );
+    parentElement.appendChild(this.#svg_element);
+    const backgroundElementDefined =
+      typeof this.#svg_background_element !== "undefined";
+    if (this.background !== null) {
+      if (!backgroundElementDefined) {
+        this.#svg_background_element = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "rect"
+        );
+        this.#svg_element.appendChild(this.#svg_background_element);
+      }
+      this.#svg_background_element.style.stroke = "none";
+      this.#svg_background_element.style.fill = this.background;
+      this.#svg_background_element.style.width = this.width.toString();
+      this.#svg_background_element.style.height = this.height.toString();
+    } else if (backgroundElementDefined) this.#svg_background_element.remove();
+    super.renderToSVG(parentElement, this.#svg_background_element);
   }
 }
 customElements.define("m-canvas", Canvas);

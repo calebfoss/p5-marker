@@ -194,11 +194,21 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.draw(parentElement);
     }
   }
-  renderToSVG(element: SVGElement) {
+  renderToSVG(parentElement: SVGElement, element?: SVGElement) {
+    const groupElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g"
+    );
+    parentElement.appendChild(groupElement);
+    if (typeof element !== "undefined") {
+      this.styleSVGElement(groupElement);
+      groupElement.appendChild(element);
+    }
     for (const child of this.children) {
-      if (child instanceof Base) child.renderToSVG(element);
+      if (child instanceof Base) child.renderToSVG(groupElement);
     }
   }
+  styleSVGElement(groupElement: SVGElement) {}
   #repeat = property(false);
   get repeat() {
     return this.#repeat.get();
