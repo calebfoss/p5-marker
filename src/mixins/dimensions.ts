@@ -21,9 +21,14 @@ export const dimensions = <T extends typeof Base>(baseClass: T) =>
     set height(value) {
       this.#height.get = identity(value);
     }
-    toSVG(element: SVGElement): void {
+    renderToSVG(element: SVGElement): void {
       element.setAttribute("width", this.width.toString());
       element.setAttribute("height", this.height.toString());
-      super.toSVG(element);
+      super.renderToSVG(element);
+    }
+    styleDOMElement(element: HTMLElement): void {
+      element.style.width = `${this.width}px`;
+      element.style.height = `${this.height}px`;
+      super.styleDOMElement(element);
     }
   };

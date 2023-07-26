@@ -1,43 +1,15 @@
+import { dimensions } from "../mixins/dimensions";
 import { MarkerElement, identity, property } from "./base";
 
-export class Canvas extends MarkerElement {
-  #canvasElement: HTMLCanvasElement;
+export class Canvas extends dimensions(MarkerElement) {
+  #dom_element: HTMLCanvasElement;
   #context: CanvasRenderingContext2D;
-  #frame = 0;
-  #previousFrameStartAt = 0;
-  #currentFrameStartAt = 0;
-  #mouseDownAt = 0;
-  #mouseUpAt = 0;
-  #mouseMoveAt = 0;
   constructor() {
     super();
     this.propertyManager.background = this.#background;
-    window.addEventListener("mousedown", (e) => {
-      this.#mouseDownAt = performance.now();
-    });
-    window.addEventListener("mouseup", (e) => {
-      this.#mouseUpAt = performance.now();
-    });
-    window.addEventListener("mousemove", (e) => {
-      this.#mouseMoveAt = performance.now();
-    });
-    this.#canvasElement = document.createElement("canvas");
-    this.#canvasElement.width = this.width;
-    this.#canvasElement.height = this.height;
-    const shadow = this.attachShadow({ mode: "open" });
-    shadow.appendChild(this.#canvasElement);
-    this.#context = this.#canvasElement.getContext("2d");
-    if (this.#context === null) return;
-    const drawEvent = new Event("draw");
-    const drawFrame = () => {
-      this.dispatchEvent(drawEvent);
-      this.#previousFrameStartAt = this.#currentFrameStartAt;
-      this.#currentFrameStartAt = performance.now();
-      this.draw(this.#context);
-      this.#frame++;
-      requestAnimationFrame(drawFrame);
-    };
-    requestAnimationFrame(drawFrame);
+    this.#dom_element = document.createElement("canvas");
+    const context = this.#dom_element.getContext("2d");
+    if (context !== null) this.#context = context;
   }
   #background = property(this.gray(220));
   get background() {
@@ -49,13 +21,16 @@ export class Canvas extends MarkerElement {
   get canvas() {
     return this;
   }
+  get dom_element() {
+    return this.#dom_element;
+  }
   set download(filename: string) {
     const extension = filename.slice(filename.lastIndexOf(".") + 1);
     let mimeType = "image/png";
     let dataURL = "";
     switch (extension) {
       case "svg":
-        const doc = this.toSVG();
+        const doc = this.renderToSVG();
         const serializer = new XMLSerializer();
         const xmlString = serializer.serializeToString(doc);
         const blob = new Blob([xmlString], { type: "image/svg" });
@@ -66,7 +41,7 @@ export class Canvas extends MarkerElement {
         mimeType = "image/jpeg";
       case "png":
       default:
-        dataURL = this.#canvasElement.toDataURL(mimeType);
+        dataURL = this.#dom_element.toDataURL(mimeType);
     }
     const anchor = document.createElement("a");
     anchor.href = dataURL;
@@ -76,32 +51,8 @@ export class Canvas extends MarkerElement {
   get drawing_context() {
     return this.#context;
   }
-  get frame() {
-    return this.#frame;
-  }
-  get mouse() {
-    const down =
-      this.frame > 0 &&
-      this.#mouseDownAt < this.#currentFrameStartAt &&
-      this.#mouseDownAt >= this.#previousFrameStartAt;
-    const up =
-      this.frame > 0 &&
-      this.#mouseUpAt < this.#currentFrameStartAt &&
-      this.#mouseUpAt >= this.#previousFrameStartAt;
-    const held = this.#mouseUpAt < this.#mouseDownAt;
-    const moving = this.#mouseMoveAt > this.#previousFrameStartAt;
-    const dragging = held && moving;
-    return {
-      ...this.window.mouse,
-      down,
-      up,
-      held,
-      moving,
-      dragging,
-    };
-  }
-  render(context: CanvasRenderingContext2D): void {
-    const canvas = this.#canvasElement as HTMLCanvasElement;
+  renderToCanvas(context: CanvasRenderingContext2D): void {
+    const canvas = this.#dom_element as HTMLCanvasElement;
     if (canvas.width !== this.width || canvas.height !== this.height) {
       const contextCopy = JSON.parse(JSON.stringify(context));
       canvas.width = this.width;
@@ -112,9 +63,21 @@ export class Canvas extends MarkerElement {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
-    super.render(context);
+    super.renderToCanvas(context);
   }
-  toSVG() {
+  renderToDOM(parentElement: Node) {
+    if (typeof this.#dom_element === "undefined")
+      this.#dom_element = document.createElement("canvas");
+    if (parentElement !== this.#dom_element.parentElement)
+      parentElement.appendChild(this.#dom_element);
+    if (typeof this.#context === "undefined") {
+      const context = this.#dom_element.getContext("2d");
+      if (context === null) return;
+      this.#context = context;
+    }
+    this.renderToCanvas(this.#context);
+  }
+  renderToSVG() {
     const svgDoc = document.implementation.createDocument(
       "http://www.w3.org/2000/svg",
       "svg"
@@ -132,7 +95,7 @@ export class Canvas extends MarkerElement {
       backgroundElement.setAttribute("height", this.height.toString());
       root.appendChild(backgroundElement);
     }
-    super.toSVG(root);
+    super.renderToSVG(root);
     return svgDoc;
   }
 }

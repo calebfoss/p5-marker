@@ -1,26 +1,29 @@
 import { MarkerElement } from "./base";
 import { position } from "../mixins/position";
 import { fill, stroke } from "../mixins/style";
+import { dimensions } from "../mixins/dimensions";
 
-export class Rectangle extends position(fill(stroke(MarkerElement))) {
-  render(context: CanvasRenderingContext2D) {
-    super.render(context);
-    if (this.stroke !== "none")
-      context.strokeRect(
-        this.position.x,
-        this.position.y,
-        this.width,
-        this.height
-      );
-    if (this.fill !== "none")
-      context.fillRect(
-        this.position.x,
-        this.position.y,
-        this.width,
-        this.height
-      );
+export class Rectangle extends position(
+  dimensions(fill(stroke(MarkerElement)))
+) {
+  renderToCanvas(context: CanvasRenderingContext2D) {
+    this.transformCanvas(context);
+    context.rect(this.position.x, this.position.y, this.width, this.height);
+    super.renderToCanvas(context);
   }
-  toSVG(parentElement: SVGElement): void {
+  #DOM_Element: HTMLElement;
+  #DOM_Parent: HTMLElement;
+  renderToDOM(parentElement: Node): void {
+    if (typeof this.#DOM_Element === "undefined") {
+      this.#DOM_Element = document.createElement("div");
+    }
+    if (parentElement !== this.#DOM_Parent) {
+      parentElement.appendChild(this.#DOM_Element);
+    }
+    this.styleDOMElement(this.#DOM_Element);
+    super.renderToDOM(this.#DOM_Element);
+  }
+  renderToSVG(parentElement: SVGElement): void {
     const doc = parentElement.ownerDocument as XMLDocument;
     const element = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
     parentElement.appendChild(element);
@@ -28,7 +31,7 @@ export class Rectangle extends position(fill(stroke(MarkerElement))) {
     element.setAttribute("y", this.position.y.toString());
     element.setAttribute("width", this.width.toString());
     element.setAttribute("height", this.height.toString());
-    super.toSVG(element);
+    super.renderToSVG(element);
   }
 }
 customElements.define("m-rectangle", Rectangle);

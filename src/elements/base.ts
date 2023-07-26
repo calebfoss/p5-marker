@@ -107,21 +107,25 @@ export class Base extends HTMLElement {
   get count() {
     return this.#count;
   }
-  draw(context: CanvasRenderingContext2D) {
+  draw(parentElement: Node): void;
+  draw(context: CanvasRenderingContext2D): void;
+  draw(argument): void {
     if (this.on === false) return;
     this.#count = 0;
     for (const each of this.#eachModifiers) {
       each();
     }
+    const render = (() => {
+      if (argument instanceof CanvasRenderingContext2D)
+        return () => {
+          argument.save();
+          this.renderToCanvas(argument);
+          argument.restore();
+        };
+      if (argument instanceof Node) return () => this.renderToDOM(argument);
+    })();
     while (true) {
-      context.save();
-      this.render(context);
-      for (const child of this.children) {
-        if (child instanceof Base) {
-          child.draw(context);
-        }
-      }
-      context.restore();
+      render();
       this.#count++;
       for (const each of this.#eachModifiers) {
         each();
@@ -177,7 +181,24 @@ export class Base extends HTMLElement {
   get parent() {
     return this.parentElement;
   }
-  render(context: CanvasRenderingContext2D) {}
+  renderToCanvas(context: CanvasRenderingContext2D) {
+    context.beginPath();
+    for (const child of this.children) {
+      if (child instanceof Base) {
+        child.draw(context);
+      }
+    }
+  }
+  renderToDOM(parentElement: Node) {
+    for (const child of this.children) {
+      if (child instanceof Base) child.draw(parentElement);
+    }
+  }
+  renderToSVG(element: SVGElement) {
+    for (const child of this.children) {
+      if (child instanceof Base) child.renderToSVG(element);
+    }
+  }
   #repeat = property(false);
   get repeat() {
     return this.#repeat.get();
@@ -187,8 +208,7 @@ export class Base extends HTMLElement {
   }
   setup() {
     for (const attribute of this.attributes) {
-      if (attribute.name === "id") continue;
-      interpret(this, attribute);
+      if (attribute.name !== "id") interpret(this, attribute);
     }
     for (const getter of this.#getters) {
       getter();
@@ -198,11 +218,7 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.setup();
     }
   }
-  toSVG(element: SVGElement) {
-    for (const child of this.children) {
-      if (child instanceof MarkerElement) child.toSVG(element);
-    }
-  }
+  styleDOMElement(element: HTMLElement) {}
   get window() {
     if (this.parentElement instanceof Base) return this.parentElement.window;
     return null;
@@ -217,4 +233,4 @@ export class Base extends HTMLElement {
   };
 }
 
-export class MarkerElement extends dimensions(transform(color(Base))) {}
+export class MarkerElement extends transform(color(Base)) {}

@@ -25,4 +25,10 @@ export const position = <T extends typeof Base>(baseClass: T) =>
       this.#position.object.propertyManager.x.get = identity(value.x);
       this.#position.object.propertyManager.y.get = identity(value.y);
     }
+    styleDOMElement(element: HTMLElement): void {
+      element.style.position = "absolute";
+      element.style.left = `${this.position.x}px`;
+      element.style.top = `${this.position.y}px`;
+      super.styleDOMElement(element);
+    }
   };

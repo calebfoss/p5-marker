@@ -8,11 +8,10 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       this.propertyManager.angle = this.#angle;
       this.propertyManager.scale = this.#scale;
     }
-    render(context: CanvasRenderingContext2D): void {
+    transformCanvas(context: CanvasRenderingContext2D): void {
       context.translate(this.anchor.x, this.anchor.y);
       context.rotate(this.angle);
       context.scale(this.scale.x, this.scale.y);
-      super.render(context);
     }
     #anchor = property(this.xy(0, 0));
     get anchor() {
@@ -35,7 +34,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     set scale(value) {
       this.#scale.get = identity(value);
     }
-    toSVG(element: SVGElement) {
+    renderToSVG(element: SVGElement) {
       if (
         this.anchor.x !== 0 ||
         this.anchor.y !== 0 ||
@@ -50,6 +49,6 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
           }) scale(${this.scale.x} ${this.scale.y})`
         );
       }
-      super.toSVG(element);
+      super.renderToSVG(element);
     }
   };
