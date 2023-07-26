@@ -1,5 +1,6 @@
 import { dimensions } from "../mixins/dimensions";
 import { MarkerElement, identity, property } from "./base";
+import { MarkerSVG } from "./svg";
 
 export class Canvas extends dimensions(MarkerElement) {
   #dom_element: HTMLCanvasElement;
@@ -30,16 +31,11 @@ export class Canvas extends dimensions(MarkerElement) {
     let dataURL = "";
     switch (extension) {
       case "svg":
-        const svgParent = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg"
-        );
+        const markerSVG = document.createElement("m-svg") as MarkerSVG;
+        const svgParent = markerSVG.dom_element;
         this.renderToSVG(svgParent);
-        const serializer = new XMLSerializer();
-        const xmlString = serializer.serializeToString(svgParent);
-        const blob = new Blob([xmlString], { type: "image/svg" });
-        dataURL = URL.createObjectURL(blob);
-        break;
+        markerSVG.download = filename;
+        return;
       case "jpg":
       case "jpeg":
         mimeType = "image/jpeg";

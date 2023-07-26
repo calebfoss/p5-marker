@@ -10,6 +10,19 @@ export class MarkerSVG extends dimensions(MarkerElement) {
       "svg"
     );
   }
+  get dom_element() {
+    return this.#dom_element;
+  }
+  set download(filename: string) {
+    const anchor = document.createElement("a");
+    const serializer = new XMLSerializer();
+    const xmlString = serializer.serializeToString(this.#dom_element);
+    const blob = new Blob([xmlString], { type: "image/svg" });
+    anchor.href = URL.createObjectURL(blob);
+    const extension = filename.slice(filename.lastIndexOf(".") + 1);
+    anchor.download = extension === "svg" ? filename : `${filename}.svg`;
+    anchor.click();
+  }
   renderToDOM(parentElement: Node): void {
     if (parentElement !== this.#dom_element.parentElement)
       parentElement.appendChild(this.#dom_element);
