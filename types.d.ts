@@ -7,8 +7,11 @@ type Token = {
 
 type Property<T> = {
   get: () => T;
-  changed?: true;
-} & (T extends object ? { object: MarkerObject<T> } : {});
+  changed: boolean;
+};
+type ObjectProperty<T extends object> = Property<T> & {
+  object: MarkerObject<T>;
+};
 
 type Vector = {
   x: number;
@@ -16,7 +19,7 @@ type Vector = {
 };
 
 type PropertyManager = {
-  [key: string]: Property<any>;
+  [key: string]: Property<any> | ObjectProperty<any>;
 };
 
 type MarkerObject<T extends object> = T & { propertyManager: PropertyManager };

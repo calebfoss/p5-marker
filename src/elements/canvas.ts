@@ -1,4 +1,4 @@
-import { identity } from "./base";
+import { identity, property } from "./base";
 import { Setting } from "./setting";
 
 export class Canvas extends Setting {
@@ -37,9 +37,7 @@ export class Canvas extends Setting {
     };
     requestAnimationFrame(drawFrame);
   }
-  #background: Property<string> = {
-    get: identity(this.color.gray(220)),
-  };
+  #background = property(this.color.gray(220));
   get background() {
     return this.#background.get();
   }
@@ -73,18 +71,9 @@ export class Canvas extends Setting {
     anchor.download = filename;
     anchor.click();
   }
-  #fill: Property<string> = {
-    get: identity("#ffffff"),
-  };
-  get fill() {
-    return this.#fill.get();
-  }
   get frame() {
     return this.#frame;
   }
-  #line_cap: Property<CanvasLineCap> = {
-    get: identity("butt"),
-  };
   get mouse() {
     const down =
       this.frame > 0 &&
@@ -106,13 +95,6 @@ export class Canvas extends Setting {
       dragging,
     };
   }
-  #position: Property<MarkerObject<Vector>> = {
-    object: this.xy(0, 0),
-    get: () => this.#position.object,
-  };
-  get position() {
-    return this.#position.get();
-  }
   render(context: CanvasRenderingContext2D): void {
     const canvas = this.#canvasElement as HTMLCanvasElement;
     if (canvas.width !== this.width || canvas.height !== this.height) {
@@ -125,12 +107,6 @@ export class Canvas extends Setting {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
-  }
-  #stroke: Property<string> = {
-    get: identity("#000000"),
-  };
-  get stroke() {
-    return this.#stroke.get();
   }
   toSVG() {
     const svgDoc = document.implementation.createDocument(

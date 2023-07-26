@@ -1,4 +1,4 @@
-import { MarkerElement, identity } from "../elements/base";
+import { MarkerElement, identity, property } from "../elements/base";
 
 export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
   class extends baseClass {
@@ -6,9 +6,7 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
       super();
       this.propertyManager.fill = this.#fill;
     }
-    #fill: Property<string> = {
-      get: () => this.inherit("fill"),
-    };
+    #fill = property(() => this.inherit("fill", "#ffffff"));
     get fill(): string {
       return this.#fill.get();
     }
@@ -30,27 +28,21 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     constructor(...args: any[]) {
       super();
     }
-    #line_cap: Property<CanvasLineCap> = {
-      get: () => this.inherit("line_cap"),
-    };
+    #line_cap = property(() => this.inherit("line_cap", "butt"));
     get line_cap(): CanvasLineCap {
       return this.#line_cap.get();
     }
     set line_cap(value) {
       this.#line_cap.get = identity(value);
     }
-    #line_join: Property<CanvasLineJoin> = {
-      get: () => this.inherit("line_join"),
-    };
+    #line_join = property(() => this.inherit("line_join", "miter"));
     get line_join(): CanvasLineJoin {
       return this.#line_join.get();
     }
     set line_join(value) {
       this.#line_join.get = identity(value);
     }
-    #line_width: Property<number> = {
-      get: () => this.inherit("line_width"),
-    };
+    #line_width = property(() => this.inherit("line_width", 1.0));
     get line_width(): number {
       return this.#line_width.get();
     }
@@ -64,9 +56,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       context.strokeStyle = this.stroke || context.strokeStyle;
       super.render(context);
     }
-    #stroke: Property<string> = {
-      get: () => this.inherit("stroke"),
-    };
+    #stroke = property(() => this.inherit("stroke", "#000000"));
     get stroke(): string {
       return this.#stroke.get();
     }

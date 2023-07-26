@@ -44,5 +44,6 @@ const setupComplete = new Promise((resolve) => {
 
 test("optionalInherit", async () => {
   await setupComplete;
-  expect(settingElement.inherit("test")).toBe(optionalInheritTestValue);
+  expect(settingElement.inherit("test", 0)).toBe(optionalInheritTestValue);
+  expect(settingElement.inherit("nonexistent", 0)).toBe(0);
 });

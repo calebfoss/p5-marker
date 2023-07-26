@@ -6,35 +6,62 @@ export const identity =
     value;
 
 export const markerObject = <T extends object>(source: T): MarkerObject<T> => {
-  const propertyManager: PropertyManager = {};
+  if ("propertyManager" in source) return source as MarkerObject<T>;
+  const output = { propertyManager: {} };
   Object.entries(Object.getOwnPropertyDescriptors(source)).forEach(
-    ([key, { value, configurable }]) => {
+    ([key, { value, get, configurable }]) => {
       if (!configurable) return;
-      let property: Property<any>;
-      if (typeof value === "object") {
-        const markerValue = markerObject(value as object);
-        property = {
-          object: value,
-          get: identity(markerValue),
-        };
-      } else {
-        property = {
-          get: identity(value),
-        };
-      }
-      Object.defineProperty(source, key, {
+      const propertyObject: Property<any> | ObjectProperty<object> =
+        typeof value === "object"
+          ? property(markerObject(value))
+          : property(get || value);
+      Object.defineProperty(output, key, {
         get() {
-          return property.get();
+          return propertyObject.get();
         },
         set(value) {
-          property.get = identity(value);
+          propertyObject.get = identity(value);
+          propertyObject.changed = true;
         },
       });
-      propertyManager[key] = property;
+      output.propertyManager[key] = propertyObject;
     }
   );
-  return { ...source, propertyManager };
+  return output as MarkerObject<T>;
 };
+
+export function property<T>(get: () => T): Property<T>;
+export function property<T extends object>(value: T): ObjectProperty<T>;
+export function property<T>(value: T): Property<T>;
+export function property<T>(argument: T) {
+  if (typeof argument === "function")
+    return {
+      get: argument,
+      changed: false,
+    };
+  if (typeof argument !== "object")
+    return {
+      get: identity(argument),
+      changed: false,
+    };
+  const output = {
+    object: markerObject(argument),
+    get: () => output.object,
+    get changed() {
+      for (const key of Object.keys(output.object.propertyManager)) {
+        if (output.object.propertyManager[key].changed) return true;
+      }
+      return false;
+    },
+    set changed(value) {
+      if (value)
+        for (const key of Object.keys(output.object.propertyManager)) {
+          output.object.propertyManager[key].changed = true;
+        }
+    },
+  };
+  return output;
+}
 
 export class MarkerElement extends HTMLElement {
   #count = 0;
@@ -54,19 +81,14 @@ export class MarkerElement extends HTMLElement {
   addGetter(getter: () => void) {
     this.#getters.push(getter);
   }
-  #anchor: Property<Vector> = {
-    object: this.xy(0, 0),
-    get: () => this.#anchor.object,
-  };
+  #anchor = property(this.xy(0, 0));
   get anchor() {
     return this.#anchor.get();
   }
   set anchor(argument: Vector) {
     this.#anchor.object = markerObject(argument);
   }
-  #angle: Property<number> = {
-    get: identity(0),
-  };
+  #angle = property(0);
   get angle() {
     return this.#angle.get();
   }
@@ -155,36 +177,30 @@ export class MarkerElement extends HTMLElement {
   get frames_on() {
     return this.#frames_on;
   }
-  #height: Property<number> = {
-    get: () => this.inherit("height"),
-  };
+  #height = property(() => this.inherit("height", window.innerHeight));
   get height() {
     return this.#height.get();
   }
   set height(value) {
     this.#height.get = identity(value);
   }
-  inherit(propertyName: PropertyKey) {
-    if (!(this.parentElement instanceof MarkerElement)) return null;
+  inherit<T>(propertyName: PropertyKey, defaultValue: T) {
+    if (!(this.parentElement instanceof MarkerElement)) return defaultValue;
     if (
       propertyName in this.parentElement &&
       this.parentElement[propertyName] !== null
     )
       return this.parentElement[propertyName];
-    return this.parentElement.inherit(propertyName);
+    return this.parentElement.inherit(propertyName, defaultValue);
   }
-  #max_count: Property<number> = {
-    get: identity(10_000),
-  };
+  #max_count = property(10_000);
   get max_count() {
     return this.#max_count.get();
   }
   set max_count(value) {
     this.#max_count.get = identity(value);
   }
-  #on: Property<boolean> = {
-    get: identity(true),
-  };
+  #on = property(true);
   get on() {
     return this.#on.get();
   }
@@ -199,19 +215,14 @@ export class MarkerElement extends HTMLElement {
     context.rotate(this.angle);
     context.scale(this.scale.x, this.scale.y);
   }
-  #repeat: Property<false> = {
-    get: identity(false),
-  };
+  #repeat = property(false);
   get repeat() {
     return this.#repeat.get();
   }
   set repeat(value) {
     this.#repeat.get = identity(value);
   }
-  #scale: Property<Vector> = {
-    object: this.xy(1, 1),
-    get: () => this.#scale.object,
-  };
+  #scale = property(this.xy(1, 1));
   get scale() {
     return this.#scale.get();
   }
@@ -251,9 +262,7 @@ export class MarkerElement extends HTMLElement {
       if (child instanceof MarkerElement) child.toSVG(element);
     }
   }
-  #width: Property<number> = {
-    get: () => this.inherit("width"),
-  };
+  #width = property(() => this.inherit("width", window.innerWidth));
   get width() {
     return this.#width.get();
   }
