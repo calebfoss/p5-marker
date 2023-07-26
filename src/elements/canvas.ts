@@ -94,7 +94,8 @@ export class Canvas extends dimensions(MarkerElement) {
       "viewBox",
       `0 0 ${this.width} ${this.height}`
     );
-    parentElement.appendChild(this.#svg_element);
+    if (parentElement !== this.#svg_element.parentNode)
+      parentElement.appendChild(this.#svg_element);
     const backgroundElementDefined =
       typeof this.#svg_background_element !== "undefined";
     if (this.background !== null) {

@@ -2,6 +2,7 @@ import { Base } from "./elements/base";
 import { Window } from "./elements/window";
 import { Canvas } from "./elements/canvas";
 import { Setting } from "./elements/setting";
+import { MarkerSVG } from "./elements/svg";
 import { Rectangle } from "./elements/2d_shapes";
 import { stroke, fill } from "./mixins/style";
 import { position } from "./mixins/position";
@@ -15,6 +16,7 @@ const Marker = {
     Canvas: Canvas,
     Setting: Setting,
     Rectangle: Rectangle,
+    SVG: MarkerSVG,
   },
   propertyMixins: {
     stroke: stroke,

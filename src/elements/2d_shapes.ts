@@ -24,10 +24,12 @@ export class Rectangle extends position(
     super.renderToDOM(this.#DOM_Element);
   }
   renderToSVG(parentElement: SVGElement): void {
-    const element = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "rect"
-    );
+    if (typeof this.#svg_element === "undefined")
+      this.#svg_element = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect"
+      );
+    const element = this.#svg_element;
     parentElement.appendChild(element);
     element.setAttribute("x", this.position.x.toString());
     element.setAttribute("y", this.position.y.toString());
@@ -35,5 +37,6 @@ export class Rectangle extends position(
     element.setAttribute("height", this.height.toString());
     super.renderToSVG(parentElement, element);
   }
+  #svg_element: SVGRectElement;
 }
 customElements.define("m-rectangle", Rectangle);

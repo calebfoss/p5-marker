@@ -121,6 +121,8 @@ export class Base extends HTMLElement {
           this.renderToCanvas(argument);
           argument.restore();
         };
+      if (argument instanceof SVGElement)
+        return () => this.renderToSVG(argument);
       if (argument instanceof Node) return () => this.renderToDOM(argument);
     })();
     while (true) {
@@ -194,17 +196,20 @@ export class Base extends HTMLElement {
     }
   }
   renderToSVG(parentElement: SVGElement, element?: SVGElement) {
-    const groupElement = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "g"
-    );
-    parentElement.appendChild(groupElement);
+    if (typeof this.#svg_group === "undefined")
+      this.#svg_group = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g"
+      );
+    const groupElement = this.#svg_group;
+    if (parentElement !== groupElement.parentNode)
+      parentElement.appendChild(groupElement);
     if (typeof element !== "undefined") {
       this.styleSVGElement(groupElement);
       groupElement.appendChild(element);
     }
     for (const child of this.children) {
-      if (child instanceof Base) child.renderToSVG(groupElement);
+      if (child instanceof Base) child.draw(groupElement);
     }
   }
   styleSVGElement(groupElement: SVGElement) {}
@@ -227,7 +232,8 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.setup();
     }
   }
-  styleDOMElement(element: HTMLElement) {}
+  styleDOMElement(element: Element) {}
+  #svg_group: SVGGElement;
   get window() {
     if (this.parentElement instanceof Base) return this.parentElement.window;
     return null;
