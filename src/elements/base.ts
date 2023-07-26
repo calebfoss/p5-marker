@@ -1,6 +1,5 @@
 import { interpret } from "../interpreter/interpreter";
 import { color } from "../mixins/color";
-import { dimensions } from "../mixins/dimensions";
 import { transform } from "../mixins/transform";
 
 export const identity =
