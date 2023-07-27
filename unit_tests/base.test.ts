@@ -3,6 +3,7 @@ import { Window } from "../src/elements/window";
 import { Canvas as MarkerCanvas } from "../src/elements/canvas";
 import { Setting } from "../src/elements/setting";
 import { CanvasRenderingContext2D } from "canvas";
+import { MarkerElement } from "../src/elements/base";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
 let windowElement: Window, canvasElement: MarkerCanvas, settingElement: Setting;
@@ -11,6 +12,16 @@ let onDraw: () => void;
 let frame: number;
 const framesPerTest = 10;
 let done: Promise<boolean>;
+
+const wrapRenderer = (
+  element: MarkerElement,
+  fn: (
+    baseRender: (context: CanvasRenderingContext2D) => void
+  ) => (context: CanvasRenderingContext2D) => void
+) => {
+  const baseRender = element.renderToCanvas.bind(element);
+  element.renderToCanvas = fn(baseRender) as any;
+};
 
 beforeEach(() => {
   windowElement = document.createElement("m-window") as Window;
@@ -98,16 +109,15 @@ test("addEach", async () => {
     settingElement.propertyManager.angle,
     () => settingElement.angle + 1
   );
-  const baseRender = settingElement.renderToCanvas.bind(settingElement);
   let calls: number;
   onDraw = () => {
     calls = 0;
   };
-  settingElement.renderToCanvas = (context) => {
+  wrapRenderer(settingElement, (baseRender) => (context) => {
     expect(settingElement.angle).toBe(calls);
     calls++;
     baseRender(context);
-  };
+  });
   windowElement.setup();
   await done;
 });
@@ -134,16 +144,15 @@ test("canvas property", () => {
 });
 
 test("count", async () => {
-  const baseRender = settingElement.renderToCanvas.bind(settingElement);
   let calls: number;
   onDraw = () => {
     calls = 0;
   };
-  settingElement.renderToCanvas = (context) => {
+  wrapRenderer(settingElement, (baseRender) => (context) => {
     expect(settingElement.count).toBe(calls);
     calls++;
     baseRender(context);
-  };
+  });
   windowElement.setup();
   await done;
 });
@@ -171,26 +180,27 @@ test("max_count", async () => {
   const max_count = 100;
   settingElement.setAttribute("max_count", max_count.toString());
   settingElement.setAttribute("repeat", "true");
-  const baseRender = settingElement.renderToCanvas.bind(settingElement);
   let calls = 0;
-  settingElement.renderToCanvas = (context) => {
+  const warn = console.warn;
+  console.warn = () => {};
+  wrapRenderer(settingElement, (baseRender) => (context) => {
     calls++;
     baseRender(context);
-  };
+  });
   windowElement.setup();
   await done;
+  console.warn = warn;
   expect(frame).toBe(framesPerTest);
   expect(calls).toBe(framesPerTest * max_count);
 });
 
 test("on", async () => {
   settingElement.setAttribute("on", "frame % 2 is 0");
-  const baseRender = settingElement.renderToCanvas.bind(settingElement);
   let calls = 0;
-  settingElement.renderToCanvas = (context) => {
+  wrapRenderer(settingElement, (baseRender) => (context) => {
     calls++;
     baseRender(context);
-  };
+  });
   windowElement.setup();
   await done;
   expect(calls).toBe(Math.floor(framesPerTest / 2));
@@ -201,4 +211,28 @@ test("parent", () => {
   const childElement = document.createElement("m-setting") as Setting;
   childElement.parent = settingElement;
   expect(childElement.parent).toBe(settingElement);
+});
+
+test("repeat", async () => {
+  const iterations = 100;
+  const childElement = document.createElement("m-setting") as Setting;
+  childElement.parent = settingElement;
+  settingElement.setAttribute(
+    "repeat",
+    `until count is at least ${iterations}`
+  );
+  let parentCalls = 0,
+    childCalls = 0;
+  wrapRenderer(settingElement, (baseRender) => (context) => {
+    parentCalls++;
+    baseRender(context);
+  });
+  wrapRenderer(childElement, (baseRender) => (context) => {
+    childCalls++;
+    baseRender(context);
+  });
+  windowElement.setup();
+  await done;
+  expect(parentCalls).toBe(framesPerTest * iterations);
+  expect(childCalls).toBe(framesPerTest * iterations);
 });
