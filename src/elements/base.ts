@@ -291,6 +291,7 @@ export class Base extends HTMLElement {
   }
   propertyManager: PropertyManager<Base> = {
     max_count: this.#max_count,
+    on: this.#on,
     repeat: this.#repeat,
   };
 }

@@ -182,3 +182,16 @@ test("max_count", async () => {
   expect(frame).toBe(framesPerTest);
   expect(calls).toBe(framesPerTest * max_count);
 });
+
+test("on", async () => {
+  settingElement.setAttribute("on", "frame % 2 is 0");
+  const baseRender = settingElement.renderToCanvas.bind(settingElement);
+  let calls = 0;
+  settingElement.renderToCanvas = (context) => {
+    calls++;
+    baseRender(context);
+  };
+  windowElement.setup();
+  await done;
+  expect(calls).toBe(Math.floor(framesPerTest / 2));
+});
