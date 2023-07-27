@@ -1,14 +1,15 @@
-import { MarkerElement } from "./base";
+import { VisibleElement } from "./visible";
 import { position } from "../mixins/position";
 import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 
 export class Rectangle extends position(
-  dimensions(fill(stroke(MarkerElement)))
+  dimensions(fill(stroke(VisibleElement)))
 ) {
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transformCanvas(context);
-    context.rect(this.position.x, this.position.y, this.width, this.height);
+    if (this.visible)
+      context.rect(this.position.x, this.position.y, this.width, this.height);
     super.renderToCanvas(context);
   }
   #DOM_Element: HTMLElement;

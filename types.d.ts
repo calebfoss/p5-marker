@@ -10,6 +10,7 @@ type InterpreterAction = "get" | "change" | "each" | "repeat";
 type Property<T> = {
   get: () => T;
   changed: boolean;
+  set: (value: T) => void;
 };
 type ObjectProperty<T extends object> = Property<T> & {
   object: MarkerObject<T>;

@@ -17,7 +17,7 @@ export class Canvas extends dimensions(MarkerElement) {
     return this.#background.get();
   }
   set background(value) {
-    this.#background.get = identity(value);
+    this.#background.set(value);
   }
   get canvas() {
     return this;

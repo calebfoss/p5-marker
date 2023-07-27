@@ -35,17 +35,34 @@ export const markerObject = <T extends object>(source: T): MarkerObject<T> => {
 export function createProperty<T>(get: () => T): Property<T>;
 export function createProperty<T extends object>(value: T): ObjectProperty<T>;
 export function createProperty<T>(value: T): Property<T>;
-export function createProperty<T>(argument: T) {
-  if (typeof argument === "function")
-    return {
-      get: argument,
+export function createProperty<
+  P,
+  O extends object,
+  FP extends () => P,
+  FO extends () => O
+>(argument: P | O | FP | FO) {
+  if (typeof argument === "function") {
+    const output = {
+      get: argument as FP,
       changed: false,
+      set: (value: P) => {
+        output.get = identity(value) as FP;
+        output.changed = true;
+      },
     };
-  if (typeof argument !== "object")
-    return {
+    return output;
+  }
+  if (typeof argument !== "object") {
+    const output = {
       get: identity(argument),
       changed: false,
+      set: (value: P) => {
+        output.get = identity(value);
+        output.changed = true;
+      },
     };
+    return output;
+  }
   const output = {
     object: markerObject(argument),
     get: () => output.object,
@@ -60,6 +77,10 @@ export function createProperty<T>(argument: T) {
         for (const key of Object.keys(output.object.propertyManager)) {
           output.object.propertyManager[key].changed = true;
         }
+    },
+    set: (value: O) => {
+      output.object = markerObject(value);
+      output.changed = true;
     },
   };
   return output;
@@ -220,20 +241,28 @@ export class Base extends HTMLElement {
     return this.#max_count.get();
   }
   set max_count(value) {
-    this.#max_count.get = identity(value);
+    this.#max_count.set(value);
   }
   #on = createProperty(true);
   get on() {
     return this.#on.get();
   }
   set on(value) {
-    this.#on.get = identity(value);
+    this.#on.set(value);
   }
+  #parent: Property<HTMLElement> = {
+    get: () => this.parentElement,
+    set: (element) => {
+      element.appendChild(this);
+      this.#parent.changed = true;
+    },
+    changed: false,
+  };
   get parent() {
-    return this.parentElement;
+    return this.#parent.get();
   }
   set parent(element) {
-    element.appendChild(this);
+    this.#parent.set(element);
   }
   renderToCanvas(context: CanvasRenderingContext2D) {
     context.beginPath();
@@ -271,7 +300,7 @@ export class Base extends HTMLElement {
     return this.#repeat.get();
   }
   set repeat(value) {
-    this.#repeat.get = identity(value);
+    this.#repeat.set(value);
   }
   setup() {
     for (const attribute of this.attributes) {

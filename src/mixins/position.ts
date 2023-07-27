@@ -1,9 +1,9 @@
-import { Base, identity, createProperty } from "../elements/base";
+import { Base, createProperty } from "../elements/base";
 
 export const position = <T extends typeof Base>(baseClass: T) =>
   class PositionElement extends baseClass {
     constructor(...args: any[]) {
-      super();
+      super(...args);
       this.propertyManager.position = this.#position;
     }
     #position = (() => {
@@ -23,8 +23,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
     }
     declare propertyManager: PropertyManager<PositionElement>;
     set position(value) {
-      this.#position.object.propertyManager.x.get = identity(value.x);
-      this.#position.object.propertyManager.y.get = identity(value.y);
+      this.#position.set(value);
     }
     styleDOMElement(element: HTMLElement): void {
       element.style.position = "absolute";

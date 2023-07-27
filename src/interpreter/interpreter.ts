@@ -26,7 +26,7 @@ export const interpret = (element: Base, attribute: Attr): void => {
         Object.defineProperty(element, propertyName, {
           get: () => element.propertyManager[propertyName].get(),
           set: (value) => {
-            element.propertyManager[propertyName].get = identity(value);
+            element.propertyManager[propertyName].set(value);
           },
         });
       }

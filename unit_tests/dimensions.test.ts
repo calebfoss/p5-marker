@@ -20,6 +20,13 @@ beforeEach(async () => {
   });
 });
 
+afterEach(() => {
+  windowElement.remove();
+  canvasElement.remove();
+  settingElement.remove();
+  windowElement = canvasElement = settingElement = null;
+});
+
 test("defaults", () => {
   expect(settingElement.width).toBe(window.innerWidth);
   expect(settingElement.height).toBe(window.innerHeight);
