@@ -40,24 +40,7 @@ test("create elements", () => {
   expect(settingElement).not.toBe(null);
 });
 
-test("assert type", () => {
-  expect(() => settingElement.assertType("test", 1, "number")).not.toThrow();
-  expect(() => settingElement.assertType("test", 1, "boolean")).toThrow();
-  expect(() =>
-    settingElement.assertType("test", 1, "boolean", "number")
-  ).not.toThrow();
-});
-
-test("canvas property", () => {
-  expect(settingElement.canvas).toBe(canvasElement);
-});
-
-test("dimensions", () => {
-  expect(settingElement.width).toBe(window.innerWidth);
-  expect(settingElement.height).toBe(window.innerHeight);
-});
-
-test("getter", async () => {
+test("getter", () => {
   for (let frame = 0; frame < 10; frame++) {
     canvasElement.angle = frame;
     settingElement.draw(canvasElement.drawing_context);
@@ -77,26 +60,67 @@ test("each", () => {
   expect(calls).toBe(10);
 });
 
-test("change", async () => {
-  let frame = 0;
-  while (frame < 10) {
+test("change", () => {
+  for (let frame = 0; frame < 10; frame++) {
     expect(settingElement.position.x).toBe(frame);
     settingElement.draw(canvasElement.drawing_context);
-    frame++;
   }
+});
+
+test("addChange", () => {
   settingElement.addChange(
     settingElement.propertyManager.position.object.propertyManager.x,
     () => settingElement.position.x + 1
   );
-  const startingFrame = frame;
-  while (frame < 20) {
-    expect(settingElement.position.x).toBe(frame + (frame - startingFrame));
+  for (let frame = 0; frame < 10; frame++) {
+    expect(settingElement.position.x).toBe(frame * 2);
+    settingElement.draw(canvasElement.drawing_context);
+  }
+});
+
+test("addEach", () => {
+  settingElement.addEach(
+    settingElement.propertyManager.angle,
+    () => settingElement.angle + 1
+  );
+  const baseRender = settingElement.renderToCanvas.bind(settingElement);
+  let calls = 0;
+  settingElement.renderToCanvas = (context) => {
+    expect(settingElement.angle).toBe(calls);
+    calls++;
+    baseRender(context);
+  };
+  settingElement.draw(canvasElement.drawing_context);
+});
+
+test("addGetter", () => {
+  let frame = 0;
+  settingElement.addGetter(settingElement.propertyManager.width, () => frame);
+  while (frame < 10) {
+    expect(settingElement.width).toBe(frame);
     settingElement.draw(canvasElement.drawing_context);
     frame++;
   }
 });
 
-test("inherit", async () => {
+test("assert type", () => {
+  expect(() => settingElement.assertType("test", 1, "number")).not.toThrow();
+  expect(() => settingElement.assertType("test", 1, "boolean")).toThrow();
+  expect(() =>
+    settingElement.assertType("test", 1, "boolean", "number")
+  ).not.toThrow();
+});
+
+test("canvas property", () => {
+  expect(settingElement.canvas).toBe(canvasElement);
+});
+
+test("dimensions", () => {
+  expect(settingElement.width).toBe(window.innerWidth);
+  expect(settingElement.height).toBe(window.innerHeight);
+});
+
+test("inherit", () => {
   expect(settingElement.inherit("test", 0)).toBe(inheritValue);
   expect(settingElement.inherit("nonexistent", 0)).toBe(0);
 });

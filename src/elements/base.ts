@@ -92,8 +92,12 @@ export class Base extends HTMLElement {
       });
     }
   }
-  addEach<T>(getProperty: () => Property<T>, getValue: () => T) {
-    let baseGet = getProperty().get;
+  addEach<T>(property: Property<T>, getValue: () => T): void;
+  addEach<T>(getProperty: () => Property<T>, getValue: () => T): void;
+  addEach<T>(arg1, getValue: () => T) {
+    const [property, getProperty] =
+      typeof arg1 === "function" ? [arg1(), arg1] : [arg1, identity(arg1)];
+    let baseGet = property.get;
     this.#eachModifiers.push((reset: boolean = false) => {
       const prop = getProperty();
       if (this.count === 0) {
@@ -104,19 +108,27 @@ export class Base extends HTMLElement {
     });
   }
   addGetter<T extends object>(
+    property: ObjectProperty<T>,
+    getValue: () => T
+  ): void;
+  addGetter<T>(property: Property<T>, getValue: () => T): void;
+  addGetter<T extends object>(
     getProperty: () => ObjectProperty<T>,
     getValue: () => T
   ): void;
   addGetter<T>(getProperty: () => Property<T>, getValue: () => T): void;
   addGetter<T>(arg1, getValue: () => T): void {
-    this.#getters.push(() => {
-      const prop = arg1();
+    const getProperty = typeof arg1 === "function" ? arg1 : identity(arg1);
+    const setGetter = () => {
+      const prop = getProperty();
       if (prop.changed) return;
       if (typeof getValue() === "object") {
         prop.object = getValue();
         prop.get = () => prop.object;
       } else prop.get = getValue;
-    });
+    };
+    setGetter();
+    this.#getters.push(setGetter);
   }
   assertType<T>(
     propertyName: string,
@@ -258,9 +270,6 @@ export class Base extends HTMLElement {
   setup() {
     for (const attribute of this.attributes) {
       if (attribute.name !== "id") interpret(this, attribute);
-    }
-    for (const getter of this.#getters) {
-      getter();
     }
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
