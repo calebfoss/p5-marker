@@ -236,3 +236,11 @@ test("repeat", async () => {
   expect(parentCalls).toBe(framesPerTest * iterations);
   expect(childCalls).toBe(framesPerTest * iterations);
 });
+
+test("window", () => {
+  expect(settingElement.window).toBe(windowElement);
+  expect(canvasElement.window).toBe(windowElement);
+  expect(() => {
+    (settingElement.window as any) = canvasElement;
+  }).toThrow();
+});
