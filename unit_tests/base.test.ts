@@ -12,11 +12,10 @@ let frame: number;
 const framesPerTest = 10;
 let done: Promise<boolean>;
 
-beforeEach(async () => {
+beforeEach(() => {
   windowElement = document.createElement("m-window") as Window;
   canvasElement = document.createElement("m-canvas") as MarkerCanvas;
   settingElement = document.createElement("m-setting") as Setting;
-
   windowElement.appendChild(canvasElement).appendChild(settingElement);
   onDraw = () => {};
   frame = 0;
@@ -166,4 +165,20 @@ test("inherit", async () => {
   await done;
   expect(settingElement.inherit("test", 0)).toBe(value);
   expect(settingElement.inherit("nonexistent", 0)).toBe(0);
+});
+
+test("max_count", async () => {
+  const max_count = 100;
+  settingElement.setAttribute("max_count", max_count.toString());
+  settingElement.setAttribute("repeat", "true");
+  const baseRender = settingElement.renderToCanvas.bind(settingElement);
+  let calls = 0;
+  settingElement.renderToCanvas = (context) => {
+    calls++;
+    baseRender(context);
+  };
+  windowElement.setup();
+  await done;
+  expect(frame).toBe(framesPerTest);
+  expect(calls).toBe(framesPerTest * max_count);
 });

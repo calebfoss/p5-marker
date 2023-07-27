@@ -179,7 +179,7 @@ export class Base extends HTMLElement {
         each();
       }
       if (!this.repeat) break;
-      if (this.#count > this.max_count) {
+      if (this.#count >= this.max_count) {
         console.warn(
           `${this.tagName} reached its maximum iteration count of ${this.max_count}`
         );
