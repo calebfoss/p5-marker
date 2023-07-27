@@ -45,14 +45,12 @@ afterEach(() => {
 
 test("canvas render", async () => {
   rectElement.setAttribute("visible", "false");
-  const rectFn = canvasElement.drawing_context.rect;
   let calls = 0;
   canvasElement.drawing_context.rect = () => {
     calls++;
   };
   onDraw = () => {
     if (frame === Math.floor(framesPerTest / 2)) rectElement.visible = true;
-    console.log(frame, rectElement.visible);
   };
   windowElement.setup();
   await done;

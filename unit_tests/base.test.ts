@@ -13,14 +13,19 @@ let frame: number;
 const framesPerTest = 10;
 let done: Promise<boolean>;
 
-const wrapRenderer = (
-  element: MarkerElement,
-  fn: (
-    baseRender: (context: CanvasRenderingContext2D) => void
-  ) => (context: CanvasRenderingContext2D) => void
+export const wrapMethod = <
+  T extends MarkerElement,
+  PropKey extends keyof T,
+  MethodKey extends {
+    [key in keyof T]: T[key] extends Function ? key : never;
+  }[PropKey]
+>(
+  element: T,
+  methodName: MethodKey,
+  getWrappedMethod: (baseMethod: T[MethodKey]) => T[MethodKey]
 ) => {
-  const baseRender = element.renderToCanvas.bind(element);
-  element.renderToCanvas = fn(baseRender) as any;
+  const baseMethod = (element[methodName] as Function).bind(element);
+  element[methodName] = getWrappedMethod(baseMethod);
 };
 
 beforeEach(() => {
@@ -113,7 +118,7 @@ test("addEach", async () => {
   onDraw = () => {
     calls = 0;
   };
-  wrapRenderer(settingElement, (baseRender) => (context) => {
+  wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
     expect(settingElement.angle).toBe(calls);
     calls++;
     baseRender(context);
@@ -148,7 +153,7 @@ test("count", async () => {
   onDraw = () => {
     calls = 0;
   };
-  wrapRenderer(settingElement, (baseRender) => (context) => {
+  wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
     expect(settingElement.count).toBe(calls);
     calls++;
     baseRender(context);
@@ -183,7 +188,7 @@ test("max_count", async () => {
   let calls = 0;
   const warn = console.warn;
   console.warn = () => {};
-  wrapRenderer(settingElement, (baseRender) => (context) => {
+  wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
     calls++;
     baseRender(context);
   });
@@ -197,7 +202,7 @@ test("max_count", async () => {
 test("on", async () => {
   settingElement.setAttribute("on", "frame % 2 is 0");
   let calls = 0;
-  wrapRenderer(settingElement, (baseRender) => (context) => {
+  wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
     calls++;
     baseRender(context);
   });
@@ -223,11 +228,11 @@ test("repeat", async () => {
   );
   let parentCalls = 0,
     childCalls = 0;
-  wrapRenderer(settingElement, (baseRender) => (context) => {
+  wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
     parentCalls++;
     baseRender(context);
   });
-  wrapRenderer(childElement, (baseRender) => (context) => {
+  wrapMethod(childElement, "renderToCanvas", (baseRender) => (context) => {
     childCalls++;
     baseRender(context);
   });
