@@ -10,10 +10,10 @@ export const position = <T extends typeof Base>(baseClass: T) =>
       const element = this;
       return createProperty<Vector>({
         get x(): number {
-          return element.inherit("position", element.xy(0, 0)).x;
+          return element.inherit("position", Base.xy(0, 0)).x;
         },
         get y(): number {
-          return element.inherit("position", element.xy(0, 0)).y;
+          return element.inherit("position", Base.xy(0, 0)).y;
         },
       });
     })();

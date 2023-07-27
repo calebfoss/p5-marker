@@ -288,7 +288,7 @@ export class Base extends HTMLElement {
     if (this.parentElement instanceof Base) return this.parentElement.window;
     return null;
   }
-  xy(x: number, y?: number): MarkerObject<Vector> {
+  static xy(x: number, y?: number): MarkerObject<Vector> {
     if (typeof y === "undefined") return markerObject({ x, y: x });
     return markerObject({ x, y });
   }

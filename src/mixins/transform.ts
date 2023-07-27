@@ -13,7 +13,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       context.rotate(this.angle);
       context.scale(this.scale.x, this.scale.y);
     }
-    #anchor = createProperty(this.xy(0, 0));
+    #anchor = createProperty(Base.xy(0, 0));
     get anchor() {
       return this.#anchor.get();
     }
@@ -28,7 +28,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       this.#angle.get = identity(value);
     }
     declare propertyManager: PropertyManager<TransformElement>;
-    #scale = createProperty(this.xy(1, 1));
+    #scale = createProperty(Base.xy(1, 1));
     get scale() {
       return this.#scale.get();
     }
