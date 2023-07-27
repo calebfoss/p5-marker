@@ -5,6 +5,8 @@ type Token = {
   value: string;
 };
 
+type InterpreterAction = "get" | "change" | "each" | "repeat";
+
 type Property<T> = {
   get: () => T;
   changed: boolean;
@@ -18,8 +20,12 @@ type Vector = {
   y: number;
 };
 
-type PropertyManager = {
-  [key: string]: Property<any> | ObjectProperty<any>;
+type PropertyManager<T> = {
+  [key in keyof T]?: T[key] extends object
+    ? ObjectProperty<T[key]>
+    : Property<T[key]>;
 };
 
-type MarkerObject<T extends object> = T & { propertyManager: PropertyManager };
+type MarkerObject<T extends object> = T & {
+  propertyManager: PropertyManager<T>;
+};

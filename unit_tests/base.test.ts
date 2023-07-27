@@ -79,16 +79,17 @@ test("each", () => {
 
 test("change", async () => {
   let frame = 0;
-  while (frame < 20) {
+  while (frame < 10) {
     expect(settingElement.position.x).toBe(frame);
     settingElement.draw(canvasElement.drawing_context);
     frame++;
   }
-  settingElement.addChange(() => {
-    settingElement.position.x = settingElement.position.x + 1;
-  });
+  settingElement.addChange(
+    settingElement.propertyManager.position.object.propertyManager.x,
+    () => settingElement.position.x + 1
+  );
   const startingFrame = frame;
-  while (frame < 21) {
+  while (frame < 20) {
     expect(settingElement.position.x).toBe(frame + (frame - startingFrame));
     settingElement.draw(canvasElement.drawing_context);
     frame++;

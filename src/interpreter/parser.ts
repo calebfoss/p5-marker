@@ -1,9 +1,4 @@
-import {
-  Base,
-  identity,
-  markerObject,
-  property as createProperty,
-} from "../elements/base";
+import { Base, markerObject } from "../elements/base";
 import { tokenKind, endToken } from "./lexer";
 
 const isArray = (tokens: Token[], parenthesesDepth = 0) => {
@@ -125,15 +120,30 @@ const getRightTokenIndex = (
   return getRightTokenIndex(remainder, leftTokenKind, index + 1, depth - 1);
 };
 
-export const parse = (
+export function parse<T extends object>(
+  element: Base,
+  attrName: string,
+  attrNameTokens: Token[],
+  attrValTokens: Token[],
+  debug?: boolean
+): [
+  action: InterpreterAction,
+  getProperty: () => ObjectProperty<T>,
+  getValue: () => T
+];
+export function parse<T>(
   element: Base,
   attrName: string,
   attrNameTokens: Token[],
   attrValTokens: Token[],
   debug = false
-) => {
+): [
+  action: InterpreterAction,
+  getProperty: () => Property<T>,
+  getValue: () => T
+] {
   const [firstNameToken, ...remainingNameTokens] = attrNameTokens;
-  const action = (() => {
+  const action = ((): InterpreterAction => {
     switch (firstNameToken.value) {
       case "repeat":
       case "change":
@@ -491,87 +501,34 @@ export const parse = (
   };
 
   const getValue = parseExpression(attrValTokens);
-  switch (action) {
-    case "each": {
-      const [nextToken, ...remainder] = remainingNameTokens;
-      const [getOwner, getMemberName, afterComputedMember] = computedMember(
-        () => element,
-        () => nextToken.value,
-        remainder.concat(endToken)
-      );
-      if (afterComputedMember.length > 1)
-        throw new Error(
-          `Failed to parse ${
-            element.tagName
-          }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
-        );
-      let baseGet = getOwner().propertyManager[getMemberName()].get;
-      element.addEach((reset: boolean = false) => {
-        const property = getOwner().propertyManager[getMemberName()];
-        if (element.count === 0) {
-          baseGet = property.get;
-          return;
-        }
-        property.get = reset ? baseGet : identity(getValue());
-      });
-      return;
-    }
-    case "change": {
-      const [nextToken, ...remainder] =
-        firstNameToken.value === "change"
-          ? remainingNameTokens
-          : attrNameTokens;
-      const [getOwner, getMemberName, afterComputedMember] = computedMember(
-        () => element,
-        () => nextToken.value,
-        remainder.concat(endToken)
-      );
-      if (afterComputedMember.length > 1)
-        throw new Error(
-          `Failed to parse ${
-            element.tagName
-          }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
-        );
-      element.addChange(() => {
-        getOwner().propertyManager[getMemberName()].changed = true;
-        getOwner()[getMemberName()] = getValue();
-      });
-      return;
-    }
-    default: {
-      const propertyName = firstNameToken.value;
 
-      const [getOwner, getMemberName, afterComputedMember] = computedMember(
-        () => element,
-        () => propertyName,
-        remainingNameTokens.concat(endToken)
-      );
-      if (afterComputedMember.length > 1)
-        throw new Error(
-          `Failed to parse ${
-            element.tagName
-          }'s ${attrName} at ${afterComputedMember.map((t) => t.value).join()}`
-        );
-      if (!(propertyName in element)) {
-        element.propertyManager[propertyName] = createProperty(undefined);
-        Object.defineProperty(element, propertyName, {
-          get: () => element.propertyManager[propertyName].get(),
-          set: (value) => {
-            element.propertyManager[propertyName].get = identity(value);
-          },
-        });
+  const [baseMember, remainder] = (() => {
+    switch (action) {
+      case "change": {
+        const [nextToken, ...remainder] =
+          firstNameToken.value === "change"
+            ? remainingNameTokens
+            : attrNameTokens;
+        return [nextToken.value, remainder];
       }
-      element.addGetter(() => {
-        const property = getOwner().propertyManager[
-          getMemberName()
-        ] as ObjectProperty<object>;
-        if (property.changed) return;
-        if (typeof getValue() === "object") {
-          property.object = getValue();
-          property.get = () => property.object;
-        } else property.get = getValue;
-      });
+      case "each": {
+        const [nextToken, ...remainder] = remainingNameTokens;
+        return [nextToken.value, remainder];
+      }
+      default:
+        return [firstNameToken.value, remainingNameTokens];
     }
-  }
-  return;
-};
+  })();
+  const [getOwner, getMemberName, afterComputedMember] = computedMember(
+    () => element,
+    () => baseMember,
+    remainder.concat(endToken)
+  );
+  if (afterComputedMember.length > 1)
+    throw new Error(
+      `Failed to parse ${element.tagName}'s ${attrName} at ${afterComputedMember
+        .map((t) => t.value)
+        .join()}`
+    );
+  return [action, () => getOwner().propertyManager[getMemberName()], getValue];
+}

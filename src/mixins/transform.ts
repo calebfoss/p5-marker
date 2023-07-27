@@ -1,7 +1,7 @@
-import { Base, identity, markerObject, property } from "../elements/base";
+import { Base, identity, markerObject, createProperty } from "../elements/base";
 
 export const transform = <T extends typeof Base>(baseClass: T) =>
-  class extends baseClass {
+  class TransformElement extends baseClass {
     constructor(...args: any[]) {
       super();
       this.propertyManager.anchor = this.#anchor;
@@ -13,21 +13,22 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       context.rotate(this.angle);
       context.scale(this.scale.x, this.scale.y);
     }
-    #anchor = property(this.xy(0, 0));
+    #anchor = createProperty(this.xy(0, 0));
     get anchor() {
       return this.#anchor.get();
     }
     set anchor(argument: Vector) {
       this.#anchor.object = markerObject(argument);
     }
-    #angle = property(0);
+    #angle = createProperty(0);
     get angle() {
       return this.#angle.get();
     }
     set angle(value) {
       this.#angle.get = identity(value);
     }
-    #scale = property(this.xy(1, 1));
+    declare propertyManager: PropertyManager<TransformElement>;
+    #scale = createProperty(this.xy(1, 1));
     get scale() {
       return this.#scale.get();
     }

@@ -15,8 +15,8 @@ export const markerObject = <T extends object>(source: T): MarkerObject<T> => {
       if (!configurable) return;
       const propertyObject: Property<any> | ObjectProperty<object> =
         typeof value === "object"
-          ? property(markerObject(value))
-          : property(get || value);
+          ? createProperty(markerObject(value))
+          : createProperty(get || value);
       Object.defineProperty(output, key, {
         get() {
           return propertyObject.get();
@@ -32,10 +32,10 @@ export const markerObject = <T extends object>(source: T): MarkerObject<T> => {
   return output as MarkerObject<T>;
 };
 
-export function property<T>(get: () => T): Property<T>;
-export function property<T extends object>(value: T): ObjectProperty<T>;
-export function property<T>(value: T): Property<T>;
-export function property<T>(argument: T) {
+export function createProperty<T>(get: () => T): Property<T>;
+export function createProperty<T extends object>(value: T): ObjectProperty<T>;
+export function createProperty<T>(value: T): Property<T>;
+export function createProperty<T>(argument: T) {
   if (typeof argument === "function")
     return {
       get: argument,
@@ -74,14 +74,49 @@ export class Base extends HTMLElement {
   constructor(...args: any[]) {
     super();
   }
-  addChange(changer: () => void) {
-    this.#changers.push(changer);
+  addChange<T>(property: Property<T>, getValue: () => T): void;
+  addChange<T>(getProperty: () => Property<T>, getValue: () => T): void;
+  addChange<T>(arg1: Property<T> | (() => Property<T>), getValue: () => T) {
+    if (typeof arg1 === "function") {
+      const getProperty = arg1;
+      this.#changers.push(() => {
+        const prop = getProperty();
+        prop.get = identity(getValue());
+        prop.changed = true;
+      });
+    } else {
+      const property = arg1;
+      this.#changers.push(() => {
+        property.get = identity(getValue());
+        property.changed = true;
+      });
+    }
   }
-  addEach(updater: (reset?: boolean) => void) {
-    this.#eachModifiers.push(updater);
+  addEach<T>(getProperty: () => Property<T>, getValue: () => T) {
+    let baseGet = getProperty().get;
+    this.#eachModifiers.push((reset: boolean = false) => {
+      const prop = getProperty();
+      if (this.count === 0) {
+        baseGet = prop.get;
+        return;
+      }
+      prop.get = reset ? baseGet : identity(getValue());
+    });
   }
-  addGetter(getter: () => void) {
-    this.#getters.push(getter);
+  addGetter<T extends object>(
+    getProperty: () => ObjectProperty<T>,
+    getValue: () => T
+  ): void;
+  addGetter<T>(getProperty: () => Property<T>, getValue: () => T): void;
+  addGetter<T>(arg1, getValue: () => T): void {
+    this.#getters.push(() => {
+      const prop = arg1();
+      if (prop.changed) return;
+      if (typeof getValue() === "object") {
+        prop.object = getValue();
+        prop.get = () => prop.object;
+      } else prop.get = getValue;
+    });
   }
   assertType<T>(
     propertyName: string,
@@ -108,7 +143,7 @@ export class Base extends HTMLElement {
   }
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
-  draw(argument): void {
+  draw(argument: Node | CanvasRenderingContext2D): void {
     if (this.on === false) return;
     this.#count = 0;
     for (const each of this.#eachModifiers) {
@@ -165,14 +200,14 @@ export class Base extends HTMLElement {
       return this.parentElement[propertyName];
     return this.parentElement.inherit(propertyName, defaultValue);
   }
-  #max_count = property(10_000);
+  #max_count = createProperty(10_000);
   get max_count() {
     return this.#max_count.get();
   }
   set max_count(value) {
     this.#max_count.get = identity(value);
   }
-  #on = property(true);
+  #on = createProperty(true);
   get on() {
     return this.#on.get();
   }
@@ -213,7 +248,7 @@ export class Base extends HTMLElement {
     }
   }
   styleSVGElement(groupElement: SVGElement) {}
-  #repeat = property(false);
+  #repeat = createProperty(false);
   get repeat() {
     return this.#repeat.get();
   }
@@ -242,7 +277,7 @@ export class Base extends HTMLElement {
     if (typeof y === "undefined") return markerObject({ x, y: x });
     return markerObject({ x, y });
   }
-  propertyManager: PropertyManager = {
+  propertyManager: PropertyManager<Base> = {
     max_count: this.#max_count,
     repeat: this.#repeat,
   };

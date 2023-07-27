@@ -1,18 +1,24 @@
-import { MarkerElement, identity, property } from "../elements/base";
+import {
+  MarkerElement,
+  identity,
+  createProperty,
+  Base,
+} from "../elements/base";
 
 export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
-  class extends baseClass {
+  class FillElement extends baseClass {
     constructor(...args: any[]) {
       super();
       this.propertyManager.fill = this.#fill;
     }
-    #fill = property(() => this.inherit("fill", "#ffffff"));
+    #fill = createProperty(() => this.inherit("fill", "#ffffff"));
     get fill(): string {
       return this.#fill.get();
     }
     set fill(value) {
       this.#fill.get = identity(value);
     }
+    declare propertyManager: PropertyManager<FillElement>;
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.fill !== "none") {
         context.fillStyle = this.fill;
@@ -31,7 +37,7 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
   };
 
 export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
-  class extends baseClass {
+  class StrokeElement extends baseClass {
     constructor(...args: any[]) {
       super();
       this.propertyManager.line_width = this.#line_width;
@@ -39,27 +45,28 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       this.propertyManager.line_join = this.#line_join;
       this.propertyManager.stroke = this.#stroke;
     }
-    #line_cap = property(() => this.inherit("line_cap", "butt"));
+    #line_cap = createProperty(() => this.inherit("line_cap", "butt"));
     get line_cap(): CanvasLineCap {
       return this.#line_cap.get();
     }
     set line_cap(value) {
       this.#line_cap.get = identity(value);
     }
-    #line_join = property(() => this.inherit("line_join", "miter"));
+    #line_join = createProperty(() => this.inherit("line_join", "miter"));
     get line_join(): CanvasLineJoin {
       return this.#line_join.get();
     }
     set line_join(value) {
       this.#line_join.get = identity(value);
     }
-    #line_width = property(() => this.inherit("line_width", 1.0));
+    #line_width = createProperty(() => this.inherit("line_width", 1.0));
     get line_width(): number {
       return this.#line_width.get();
     }
     set line_width(value) {
       this.#line_width.get = identity(value);
     }
+    declare propertyManager: PropertyManager<StrokeElement>;
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.stroke !== "none") {
         context.lineCap = this.line_cap || context.lineCap;
@@ -70,7 +77,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       }
       super.renderToCanvas(context);
     }
-    #stroke = property(() => this.inherit("stroke", "#000000"));
+    #stroke = createProperty(() => this.inherit("stroke", "#000000"));
     get stroke(): string {
       return this.#stroke.get();
     }
