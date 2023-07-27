@@ -289,7 +289,7 @@ export function parse<T>(
 
   const getObjectWithProperty = (
     propertyToken: Token
-  ): [() => HTMLElement, string] => {
+  ): [() => object, string] => {
     const propertyName = propertyToken.value;
     const findAttributeInParent = (el: HTMLElement): HTMLElement => {
       if (el.parentElement === null) {
@@ -301,6 +301,8 @@ export function parse<T>(
       if (propertyName in el.parentElement) return el.parentElement;
       return findAttributeInParent(el.parentElement);
     };
+    if (propertyName in element.constructor)
+      return [() => element.constructor, propertyName];
     if (action === "get")
       return [() => findAttributeInParent(element), propertyName];
     return [

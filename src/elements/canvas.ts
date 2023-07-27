@@ -12,7 +12,7 @@ export class Canvas extends dimensions(MarkerElement) {
     const context = this.#dom_element.getContext("2d");
     if (context !== null) this.#context = context;
   }
-  #background = createProperty(this.gray(220));
+  #background = createProperty(Canvas.gray(220));
   get background() {
     return this.#background.get();
   }
