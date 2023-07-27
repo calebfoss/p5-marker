@@ -232,6 +232,9 @@ export class Base extends HTMLElement {
   get parent() {
     return this.parentElement;
   }
+  set parent(element) {
+    element.appendChild(this);
+  }
   renderToCanvas(context: CanvasRenderingContext2D) {
     context.beginPath();
     for (const child of this.children) {

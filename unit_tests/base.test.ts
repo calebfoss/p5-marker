@@ -195,3 +195,10 @@ test("on", async () => {
   await done;
   expect(calls).toBe(Math.floor(framesPerTest / 2));
 });
+
+test("parent", () => {
+  expect(settingElement.parent).toBe(canvasElement);
+  const childElement = document.createElement("m-setting") as Setting;
+  childElement.parent = settingElement;
+  expect(childElement.parent).toBe(settingElement);
+});
