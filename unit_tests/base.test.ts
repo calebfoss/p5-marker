@@ -6,32 +6,37 @@ import { CanvasRenderingContext2D } from "canvas";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
 let windowElement: Window, canvasElement: MarkerCanvas, settingElement: Setting;
-const inheritValue = 123456;
+let drawListener: EventListener;
+let onDraw: () => void;
+let frame: number;
+const framesPerTest = 10;
+let done: Promise<boolean>;
 
 beforeEach(async () => {
   windowElement = document.createElement("m-window") as Window;
   canvasElement = document.createElement("m-canvas") as MarkerCanvas;
   settingElement = document.createElement("m-setting") as Setting;
-  settingElement.setAttribute("change.position.x", "position.x + 1");
-  settingElement.setAttribute("each.position.x", "position.x + 1");
-  settingElement.setAttribute("repeat", "until position.x is at least 10");
-  settingElement.setAttribute("position.y", "angle");
-  canvasElement.setAttribute("test", inheritValue.toString());
+
   windowElement.appendChild(canvasElement).appendChild(settingElement);
-  await new Promise((resolve) => {
-    windowElement.addEventListener("setup", () => {
-      resolve(true);
-    });
-    windowElement.setup();
+  onDraw = () => {};
+  frame = 0;
+  done = new Promise((resolve) => {
+    drawListener = () => {
+      onDraw();
+      expect(windowElement.frame).toBe(frame);
+      frame++;
+      if (frame === framesPerTest) resolve(true);
+    };
+    windowElement.addEventListener("draw", drawListener);
   });
 });
 
 afterEach(() => {
+  windowElement.removeEventListener("draw", drawListener);
   windowElement.remove();
+  canvasElement.remove();
+  settingElement.remove();
   windowElement = canvasElement = settingElement = null;
-  expect(windowElement).toBe(null);
-  expect(canvasElement).toBe(null);
-  expect(settingElement).toBe(null);
 });
 
 test("create elements", () => {
@@ -40,67 +45,81 @@ test("create elements", () => {
   expect(settingElement).not.toBe(null);
 });
 
-test("getter", () => {
-  for (let frame = 0; frame < 10; frame++) {
+test("getter", async () => {
+  settingElement.setAttribute("position.y", "angle");
+  onDraw = () => {
     canvasElement.angle = frame;
-    settingElement.draw(canvasElement.drawing_context);
     expect(settingElement.position.y).toBe(frame);
-    frame++;
-  }
+  };
+  windowElement.setup();
+  await done;
 });
 
-test("each", () => {
+test("each", async () => {
+  const repeatUntil = 10;
+  settingElement.setAttribute("each.position.x", "position.x + 1");
+  settingElement.setAttribute(
+    "repeat",
+    `until position.x is at least ${repeatUntil}`
+  );
   const baseRender = settingElement.renderToCanvas.bind(settingElement);
   let calls = 0;
   settingElement.renderToCanvas = (context) => {
     calls++;
     baseRender(context);
   };
-  settingElement.draw(canvasElement.drawing_context);
-  expect(calls).toBe(10);
+  windowElement.setup();
+  await done;
+  expect(calls).toBe(framesPerTest * repeatUntil);
 });
 
-test("change", () => {
-  for (let frame = 0; frame < 10; frame++) {
+test("change", async () => {
+  settingElement.setAttribute("change.position.x", "position.x + 1");
+  onDraw = () => {
     expect(settingElement.position.x).toBe(frame);
-    settingElement.draw(canvasElement.drawing_context);
-  }
+  };
+  windowElement.setup();
+  await done;
 });
 
-test("addChange", () => {
+test("addChange", async () => {
   settingElement.addChange(
     settingElement.propertyManager.position.object.propertyManager.x,
     () => settingElement.position.x + 1
   );
-  for (let frame = 0; frame < 10; frame++) {
-    expect(settingElement.position.x).toBe(frame * 2);
-    settingElement.draw(canvasElement.drawing_context);
-  }
+  onDraw = () => {
+    expect(settingElement.position.x).toBe(frame);
+  };
+  windowElement.setup();
+  await done;
 });
 
-test("addEach", () => {
+test("addEach", async () => {
   settingElement.addEach(
     settingElement.propertyManager.angle,
     () => settingElement.angle + 1
   );
   const baseRender = settingElement.renderToCanvas.bind(settingElement);
-  let calls = 0;
+  let calls: number;
+  onDraw = () => {
+    calls = 0;
+  };
   settingElement.renderToCanvas = (context) => {
     expect(settingElement.angle).toBe(calls);
     calls++;
     baseRender(context);
   };
-  settingElement.draw(canvasElement.drawing_context);
+  windowElement.setup();
+  await done;
 });
 
-test("addGetter", () => {
-  let frame = 0;
+test("addGetter", async () => {
   settingElement.addGetter(settingElement.propertyManager.width, () => frame);
-  while (frame < 10) {
+  onDraw = () => {
     expect(settingElement.width).toBe(frame);
-    settingElement.draw(canvasElement.drawing_context);
-    frame++;
-  }
+  };
+  windowElement.setup();
+  await done;
 });
 
 test("assert type", () => {
@@ -115,12 +134,36 @@ test("canvas property", () => {
   expect(settingElement.canvas).toBe(canvasElement);
 });
 
-test("dimensions", () => {
-  expect(settingElement.width).toBe(window.innerWidth);
-  expect(settingElement.height).toBe(window.innerHeight);
+test("count", async () => {
+  const baseRender = settingElement.renderToCanvas.bind(settingElement);
+  let calls: number;
+  onDraw = () => {
+    calls = 0;
+  };
+  settingElement.renderToCanvas = (context) => {
+    expect(settingElement.count).toBe(calls);
+    calls++;
+    baseRender(context);
+  };
+  windowElement.setup();
+  await done;
 });
 
-test("inherit", () => {
-  expect(settingElement.inherit("test", 0)).toBe(inheritValue);
+test("frame", async () => {
+  onDraw = () => {
+    expect(windowElement.frame).toBe(canvasElement.frame);
+    expect(canvasElement.frame).toBe(settingElement.frame);
+    expect(settingElement.frame).toBe(frame);
+  };
+  windowElement.setup();
+  await done;
+});
+
+test("inherit", async () => {
+  const value = 123456;
+  canvasElement.setAttribute("test", value.toString());
+  windowElement.setup();
+  await done;
+  expect(settingElement.inherit("test", 0)).toBe(value);
   expect(settingElement.inherit("nonexistent", 0)).toBe(0);
 });

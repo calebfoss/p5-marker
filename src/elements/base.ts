@@ -198,7 +198,10 @@ export class Base extends HTMLElement {
     this.#frames_on++;
   }
   get frame() {
-    return this.canvas.frame;
+    if (this.parentElement instanceof Base) return this.parentElement.frame;
+    throw new Error(
+      `Tried to access ${this.tagName}, but this element's parent element is not a Marker element`
+    );
   }
   get frames_on() {
     return this.#frames_on;
