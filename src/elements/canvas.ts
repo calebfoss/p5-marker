@@ -11,6 +11,9 @@ export class Canvas extends dimensions(MarkerElement) {
     this.#dom_element = document.createElement("canvas");
     const context = this.#dom_element.getContext("2d");
     if (context !== null) this.#context = context;
+    this.#dom_element.addEventListener("click", (e) => {
+      this.onCanvasClicked(e.x, e.y, performance.now());
+    });
   }
   #background = createProperty(Canvas.gray(220));
   get background() {

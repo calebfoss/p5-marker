@@ -1,5 +1,5 @@
 import { Base } from "./elements/base";
-import { Window } from "./elements/window";
+import { MarkerWindow } from "./elements/window";
 import { Canvas } from "./elements/canvas";
 import { Setting } from "./elements/setting";
 import { MarkerSVG } from "./elements/svg";
@@ -12,7 +12,7 @@ dispatchEvent(new Event("customElementsDefined"));
 const Marker = {
   elementConstructors: {
     MarkerElement: Base,
-    Window: Window,
+    Window: MarkerWindow,
     Canvas: Canvas,
     Setting: Setting,
     Rectangle: Rectangle,

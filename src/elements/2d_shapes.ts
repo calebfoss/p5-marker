@@ -2,14 +2,17 @@ import { VisibleElement } from "./visible";
 import { position } from "../mixins/position";
 import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
+import { clickable } from "../mixins/click";
 
 export class Rectangle extends position(
-  dimensions(fill(stroke(VisibleElement)))
+  dimensions(fill(stroke(clickable(VisibleElement))))
 ) {
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transformCanvas(context);
-    if (this.visible)
+    if (this.visible) {
       context.rect(this.position.x, this.position.y, this.width, this.height);
+      this.checkClick(context);
+    }
     super.renderToCanvas(context);
   }
   #DOM_Element: HTMLElement;

@@ -1,6 +1,7 @@
 import { interpret } from "../interpreter/interpreter";
 import { color } from "../mixins/color";
 import { transform } from "../mixins/transform";
+import { MarkerWindow } from "./window";
 
 export const identity =
   <T>(value: T) =>
@@ -250,6 +251,11 @@ export class Base extends HTMLElement {
   set on(value) {
     this.#on.set(value);
   }
+  onCanvasClicked(x: number, y: number, time: DOMHighResTimeStamp) {
+    for (const child of this.children) {
+      if (child instanceof Base) child.onCanvasClicked(x, y, time);
+    }
+  }
   #parent: Property<HTMLElement> = {
     get: () => this.parentElement,
     set: (element) => {
@@ -313,9 +319,11 @@ export class Base extends HTMLElement {
   }
   styleDOMElement(element: Element) {}
   #svg_group: SVGGElement;
-  get window() {
+  get window(): MarkerWindow {
     if (this.parentElement instanceof Base) return this.parentElement.window;
-    return null;
+    throw new Error(
+      `${this.tagName} tried to access its window property, but its parent is not a Marker element`
+    );
   }
   static xy(x: number, y?: number): MarkerObject<Vector> {
     if (typeof y === "undefined") return markerObject({ x, y: x });

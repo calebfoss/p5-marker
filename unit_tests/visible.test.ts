@@ -1,11 +1,13 @@
 import "../src/index";
-import { Window } from "../src/elements/window";
+import { MarkerWindow } from "../src/elements/window";
 import { Canvas as MarkerCanvas } from "../src/elements/canvas";
 import { CanvasRenderingContext2D } from "canvas";
 import { Rectangle } from "../src/elements/2d_shapes";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
-let windowElement: Window, canvasElement: MarkerCanvas, rectElement: Rectangle;
+let windowElement: MarkerWindow,
+  canvasElement: MarkerCanvas,
+  rectElement: Rectangle;
 let drawListener: EventListener;
 let onDraw: () => void;
 let frame: number;
@@ -13,7 +15,7 @@ const framesPerTest = 10;
 let done: Promise<boolean>;
 
 beforeEach(async () => {
-  windowElement = document.createElement("m-window") as Window;
+  windowElement = document.createElement("m-window") as MarkerWindow;
   canvasElement = document.createElement("m-canvas") as MarkerCanvas;
   rectElement = document.createElement("m-rectangle") as Rectangle;
   windowElement.appendChild(canvasElement).appendChild(rectElement);

@@ -1,12 +1,14 @@
 import "../src/index";
-import { Window } from "../src/elements/window";
+import { MarkerWindow } from "../src/elements/window";
 import { Canvas as MarkerCanvas } from "../src/elements/canvas";
 import { Setting } from "../src/elements/setting";
 import { CanvasRenderingContext2D } from "canvas";
 import { wrapMethod } from "./base.test";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
-let windowElement: Window, canvasElement: MarkerCanvas, settingElement: Setting;
+let windowElement: MarkerWindow,
+  canvasElement: MarkerCanvas,
+  settingElement: Setting;
 let drawListener: EventListener;
 let frame: number;
 const framesPerTest = 1;
@@ -24,7 +26,7 @@ const line_width1 = 5;
 const line_width2 = 10;
 
 beforeEach(() => {
-  windowElement = document.createElement("m-window") as Window;
+  windowElement = document.createElement("m-window") as MarkerWindow;
   canvasElement = document.createElement("m-canvas") as MarkerCanvas;
   settingElement = document.createElement("m-setting") as Setting;
   windowElement.appendChild(canvasElement).appendChild(settingElement);

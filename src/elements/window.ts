@@ -1,6 +1,6 @@
 import { MarkerElement } from "./base";
 
-export class Window extends MarkerElement {
+export class MarkerWindow extends MarkerElement {
   constructor() {
     super();
     window.addEventListener("mousedown", (e) => {
@@ -21,17 +21,25 @@ export class Window extends MarkerElement {
       this.dispatchEvent(drawEvent);
       this.#previousFrameStartAt = this.#currentFrameStartAt;
       this.#currentFrameStartAt = performance.now();
+      this.#delta_time = this.#currentFrameStartAt - this.#previousFrameStartAt;
       this.draw(shadowDOM);
       this.#frame++;
       requestAnimationFrame(drawFrame);
     };
     requestAnimationFrame(drawFrame);
   }
+  #delta_time = 0;
+  get delta_time() {
+    return this.#delta_time;
+  }
   #frame = 0;
   #previousFrameStartAt = 0;
   #currentFrameStartAt = 0;
   get frame() {
     return this.#frame;
+  }
+  get frame_start() {
+    return this.#currentFrameStartAt;
   }
   #mouseDownAt = 0;
   #mouseUpAt = 0;
@@ -64,4 +72,4 @@ export class Window extends MarkerElement {
     return this;
   }
 }
-customElements.define("m-window", Window);
+customElements.define("m-window", MarkerWindow);
