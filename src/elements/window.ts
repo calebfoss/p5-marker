@@ -41,18 +41,16 @@ export class MarkerWindow extends MarkerElement {
   get frame_start() {
     return this.#currentFrameStartAt;
   }
-  #mouseDownAt = 0;
-  #mouseUpAt = 0;
-  #mouseMoveAt = 0;
+  #mouseDownAt = -1;
+  #mouseUpAt = -1;
+  #mouseMoveAt = -1;
   #mouse_x = 0;
   #mouse_y = 0;
   get mouse() {
     const down =
-      this.frame > 0 &&
       this.#mouseDownAt < this.#currentFrameStartAt &&
       this.#mouseDownAt >= this.#previousFrameStartAt;
     const up =
-      this.frame > 0 &&
       this.#mouseUpAt < this.#currentFrameStartAt &&
       this.#mouseUpAt >= this.#previousFrameStartAt;
     const held = this.#mouseUpAt < this.#mouseDownAt;
