@@ -1,6 +1,7 @@
+import { dimensions } from "../mixins/dimensions";
 import { MarkerElement } from "./base";
 
-export class MarkerWindow extends MarkerElement {
+export class MarkerWindow extends dimensions(MarkerElement) {
   constructor() {
     super();
     window.addEventListener("mousedown", (e) => {
