@@ -1,4 +1,4 @@
-import { Base, identity, createProperty } from "../elements/base";
+import { Base, createProperty } from "../elements/base";
 import { lex } from "./lexer";
 import { parse } from "./parser";
 

@@ -9,13 +9,38 @@
 </head>
 
 <body>
+
+
+
   <m-window>
-    <m-canvas>
-      <m-setting test="[['red', 'green'], ['blue']]" change.test[0][1]="'orange'">
-        <m-rectangle fill="test[0][1]"></m-rectangle>
-      </m-setting>
-    </m-canvas>
+    <m-svg><m-rectangle></m-rectangle></m-svg>
   </m-window>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    const windowElement = document.querySelector("m-window");
+    const canvasElement = document.querySelector("m-canvas");
+    const rectElement = document.querySelector("m-rectangle");
+
+    window.addEventListener("mousemove", (e) => {
+      rectElement.position.x = e.x;
+    })
+  </script>
 </body>
 
 </html>

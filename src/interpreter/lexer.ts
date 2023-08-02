@@ -1,35 +1,17 @@
-import { constants } from "../mixins/constants";
-
-const singleCharTokens = new Set("(),:?[]{}");
-export const tokenKind = {
-  number: "number",
-  property: "property",
-  member: "member",
-  boolean: "boolean",
-  additive: "additive",
-  multiplicative: "multiplicative",
-  not: "not",
-  comparison: "comparison",
-  equality: "equality",
-  string: "string",
-  constant: "constant",
-  logical: "logical",
-  until: "until",
-  end: "end",
-};
-
-const token = (
-  kind: string,
-  start: number,
-  end: number,
-  value: string
-): Token => ({
-  kind,
-  start,
-  end,
-  value,
-});
-export const endToken = token(tokenKind.end, -1, -1, "END");
+import {
+  Token,
+  ParenthesisValue,
+  SquareBracketValue,
+  AdditiveOperator,
+  MultiplicativeOperator,
+  NotValue,
+  ComparisonOperator,
+  EqualityOperator,
+  LogicalOperator,
+  IdentifierToken,
+  LiteralToken,
+  PunctuatorToken,
+} from "./languageTypes";
 
 export const lex = (str: string) => {
   const getTokens = (start = 0, tokens = [] as Token[]) => {
@@ -42,55 +24,107 @@ export const lex = (str: string) => {
       return getTokens(end, tokens);
     }
 
-    if (singleCharTokens.has(strFromStart[0])) {
+    const commaMatch = strFromStart[0] === ",";
+    if (commaMatch) {
       const end = start + 1;
-      const singleCharToken = token(
-        strFromStart[0],
+      const commaToken: PunctuatorToken<"comma"> = {
+        kind: "punctuator",
+        category: "comma",
         start,
         end,
-        strFromStart[0]
-      );
-      return getTokens(end, tokens.concat(singleCharToken));
+        value: ",",
+      };
+      return getTokens(end, tokens.concat(commaToken));
+    }
+
+    const parenthesisMatch = strFromStart.match(/^\(|\)/);
+    if (parenthesisMatch) {
+      const end = start + 1;
+      const parenthesisToken: PunctuatorToken<"parenthesis"> = {
+        kind: "punctuator",
+        category: "parenthesis",
+        start,
+        end,
+        value: parenthesisMatch[0] as ParenthesisValue,
+      };
+      return getTokens(end, tokens.concat(parenthesisToken));
+    }
+
+    const squareBracketMatch = strFromStart.match(/^\[|\]/);
+    if (squareBracketMatch) {
+      const end = start + 1;
+      const squareBracketToken: PunctuatorToken<"square_bracket"> = {
+        kind: "punctuator",
+        category: "square_bracket",
+        start,
+        end,
+        value: squareBracketMatch[0] as SquareBracketValue,
+      };
+      return getTokens(end, tokens.concat(squareBracketToken));
     }
 
     const numberMatch = strFromStart.match(/^\d+(?:\.\d+)?/);
+    const value = Number(numberMatch[0]);
+    if (Number.isNaN(value)) throw new Error(`${numberMatch} is not a number`);
     if (numberMatch) {
       const end = start + numberMatch[0].length;
-      const numberToken = token(tokenKind.number, start, end, numberMatch[0]);
+      const numberToken: LiteralToken<"number"> = {
+        kind: "literal",
+        type: "number",
+        start,
+        end,
+        raw: numberMatch[0],
+        value,
+      };
       return getTokens(end, tokens.concat(numberToken));
     }
     const additiveMatch = strFromStart.match(/^[+-]/);
     if (additiveMatch) {
       const end = start + additiveMatch[0].length;
-      const addToken = token(tokenKind.additive, start, end, additiveMatch[0]);
-      return getTokens(end, tokens.concat(addToken));
+      const additiveToken: PunctuatorToken<"additive"> = {
+        kind: "punctuator",
+        category: "additive",
+        start,
+        end,
+        value: additiveMatch[0] as AdditiveOperator,
+      };
+      return getTokens(end, tokens.concat(additiveToken));
     }
     const multiplicativeMatch = strFromStart.match(/^[*\/%]/);
     if (multiplicativeMatch) {
       const end = start + multiplicativeMatch[0].length;
-      const multiplicativeToken = token(
-        tokenKind.multiplicative,
+      const multiplicativeToken: PunctuatorToken<"multiplicative"> = {
+        kind: "punctuator",
+        category: "multiplicative",
         start,
         end,
-        multiplicativeMatch[0]
-      );
+        value: multiplicativeMatch[0] as MultiplicativeOperator,
+      };
       return getTokens(end, tokens.concat(multiplicativeToken));
     }
     const booleanMatch = strFromStart.match(/^(?:true|false)/);
     if (booleanMatch) {
       const end = start + booleanMatch[0].length;
-      const booleanToken = token(
-        tokenKind.boolean,
+      const booleanToken: LiteralToken<"boolean"> = {
+        kind: "literal",
         start,
         end,
-        booleanMatch[0]
-      );
+        raw: booleanMatch[0],
+        type: "boolean",
+        value: booleanMatch[0] === "true",
+      };
       return getTokens(end, tokens.concat(booleanToken));
     }
-    const notMatch = strFromStart.match(/^not/);
+    const notMatch = strFromStart.match(/^not|until/);
     if (notMatch) {
       const end = start + notMatch[0].length;
-      const notToken = token(tokenKind.not, start, end, notMatch[0]);
+      const notToken: PunctuatorToken<"not"> = {
+        kind: "punctuator",
+        category: "not",
+        start,
+        end,
+        value: notMatch[0] as NotValue,
+      };
       return getTokens(end, tokens.concat(notToken));
     }
     const comparisonMatch = strFromStart.match(
@@ -99,77 +133,64 @@ export const lex = (str: string) => {
     if (comparisonMatch) {
       const end = start + comparisonMatch[0].length;
       //  Remove "is" at beginning and replace multiple spaces with single
-      const val = comparisonMatch[0].replace(/is\s+/, "").replace(/\s+/g, " ");
-      const comparisonToken = token(tokenKind.comparison, start, end, val);
+      const operator = comparisonMatch[0]
+        .replace(/is\s+/, "")
+        .replace(/\s+/g, " ") as ComparisonOperator;
+      const comparisonToken: PunctuatorToken<"comparison"> = {
+        kind: "punctuator",
+        category: "comparison",
+        start,
+        end,
+        value: operator,
+      };
       return getTokens(end, tokens.concat(comparisonToken));
     }
     const equalityMatch = strFromStart.match(/^(?:is\s+not|is)/);
     if (equalityMatch) {
       const end = start + equalityMatch[0].length;
-      const equalityToken = token(
-        tokenKind.equality,
+      const equalityToken: PunctuatorToken<"equality"> = {
+        kind: "punctuator",
+        category: "equality",
         start,
         end,
-        equalityMatch[0]
-      );
+        value: equalityMatch[0] as EqualityOperator,
+      };
       return getTokens(end, tokens.concat(equalityToken));
     }
     const logicalMatch = strFromStart.match(/^(?:and|or)/);
     if (logicalMatch) {
       const end = start + logicalMatch[0].length;
-      const logicalToken = token(
-        tokenKind.logical,
+      const logicalToken: PunctuatorToken<"logical"> = {
+        kind: "punctuator",
+        category: "logical",
         start,
         end,
-        logicalMatch[0]
-      );
+        value: logicalMatch[0] as LogicalOperator,
+      };
       return getTokens(end, tokens.concat(logicalToken));
     }
-    const untilMatch = strFromStart.match(/^until/);
-    if (untilMatch) {
-      const end = start + untilMatch[0].length;
-      const untilToken = token(tokenKind.until, start, end, untilMatch[0]);
-      return getTokens(end, tokens.concat(untilToken));
-    }
-    const memberMatch = strFromStart.match(/^\.[a-zA-Z]\w*/);
-    if (memberMatch) {
-      const end = start + memberMatch[0].length;
-      const memberToken = token(
-        tokenKind.member,
+
+    const identifierMatch = strFromStart.match(/^[a-zA-Z]\w*/);
+    if (identifierMatch) {
+      const end = start + identifierMatch[0].length;
+      const identifierToken: IdentifierToken = {
+        kind: "identifier",
         start,
         end,
-        memberMatch[0].slice(1)
-      );
-      return getTokens(end, tokens.concat(memberToken));
-    }
-    const constantMatch = Object.entries(constants).find(
-      ([key]) => key === strFromStart.slice(0, key.length)
-    );
-    if (constantMatch) {
-      const end = start + constantMatch[0].length;
-      const constantToken = token(
-        tokenKind.constant,
-        start,
-        end,
-        constantMatch[1]
-      );
-      return getTokens(end, tokens.concat(constantToken));
-    }
-    const propertyMatch = strFromStart.match(/^[a-zA-Z]\w*/);
-    if (propertyMatch) {
-      const end = start + propertyMatch[0].length;
-      const propertyToken = token(
-        tokenKind.property,
-        start,
-        end,
-        propertyMatch[0]
-      );
-      return getTokens(end, tokens.concat(propertyToken));
+        value: identifierMatch[0],
+      };
+      return getTokens(end, tokens.concat(identifierToken));
     }
     const stringMatch = strFromStart.match(/^('|")((?:[^\\]|\\.)*?)\1/);
     if (stringMatch) {
       const end = start + stringMatch[0].length;
-      const stringToken = token(tokenKind.string, start, end, stringMatch[2]);
+      const stringToken: LiteralToken<"string"> = {
+        kind: "literal",
+        type: "string",
+        start,
+        end,
+        value: stringMatch[2],
+      };
       return getTokens(end, tokens.concat(stringToken));
     }
     console.error(`Unexpected token: ${strFromStart}`);

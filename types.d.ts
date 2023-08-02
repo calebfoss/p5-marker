@@ -1,10 +1,3 @@
-type Token = {
-  kind: string;
-  start: number;
-  end: number;
-  value: string;
-};
-
 type InterpreterAction = "get" | "change" | "each" | "repeat";
 
 type Property<T> = {
