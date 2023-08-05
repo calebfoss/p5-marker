@@ -1,5 +1,6 @@
 import { dimensions } from "../mixins/dimensions";
-import { MarkerElement, identity, createProperty } from "./base";
+import { defaultFill, defaultStroke } from "../mixins/style";
+import { MarkerElement } from "./base";
 import { MarkerSVG } from "./svg";
 
 export class Canvas extends dimensions(MarkerElement) {
@@ -7,7 +8,6 @@ export class Canvas extends dimensions(MarkerElement) {
   #context: CanvasRenderingContext2D;
   constructor() {
     super();
-    this.propertyManager.background = this.#background;
     this.#dom_element = document.createElement("canvas");
     const context = this.#dom_element.getContext("2d");
     if (context !== null) this.#context = context;
@@ -15,12 +15,12 @@ export class Canvas extends dimensions(MarkerElement) {
       this.onCanvasClicked(e.x, e.y, performance.now());
     });
   }
-  #background = createProperty(Canvas.gray(220));
+  #background = Canvas.gray(220);
   get background() {
-    return this.#background.get();
+    return this.#background;
   }
   set background(value) {
-    this.#background.set(value);
+    this.#background = value;
   }
   get canvas() {
     return this;
@@ -67,6 +67,8 @@ export class Canvas extends dimensions(MarkerElement) {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
+    context.fillStyle = defaultFill;
+    context.strokeStyle = defaultStroke;
     super.renderToCanvas(context);
   }
   renderToDOM(parentElement: Node) {

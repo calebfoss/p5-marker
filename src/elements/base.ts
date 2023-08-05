@@ -8,149 +8,35 @@ export const identity =
   () =>
     value;
 
-export const markerObject = <T extends object>(source: T): MarkerObject<T> => {
-  if ("propertyManager" in source) return source as MarkerObject<T>;
-  const output = { propertyManager: {} };
-  Object.entries(Object.getOwnPropertyDescriptors(source)).forEach(
-    ([key, { value, get, configurable }]) => {
-      if (!configurable) return;
-      const propertyObject: Property<any> | ObjectProperty<object> =
-        typeof value === "object"
-          ? createProperty(markerObject(value))
-          : createProperty(get || value);
-      Object.defineProperty(output, key, {
-        get() {
-          return propertyObject.get();
-        },
-        set(value) {
-          propertyObject.get = identity(value);
-          propertyObject.changed = true;
-        },
-      });
-      output.propertyManager[key] = propertyObject;
-    }
-  );
-  return output as MarkerObject<T>;
-};
+function deepProxy<O extends object>(obj: O): O {
+  return new Proxy(obj, {
+    get(target, propertyName) {
+      if (!(propertyName in target)) target[propertyName] = {};
+      return deepProxy(target[propertyName]);
+    },
+  });
+}
 
-export function createProperty<T>(get: () => T): Property<T>;
-export function createProperty<T extends object>(value: T): ObjectProperty<T>;
-export function createProperty<T>(value: T): Property<T>;
-export function createProperty<
-  P,
-  O extends object,
-  FP extends () => P,
-  FO extends () => O
->(argument: P | O | FP | FO) {
-  if (typeof argument === "function") {
-    const output = {
-      get: argument as FP,
-      changed: false,
-      set: (value: P) => {
-        output.get = identity(value) as FP;
-        output.changed = true;
-      },
-    };
-    return output;
+function deepAssign<O1 extends object, O2 extends object>(
+  target: O1,
+  source: O2
+) {
+  for (const [key, value] of Object.entries(source)) {
+    if (typeof value === "object") {
+      if (typeof target[key] === "undefined") target[key] = {};
+      deepAssign(target[key], source[key]);
+    } else target[key] = source[key];
   }
-  if (typeof argument !== "object") {
-    const output = {
-      get: identity(argument),
-      changed: false,
-      set: (value: P) => {
-        output.get = identity(value);
-        output.changed = true;
-      },
-    };
-    return output;
-  }
-  const output = {
-    object: markerObject(argument),
-    get: () => output.object,
-    get changed() {
-      for (const key of Object.keys(output.object.propertyManager)) {
-        if (output.object.propertyManager[key].changed) return true;
-      }
-      return false;
-    },
-    set changed(value) {
-      if (value)
-        for (const key of Object.keys(output.object.propertyManager)) {
-          output.object.propertyManager[key].changed = true;
-        }
-    },
-    set: (value: O) => {
-      output.object = markerObject(value);
-      output.changed = true;
-    },
-  };
-  return output;
 }
 
 export class Base extends HTMLElement {
+  #base_updaters: (() => void)[] = [];
+  #each_updaters: (() => void)[] = [];
+  #then_updaters: (() => void)[] = [];
   #count = 0;
   #frames_on = 0;
-  #getters: (() => void)[] = [];
-  #changers: (() => void)[] = [];
-  #eachModifiers: ((reset?: boolean) => void)[] = [];
   constructor(...args: any[]) {
     super();
-  }
-  addChange<T>(property: Property<T>, getValue: () => T): void;
-  addChange<T>(getProperty: () => Property<T>, getValue: () => T): void;
-  addChange<T>(arg1: Property<T> | (() => Property<T>), getValue: () => T) {
-    if (typeof arg1 === "function") {
-      const getProperty = arg1;
-      this.#changers.push(() => {
-        const prop = getProperty();
-        prop.get = identity(getValue());
-        prop.changed = true;
-      });
-    } else {
-      const property = arg1;
-      this.#changers.push(() => {
-        property.get = identity(getValue());
-        property.changed = true;
-      });
-    }
-  }
-  addEach<T>(property: Property<T>, getValue: () => T): void;
-  addEach<T>(getProperty: () => Property<T>, getValue: () => T): void;
-  addEach<T>(arg1, getValue: () => T) {
-    const [property, getProperty] =
-      typeof arg1 === "function" ? [arg1(), arg1] : [arg1, identity(arg1)];
-    let baseGet = property.get;
-    this.#eachModifiers.push((reset: boolean = false) => {
-      const prop = getProperty();
-      if (this.count === 0) {
-        baseGet = prop.get;
-        return;
-      }
-      prop.get = reset ? baseGet : identity(getValue());
-    });
-  }
-  addGetter<T extends object>(
-    property: ObjectProperty<T>,
-    getValue: () => T
-  ): void;
-  addGetter<T>(property: Property<T>, getValue: () => T): void;
-  addGetter<T extends object>(
-    getProperty: () => ObjectProperty<T>,
-    getValue: () => T
-  ): void;
-  addGetter<T>(getProperty: () => Property<T>, getValue: () => T): void;
-  addGetter<T>(arg1, getValue: () => T): void {
-    const getProperty = typeof arg1 === "function" ? arg1 : identity(arg1);
-    const setGetter = () => {
-      const prop = getProperty();
-      if (prop.changed) return;
-      if (typeof getValue() === "object") {
-        prop.object = getValue();
-        prop.get = () => prop.object;
-      } else prop.get = getValue;
-    };
-    setGetter();
-    this.#getters.push(setGetter);
   }
   assertType<T>(
     propertyName: string,
@@ -168,6 +54,11 @@ export class Base extends HTMLElement {
         )}`
       );
   }
+  #base_values: Partial<this> = {};
+  #base = deepProxy(this.#base_values);
+  get base() {
+    return this.#base;
+  }
   get canvas() {
     if (this.parentElement instanceof Base) return this.parentElement.canvas;
     return null;
@@ -175,13 +66,14 @@ export class Base extends HTMLElement {
   get count() {
     return this.#count;
   }
+  #render_frame = -1;
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
   draw(argument: Node | CanvasRenderingContext2D): void {
     if (this.on === false) return;
-    this.#count = 0;
-    for (const each of this.#eachModifiers) {
-      each();
+    if (this.#render_frame !== this.frame) {
+      this.#render_frame = this.frame;
+      this.#count = 0;
     }
     const render = (() => {
       if (argument instanceof CanvasRenderingContext2D)
@@ -194,12 +86,16 @@ export class Base extends HTMLElement {
         return () => this.renderToSVG(argument);
       if (argument instanceof Node) return () => this.renderToDOM(argument);
     })();
+    const initial_values = {};
+    for (const baseUpdater of this.#base_updaters) {
+      baseUpdater();
+    }
+    deepAssign(initial_values, this.#base_values);
+    deepAssign(initial_values, this.#previous_then_values);
+    deepAssign(this, initial_values);
     while (true) {
       render();
       this.#count++;
-      for (const each of this.#eachModifiers) {
-        each();
-      }
       if (!this.repeat) break;
       if (this.#count >= this.max_count) {
         console.warn(
@@ -207,17 +103,39 @@ export class Base extends HTMLElement {
         );
         break;
       }
-    }
-    for (const each of this.#eachModifiers) {
-      each(true);
-    }
-    for (const getter of this.#getters) {
-      getter();
-    }
-    for (const change of this.#changers) {
-      change();
+      for (const baseUpdater of this.#base_updaters) {
+        baseUpdater();
+      }
+      for (const eachUpdater of this.#each_updaters) {
+        eachUpdater();
+      }
+      if (this.#count === 1) {
+        const element = this;
+        function setInitialValue(target: object, source: object) {
+          for (const [key, value] of Object.entries(source)) {
+            if (typeof value === "object") {
+              if (typeof target[key] === "undefined") target[key] = {};
+              setInitialValue(target[key], source[key]);
+            } else if (!(key in target)) target[key] = element[key];
+          }
+        }
+        setInitialValue(initial_values, this.#each_values);
+      }
+      deepAssign(this, this.#base_values);
+      deepAssign(this, this.#each_values);
     }
     this.#frames_on++;
+    deepAssign(this, initial_values);
+    for (const thenUpdater of this.#then_updaters) {
+      thenUpdater();
+    }
+    deepAssign(this, this.#then_values);
+    deepAssign(this.#previous_then_values, this.#then_values);
+  }
+  #each_values: Partial<this> = {};
+  #each = deepProxy(this.#each_values);
+  get each() {
+    return this.#each;
   }
   get frame() {
     if (this.parentElement instanceof Base) return this.parentElement.frame;
@@ -228,28 +146,28 @@ export class Base extends HTMLElement {
   get frames_on() {
     return this.#frames_on;
   }
-  inherit<T>(propertyName: PropertyKey, defaultValue: T) {
+  inherit<K extends keyof this>(propertyName: K, defaultValue: this[K]) {
     if (!(this.parentElement instanceof Base)) return defaultValue;
     if (
       propertyName in this.parentElement &&
-      this.parentElement[propertyName] !== null
+      (this.parentElement as this)[propertyName] !== null
     )
-      return this.parentElement[propertyName];
-    return this.parentElement.inherit(propertyName, defaultValue);
+      return (this.parentElement as this)[propertyName];
+    return (this.parentElement as this).inherit(propertyName, defaultValue);
   }
-  #max_count = createProperty(10_000);
+  #max_count = 10_000;
   get max_count() {
-    return this.#max_count.get();
+    return this.#max_count;
   }
   set max_count(value) {
-    this.#max_count.set(value);
+    this.#max_count = value;
   }
-  #on = createProperty(true);
+  #on = true;
   get on() {
-    return this.#on.get();
+    return this.#on;
   }
   set on(value) {
-    this.#on.set(value);
+    this.#on = value;
   }
   onCanvasClicked(x: number, y: number, time: DOMHighResTimeStamp) {
     for (const child of this.children) {
@@ -300,40 +218,68 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.draw(groupElement);
     }
   }
-  styleSVGElement(groupElement: SVGElement) {}
-  #repeat = createProperty(false);
+  #repeat = { get: () => false };
   get repeat() {
     return this.#repeat.get();
   }
   set repeat(value) {
-    this.#repeat.set(value);
+    this.#repeat.get = identity(value);
   }
   setup() {
     for (const attribute of this.attributes) {
-      if (attribute.name !== "id") interpret(this, attribute);
+      if (attribute.name !== "id") {
+        try {
+          interpret(
+            this,
+            this.#base_updaters,
+            this.#each_updaters,
+            this.#then_updaters,
+            this.#repeat,
+            attribute
+          );
+        } catch (error) {
+          console.error(
+            `The following error occurred when interpreting ${this.tagName}'s ${attribute.name} attribute:`
+          );
+          console.error(error);
+        }
+      }
     }
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();
     }
   }
+  #canvas_style: Partial<CanvasRenderingContext2D> = {};
+  get canvas_style() {
+    return this.#canvas_style;
+  }
+  styleContext<K extends keyof CanvasRenderingContext2D>(
+    key: K,
+    value: CanvasRenderingContext2D[K]
+  ) {
+    this.#canvas_style[key] = value;
+  }
   styleDOMElement(element: Element) {}
+  styleSVGElement(groupElement: SVGElement) {}
   #svg_group: SVGGElement;
+  #then_values = {};
+  #previous_then_values = {};
+  #then: Partial<this> = deepProxy(this.#then_values);
+  get then() {
+    return this.#then;
+  }
+
   get window(): MarkerWindow {
     if (this.parentElement instanceof Base) return this.parentElement.window;
     throw new Error(
       `${this.tagName} tried to access its window property, but its parent is not a Marker element`
     );
   }
-  static xy(x: number, y?: number): MarkerObject<Vector> {
-    if (typeof y === "undefined") return markerObject({ x, y: x });
-    return markerObject({ x, y });
+  static xy(x: number, y?: number): Vector {
+    if (typeof y === "undefined") return { x, y: x };
+    return { x, y };
   }
-  propertyManager: PropertyManager<Base> = {
-    max_count: this.#max_count,
-    on: this.#on,
-    repeat: this.#repeat,
-  };
 }
 
 export class MarkerElement extends transform(color(Base)) {}

@@ -1,39 +1,59 @@
-import { Base, markerObject, createProperty } from "../elements/base";
+import { Base } from "../elements/base";
+
+type ContextMethods = Pick<
+  CanvasRenderingContext2D,
+  {
+    [Key in keyof CanvasRenderingContext2D]: CanvasRenderingContext2D[Key] extends Function
+      ? Key
+      : never;
+  }[keyof CanvasRenderingContext2D]
+>;
 
 export const transform = <T extends typeof Base>(baseClass: T) =>
   class TransformElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
-      this.propertyManager.anchor = this.#anchor;
-      this.propertyManager.angle = this.#angle;
-      this.propertyManager.scale = this.#scale;
+    }
+    #transformation_functions: ((context: CanvasRenderingContext2D) => void)[] =
+      [];
+    #addContextTransformation<MethodKey extends keyof ContextMethods>(
+      methodName: MethodKey,
+      ...args: Parameters<CanvasRenderingContext2D[MethodKey]>
+    ) {
+      const fn = (context: CanvasRenderingContext2D) => {
+        (context[methodName] as Function)(...args);
+      };
+      if (methodName === "translate")
+        this.#transformation_functions.unshift(fn);
+      else this.#transformation_functions.push(fn);
     }
     transformCanvas(context: CanvasRenderingContext2D): void {
-      context.translate(this.anchor.x, this.anchor.y);
-      context.rotate(this.angle);
-      context.scale(this.scale.x, this.scale.y);
+      while (this.#transformation_functions.length)
+        this.#transformation_functions.pop()(context);
     }
-    #anchor = createProperty(Base.xy(0, 0));
+    #anchor = Base.xy(0, 0);
     get anchor() {
-      return this.#anchor.get();
+      return this.#anchor;
     }
-    set anchor(argument: Vector) {
-      this.#anchor.object = markerObject(argument);
+    set anchor(value) {
+      this.#anchor = value;
+      this.#addContextTransformation("translate", value.x, value.y);
     }
-    #angle = createProperty(0);
+    #angle = 0;
     get angle() {
-      return this.#angle.get();
+      return this.#angle;
     }
     set angle(value) {
-      this.#angle.set(value);
+      this.#angle = value;
+      this.#addContextTransformation("rotate", value);
     }
-    declare propertyManager: PropertyManager<TransformElement>;
-    #scale = createProperty(Base.xy(1, 1));
+    #scale = Base.xy(1, 1);
     get scale() {
-      return this.#scale.get();
+      return this.#scale;
     }
     set scale(value) {
-      this.#scale.set(value);
+      this.#scale = value;
+      this.#addContextTransformation("scale", value.x, value.y);
     }
     styleDOMElement(element: HTMLElement): void {
       element.style.translate = `${this.anchor.x} ${this.anchor.y}`;

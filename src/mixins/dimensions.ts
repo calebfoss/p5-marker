@@ -1,27 +1,26 @@
-import { Base, createProperty } from "../elements/base";
+import { Base } from "../elements/base";
 
 export const dimensions = <T extends typeof Base>(baseClass: T) =>
   class DimensionElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
-      this.propertyManager.width = this.#width;
-      this.propertyManager.height = this.#height;
     }
-    #width = createProperty(() => this.inherit("width", window.innerWidth));
+    #width = null;
     get width() {
-      return this.#width.get();
+      if (this.#width !== null) return this.#width;
+      return this.inherit("width", window.innerWidth);
     }
     set width(value) {
-      this.#width.set(value);
+      this.#width = value;
     }
-    #height = createProperty(() => this.inherit("height", window.innerHeight));
+    #height = null;
     get height() {
-      return this.#height.get();
+      if (this.#height !== null) return this.#height;
+      return this.inherit("height", window.innerHeight);
     }
     set height(value) {
-      this.#height.set(value);
+      this.#height = value;
     }
-    declare propertyManager: PropertyManager<DimensionElement>;
     renderToSVG(parentElement: SVGElement, element?: SVGElement): void {
       if (typeof element !== "undefined") {
         element.style.width = `${this.width}px`;

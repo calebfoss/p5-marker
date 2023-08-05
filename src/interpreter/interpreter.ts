@@ -1,35 +1,57 @@
-import { Base, createProperty } from "../elements/base";
+import { Base } from "../elements/base";
 import { lex } from "./lexer";
-import { parse } from "./parser";
+import { parseAttribute, parseExpression } from "./parser";
+import { IdentifierToken } from "./tokens";
 
-export const interpret = (element: Base, attribute: Attr): void => {
+export const interpret = (
+  element: Base,
+  base_updaters: (() => void)[],
+  each_updaters: (() => void)[],
+  then_updaters: (() => void)[],
+  repeat_getter: { get: () => boolean },
+  attribute: Attr
+) => {
   const nameTokens = lex(attribute.name);
   const valTokens = lex(attribute.value);
-  const [action, getProperty, getValue] = parse(
-    element,
-    attribute.name,
-    nameTokens,
-    valTokens
-  );
-  switch (action) {
-    case "change":
-      element.addChange(getProperty, getValue);
-      break;
-    case "each":
-      element.addEach(getProperty, getValue);
-      break;
-    default:
-      const [firstNameToken] = nameTokens;
-      const propertyName = firstNameToken.value;
-      if (!(propertyName in element)) {
-        element.propertyManager[propertyName] = createProperty(undefined);
-        Object.defineProperty(element, propertyName, {
-          get: () => element.propertyManager[propertyName].get(),
-          set: (value) => {
-            element.propertyManager[propertyName].set(value);
-          },
-        });
-      }
-      element.addGetter(getProperty, getValue);
+  const [firstNameToken] = nameTokens;
+  if (!(firstNameToken instanceof IdentifierToken))
+    throw new Error(`Attribute name must begin with property identifier`);
+  if (firstNameToken.value === "repeat") {
+    const getRepeatValue = parseExpression(
+      () => element,
+      valTokens
+    ) as () => boolean;
+    repeat_getter.get = getRepeatValue;
+  } else if (
+    firstNameToken.value === "each" ||
+    firstNameToken.value === "then"
+  ) {
+    const [getOwner, getPropertyKey, getValue] = parseAttribute(
+      nameTokens,
+      valTokens,
+      element,
+      element
+    );
+    const updater = () => {
+      getOwner()[getPropertyKey()] = getValue();
+    };
+    if (firstNameToken.value === "each") {
+      each_updaters.push(updater);
+      return;
+    }
+    then_updaters.push(updater);
+    return;
+  } else {
+    const [getOwner, getPropertyKey, getValue] = parseAttribute(
+      nameTokens,
+      valTokens,
+      element.parent,
+      element.base
+    );
+    const updater = () => {
+      getOwner()[getPropertyKey()] = getValue();
+    };
+    base_updaters.push(updater);
+    return;
   }
 };

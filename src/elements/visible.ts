@@ -1,17 +1,16 @@
-import { MarkerElement, createProperty } from "./base";
+import { MarkerElement } from "./base";
 
 export class VisibleElement extends MarkerElement {
   constructor(...args: any[]) {
     super(...args);
-    this.propertyManager.visible = this.#visible;
   }
-  declare propertyManager: PropertyManager<VisibleElement>;
-  #visible = createProperty(() => this.inherit("visible", true));
+  #visible: boolean = null;
   get visible() {
-    return this.#visible.get();
+    if (this.#visible !== null) return this.#visible;
+    return this.inherit("visible", true);
   }
   set visible(value) {
-    this.#visible.set(value);
+    this.#visible = value;
   }
   styleDOMElement(element: HTMLElement): void {
     element.style.display = this.visible ? "unset" : "none";

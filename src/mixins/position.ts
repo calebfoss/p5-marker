@@ -1,29 +1,38 @@
-import { Base, createProperty } from "../elements/base";
+import { Base } from "../elements/base";
+
+const origin = Base.xy(0, 0);
 
 export const position = <T extends typeof Base>(baseClass: T) =>
   class PositionElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
-      this.propertyManager.position = this.#position;
     }
-    #position = (() => {
-      const element = this;
-      return createProperty<Vector>({
-        get x(): number {
-          return element.inherit("position", Base.xy(0, 0)).x;
-        },
-        get y(): number {
-          return element.inherit("position", Base.xy(0, 0)).y;
-        },
-      });
-    })();
+    #position = Base.xy(null, null);
     get position(): Vector {
-      const pos = this.#position.get();
-      return pos;
+      const value = this.#position;
+      if (value.x !== null && value.y !== null) return value;
+      const element = this;
+      return {
+        get x() {
+          return value.x === null
+            ? element.inherit("position", origin).x
+            : value.x;
+        },
+        set x(value) {
+          element.#position.x = value;
+        },
+        get y() {
+          return value.y !== null
+            ? value.y
+            : element.inherit("position", origin).y;
+        },
+        set y(value) {
+          element.#position.y = value;
+        },
+      };
     }
-    declare propertyManager: PropertyManager<PositionElement>;
     set position(value) {
-      this.#position.set(value);
+      this.#position = value;
     }
     styleDOMElement(element: HTMLElement): void {
       element.style.position = "absolute";

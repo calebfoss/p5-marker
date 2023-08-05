@@ -1,23 +1,24 @@
-import { createProperty } from "../elements/base";
-import { VisibleElement } from "../elements/visible";
+import { MarkerElement } from "../elements/base";
 
-export const fill = <T extends typeof VisibleElement>(baseClass: T) =>
+export const defaultFill = MarkerElement.gray(255);
+export const defaultStroke = MarkerElement.gray(0);
+
+export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
   class FillElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
-      this.propertyManager.fill = this.#fill;
     }
-    #fill = createProperty(() => this.inherit("fill", "#ffffff"));
+    #fill: string = null;
     get fill(): string {
-      return this.#fill.get();
+      if (this.#fill !== null) return this.#fill;
+      return this.inherit("fill", "#ffffff");
     }
     set fill(value) {
-      this.#fill.set(value);
+      this.#fill = value;
+      this.styleContext("fillStyle", value);
     }
-    declare propertyManager: PropertyManager<FillElement>;
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.fill !== "none") {
-        context.fillStyle = this.fill;
         context.fill();
       }
       super.renderToCanvas(context);
@@ -32,53 +33,51 @@ export const fill = <T extends typeof VisibleElement>(baseClass: T) =>
     }
   };
 
-export const stroke = <T extends typeof VisibleElement>(baseClass: T) =>
+export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
   class StrokeElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
-      this.propertyManager.line_width = this.#line_width;
-      this.propertyManager.line_cap = this.#line_cap;
-      this.propertyManager.line_join = this.#line_join;
-      this.propertyManager.stroke = this.#stroke;
     }
-    #line_cap = createProperty(() => this.inherit("line_cap", "butt"));
+    #line_cap: CanvasLineCap = null;
     get line_cap(): CanvasLineCap {
-      return this.#line_cap.get();
+      if (this.#line_cap !== null) return this.#line_cap;
+      return this.inherit("line_cap", "butt");
     }
     set line_cap(value) {
-      this.#line_cap.set(value);
+      this.#line_cap = value;
+      this.styleContext("lineCap", value);
     }
-    #line_join = createProperty(() => this.inherit("line_join", "miter"));
+    #line_join: CanvasLineJoin = null;
     get line_join(): CanvasLineJoin {
-      return this.#line_join.get();
+      if (this.#line_join !== null) return this.#line_join;
+      return this.inherit("line_join", "miter");
     }
     set line_join(value) {
-      this.#line_join.set(value);
+      this.#line_join = value;
+      this.styleContext("lineJoin", value);
     }
-    #line_width = createProperty(() => this.inherit("line_width", 1.0));
+    #line_width: number = null;
     get line_width(): number {
-      return this.#line_width.get();
+      if (this.#line_width !== null) return this.#line_width;
+      return this.inherit("line_width", 1.0);
     }
     set line_width(value) {
-      this.#line_width.set(value);
+      this.#line_width = value;
+      this.styleContext("lineWidth", value);
     }
-    declare propertyManager: PropertyManager<StrokeElement>;
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.stroke !== "none") {
-        context.lineCap = this.line_cap || context.lineCap;
-        context.lineJoin = this.line_join || context.lineJoin;
-        context.lineWidth = this.line_width || context.lineWidth;
-        context.strokeStyle = this.stroke || context.strokeStyle;
         context.stroke();
       }
       super.renderToCanvas(context);
     }
-    #stroke = createProperty(() => this.inherit("stroke", "#000000"));
+    #stroke: string = null;
     get stroke(): string {
-      return this.#stroke.get();
+      if (this.#stroke !== null) return this.#stroke;
+      return this.inherit("stroke", "#000000");
     }
     set stroke(value) {
-      this.#stroke.set(value);
+      this.#stroke = value;
     }
     styleDOMElement(element: HTMLElement): void {
       if (this.stroke === "none") element.style.outline = "none";

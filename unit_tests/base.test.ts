@@ -99,45 +99,6 @@ test("change", async () => {
   await done;
 });
 
-test("addChange", async () => {
-  settingElement.addChange(
-    settingElement.propertyManager.position.object.propertyManager.x,
-    () => settingElement.position.x + 1
-  );
-  onDraw = () => {
-    expect(settingElement.position.x).toBe(frame);
-  };
-  windowElement.setup();
-  await done;
-});
-
-test("addEach", async () => {
-  settingElement.addEach(
-    settingElement.propertyManager.angle,
-    () => settingElement.angle + 1
-  );
-  let calls: number;
-  onDraw = () => {
-    calls = 0;
-  };
-  wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
-    expect(settingElement.angle).toBe(calls);
-    calls++;
-    baseRender(context);
-  });
-  windowElement.setup();
-  await done;
-});
-
-test("addGetter", async () => {
-  settingElement.addGetter(settingElement.propertyManager.width, () => frame);
-  onDraw = () => {
-    expect(settingElement.width).toBe(frame);
-  };
-  windowElement.setup();
-  await done;
-});
-
 test("assert type", () => {
   expect(() => settingElement.assertType("test", 1, "number")).not.toThrow();
   expect(() => settingElement.assertType("test", 1, "boolean")).toThrow();
@@ -179,8 +140,8 @@ test("inherit", async () => {
   canvasElement.setAttribute("test", value.toString());
   windowElement.setup();
   await done;
-  expect(settingElement.inherit("test", 0)).toBe(value);
-  expect(settingElement.inherit("nonexistent", 0)).toBe(0);
+  expect(settingElement.inherit("test" as any, 0)).toBe(value);
+  expect(settingElement.inherit("nonexistent" as any, 0)).toBe(0);
 });
 
 test("max_count", async () => {
