@@ -1,5 +1,6 @@
 import { interpret } from "../interpreter/interpreter";
 import { color } from "../mixins/color";
+import { constants } from "../mixins/constants";
 import { transform } from "../mixins/transform";
 import { MarkerWindow } from "./window";
 
@@ -283,4 +284,4 @@ export class Base extends HTMLElement {
   }
 }
 
-export class MarkerElement extends transform(color(Base)) {}
+export class MarkerElement extends transform(color(constants(Base))) {}
