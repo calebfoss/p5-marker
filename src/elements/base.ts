@@ -102,22 +102,26 @@ export class Base extends HTMLElement {
     return this.#count;
   }
   #render_frame = -1;
+  #nextValues: Partial<this> = {};
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
   draw(argument: Node | CanvasRenderingContext2D): void {
     if (this.on === false) return;
-    if (this.#render_frame !== this.frame) {
-      this.#render_frame = this.frame;
-      this.#count = 0;
-    }
     for (const updater of this.#updaters) {
       updater();
     }
-    if (this.#render_frame === 0 && this.#count === 0) {
+    if (this.#render_frame !== this.frame) {
+      this.#render_frame = this.frame;
+      this.#count = 0;
+      deepEvaluateAndAssign(
+        this.#nextValues,
+        this.#getBaseValues,
+        this.#getThenValues
+      );
+    } else {
       deepEvaluateAndAssign(this, this.#getBaseValues);
     }
-    const nextValues: Partial<this> = {};
-    deepEvaluateAndAssign(nextValues, this.#getBaseValues, this.#getThenValues);
+
     const render = (() => {
       if (argument instanceof CanvasRenderingContext2D)
         return () => {
@@ -141,7 +145,7 @@ export class Base extends HTMLElement {
       }
       deepEvaluateAndAssign(this, this.#getEachValues);
     }
-    deepAssign(this, nextValues);
+    deepAssign(this, this.#nextValues);
     this.#frames_on++;
   }
   #each = deepProxy(this.#getEachValues);
@@ -244,6 +248,7 @@ export class Base extends HTMLElement {
         console.error(error);
       }
     }
+    deepEvaluateAndAssign(this, this.#getBaseValues);
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();
