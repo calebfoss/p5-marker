@@ -64,6 +64,20 @@ function deepEvaluateAndAssign<O extends object>(
     }
   }
 }
+function updateIfNotIn<O extends object>(
+  target: O,
+  source: GettersFor<O>,
+  exclude: GettersFor<O>
+) {
+  for (const [key, value] of Object.entries(source)) {
+    const excludeKey = typeof exclude[key] === "undefined";
+    if (typeof value === "object") {
+      updateIfNotIn(target[key], value, excludeKey ? {} : exclude[key]);
+    } else if (typeof value === "function") {
+      if (excludeKey) target[key] = value();
+    } else throw new Error(`Unexpected value for ${key}: ${value}`);
+  }
+}
 
 export class Base extends HTMLElement {
   #updaters: (() => void)[] = [];
@@ -104,6 +118,7 @@ export class Base extends HTMLElement {
   }
   #render_frame = -1;
   #nextValues: Partial<this> = {};
+  #preIterationValues: Partial<this> = {};
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
   draw(argument: Node | CanvasRenderingContext2D): void {
@@ -114,15 +129,17 @@ export class Base extends HTMLElement {
     if (this.#render_frame !== this.frame) {
       this.#render_frame = this.frame;
       this.#count = 0;
+      deepAssign(this, this.#nextValues);
+      deepAssign(this.#preIterationValues, this.#nextValues);
       deepEvaluateAndAssign(
         this.#nextValues,
         this.#getBaseValues,
         this.#getThenValues
       );
     } else {
-      deepEvaluateAndAssign(this, this.#getBaseValues);
+      deepAssign(this, this.#preIterationValues);
+      updateIfNotIn(this, this.#getBaseValues, this.#getThenValues);
     }
-
     const render = (() => {
       if (argument instanceof CanvasRenderingContext2D)
         return () => {
@@ -146,7 +163,6 @@ export class Base extends HTMLElement {
       }
       deepEvaluateAndAssign(this, this.#getEachValues);
     }
-    deepAssign(this, this.#nextValues);
     this.#frames_on++;
   }
   #each = deepProxy(this.#getEachValues);
@@ -249,7 +265,7 @@ export class Base extends HTMLElement {
         console.error(error);
       }
     }
-    deepEvaluateAndAssign(this, this.#getBaseValues);
+    deepEvaluateAndAssign(this.#nextValues, this.#getBaseValues);
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();
