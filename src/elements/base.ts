@@ -17,10 +17,11 @@ function deepProxy<O extends object>(obj: O): O {
   });
 }
 
-function deepAssign<O1 extends object, O2 extends object>(
-  target: O1,
-  source: O2
-) {
+export type GettersFor<O extends object> = {
+  [K in keyof O]?: O[K] extends object ? GettersFor<O[K]> : () => O[K];
+};
+
+function deepAssign(target: object, source: GettersFor<object>) {
   for (const [key, value] of Object.entries(source)) {
     if (typeof value === "object") {
       if (typeof target[key] === "undefined") target[key] = {};
@@ -28,11 +29,46 @@ function deepAssign<O1 extends object, O2 extends object>(
     } else target[key] = source[key];
   }
 }
+function deepEvaluateAndAssign<O extends object>(
+  target: O,
+  ...sources: GettersFor<O>[]
+) {
+  for (
+    let sourceIndexA = sources.length - 1;
+    sourceIndexA >= 0;
+    sourceIndexA--
+  ) {
+    const sourceA = sources[sourceIndexA];
+    for (const [key, value] of Object.entries(sourceA)) {
+      if (typeof value === "object") {
+        if (typeof target[key] === "undefined") target[key] = {};
+        deepEvaluateAndAssign(
+          target[key],
+          ...sources
+            .slice(sourceIndexA)
+            .filter((s) => typeof s[key] !== "undefined")
+            .map((s) => s[key])
+        );
+      } else {
+        for (
+          let sourceIndexB = sources.length - 1;
+          sourceIndexB >= sourceIndexA;
+          sourceIndexB--
+        ) {
+          if (sourceIndexB === sourceIndexA) {
+            target[key] = sourceA[key]();
+          } else if (typeof sources[sourceIndexB][key] !== "undefined") break;
+        }
+      }
+    }
+  }
+}
 
 export class Base extends HTMLElement {
-  #base_updaters: (() => void)[] = [];
-  #each_updaters: (() => void)[] = [];
-  #then_updaters: (() => void)[] = [];
+  #updaters: (() => void)[] = [];
+  #getBaseValues: GettersFor<this> = {};
+  #getEachValues: GettersFor<this> = {};
+  #getThenValues: GettersFor<this> = {};
   #count = 0;
   #frames_on = 0;
   constructor(...args: any[]) {
@@ -54,8 +90,7 @@ export class Base extends HTMLElement {
         )}`
       );
   }
-  #base_values: Partial<this> = {};
-  #base = deepProxy(this.#base_values);
+  #base = deepProxy(this.#getBaseValues);
   get base() {
     return this.#base;
   }
@@ -75,6 +110,14 @@ export class Base extends HTMLElement {
       this.#render_frame = this.frame;
       this.#count = 0;
     }
+    for (const updater of this.#updaters) {
+      updater();
+    }
+    if (this.#render_frame === 0 && this.#count === 0) {
+      deepEvaluateAndAssign(this, this.#getBaseValues);
+    }
+    const nextValues: Partial<this> = {};
+    deepEvaluateAndAssign(nextValues, this.#getBaseValues, this.#getThenValues);
     const render = (() => {
       if (argument instanceof CanvasRenderingContext2D)
         return () => {
@@ -86,13 +129,6 @@ export class Base extends HTMLElement {
         return () => this.renderToSVG(argument);
       if (argument instanceof Node) return () => this.renderToDOM(argument);
     })();
-    const initial_values = {};
-    for (const baseUpdater of this.#base_updaters) {
-      baseUpdater();
-    }
-    deepAssign(initial_values, this.#base_values);
-    deepAssign(initial_values, this.#previous_then_values);
-    deepAssign(this, initial_values);
     while (true) {
       render();
       this.#count++;
@@ -103,37 +139,12 @@ export class Base extends HTMLElement {
         );
         break;
       }
-      for (const baseUpdater of this.#base_updaters) {
-        baseUpdater();
-      }
-      for (const eachUpdater of this.#each_updaters) {
-        eachUpdater();
-      }
-      if (this.#count === 1) {
-        const element = this;
-        function setInitialValue(target: object, source: object) {
-          for (const [key, value] of Object.entries(source)) {
-            if (typeof value === "object") {
-              if (typeof target[key] === "undefined") target[key] = {};
-              setInitialValue(target[key], source[key]);
-            } else if (!(key in target)) target[key] = element[key];
-          }
-        }
-        setInitialValue(initial_values, this.#each_values);
-      }
-      deepAssign(this, this.#base_values);
-      deepAssign(this, this.#each_values);
+      deepEvaluateAndAssign(this, this.#getEachValues);
     }
+    deepAssign(this, nextValues);
     this.#frames_on++;
-    deepAssign(this, initial_values);
-    for (const thenUpdater of this.#then_updaters) {
-      thenUpdater();
-    }
-    deepAssign(this, this.#then_values);
-    deepAssign(this.#previous_then_values, this.#then_values);
   }
-  #each_values: Partial<this> = {};
-  #each = deepProxy(this.#each_values);
+  #each = deepProxy(this.#getEachValues);
   get each() {
     return this.#each;
   }
@@ -147,13 +158,9 @@ export class Base extends HTMLElement {
     return this.#frames_on;
   }
   inherit<K extends keyof this>(propertyName: K, defaultValue: this[K]) {
-    if (!(this.parentElement instanceof Base)) return defaultValue;
-    if (
-      propertyName in this.parentElement &&
-      (this.parentElement as this)[propertyName] !== null
-    )
+    if (propertyName in this.parentElement)
       return (this.parentElement as this)[propertyName];
-    return (this.parentElement as this).inherit(propertyName, defaultValue);
+    return defaultValue;
   }
   #max_count = 10_000;
   get max_count() {
@@ -218,31 +225,23 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.draw(groupElement);
     }
   }
-  #repeat = { get: () => false };
+  #getRepeat = () => false;
   get repeat() {
-    return this.#repeat.get();
+    return this.#getRepeat();
   }
   set repeat(value) {
-    this.#repeat.get = identity(value);
+    if (typeof value === "function") this.#getRepeat = value;
+    else this.#getRepeat = identity(value);
   }
   setup() {
     for (const attribute of this.attributes) {
-      if (attribute.name !== "id") {
-        try {
-          interpret(
-            this,
-            this.#base_updaters,
-            this.#each_updaters,
-            this.#then_updaters,
-            this.#repeat,
-            attribute
-          );
-        } catch (error) {
-          console.error(
-            `The following error occurred when interpreting ${this.tagName}'s ${attribute.name} attribute:`
-          );
-          console.error(error);
-        }
+      try {
+        interpret(this, this.#updaters, attribute);
+      } catch (error) {
+        console.error(
+          `The following error occurred when interpreting ${this.tagName}'s ${attribute.name} attribute:`
+        );
+        console.error(error);
       }
     }
     this.dispatchEvent(new Event("setup"));
@@ -263,13 +262,10 @@ export class Base extends HTMLElement {
   styleDOMElement(element: Element) {}
   styleSVGElement(groupElement: SVGElement) {}
   #svg_group: SVGGElement;
-  #then_values = {};
-  #previous_then_values = {};
-  #then: Partial<this> = deepProxy(this.#then_values);
+  #then = deepProxy(this.#getThenValues);
   get then() {
     return this.#then;
   }
-
   get window(): MarkerWindow {
     if (this.parentElement instanceof Base) return this.parentElement.window;
     throw new Error(

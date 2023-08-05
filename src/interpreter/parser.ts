@@ -445,13 +445,13 @@ function parseAttributeName(
 export function parseAttribute(
   nameTokens: Tokens,
   valueTokens: Tokens,
-  referenceObject: object,
-  assignmentObject: object
+  nameReference: object,
+  valueReference: object
 ): [() => object, () => PropertyKey, () => any] {
   const [getOwner, getPropertyKey] = parseAttributeName(
-    identity(assignmentObject),
+    identity(nameReference),
     nameTokens
   );
-  const getValue = parseExpression(identity(referenceObject), valueTokens);
+  const getValue = parseExpression(identity(valueReference), valueTokens);
   return [getOwner, getPropertyKey, getValue];
 }
