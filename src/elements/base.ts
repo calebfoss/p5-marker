@@ -1,6 +1,7 @@
 import { interpret } from "../interpreter/interpreter";
 import { color } from "../mixins/color";
 import { constants } from "../mixins/constants";
+import { random } from "../mixins/random";
 import { transform } from "../mixins/transform";
 import { MarkerWindow } from "./window";
 
@@ -25,8 +26,9 @@ export type GettersFor<O extends object> = {
 function deepAssign(target: object, source: GettersFor<object>) {
   for (const [key, value] of Object.entries(source)) {
     if (typeof value === "object") {
-      if (typeof target[key] === "undefined") target[key] = {};
-      deepAssign(target[key], source[key]);
+      if (typeof target[key] === "undefined")
+        target[key] = Array.isArray(value) ? [] : {};
+      deepAssign(target[key], value);
     } else target[key] = source[key];
   }
 }
@@ -42,7 +44,8 @@ function deepEvaluateAndAssign<O extends object>(
     const sourceA = sources[sourceIndexA];
     for (const [key, value] of Object.entries(sourceA)) {
       if (typeof value === "object") {
-        if (typeof target[key] === "undefined") target[key] = {};
+        if (typeof target[key] === "undefined")
+          target[key] = Array.isArray(value) ? [] : {};
         deepEvaluateAndAssign(
           target[key],
           ...sources
@@ -269,6 +272,7 @@ export class Base extends HTMLElement {
       updater();
     }
     deepEvaluateAndAssign(this.#nextValues, this.#getBaseValues);
+    deepAssign(this, this.#nextValues);
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();
@@ -303,4 +307,4 @@ export class Base extends HTMLElement {
   }
 }
 
-export class MarkerElement extends transform(color(constants(Base))) {}
+export class MarkerElement extends transform(color(random(constants(Base)))) {}
