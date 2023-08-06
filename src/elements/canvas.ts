@@ -63,7 +63,7 @@ export class Canvas extends dimensions(MarkerElement) {
       canvas.height = this.height;
       Object.assign(context, contextCopy);
     }
-    if (this.background !== null) {
+    if (this.background !== Canvas.NONE) {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
