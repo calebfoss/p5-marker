@@ -9,6 +9,7 @@ export class Setting extends position(
 ) {
   renderToCanvas(context: CanvasRenderingContext2D): void;
   renderToCanvas(context: CanvasRenderingContext2D): void {
+    this.transformCanvas(context);
     for (const child of this.children) {
       if (child instanceof MarkerElement) child.draw(context);
     }
