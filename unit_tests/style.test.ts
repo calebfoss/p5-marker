@@ -51,12 +51,14 @@ afterEach(() => {
 
 test("fill - canvas", async () => {
   settingElement.setAttribute("fill", `'${fill1}'`);
+  let renderFill: string | CanvasGradient | CanvasPattern;
   wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
     baseRender(context);
-    expect(context.fillStyle).toBe(fill1);
+    renderFill = context.fillStyle;
   });
   windowElement.setup();
   await done;
+  expect(renderFill).toBe(fill1);
   settingElement.fill = fill2;
   expect(settingElement.fill).toBe(fill2);
 });
@@ -81,15 +83,23 @@ test("stroke - canvas", async () => {
   settingElement.setAttribute("line_cap", `'${line_cap1}'`);
   settingElement.setAttribute("line_join", `'${line_join1}'`);
   settingElement.setAttribute("line_width", line_width1.toString());
+  let renderStrokeStyle: string | CanvasGradient | CanvasPattern,
+    renderLineCap: CanvasLineCap,
+    renderLineJoin: CanvasLineJoin,
+    renderLineWidth: number;
   wrapMethod(settingElement, "renderToCanvas", (baseRender) => (context) => {
     baseRender(context);
-    expect(context.strokeStyle).toBe(stroke1);
-    expect(context.lineCap).toBe(line_cap1);
-    expect(context.lineJoin).toBe(line_join1);
-    expect(context.lineWidth).toBe(line_width1);
+    renderStrokeStyle = context.strokeStyle;
+    renderLineCap = context.lineCap;
+    renderLineJoin = context.lineJoin;
+    renderLineWidth = context.lineWidth;
   });
   windowElement.setup();
   await done;
+  expect(renderStrokeStyle).toBe(stroke1);
+  expect(renderLineCap).toBe(line_cap1);
+  expect(renderLineJoin).toBe(line_join1);
+  expect(renderLineWidth).toBe(line_width1);
   settingElement.stroke = stroke2;
   settingElement.line_cap = line_cap2;
   settingElement.line_join = line_join2;

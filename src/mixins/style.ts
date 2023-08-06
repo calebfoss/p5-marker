@@ -15,7 +15,7 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
     }
     set fill(value) {
       this.#fill = value;
-      this.styleContext("fillStyle", value);
+      this.setContextProperty("fillStyle", value);
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.fill !== "none") {
@@ -45,7 +45,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     }
     set line_cap(value) {
       this.#line_cap = value;
-      this.styleContext("lineCap", value);
+      this.setContextProperty("lineCap", value);
     }
     #line_join: CanvasLineJoin = null;
     get line_join(): CanvasLineJoin {
@@ -54,7 +54,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     }
     set line_join(value) {
       this.#line_join = value;
-      this.styleContext("lineJoin", value);
+      this.setContextProperty("lineJoin", value);
     }
     #line_width: number = null;
     get line_width(): number {
@@ -63,7 +63,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     }
     set line_width(value) {
       this.#line_width = value;
-      this.styleContext("lineWidth", value);
+      this.setContextProperty("lineWidth", value);
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.stroke !== "none") {
@@ -78,6 +78,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     }
     set stroke(value) {
       this.#stroke = value;
+      this.setContextProperty("strokeStyle", value);
     }
     styleDOMElement(element: HTMLElement): void {
       if (this.stroke === "none") element.style.outline = "none";

@@ -10,11 +10,11 @@ export class Rectangle extends position(
 ) {
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transformCanvas(context);
-    Object.assign(context, this.canvas_style);
     if (this.visible) {
       context.rect(this.position.x, this.position.y, this.width, this.height);
       this.checkClick(context);
     }
+    this.styleContext(context);
     super.renderToCanvas(context);
   }
   #DOM_Element: HTMLElement;

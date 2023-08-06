@@ -17,9 +17,7 @@ export class MarkerWindow extends dimensions(MarkerElement) {
     });
     window.addEventListener("customElementsDefined", () => this.setup());
     const shadowDOM = this.attachShadow({ mode: "open" });
-    const drawEvent = new Event("draw");
     const drawFrame = () => {
-      this.dispatchEvent(drawEvent);
       this.#previousFrameStartAt = this.#currentFrameStartAt;
       this.#currentFrameStartAt = performance.now();
       this.#delta_time = this.#currentFrameStartAt - this.#previousFrameStartAt;

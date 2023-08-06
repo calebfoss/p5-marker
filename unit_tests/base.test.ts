@@ -42,7 +42,10 @@ beforeEach(() => {
       onDraw();
       expect(windowElement.frame).toBe(frame);
       frame++;
-      if (frame === framesPerTest) resolve(true);
+      if (frame >= framesPerTest) {
+        resolve(frame === framesPerTest - 1);
+        windowElement.removeEventListener("draw", drawListener);
+      }
     };
     windowElement.addEventListener("draw", drawListener);
   });
@@ -62,22 +65,33 @@ test("create elements", () => {
   expect(settingElement).not.toBe(null);
 });
 
-test("getter", async () => {
+test("get value from parent", async () => {
+  canvasElement.setAttribute("angle", "frame");
   settingElement.setAttribute("position.y", "angle");
-  onDraw = () => {
-    canvasElement.angle = frame;
-    expect(settingElement.position.y).toBe(frame);
-  };
+  const angles: number[] = [];
+  const y_positions: number[] = [];
+  canvasElement.addEventListener("draw", () => {
+    angles[windowElement.frame] = canvasElement.angle;
+  });
+  settingElement.addEventListener("draw", () => {
+    y_positions[windowElement.frame] = settingElement.position.y;
+  });
   windowElement.setup();
   await done;
+  expect(angles.length).toBe(y_positions.length);
+  expect(angles.length).toBe(framesPerTest);
+  for (let i = 0; i < y_positions.length; i++) {
+    expect(y_positions[i]).toBe(angles[i]);
+  }
 });
 
 test("each", async () => {
   const repeatUntil = 10;
+  settingElement.setAttribute("position.x", "0");
   settingElement.setAttribute("each.position.x", "position.x + 1");
   settingElement.setAttribute(
     "repeat",
-    `until position.x is at least ${repeatUntil}`
+    `until(position.x is at least ${repeatUntil})`
   );
   const baseRender = settingElement.renderToCanvas.bind(settingElement);
   let calls = 0;
@@ -90,13 +104,18 @@ test("each", async () => {
   expect(calls).toBe(framesPerTest * repeatUntil);
 });
 
-test("change", async () => {
-  settingElement.setAttribute("change.position.x", "position.x + 1");
-  onDraw = () => {
-    expect(settingElement.position.x).toBe(frame);
-  };
+test("then", async () => {
+  settingElement.setAttribute("then.position.x", "position.x + 1");
+  const positions = [];
+  settingElement.addEventListener("draw", () => {
+    positions[windowElement.frame] = settingElement.position.x;
+  });
   windowElement.setup();
   await done;
+  expect(positions.length).toBe(framesPerTest);
+  for (let i = 0; i < positions.length; i++) {
+    expect(positions[i]).toBe(i);
+  }
 });
 
 test("assert type", () => {
@@ -187,7 +206,7 @@ test("repeat", async () => {
   childElement.parent = settingElement;
   settingElement.setAttribute(
     "repeat",
-    `until count is at least ${iterations}`
+    `until(count is at least ${iterations})`
   );
   let parentCalls = 0,
     childCalls = 0;

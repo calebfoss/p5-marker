@@ -82,6 +82,8 @@ function updateIfNotIn<O extends object>(
   }
 }
 
+const drawEvent = new Event("draw");
+
 export class Base extends HTMLElement {
   #updaters: (() => void)[] = [];
   #getBaseValues: GettersFor<this> = {};
@@ -125,13 +127,16 @@ export class Base extends HTMLElement {
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
   draw(argument: Node | CanvasRenderingContext2D): void {
-    if (this.on === false) return;
     for (const updater of this.#updaters) {
       updater();
     }
     if (this.#render_frame !== this.frame) {
       this.#render_frame = this.frame;
       this.#count = 0;
+      updateIfNotIn(this.#nextValues, this.#getBaseValues, this.#getThenValues);
+      if ("on" in this.#nextValues) {
+        if (this.#nextValues.on === false) return;
+      } else if (this.on === false) return;
       deepAssign(this, this.#nextValues);
       deepAssign(this.#preIterationValues, this.#nextValues);
       deepEvaluateAndAssign(
@@ -143,6 +148,7 @@ export class Base extends HTMLElement {
       deepAssign(this, this.#preIterationValues);
       updateIfNotIn(this, this.#getBaseValues, this.#getThenValues);
     }
+    this.dispatchEvent(drawEvent);
     const render = (() => {
       if (argument instanceof CanvasRenderingContext2D)
         return () => {
@@ -157,6 +163,7 @@ export class Base extends HTMLElement {
     while (true) {
       render();
       this.#count++;
+      deepEvaluateAndAssign(this, this.#getEachValues);
       if (!this.repeat) break;
       if (this.#count >= this.max_count) {
         console.warn(
@@ -164,7 +171,6 @@ export class Base extends HTMLElement {
         );
         break;
       }
-      deepEvaluateAndAssign(this, this.#getEachValues);
     }
     this.#frames_on++;
   }
@@ -182,9 +188,9 @@ export class Base extends HTMLElement {
     return this.#frames_on;
   }
   inherit<K extends keyof this>(propertyName: K, defaultValue: this[K]) {
-    if (propertyName in this.parentElement)
-      return (this.parentElement as this)[propertyName];
-    return defaultValue;
+    if (this.parentElement === null || !(propertyName in this.parentElement))
+      return defaultValue;
+    return (this.parentElement as this)[propertyName];
   }
   #max_count = 10_000;
   get max_count() {
@@ -282,11 +288,14 @@ export class Base extends HTMLElement {
   get canvas_style() {
     return this.#canvas_style;
   }
-  styleContext<K extends keyof CanvasRenderingContext2D>(
+  setContextProperty<K extends keyof CanvasRenderingContext2D>(
     key: K,
     value: CanvasRenderingContext2D[K]
   ) {
     this.#canvas_style[key] = value;
+  }
+  styleContext(context: CanvasRenderingContext2D) {
+    Object.assign(context, this.#canvas_style);
   }
   styleDOMElement(element: Element) {}
   styleSVGElement(groupElement: SVGElement) {}
