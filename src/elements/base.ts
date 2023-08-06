@@ -265,6 +265,9 @@ export class Base extends HTMLElement {
         console.error(error);
       }
     }
+    for (const updater of this.#updaters) {
+      updater();
+    }
     deepEvaluateAndAssign(this.#nextValues, this.#getBaseValues);
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {

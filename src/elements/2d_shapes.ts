@@ -1,11 +1,12 @@
-import { VisibleElement } from "./visible";
+import { visible } from "./visible";
 import { position } from "../mixins/position";
 import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 import { clickable } from "../mixins/click";
+import { MarkerElement } from "./base";
 
 export class Rectangle extends position(
-  dimensions(fill(stroke(clickable(VisibleElement))))
+  dimensions(fill(stroke(clickable(visible(MarkerElement)))))
 ) {
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transformCanvas(context);

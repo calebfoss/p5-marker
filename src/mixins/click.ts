@@ -1,6 +1,6 @@
-import { VisibleElement } from "../elements/visible";
+import { MarkerElement } from "../elements/base";
 
-export const clickable = <T extends typeof VisibleElement>(baseClass: T) =>
+export const clickable = <T extends typeof MarkerElement>(baseClass: T) =>
   class ClickableElement extends baseClass {
     #click_x: number;
     #click_y: number;

@@ -8,32 +8,47 @@ type ContextMethods = Pick<
       : never;
   }[keyof CanvasRenderingContext2D]
 >;
+type Transformations = {
+  [Key in keyof ContextMethods]?: Parameters<ContextMethods[Key]>;
+};
 
 export const transform = <T extends typeof Base>(baseClass: T) =>
   class TransformElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
     }
-    #transformation_functions: ((context: CanvasRenderingContext2D) => void)[] =
-      [];
-    #addContextTransformation<MethodKey extends keyof ContextMethods>(
+    #transformations: Transformations = {};
+    #addContextTransformation<MethodKey extends keyof Transformations>(
       methodName: MethodKey,
-      ...args: Parameters<CanvasRenderingContext2D[MethodKey]>
+      ...args: Transformations[MethodKey]
     ) {
-      const fn = (context: CanvasRenderingContext2D) => {
-        (context[methodName] as Function)(...args);
-      };
-      if (methodName === "translate")
-        this.#transformation_functions.unshift(fn);
-      else this.#transformation_functions.push(fn);
+      this.#transformations[methodName] = args;
     }
     transformCanvas(context: CanvasRenderingContext2D): void {
-      while (this.#transformation_functions.length)
-        this.#transformation_functions.pop()(context);
+      if ("translate" in this.#transformations)
+        context.translate(...this.#transformations.translate);
+      if ("rotate" in this.#transformations)
+        context.rotate(...this.#transformations.rotate);
+      if ("scale" in this.#transformations)
+        context.scale(...this.#transformations.scale);
     }
     #anchor = Base.xy(0, 0);
     get anchor() {
-      return this.#anchor;
+      const element = this;
+      return {
+        get x() {
+          return element.#anchor.x;
+        },
+        set x(value) {
+          element.anchor = Base.xy(value, element.#anchor.y);
+        },
+        get y() {
+          return element.#anchor.y;
+        },
+        set y(value) {
+          element.anchor = Base.xy(element.#anchor.x, value);
+        },
+      };
     }
     set anchor(value) {
       this.#anchor = value;
@@ -49,7 +64,21 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     }
     #scale = Base.xy(1, 1);
     get scale() {
-      return this.#scale;
+      const element = this;
+      return {
+        get x() {
+          return element.#scale.x;
+        },
+        set x(value) {
+          element.scale = Base.xy(value, element.#scale.y);
+        },
+        get y() {
+          return element.#scale.y;
+        },
+        set y(value) {
+          element.scale = Base.xy(element.#scale.x, value);
+        },
+      };
     }
     set scale(value) {
       this.#scale = value;
