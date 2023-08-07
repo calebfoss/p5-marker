@@ -30,11 +30,21 @@ import {
 
 type Tokens = Token[];
 
-function obj() {}
+function getProperty<O extends object>(owner: O, propertyKey: PropertyKey) {
+  if (propertyKey in owner) {
+    if (typeof owner[propertyKey] === "function")
+      return owner[propertyKey].bind(owner);
+    return owner[propertyKey];
+  }
+  if (propertyKey in owner.constructor) return owner.constructor[propertyKey];
+  if (owner instanceof Base && owner.parent instanceof Base)
+    return getProperty(owner.parent, propertyKey);
+  throw new Error(`Couldn't find ${propertyKey.toString()}`);
+}
 
-function objectLiteral<O extends object>(
-  getOwner: () => O,
-  tokensBetweenBrackets: Tokens
+function objectLiteral(
+  tokensBetweenBrackets: Tokens,
+  parse: (tokens: Tokens) => ReturnType<typeof parseExpression>
 ) {
   const sections = commaSeparatedSections(tokensBetweenBrackets);
   const getKeyValuePairs = sections.map((section) => {
@@ -62,9 +72,9 @@ function objectLiteral<O extends object>(
         )
       )
         throw new Error(`Unexpected token: ${tokenBeforeColon.value}`);
-      return parseExpression(getOwner, section.slice(1, colonIndex));
+      return parse(section.slice(1, colonIndex));
     })();
-    const getValue = parseExpression(getOwner, section.slice(colonIndex + 1));
+    const getValue = parse(section.slice(colonIndex + 1));
     return [getPropertyName, getValue];
   });
   return () =>
@@ -73,14 +83,17 @@ function objectLiteral<O extends object>(
     );
 }
 
-function array<O extends object>(
-  getOwner: () => O,
-  tokensBetweenBrackets: Tokens
+function array(
+  tokensBetweenBrackets: Tokens,
+  parse: (tokens: Tokens) => ReturnType<typeof parseExpression>
 ) {
   const sections = commaSeparatedSections(tokensBetweenBrackets);
-  const expressions = sections.map((section) =>
-    parseExpression(getOwner, section)
-  );
+  if (sections.length === 1 && sections[0].length === 0) return identity([]);
+  const expressions = sections.map((section) => {
+    if (section.length === 0)
+      throw new Error("Found array element with missing value");
+    return parse(section);
+  });
   return () => expressions.map((expression) => expression());
 }
 
@@ -88,8 +101,11 @@ function value<O extends object>(
   getOwner: () => O,
   tokens: Tokens,
   leftBracketIndex: number,
-  rightBracketIndex: number
+  rightBracketIndex: number,
+  depth: number
 ) {
+  const parseAtCurrentDepth = (tokens: Tokens) =>
+    parseExpression(getOwner, tokens, depth);
   //  Array
   if (leftBracketIndex === 0) {
     if (rightBracketIndex < tokens.length - 1)
@@ -100,10 +116,14 @@ function value<O extends object>(
           .join(" ")}`
       );
     const getArray = array(
-      getOwner,
-      tokens.slice(leftBracketIndex + 1, rightBracketIndex)
+      tokens.slice(leftBracketIndex + 1, rightBracketIndex),
+      parseAtCurrentDepth
     );
-    return parseExpression(getArray, tokens.slice(rightBracketIndex + 1));
+    return parseExpression(
+      getArray,
+      tokens.slice(rightBracketIndex + 1),
+      depth + 1
+    );
   }
 
   //  Object literal
@@ -126,8 +146,8 @@ function value<O extends object>(
         `Found unexpected tokens: ${tokens.map((t) => t.value).join(" ")}`
       );
     return objectLiteral(
-      getOwner,
-      tokens.slice(leftCurlyBracketIndex + 1, rightCurlyBracketIndex)
+      tokens.slice(leftCurlyBracketIndex + 1, rightCurlyBracketIndex),
+      parseAtCurrentDepth
     );
   }
 
@@ -143,15 +163,7 @@ function value<O extends object>(
   //  Property
   if (token instanceof IdentifierToken) {
     const propertyName = (token as IdentifierToken).value;
-    const findProperty = <O2 extends object>(owner: O2) => {
-      if (propertyName in owner) return owner[propertyName];
-      if (propertyName in owner.constructor)
-        return owner.constructor[propertyName];
-      if (owner instanceof Base && owner.parent instanceof Base)
-        return findProperty(owner.parent);
-      throw new Error(`Couldn't find ${propertyName}`);
-    };
-    return () => findProperty(getOwner());
+    return () => getProperty(getOwner(), propertyName);
   }
   throw new Error(`Unexpected token: ${token.value}`);
 }
@@ -263,19 +275,19 @@ function ternary<L, C, R>(
   return () => (getLeft() ? getCenter() : getRight());
 }
 
-function leftRight<V, Obj extends object, Op>(
-  getOwner: () => Obj,
+function leftRight<V, Op>(
   tokens: Tokens,
   operator: Op,
   operatorIndex: number,
+  parse: (tokens: Tokens) => ReturnType<typeof parseExpression>,
   expressionFunction: <L, R>(
     getLeft: () => L,
     operator: Op,
     getRight: () => R
   ) => () => V
 ) {
-  const getLeft = parseExpression(getOwner, tokens.slice(0, operatorIndex));
-  const getRight = parseExpression(getOwner, tokens.slice(operatorIndex + 1));
+  const getLeft = parse(tokens.slice(0, operatorIndex));
+  const getRight = parse(tokens.slice(operatorIndex + 1));
   return expressionFunction(getLeft, operator, getRight);
 }
 
@@ -336,9 +348,12 @@ function findTokenOfClass<C extends typeof PunctuatorToken>(
 
 function parseExpression<O extends object>(
   getOwner: () => O,
-  tokens: Tokens
+  tokens: Tokens,
+  depth: number
 ): () => unknown {
   if (tokens.length === 0) return getOwner;
+  const parseAtCurrentDepth = (tokens: Tokens) =>
+    parseExpression(getOwner, tokens, depth);
 
   //  2 - Conditional (ternary) operator
   const [questionIndex] = findTokenOfClass(tokens, QuestionToken);
@@ -350,12 +365,21 @@ function parseExpression<O extends object>(
       throw new Error(
         "Found ? without a : following it to complete ternary expression"
       );
-    const getLeft = parseExpression(getOwner, tokens.slice(0, questionIndex));
+    const getLeft = parseExpression(
+      getOwner,
+      tokens.slice(0, questionIndex),
+      depth
+    );
     const getCenter = parseExpression(
       getOwner,
-      tokens.slice(questionIndex + 1, colonIndex)
+      tokens.slice(questionIndex + 1, colonIndex),
+      depth
     );
-    const getRight = parseExpression(getOwner, tokens.slice(colonIndex + 1));
+    const getRight = parseExpression(
+      getOwner,
+      tokens.slice(colonIndex + 1),
+      depth
+    );
     return ternary(getLeft, getCenter, getRight);
   }
 
@@ -365,7 +389,13 @@ function parseExpression<O extends object>(
     (token) => token instanceof LogicalToken && token.value === "or"
   );
   if (orIndex > -1)
-    return leftRight(getOwner, tokens, tokens[orIndex].value, orIndex, logical);
+    return leftRight(
+      tokens,
+      tokens[orIndex].value,
+      orIndex,
+      parseAtCurrentDepth,
+      logical
+    );
 
   //  4 - Logical AND
   const andIndex = shallowFindIndex(
@@ -374,10 +404,10 @@ function parseExpression<O extends object>(
   );
   if (andIndex > -1)
     return leftRight(
-      getOwner,
       tokens,
       tokens[andIndex].value,
       andIndex,
+      parseAtCurrentDepth,
       logical
     );
 
@@ -388,10 +418,10 @@ function parseExpression<O extends object>(
   );
   if (equalityIndex > -1)
     return leftRight(
-      getOwner,
       tokens,
       equalityToken.value,
       equalityIndex,
+      parseAtCurrentDepth,
       equality
     );
 
@@ -402,10 +432,10 @@ function parseExpression<O extends object>(
   );
   if (comparisonIndex > -1)
     return leftRight(
-      getOwner,
       tokens,
       comparisonToken.value,
       comparisonIndex,
+      parseAtCurrentDepth,
       comparison
     );
 
@@ -416,10 +446,10 @@ function parseExpression<O extends object>(
   );
   if (additiveIndex > -1)
     return leftRight(
-      getOwner,
       tokens,
       additiveToken.value,
       additiveIndex,
+      parseAtCurrentDepth,
       additive
     );
 
@@ -430,10 +460,10 @@ function parseExpression<O extends object>(
   );
   if (multiplicativeIndex > -1)
     return leftRight(
-      getOwner,
       tokens,
       multiplicativeToken.value,
       multiplicativeIndex,
+      parseAtCurrentDepth,
       multiplicative
     );
 
@@ -442,7 +472,7 @@ function parseExpression<O extends object>(
   //  14 - Logical NOT
   const [notIndex] = findTokenOfClass(tokens, NotToken);
   if (notIndex === 0)
-    return not(parseExpression(getOwner, tokens.slice(notIndex + 1)));
+    return not(parseExpression(getOwner, tokens.slice(notIndex + 1), depth));
   if (notIndex > 0)
     throw new Error("Found 'not' operator in the middle of an expression.");
 
@@ -464,21 +494,22 @@ function parseExpression<O extends object>(
   //  17.1 - Function call
   const [degreeIndex] = findTokenOfClass(tokens, DegreeToken);
   if (degreeIndex > -1) {
-    const getArgument = parseExpression(getOwner, tokens.slice(0, degreeIndex));
+    const getArgument = parseAtCurrentDepth(tokens.slice(0, degreeIndex));
     return () => (Math.PI / 180) * (getArgument() as number);
   }
   if (leftParenthesisIndex > 0) {
-    const getFn = parseExpression(
-      getOwner,
+    const getFn = parseAtCurrentDepth(
       tokens.slice(0, leftParenthesisIndex)
-    );
+    ) as () => Function;
     const getArgs = array(
-      getOwner,
-      tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex)
+      tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex),
+      parseAtCurrentDepth
     );
+    const getReturnValue = fnCall(getFn as () => Function, getArgs);
     return parseExpression(
-      fnCall(getFn as () => Function, getArgs),
-      tokens.slice(rightParenthesisIndex + 1)
+      getReturnValue,
+      tokens.slice(rightParenthesisIndex + 1),
+      depth + 1
     );
   }
 
@@ -498,24 +529,32 @@ function parseExpression<O extends object>(
   }
 
   //  17.2 - Computed member access
-  if (leftBracketIndex > 0) {
-    const getObject = parseExpression(
-      getOwner,
-      tokens.slice(0, leftBracketIndex)
-    ) as () => object;
-    const getPropertyKey = parseExpression(
-      getOwner,
+  if (leftBracketIndex > 0 || (leftBracketIndex === 0 && depth > 0)) {
+    const getObject =
+      leftBracketIndex === 0
+        ? getOwner
+        : (parseAtCurrentDepth(
+            tokens.slice(0, leftBracketIndex)
+          ) as () => object);
+    const getPropertyKey = parseAtCurrentDepth(
       tokens.slice(leftBracketIndex + 1, rightBracketIndex)
     ) as () => PropertyKey;
-    const getProperty = () => getObject()[getPropertyKey()];
-    return parseExpression(getProperty, tokens.slice(rightBracketIndex + 1));
+    const getProp = () => {
+      const obj = getObject();
+      const propertyKey = getPropertyKey();
+      return getProperty(obj, propertyKey);
+    };
+    return parseExpression(
+      getProp,
+      tokens.slice(rightBracketIndex + 1),
+      depth + 1
+    );
   }
 
   //  17.3 - Member access
   const [dotIndex] = findTokenOfClass(tokens, DotToken);
   if (dotIndex > -1) {
-    const getObject = parseExpression(
-      getOwner,
+    const getObject = parseAtCurrentDepth(
       tokens.slice(0, dotIndex)
     ) as () => object;
     const identifierToken = tokens[dotIndex + 1];
@@ -524,8 +563,11 @@ function parseExpression<O extends object>(
         `Found unexpected token after '.': ${identifierToken.value}`
       );
     const propertyKey = identifierToken.value;
-    const getProperty = () => getObject()[propertyKey];
-    return parseExpression(getProperty, tokens.slice(dotIndex + 2));
+    const getProp = () => {
+      const obj = getObject();
+      return getProperty(obj, propertyKey);
+    };
+    return parseExpression(getProp, tokens.slice(dotIndex + 2), depth + 1);
   }
 
   //  18  - Grouping
@@ -537,13 +579,12 @@ function parseExpression<O extends object>(
           .map((t) => t.value)
           .join(" ")}`
       );
-    return parseExpression(
-      getOwner,
+    return parseAtCurrentDepth(
       tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex)
     );
   }
 
-  return value(getOwner, tokens, leftBracketIndex, rightBracketIndex);
+  return value(getOwner, tokens, leftBracketIndex, rightBracketIndex, depth);
 }
 
 function parseAttributeName(
@@ -560,7 +601,8 @@ function parseAttributeName(
       throw new Error(`Unexpected token ${secondToLastToken.value}`);
     const getPropertyOwner = parseExpression(
       getOwner,
-      previousTokens.slice(0, -1)
+      previousTokens.slice(0, -1),
+      0
     );
     return [getPropertyOwner as () => object, getPropertyKey];
   }
@@ -572,16 +614,18 @@ function parseAttributeName(
     );
     if (leftBracketIndex < 0) throw new Error(`Found ] without matching [`);
     if (leftBracketIndex === 0) {
-      const getPropertyKey = parseExpression(getOwner, tokens.slice(1, -1));
+      const getPropertyKey = parseExpression(getOwner, tokens.slice(1, -1), 0);
       return [getOwner, getPropertyKey as () => PropertyKey];
     }
     const getPropertyOwner = parseExpression(
       getOwner,
-      tokens.slice(0, leftBracketIndex)
+      tokens.slice(0, leftBracketIndex),
+      0
     ) as () => object;
     const getPropertyKey = parseExpression(
       getPropertyOwner as () => object,
-      tokens.slice(leftBracketIndex + 1, -1)
+      tokens.slice(leftBracketIndex + 1, -1),
+      0
     ) as () => PropertyKey;
     return [getPropertyOwner, getPropertyKey];
   }
@@ -600,6 +644,6 @@ export function parseAttribute(
     identity(nameReference),
     nameTokens
   );
-  const getValue = parseExpression(identity(valueReference), valueTokens);
+  const getValue = parseExpression(identity(valueReference), valueTokens, 0);
   return [getOwner, getPropertyKey, getValue];
 }
