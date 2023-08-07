@@ -444,7 +444,13 @@ function parseExpression<O extends object>(
     tokens,
     AdditiveToken
   );
-  if (additiveIndex > -1)
+  if (additiveIndex > -1) {
+    if (additiveIndex === 0)
+      return additive(
+        identity(0),
+        additiveToken.value,
+        parseAtCurrentDepth(tokens.slice(additiveIndex + 1))
+      );
     return leftRight(
       tokens,
       additiveToken.value,
@@ -452,6 +458,7 @@ function parseExpression<O extends object>(
       parseAtCurrentDepth,
       additive
     );
+  }
 
   //  12 - Multiplicative
   const [multiplicativeIndex, multiplicativeToken] = findTokenOfClass(
