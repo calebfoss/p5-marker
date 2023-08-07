@@ -28,47 +28,19 @@ import {
 
 type Tokens = Token[];
 
-function objectOrFunction<O extends object | (() => object)>(
-  getOwner: () => object,
-  getObject: () => O,
-  tokens: Tokens
+function fn<L extends Function, R extends any[]>(
+  getFunction: () => L,
+  getArguments: () => R
 ) {
-  if (tokens.length === 0) return getObject;
-  const [nextToken, ...remainder] = tokens;
-  if (nextToken instanceof DotToken)
-    return parseExpression(getObject, remainder);
-  if (nextToken instanceof SquareBracketToken && nextToken.value === "[") {
-    const rightBracketIndex = shallowFindIndex(
-      tokens,
-      (token) => token.value === "]"
-    );
-    const getPropertyKey = parseExpression(
-      getObject,
-      tokens.slice(1, rightBracketIndex)
-    ) as () => PropertyKey;
-    const getProperty = () => getObject()[getPropertyKey()];
-    return objectOrFunction(
-      getOwner,
-      getProperty,
-      tokens.slice(rightBracketIndex + 1)
-    );
-  } else if (nextToken instanceof ParenthesisToken && nextToken.value === "(") {
-    const rightParenthesisIndex = shallowFindIndex(
-      tokens,
-      (token) => token.value === ")"
-    );
-    const getArguments = array(
-      getOwner,
-      tokens.slice(1, rightParenthesisIndex)
-    );
-    const getReturnValue = () => (getObject() as Function)(...getArguments());
-    return objectOrFunction(
-      getOwner,
-      getReturnValue,
-      tokens.slice(rightParenthesisIndex + 1)
-    );
-  }
-  throw new Error(`Unexpected token: ${nextToken.value}`);
+  return () => getFunction()(...getArguments());
+}
+
+function member<L, R>(getLeft: () => L, getRight: () => R) {
+  return () => {
+    const left = getLeft();
+    const right = getRight();
+    return getLeft()[getRight() as keyof L];
+  };
 }
 
 function array<O extends object>(
@@ -201,25 +173,14 @@ function shallowFindIndex(
   let parenthesisDepth = 0;
   let squareBracketDepth = 0;
   const wrappedCallback = (token: Token) => {
+    const zeroDepthBefore = parenthesisDepth === 0 && squareBracketDepth === 0;
     switch (token.value) {
       case "(":
-        if (
-          parenthesisDepth === 0 &&
-          squareBracketDepth === 0 &&
-          callback(token)
-        )
-          return true;
         parenthesisDepth++;
-        return false;
+        break;
       case "[":
-        if (
-          parenthesisDepth === 0 &&
-          squareBracketDepth === 0 &&
-          callback(token)
-        )
-          return true;
         squareBracketDepth++;
-        return false;
+        break;
       case ")":
         parenthesisDepth--;
         break;
@@ -227,8 +188,9 @@ function shallowFindIndex(
         squareBracketDepth--;
         break;
     }
-    if (parenthesisDepth !== 0 || squareBracketDepth !== 0) return false;
-    return callback(token);
+    if (zeroDepthBefore || (parenthesisDepth === 0 && squareBracketDepth === 0))
+      return callback(token);
+    return false;
   };
   if (first) return tokens.findIndex(wrappedCallback);
   return tokens.findLastIndex(wrappedCallback);
@@ -350,36 +312,18 @@ export function parseExpression<O extends object>(
   if (notIndex > 0)
     throw new Error("Found 'not' operator in the middle of an expression.");
 
-  const leftBracketIndex = shallowFindIndex(
-    tokens,
-    (token) => token.value === "["
-  );
-
-  if (leftBracketIndex === 0) {
-    const rightBracketIndex = shallowFindIndex(
-      tokens,
-      (token) => token.value === "]"
-    );
-    if (rightBracketIndex === -1)
-      throw new Error("Found '[' without matching ']'");
-    if (rightBracketIndex < leftBracketIndex)
-      throw new Error("Found ']' before '['");
-    const getArray = array(
-      getOwner,
-      tokens.slice(leftBracketIndex + 1, rightBracketIndex)
-    );
-    return objectOrFunction(
-      getOwner,
-      getArray,
-      tokens.slice(rightBracketIndex + 1)
-    );
+  const [dotIndex] = indexOfClass(tokens, DotToken);
+  if (dotIndex > -1) {
+    const getLeft = parseExpression(getOwner, tokens.slice(0, dotIndex));
+    const getRight = identity(tokens[dotIndex + 1].value);
+    return member(getLeft, getRight);
   }
 
   const leftParenthesisIndex = shallowFindIndex(
     tokens,
     (token) => token.value === "("
   );
-  if (leftParenthesisIndex === 0) {
+  if (leftParenthesisIndex > -1) {
     const rightParenthesisIndex = shallowFindIndex(
       tokens,
       (token) => token.value === ")"
@@ -394,51 +338,108 @@ export function parseExpression<O extends object>(
           .slice(rightParenthesisIndex + 1)
           .join(" ")}`
       );
+    if (leftParenthesisIndex > 0) {
+      const getFn = parseExpression(
+        getOwner,
+        tokens.slice(0, leftParenthesisIndex)
+      );
+      const getArgs = array(
+        getOwner,
+        tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex)
+      );
+      return fn(getFn as () => Function, getArgs);
+    }
     return parseExpression(
       getOwner,
       tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex)
     );
   }
 
-  const [firstToken, ...remainder] = tokens;
-  const getBase = createBaseGetter(getOwner, firstToken);
-  if (remainder.length === 0) return getBase;
-  return objectOrFunction(getOwner, getBase, remainder);
+  const leftBracketIndex = shallowFindIndex(
+    tokens,
+    (token) => token.value === "["
+  );
+  if (leftBracketIndex > -1) {
+    const rightBracketIndex = shallowFindIndex(
+      tokens,
+      (token) => token.value === "]"
+    );
+    if (rightBracketIndex === -1)
+      throw new Error("Found '[' without matching ']'");
+    if (rightBracketIndex < leftBracketIndex)
+      throw new Error("Found ']' before '['");
+    if (leftBracketIndex > 0) {
+      const getLeft = parseExpression(
+        getOwner,
+        tokens.slice(0, leftBracketIndex)
+      );
+      const getRight = parseExpression(
+        getLeft as () => object,
+        tokens.slice(leftBracketIndex, rightBracketIndex - 1)
+      );
+      return member(getLeft, getRight);
+    } else if (rightBracketIndex < tokens.length - 1)
+      throw new Error(
+        `Unexpected tokens: ${tokens
+          .slice(rightBracketIndex + 1)
+          .map((t) => t.value)
+          .join(" ")}`
+      );
+    return array(
+      getOwner,
+      tokens.slice(leftBracketIndex + 1, rightBracketIndex)
+    );
+  }
+
+  const [token, ...remainder] = tokens;
+  if (remainder.length)
+    throw new Error(
+      `Unexpected token(s): ${remainder.map((t) => t.value).join(" ")}`
+    );
+  return createBaseGetter(getOwner, token);
 }
 
 function parseAttributeName(
   getOwner: () => object,
   tokens: Tokens
 ): [() => object, () => PropertyKey] {
-  const [firstToken, ...remainder] = tokens;
-  if (firstToken instanceof IdentifierToken) {
-    const getPropertyKey = identity(firstToken.value);
-    if (remainder.length === 0) return [getOwner, identity(firstToken.value)];
-    else {
-      const getProperty = () => getOwner()[getPropertyKey()];
-      return parseAttributeName(getProperty, remainder);
-    }
-  } else if (firstToken instanceof DotToken) {
-    return parseAttributeName(getOwner, remainder);
-  } else if (firstToken instanceof SquareBracketToken) {
-    const rightBracketIndex = shallowFindIndex(
-      tokens,
-      (token) => token instanceof SquareBracketToken && token.value === "]"
-    );
-    const getPropertyKey = parseExpression(
+  const [lastToken] = tokens.slice(-1);
+  if (lastToken instanceof IdentifierToken) {
+    const previousTokens = tokens.slice(0, -1);
+    const getPropertyKey = () => lastToken.value;
+    if (previousTokens.length === 0) return [getOwner, getPropertyKey];
+    const [secondToLastToken] = previousTokens.slice(-1);
+    if (!(secondToLastToken instanceof DotToken))
+      throw new Error(`Unexpected token ${secondToLastToken.value}`);
+    const getPropertyOwner = parseExpression(
       getOwner,
-      tokens.slice(1, rightBracketIndex)
+      previousTokens.slice(0, -1)
+    );
+    return [getPropertyOwner as () => object, getPropertyKey];
+  }
+  if (lastToken instanceof PunctuatorToken && lastToken.value === "]") {
+    const leftBracketIndex = shallowFindIndex(
+      tokens,
+      (token) => token.value === "[",
+      false
+    );
+    if (leftBracketIndex < 0) throw new Error(`Found ] without matching [`);
+    if (leftBracketIndex === 0) {
+      const getPropertyKey = parseExpression(getOwner, tokens.slice(1, -1));
+      return [getOwner, getPropertyKey as () => PropertyKey];
+    }
+    const getPropertyOwner = parseExpression(
+      getOwner,
+      tokens.slice(0, leftBracketIndex)
+    ) as () => object;
+    const getPropertyKey = parseExpression(
+      getPropertyOwner as () => object,
+      tokens.slice(leftBracketIndex + 1, -1)
     ) as () => PropertyKey;
-    if (rightBracketIndex === tokens.length - 1)
-      return [getOwner, getPropertyKey];
-    else
-      return parseAttributeName(
-        () => getOwner()[getPropertyKey()],
-        tokens.slice(rightBracketIndex + 1)
-      );
+    return [getPropertyOwner, getPropertyKey];
   }
   throw new Error(
-    `Attribute names must start with the name of a property, but this name starts with ${firstToken.value}`
+    `Attribute names must end with a property key, but this name ends with ${lastToken.value}`
   );
 }
 

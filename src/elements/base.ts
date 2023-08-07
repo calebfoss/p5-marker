@@ -10,11 +10,18 @@ export const identity =
   () =>
     value;
 
-function deepProxy<O extends object>(obj: O): O {
+function deepProxy<O extends object>(
+  owner: O,
+  obj: GettersFor<O>
+): GettersFor<O> {
   return new Proxy(obj, {
     get(target, propertyName) {
-      if (!(propertyName in target)) target[propertyName] = {};
-      return deepProxy(target[propertyName]);
+      if (!(propertyName in target))
+        target[propertyName] = Array.isArray(owner[propertyName]) ? [] : {};
+      return deepProxy(owner[propertyName], target[propertyName]);
+    },
+    has(target, propertyName) {
+      return propertyName in owner;
     },
   });
 }
@@ -110,7 +117,7 @@ export class Base extends HTMLElement {
         )}`
       );
   }
-  #base = deepProxy(this.#getBaseValues);
+  #base = deepProxy(this, this.#getBaseValues);
   get base() {
     return this.#base;
   }
@@ -174,7 +181,7 @@ export class Base extends HTMLElement {
     }
     this.#frames_on++;
   }
-  #each = deepProxy(this.#getEachValues);
+  #each = deepProxy(this, this.#getEachValues);
   get each() {
     return this.#each;
   }
@@ -300,7 +307,7 @@ export class Base extends HTMLElement {
   styleDOMElement(element: Element) {}
   styleSVGElement(groupElement: SVGElement) {}
   #svg_group: SVGGElement;
-  #then = deepProxy(this.#getThenValues);
+  #then = deepProxy(this, this.#getThenValues);
   get then() {
     return this.#then;
   }
