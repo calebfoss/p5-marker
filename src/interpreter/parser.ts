@@ -30,12 +30,7 @@ import {
 
 type Tokens = Token[];
 
-function fn<L extends Function, R extends any[]>(
-  getFunction: () => L,
-  getArguments: () => R
-) {
-  return () => getFunction()(...getArguments());
-}
+function obj() {}
 
 function objectLiteral<O extends object>(
   getOwner: () => O,
@@ -87,6 +82,85 @@ function array<O extends object>(
     parseExpression(getOwner, section)
   );
   return () => expressions.map((expression) => expression());
+}
+
+function value<O extends object>(
+  getOwner: () => O,
+  tokens: Tokens,
+  leftBracketIndex: number,
+  rightBracketIndex: number
+) {
+  //  Array
+  if (leftBracketIndex === 0) {
+    if (rightBracketIndex < tokens.length - 1)
+      throw new Error(
+        `Unexpected tokens: ${tokens
+          .slice(rightBracketIndex + 1)
+          .map((t) => t.value)
+          .join(" ")}`
+      );
+    const getArray = array(
+      getOwner,
+      tokens.slice(leftBracketIndex + 1, rightBracketIndex)
+    );
+    return parseExpression(getArray, tokens.slice(rightBracketIndex + 1));
+  }
+
+  //  Object literal
+  const leftCurlyBracketIndex = shallowFindIndex(
+    tokens,
+    (token) => token instanceof CurlyBracketToken && token.value === "{"
+  );
+  if (leftCurlyBracketIndex > -1) {
+    const rightCurlyBracketIndex = shallowFindIndex(
+      tokens,
+      (token) => token instanceof CurlyBracketToken && token.value === "}",
+      false
+    );
+    if (rightCurlyBracketIndex === -1)
+      throw new Error("Found '{' without matching '}'");
+    if (rightCurlyBracketIndex < leftCurlyBracketIndex)
+      throw new Error("Found '}' before '{'");
+    if (rightCurlyBracketIndex < tokens.length - 1)
+      throw new Error(
+        `Found unexpected tokens: ${tokens.map((t) => t.value).join(" ")}`
+      );
+    return objectLiteral(
+      getOwner,
+      tokens.slice(leftCurlyBracketIndex + 1, rightCurlyBracketIndex)
+    );
+  }
+
+  const [token, ...remainder] = tokens;
+  if (remainder.length)
+    throw new Error(
+      `Unexpected token(s): ${remainder.map((t) => t.value).join(" ")}`
+    );
+
+  //  Literal - boolean, number, or string
+  if (token instanceof LiteralToken) return identity(token.value);
+
+  //  Property
+  if (token instanceof IdentifierToken) {
+    const propertyName = (token as IdentifierToken).value;
+    const findProperty = <O2 extends object>(owner: O2) => {
+      if (propertyName in owner) return owner[propertyName];
+      if (propertyName in owner.constructor)
+        return owner.constructor[propertyName];
+      if (owner instanceof Base && owner.parent instanceof Base)
+        return findProperty(owner.parent);
+      throw new Error(`Couldn't find ${propertyName}`);
+    };
+    return () => findProperty(getOwner());
+  }
+  throw new Error(`Unexpected token: ${token.value}`);
+}
+
+function fnCall<L extends Function, R extends any[]>(
+  getFunction: () => L,
+  getArguments: () => R
+) {
+  return () => getFunction()(...getArguments());
 }
 
 function commaSeparatedSections(tokens: Tokens) {
@@ -260,24 +334,7 @@ function findTokenOfClass<C extends typeof PunctuatorToken>(
   return [index, tokens[index] as InstanceType<C>];
 }
 
-function createBaseGetter<O extends object>(getOwner: () => O, token: Token) {
-  if (token instanceof LiteralToken) return identity(token.value);
-  if (token instanceof IdentifierToken) {
-    const propertyName = (token as IdentifierToken).value;
-    const findProperty = <O2 extends object>(owner: O2) => {
-      if (propertyName in owner) return owner[propertyName];
-      if (propertyName in owner.constructor)
-        return owner.constructor[propertyName];
-      if (owner instanceof Base && owner.parent instanceof Base)
-        return findProperty(owner.parent);
-      throw new Error(`Couldn't find ${propertyName}`);
-    };
-    return () => findProperty(getOwner());
-  }
-  throw new Error(`Unexpected token: ${token.value}`);
-}
-
-export function parseExpression<O extends object>(
+function parseExpression<O extends object>(
   getOwner: () => O,
   tokens: Tokens
 ): () => unknown {
@@ -420,7 +477,7 @@ export function parseExpression<O extends object>(
       tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex)
     );
     return parseExpression(
-      fn(getFn as () => Function, getArgs),
+      fnCall(getFn as () => Function, getArgs),
       tokens.slice(rightParenthesisIndex + 1)
     );
   }
@@ -485,51 +542,8 @@ export function parseExpression<O extends object>(
       tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex)
     );
   }
-  if (leftBracketIndex === 0) {
-    if (rightBracketIndex < tokens.length - 1)
-      throw new Error(
-        `Unexpected tokens: ${tokens
-          .slice(rightBracketIndex + 1)
-          .map((t) => t.value)
-          .join(" ")}`
-      );
-    const getArray = array(
-      getOwner,
-      tokens.slice(leftBracketIndex + 1, rightBracketIndex)
-    );
-    return parseExpression(getArray, tokens.slice(rightBracketIndex + 1));
-  }
 
-  const leftCurlyBracketIndex = shallowFindIndex(
-    tokens,
-    (token) => token instanceof CurlyBracketToken && token.value === "{"
-  );
-  if (leftCurlyBracketIndex > -1) {
-    const rightCurlyBracketIndex = shallowFindIndex(
-      tokens,
-      (token) => token instanceof CurlyBracketToken && token.value === "}",
-      false
-    );
-    if (rightCurlyBracketIndex === -1)
-      throw new Error("Found '{' without matching '}'");
-    if (rightCurlyBracketIndex < leftCurlyBracketIndex)
-      throw new Error("Found '}' before '{'");
-    if (rightCurlyBracketIndex < tokens.length - 1)
-      throw new Error(
-        `Found unexpected tokens: ${tokens.map((t) => t.value).join(" ")}`
-      );
-    return objectLiteral(
-      getOwner,
-      tokens.slice(leftCurlyBracketIndex + 1, rightCurlyBracketIndex)
-    );
-  }
-
-  const [token, ...remainder] = tokens;
-  if (remainder.length)
-    throw new Error(
-      `Unexpected token(s): ${remainder.map((t) => t.value).join(" ")}`
-    );
-  return createBaseGetter(getOwner, token);
+  return value(getOwner, tokens, leftBracketIndex, rightBracketIndex);
 }
 
 function parseAttributeName(

@@ -1,6 +1,6 @@
-import { Base, GettersFor } from "../elements/base";
+import { Base } from "../elements/base";
 import { lex } from "./lexer";
-import { parseAttribute, parseExpression } from "./parser";
+import { parseAttribute } from "./parser";
 import { IdentifierToken } from "./tokens";
 
 export const interpret = (
