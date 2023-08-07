@@ -214,3 +214,11 @@ export class DotToken extends PunctuatorToken {
     super(start, end, value);
   }
 }
+
+export const DegreeValue = "deg";
+export class DegreeToken extends PunctuatorToken {
+  declare value: typeof DegreeValue;
+  constructor(start: number, end: number, value: typeof DegreeValue) {
+    super(start, end, value);
+  }
+}

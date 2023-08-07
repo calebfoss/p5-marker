@@ -8,6 +8,7 @@ import {
   ComparisonOperator,
   ComparisonToken,
   CurlyBracketToken,
+  DegreeToken,
   DotToken,
   EqualityOperator,
   EqualityToken,
@@ -404,6 +405,11 @@ export function parseExpression<O extends object>(
   }
 
   //  17.1 - Function call
+  const [degreeIndex] = findTokenOfClass(tokens, DegreeToken);
+  if (degreeIndex > -1) {
+    const getArgument = parseExpression(getOwner, tokens.slice(0, degreeIndex));
+    return () => (Math.PI / 180) * (getArgument() as number);
+  }
   if (leftParenthesisIndex > 0) {
     const getFn = parseExpression(
       getOwner,
@@ -413,7 +419,10 @@ export function parseExpression<O extends object>(
       getOwner,
       tokens.slice(leftParenthesisIndex + 1, rightParenthesisIndex)
     );
-    return fn(getFn as () => Function, getArgs);
+    return parseExpression(
+      fn(getFn as () => Function, getArgs),
+      tokens.slice(rightParenthesisIndex + 1)
+    );
   }
 
   const leftBracketIndex = shallowFindIndex(
@@ -441,7 +450,8 @@ export function parseExpression<O extends object>(
       getOwner,
       tokens.slice(leftBracketIndex + 1, rightBracketIndex)
     ) as () => PropertyKey;
-    return () => getObject()[getPropertyKey()];
+    const getProperty = () => getObject()[getPropertyKey()];
+    return parseExpression(getProperty, tokens.slice(rightBracketIndex + 1));
   }
 
   //  17.3 - Member access
@@ -457,7 +467,8 @@ export function parseExpression<O extends object>(
         `Found unexpected token after '.': ${identifierToken.value}`
       );
     const propertyKey = identifierToken.value;
-    return () => getObject()[propertyKey];
+    const getProperty = () => getObject()[propertyKey];
+    return parseExpression(getProperty, tokens.slice(dotIndex + 2));
   }
 
   //  18  - Grouping
@@ -482,10 +493,11 @@ export function parseExpression<O extends object>(
           .map((t) => t.value)
           .join(" ")}`
       );
-    return array(
+    const getArray = array(
       getOwner,
       tokens.slice(leftBracketIndex + 1, rightBracketIndex)
     );
+    return parseExpression(getArray, tokens.slice(rightBracketIndex + 1));
   }
 
   const leftCurlyBracketIndex = shallowFindIndex(

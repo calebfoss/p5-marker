@@ -31,6 +31,8 @@ import {
   ColonValue,
   CurlyBracketValues,
   CurlyBracketToken,
+  DegreeValue,
+  DegreeToken,
 } from "./tokens";
 
 export const lex = (str: string): Token[] => {
@@ -176,6 +178,14 @@ export const lex = (str: string): Token[] => {
       const end = start + logicalMatch.length;
       const logicalToken = new LogicalToken(start, end, logicalMatch);
       return getTokens(end, tokens.concat(logicalToken));
+    }
+
+    const degreeMatch =
+      stringFromStart.slice(0, DegreeValue.length) === DegreeValue;
+    if (degreeMatch) {
+      const end = start + DegreeValue.length;
+      const degreeToken = new DegreeToken(start, end, DegreeValue);
+      return getTokens(end, tokens.concat(degreeToken));
     }
 
     const identifierMatch = stringFromStart.match(/^[a-zA-Z]\w*/);
