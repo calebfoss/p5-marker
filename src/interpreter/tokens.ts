@@ -147,6 +147,15 @@ export class MultiplicativeToken extends PunctuatorToken {
   }
 }
 
+export const CurlyBracketValues = ["{", "}"] as const;
+type CurlyBracketValue = (typeof CurlyBracketValues)[number];
+export class CurlyBracketToken extends PunctuatorToken {
+  declare value: CurlyBracketValue;
+  constructor(start: number, end: number, value: CurlyBracketValue) {
+    super(start, end, value);
+  }
+}
+
 export const NotValues = ["not", "until"] as const;
 export type NotValue = (typeof NotValues)[number];
 export class NotToken extends PunctuatorToken {

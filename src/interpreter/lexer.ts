@@ -29,6 +29,8 @@ import {
   QuestionToken,
   ColonToken,
   ColonValue,
+  CurlyBracketValues,
+  CurlyBracketToken,
 } from "./tokens";
 
 export const lex = (str: string): Token[] => {
@@ -91,6 +93,19 @@ export const lex = (str: string): Token[] => {
         squareBracketMatch
       );
       return getTokens(end, tokens.concat(squareBracketToken));
+    }
+
+    const curlyBracketMatch = CurlyBracketValues.find(
+      (value) => value === firstCharacter
+    );
+    if (curlyBracketMatch) {
+      const end = start + curlyBracketMatch.length;
+      const curlyBracketToken = new CurlyBracketToken(
+        start,
+        end,
+        curlyBracketMatch
+      );
+      return getTokens(end, tokens.concat(curlyBracketToken));
     }
 
     const numberMatch = stringFromStart.match(/^\d+(?:\.\d+)?/);
