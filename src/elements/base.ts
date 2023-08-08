@@ -219,19 +219,11 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.onCanvasClicked(x, y, time);
     }
   }
-  #parent: Property<HTMLElement> = {
-    get: () => this.parentElement,
-    set: (element) => {
-      element.appendChild(this);
-      this.#parent.changed = true;
-    },
-    changed: false,
-  };
   get parent() {
-    return this.#parent.get();
+    return this.parentElement;
   }
   set parent(element) {
-    this.#parent.set(element);
+    element.appendChild(this);
   }
   renderToCanvas(context: CanvasRenderingContext2D) {
     context.beginPath();

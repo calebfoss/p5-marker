@@ -54,7 +54,6 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
   get drawing_context() {
     return this.#context;
   }
-  declare propertyManager: PropertyManager<MarkerCanvas>;
   renderToCanvas(context: CanvasRenderingContext2D): void {
     const canvas = this.#dom_element as HTMLCanvasElement;
     if (canvas.width !== this.width || canvas.height !== this.height) {
