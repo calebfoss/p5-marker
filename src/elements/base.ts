@@ -1,4 +1,5 @@
 import { interpret } from "../interpreter/interpreter";
+import { calculate } from "../mixins/calculate";
 import { color } from "../mixins/color";
 import { constants } from "../mixins/constants";
 import { random } from "../mixins/random";
@@ -323,4 +324,6 @@ export class Base extends HTMLElement {
   }
 }
 
-export class MarkerElement extends transform(color(random(constants(Base)))) {}
+export class MarkerElement extends transform(
+  color(random(constants(calculate(Base))))
+) {}

@@ -1,8 +1,7 @@
-import { Base } from "../elements/base";
+import { MarkerElement } from "../elements/base";
 import {
   AdditiveOperator,
   AdditiveToken,
-  BooleanToken,
   ColonToken,
   CommaToken,
   ComparisonOperator,
@@ -19,12 +18,9 @@ import {
   MultiplicativeOperator,
   MultiplicativeToken,
   NotToken,
-  NumberToken,
-  ParenthesisToken,
   PunctuatorToken,
   QuestionToken,
   SquareBracketToken,
-  StringToken,
   Token,
 } from "./tokens";
 
@@ -36,8 +32,8 @@ function getProperty<O extends object>(owner: O, propertyKey: PropertyKey) {
       return owner[propertyKey].bind(owner);
     return owner[propertyKey];
   }
-  if (propertyKey in owner.constructor) return owner.constructor[propertyKey];
-  if (owner instanceof Base && owner.parent instanceof Base)
+  if (propertyKey in MarkerElement) return MarkerElement[propertyKey];
+  if (owner instanceof MarkerElement && owner.parent instanceof MarkerElement)
     return getProperty(owner.parent, propertyKey);
   throw new Error(`Couldn't find ${propertyKey.toString()}`);
 }
