@@ -1,6 +1,6 @@
 import { Base } from "./elements/base";
 import { MarkerWindow } from "./elements/window";
-import { Canvas } from "./elements/canvas";
+import { MarkerCanvas } from "./elements/canvas";
 import { Setting } from "./elements/setting";
 import { MarkerSVG } from "./elements/svg";
 import { Rectangle } from "./elements/2d_shapes";
@@ -13,7 +13,7 @@ const Marker = {
   elementConstructors: {
     MarkerElement: Base,
     Window: MarkerWindow,
-    Canvas: Canvas,
+    Canvas: MarkerCanvas,
     Setting: Setting,
     Rectangle: Rectangle,
     SVG: MarkerSVG,

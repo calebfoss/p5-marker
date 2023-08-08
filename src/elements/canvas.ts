@@ -3,7 +3,7 @@ import { defaultFill, defaultStroke } from "../mixins/style";
 import { MarkerElement } from "./base";
 import { MarkerSVG } from "./svg";
 
-export class Canvas extends dimensions(MarkerElement) {
+export class MarkerCanvas extends dimensions(MarkerElement) {
   #dom_element: HTMLCanvasElement;
   #context: CanvasRenderingContext2D;
   constructor() {
@@ -15,7 +15,7 @@ export class Canvas extends dimensions(MarkerElement) {
       this.onCanvasClicked(e.x, e.y, performance.now());
     });
   }
-  #background = Canvas.gray(220);
+  #background = MarkerCanvas.gray(220);
   get background() {
     return this.#background;
   }
@@ -54,7 +54,7 @@ export class Canvas extends dimensions(MarkerElement) {
   get drawing_context() {
     return this.#context;
   }
-  declare propertyManager: PropertyManager<Canvas>;
+  declare propertyManager: PropertyManager<MarkerCanvas>;
   renderToCanvas(context: CanvasRenderingContext2D): void {
     const canvas = this.#dom_element as HTMLCanvasElement;
     if (canvas.width !== this.width || canvas.height !== this.height) {
@@ -63,7 +63,7 @@ export class Canvas extends dimensions(MarkerElement) {
       canvas.height = this.height;
       Object.assign(context, contextCopy);
     }
-    if (this.background !== Canvas.NONE) {
+    if (this.background !== MarkerCanvas.NONE) {
       context.fillStyle = this.background;
       context.fillRect(0, 0, this.width, this.height);
     }
@@ -116,4 +116,4 @@ export class Canvas extends dimensions(MarkerElement) {
     super.renderToSVG(parentElement, this.#svg_background_element);
   }
 }
-customElements.define("m-canvas", Canvas);
+customElements.define("m-canvas", MarkerCanvas);

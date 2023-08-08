@@ -1,6 +1,6 @@
 import "../src/index";
 import { MarkerWindow } from "../src/elements/window";
-import { Canvas as MarkerCanvas } from "../src/elements/canvas";
+import { MarkerCanvas } from "../src/elements/canvas";
 import { CanvasRenderingContext2D } from "canvas";
 import { Rectangle } from "../src/elements/2d_shapes";
 
