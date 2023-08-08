@@ -21,7 +21,7 @@ export const interpret = (
       case "repeat":
         return [element, element];
       default:
-        return [element.base, element.parent];
+        return [element.base, element.parentElement];
     }
   })();
   const [getOwner, getPropertyKey, getValue] = parseAttribute(

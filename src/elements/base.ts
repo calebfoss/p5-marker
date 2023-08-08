@@ -222,7 +222,7 @@ export class Base extends HTMLElement {
   get parent() {
     return this.parentElement;
   }
-  set parent(element) {
+  set parent(element: Element) {
     element.appendChild(this);
   }
   renderToCanvas(context: CanvasRenderingContext2D) {
@@ -278,7 +278,10 @@ export class Base extends HTMLElement {
       updater();
     }
     deepEvaluateAndAssign(this.#nextValues, this.#getBaseValues);
-    deepAssign(this, this.#nextValues);
+    if (!("on" in this.#nextValues) || this.#nextValues.on) {
+      deepAssign(this, this.#nextValues);
+    }
+
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();
