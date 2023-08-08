@@ -1,3 +1,5 @@
+import { Base } from "../elements/base";
+
 export class Vector {
   #x = 0;
   #getX = () => this.#x;
@@ -64,3 +66,11 @@ export class Vector {
     this.#setY(value);
   }
 }
+
+export const vector = (baseClass: typeof Base) =>
+  class XY extends baseClass {
+    static xy(x: number, y?: number): Vector {
+      y = y || x;
+      return new Vector(x, y);
+    }
+  };

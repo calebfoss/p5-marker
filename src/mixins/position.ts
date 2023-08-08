@@ -1,7 +1,7 @@
-import { Vector } from "../classes/vector";
 import { Base } from "../elements/base";
+import { Vector } from "./vector";
 
-const origin = Base.xy(0, 0);
+const origin = new Vector(0, 0);
 
 export const position = <T extends typeof Base>(baseClass: T) =>
   class PositionElement extends baseClass {

@@ -1,4 +1,4 @@
-import { Vector } from "../classes/vector";
+import { Vector } from "./vector";
 import { Base } from "../elements/base";
 
 type ContextMethods = Pick<
@@ -41,7 +41,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       return this.#scale;
     }
     set scale(value) {
-      if (typeof value === "number") value = Base.xy(value, value);
+      if (typeof value === "number") value = new Vector(value, value);
       this.#scale = value;
       this.#transformations.scale = [value.x, value.y];
     }
@@ -76,7 +76,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
           ? [arguments[0].x, arguments[0].y]
           : arguments;
       if (typeof this.#canvas_transformation === "undefined")
-        return TransformElement.xy(x, y);
+        return new Vector(x, y);
       const original_position = new DOMPointReadOnly(x, y);
       const inverted_matrix = this.#canvas_transformation.inverse();
       const transformed_point =
@@ -119,10 +119,10 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
           ? [arguments[0].x, arguments[0].y]
           : arguments;
       if (typeof this.#canvas_transformation === "undefined")
-        return TransformElement.xy(x, y);
+        return new Vector(x, y);
       const original_position = new DOMPointReadOnly(x, y);
       const untransformed_point =
         this.#canvas_transformation.transformPoint(original_position);
-      return TransformElement.xy(untransformed_point.x, untransformed_point.y);
+      return new Vector(untransformed_point.x, untransformed_point.y);
     }
   };

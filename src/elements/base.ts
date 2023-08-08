@@ -1,4 +1,4 @@
-import { Vector } from "../classes/vector";
+import { Vector, vector } from "../mixins/vector";
 import { interpret } from "../interpreter/interpreter";
 import { calculate } from "../mixins/calculate";
 import { color } from "../mixins/color";
@@ -316,12 +316,8 @@ export class Base extends HTMLElement {
       `${this.tagName} tried to access its window property, but its parent is not a Marker element`
     );
   }
-  static xy(x: number, y?: number): Vector {
-    y = y || x;
-    return new Vector(x, y);
-  }
 }
 
 export class MarkerElement extends transform(
-  color(random(constants(calculate(Base))))
+  color(random(constants(calculate(vector(Base)))))
 ) {}
