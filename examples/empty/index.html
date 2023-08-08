@@ -13,7 +13,13 @@
 
 
   <m-window>
-    <m-svg><m-rectangle></m-rectangle></m-svg>
+    <m-canvas>
+      <m-rectangle anchor="xy(width / 2, height / 2)" then.anchor="anchor.minus(1, 0)" fill="'red'" width="100"
+        height="100">
+        <m-setting></m-setting>
+      </m-rectangle>
+    </m-canvas>
+
   </m-window>
 
 
@@ -36,10 +42,6 @@
     const windowElement = document.querySelector("m-window");
     const canvasElement = document.querySelector("m-canvas");
     const rectElement = document.querySelector("m-rectangle");
-
-    window.addEventListener("mousemove", (e) => {
-      rectElement.position.x = e.x;
-    })
   </script>
 </body>
 

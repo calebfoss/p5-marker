@@ -1,3 +1,4 @@
+import { Vector } from "../classes/vector";
 import { Base } from "../elements/base";
 
 type ContextMethods = Pick<
@@ -19,23 +20,9 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     constructor(...args: any[]) {
       super(...args);
     }
-    #anchor = Base.xy(0, 0);
+    #anchor = new Vector(0, 0);
     get anchor() {
-      const element = this;
-      return {
-        get x() {
-          return element.#anchor.x;
-        },
-        set x(value) {
-          element.anchor = Base.xy(value, element.#anchor.y);
-        },
-        get y() {
-          return element.#anchor.y;
-        },
-        set y(value) {
-          element.anchor = Base.xy(element.#anchor.x, value);
-        },
-      };
+      return this.#anchor;
     }
     set anchor(value) {
       this.#anchor = value;
@@ -49,23 +36,9 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       this.#angle = value;
       this.#transformations.rotate = [value];
     }
-    #scale = Base.xy(1, 1);
+    #scale = new Vector(1, 1);
     get scale() {
-      const element = this;
-      return {
-        get x() {
-          return element.#scale.x;
-        },
-        set x(value) {
-          element.scale = Base.xy(value, element.#scale.y);
-        },
-        get y() {
-          return element.#scale.y;
-        },
-        set y(value) {
-          element.scale = Base.xy(element.#scale.x, value);
-        },
-      };
+      return this.#scale;
     }
     set scale(value) {
       if (typeof value === "number") value = Base.xy(value, value);
@@ -108,7 +81,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       const inverted_matrix = this.#canvas_transformation.inverse();
       const transformed_point =
         inverted_matrix.transformPoint(original_position);
-      return TransformElement.xy(transformed_point.x, transformed_point.y);
+      return new Vector(transformed_point.x, transformed_point.y);
     }
     transform_context(context: CanvasRenderingContext2D): void {
       const transformations = Object.entries(this.#transformations).sort(

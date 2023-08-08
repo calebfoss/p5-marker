@@ -3,7 +3,7 @@ import { MarkerWindow } from "../src/elements/window";
 import { MarkerCanvas } from "../src/elements/canvas";
 import { Setting } from "../src/elements/setting";
 import { CanvasRenderingContext2D } from "canvas";
-import { MarkerElement } from "../src/elements/base";
+import { wrapMethod } from "./wrapMethod";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
 let windowElement: MarkerWindow,
@@ -14,21 +14,6 @@ let onDraw: () => void;
 let frame: number;
 const framesPerTest = 10;
 let done: Promise<boolean>;
-
-export const wrapMethod = <
-  T extends MarkerElement,
-  PropKey extends keyof T,
-  MethodKey extends {
-    [key in keyof T]: T[key] extends Function ? key : never;
-  }[PropKey]
->(
-  element: T,
-  methodName: MethodKey,
-  getWrappedMethod: (baseMethod: T[MethodKey]) => T[MethodKey]
-) => {
-  const baseMethod = (element[methodName] as Function).bind(element);
-  element[methodName] = getWrappedMethod(baseMethod);
-};
 
 beforeEach(() => {
   windowElement = document.createElement("m-window") as MarkerWindow;

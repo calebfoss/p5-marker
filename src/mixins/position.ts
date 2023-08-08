@@ -1,3 +1,4 @@
+import { Vector } from "../classes/vector";
 import { Base } from "../elements/base";
 
 const origin = Base.xy(0, 0);
@@ -7,29 +8,26 @@ export const position = <T extends typeof Base>(baseClass: T) =>
     constructor(...args: any[]) {
       super(...args);
     }
-    #position = Base.xy(null, null);
+    #position_x = null;
+    #position_y = null;
+    #position = new Vector(
+      () =>
+        this.#position_x === null
+          ? this.inherit("position", origin).x
+          : this.#position_x,
+      (value) => {
+        this.#position_x = value;
+      },
+      () =>
+        this.#position_y === null
+          ? this.inherit("position", origin).y
+          : this.#position_y,
+      (value) => {
+        this.#position_y = value;
+      }
+    );
     get position(): Vector {
-      const value = this.#position;
-      if (value.x !== null && value.y !== null) return value;
-      const element = this;
-      return {
-        get x() {
-          return value.x === null
-            ? element.inherit("position", origin).x
-            : value.x;
-        },
-        set x(value) {
-          element.#position.x = value;
-        },
-        get y() {
-          return value.y !== null
-            ? value.y
-            : element.inherit("position", origin).y;
-        },
-        set y(value) {
-          element.#position.y = value;
-        },
-      };
+      return this.#position;
     }
     set position(value) {
       this.#position = value;

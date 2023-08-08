@@ -1,3 +1,4 @@
+import { Vector } from "../classes/vector";
 import { interpret } from "../interpreter/interpreter";
 import { calculate } from "../mixins/calculate";
 import { color } from "../mixins/color";
@@ -34,9 +35,11 @@ export type GettersFor<O extends object> = {
 function deepAssign(target: object, source: GettersFor<object>) {
   for (const [key, value] of Object.entries(source)) {
     if (typeof value === "object") {
-      if (typeof target[key] === "undefined")
+      if (typeof target[key] === "undefined") {
         target[key] = Array.isArray(value) ? [] : {};
-      deepAssign(target[key], value);
+        deepAssign(target[key], value);
+      } else if (value instanceof target[key].constructor) target[key] = value;
+      else deepAssign(target[key], value);
     } else target[key] = source[key];
   }
 }
@@ -314,8 +317,8 @@ export class Base extends HTMLElement {
     );
   }
   static xy(x: number, y?: number): Vector {
-    if (typeof y === "undefined") return { x, y: x };
-    return { x, y };
+    y = y || x;
+    return new Vector(x, y);
   }
 }
 

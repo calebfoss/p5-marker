@@ -3,7 +3,7 @@ import { MarkerWindow } from "../src/elements/window";
 import { MarkerCanvas } from "../src/elements/canvas";
 import { Setting } from "../src/elements/setting";
 import { CanvasRenderingContext2D } from "canvas";
-import { wrapMethod } from "./base.test";
+import { wrapMethod } from "./wrapMethod";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
 let windowElement: MarkerWindow,
