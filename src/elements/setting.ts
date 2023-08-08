@@ -9,7 +9,7 @@ export class Setting extends position(
 ) {
   renderToCanvas(context: CanvasRenderingContext2D): void;
   renderToCanvas(context: CanvasRenderingContext2D): void {
-    this.transformCanvas(context);
+    this.transform_context(context);
     this.styleContext(context);
     super.renderToCanvas(context);
   }

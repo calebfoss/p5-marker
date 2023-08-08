@@ -33,6 +33,7 @@ import {
   CurlyBracketToken,
   DegreeValue,
   DegreeToken,
+  ElementToken,
 } from "./tokens";
 
 export const lex = (str: string): Token[] => {
@@ -186,6 +187,14 @@ export const lex = (str: string): Token[] => {
       const end = start + DegreeValue.length;
       const degreeToken = new DegreeToken(start, end, DegreeValue);
       return getTokens(end, tokens.concat(degreeToken));
+    }
+
+    const elementMatch = stringFromStart.match(/^@[a-zA-Z][\w-]*/);
+    if (elementMatch) {
+      const end = start + elementMatch[0].length;
+      const id = elementMatch[0].slice(1);
+      const elementToken = new ElementToken(start, end, id);
+      return getTokens(end, tokens.concat(elementToken));
     }
 
     const identifierMatch = stringFromStart.match(/^[a-zA-Z]\w*/);

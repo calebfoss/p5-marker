@@ -9,7 +9,7 @@ export class Rectangle extends position(
   dimensions(fill(stroke(clickable(visible(MarkerElement)))))
 ) {
   renderToCanvas(context: CanvasRenderingContext2D) {
-    this.transformCanvas(context);
+    this.transform_context(context);
     if (this.visible) {
       context.rect(this.position.x, this.position.y, this.width, this.height);
       this.checkClick(context);

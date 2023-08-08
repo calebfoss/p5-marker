@@ -51,6 +51,16 @@ export class NumberToken extends LiteralToken {
   }
 }
 
+export class ElementToken extends LiteralToken {
+  declare value: Element;
+  constructor(start: number, end: number, raw: string) {
+    const element = document.querySelector(`#${raw}`);
+    if (element === null)
+      throw new Error(`Couldn't find element with id ${raw}`);
+    super(start, end, element);
+  }
+}
+
 export class PunctuatorToken extends Token {}
 
 export const AdditiveOperators = ["+", "-"] as const;
