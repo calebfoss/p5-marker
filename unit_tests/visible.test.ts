@@ -2,7 +2,7 @@ import "../src/index";
 import { MarkerWindow } from "../src/elements/window";
 import { MarkerCanvas } from "../src/elements/canvas";
 import { CanvasRenderingContext2D } from "canvas";
-import { Rectangle } from "../src/elements/2d_shapes";
+import { Rectangle } from "../src/elements/rectangle";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
 let windowElement: MarkerWindow,

@@ -1,7 +1,8 @@
-import { Line, Rectangle } from "../elements/2d_shapes";
+import { Line } from "../elements/line";
 import { MarkerElement } from "../elements/base";
 import { Mouse } from "./mouse";
 import { Vector } from "./vector";
+import { Rectangle } from "../elements/rectangle";
 
 export class Collide {
   static line = {

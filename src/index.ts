@@ -3,7 +3,8 @@ import { MarkerWindow } from "./elements/window";
 import { MarkerCanvas } from "./elements/canvas";
 import { Setting } from "./elements/setting";
 import { MarkerSVG } from "./elements/svg";
-import { Rectangle } from "./elements/2d_shapes";
+import { Line } from "./elements/line";
+import { Rectangle } from "./elements/rectangle";
 import { stroke, fill } from "./mixins/style";
 import { position } from "./mixins/position";
 
@@ -14,6 +15,7 @@ const Marker = {
     MarkerElement: Base,
     Window: MarkerWindow,
     Canvas: MarkerCanvas,
+    Line: Line,
     Setting: Setting,
     Rectangle: Rectangle,
     SVG: MarkerSVG,
