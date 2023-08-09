@@ -4,10 +4,20 @@ import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 import { clickable } from "../mixins/click";
 import { MarkerElement } from "./base";
+import { Collide } from "../mixins/collide";
 
 export class Rectangle extends position(
   dimensions(fill(stroke(clickable(visible(MarkerElement)))))
 ) {
+  colliding(element: MarkerElement) {
+    if (element instanceof Rectangle)
+      return Collide.rectangleRectangle(this, element);
+
+    console.warn(
+      `Collision detection has not been implemented between ${element.tagName} and rectangle.`
+    );
+    return false;
+  }
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transform_context(context);
     if (this.visible) {
