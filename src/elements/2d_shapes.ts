@@ -3,19 +3,22 @@ import { position } from "../mixins/position";
 import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 import { MarkerElement } from "./base";
-import { Collide } from "../mixins/collide";
+import { Collide, CollisionElement } from "../mixins/collide";
 import { Vector } from "../mixins/vector";
+import { Mouse } from "../mixins/mouse";
 
-export class Rectangle extends position(
-  dimensions(fill(stroke(visible(MarkerElement))))
-) {
+export class Rectangle
+  extends position(dimensions(fill(stroke(visible(MarkerElement)))))
+  implements CollisionElement
+{
   get clicked() {
     return this.window.mouse.up && this.hovered;
   }
-  colliding(other: Vector | Rectangle) {
-    if (other instanceof Vector) return Collide.rectangleVector(this, other);
+  colliding(other: Mouse | Vector | Line | Rectangle) {
+    if (other instanceof Vector) return Collide.rectangle.vector(this, other);
     if (other instanceof Rectangle)
-      return Collide.rectangleRectangle(this, other);
+      return Collide.rectangle.rectangle(this, other);
+    if (other instanceof Line) return Collide.rectangle.line(this, other);
     console.warn(
       `Collision detection has not been implemented between ${
         (other as HTMLElement).tagName
@@ -65,7 +68,24 @@ export class Rectangle extends position(
 }
 customElements.define("m-rectangle", Rectangle);
 
-export class Line extends position(stroke(visible(MarkerElement))) {
+export class Line
+  extends position(stroke(visible(MarkerElement)))
+  implements CollisionElement
+{
+  get clicked() {
+    return this.window.mouse.down && this.hovered;
+  }
+  colliding(other: Line | Vector | Mouse | Rectangle) {
+    if (other instanceof Vector) return Collide.line.vector(this, other);
+    if (other instanceof Rectangle) return Collide.rectangle.line(other, this);
+    if (other instanceof Line) return Collide.line.line(this, other);
+    console.warn(
+      `Collision detection has not been implemented between ${
+        (other as HTMLElement).tagName
+      } and line.`
+    );
+    return false;
+  }
   #end_x = null;
   #end_y = null;
   #end = new Vector(
@@ -91,6 +111,9 @@ export class Line extends position(stroke(visible(MarkerElement))) {
   }
   set end(value) {
     this.#end = value;
+  }
+  get hovered() {
+    return this.colliding(this.window.mouse);
   }
   renderToCanvas(context: CanvasRenderingContext2D): void {
     this.transform_context(context);

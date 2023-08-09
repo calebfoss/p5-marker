@@ -1,4 +1,5 @@
 import { Base } from "../elements/base";
+import { Calculate } from "./calculate";
 
 export class Vector {
   #x = 0;
@@ -35,6 +36,9 @@ export class Vector {
       this.#setY = arguments[3];
     }
   }
+  get magnitude() {
+    return Calculate.distance(0, 0, this.#x, this.#y);
+  }
   minus(vector: Vector): Vector;
   minus(x: number, y: number): Vector;
   minus() {
@@ -70,7 +74,7 @@ export class Vector {
 export const vector = (baseClass: typeof Base) =>
   class XY extends baseClass {
     static xy(x: number, y?: number): Vector {
-      y = y || x;
+      y = typeof y === "undefined" ? x : y;
       return new Vector(x, y);
     }
   };

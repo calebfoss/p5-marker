@@ -174,13 +174,13 @@ function fnCall<L extends Function, R extends any[]>(
   return () => getFunction()(...getArguments());
 }
 
-function commaSeparatedSections(tokens: Tokens) {
-  const sections: Token[][] = [[]];
-  for (const token of tokens) {
-    if (token instanceof CommaToken) sections.push([]);
-    else sections[sections.length - 1].push(token);
-  }
-  return sections;
+function commaSeparatedSections(tokens: Tokens, sections: Token[][] = []) {
+  const [commaIndex] = findTokenOfClass(tokens, CommaToken);
+  if (commaIndex === -1) return sections.concat([tokens]);
+  return commaSeparatedSections(
+    tokens.slice(commaIndex + 1),
+    sections.concat([tokens.slice(0, commaIndex)])
+  );
 }
 
 function not<R>(getRight: () => R) {
@@ -488,7 +488,8 @@ function parseExpression<O extends object>(
   );
   const rightParenthesisIndex = shallowFindIndex(
     tokens,
-    (token) => token.value === ")"
+    (token) => token.value === ")",
+    false
   );
   if (leftParenthesisIndex > -1) {
     if (rightParenthesisIndex === -1)
