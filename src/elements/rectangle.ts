@@ -1,4 +1,4 @@
-import { visible } from "./visible";
+import { visible } from "../mixins/visible";
 import { position } from "../mixins/position";
 import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
@@ -38,18 +38,6 @@ export class Rectangle
     }
     this.styleContext(context);
     super.renderToCanvas(context);
-  }
-  #DOM_Element: HTMLElement;
-  #DOM_Parent: HTMLElement;
-  renderToDOM(parentElement: Node): void {
-    if (typeof this.#DOM_Element === "undefined") {
-      this.#DOM_Element = document.createElement("div");
-    }
-    if (parentElement !== this.#DOM_Parent) {
-      parentElement.appendChild(this.#DOM_Element);
-    }
-    this.styleDOMElement(this.#DOM_Element);
-    super.renderToDOM(this.#DOM_Element);
   }
   renderToSVG(parentElement: SVGElement): void {
     if (typeof this.#svg_element === "undefined")

@@ -26,7 +26,7 @@ export class MarkerSVG extends dimensions(MarkerElement) {
   renderToDOM(parentElement: Node): void {
     if (parentElement !== this.#dom_element.parentElement)
       parentElement.appendChild(this.#dom_element);
-    this.styleDOMElement(this.#dom_element);
+    this.styleDocumentElement(this.#dom_element);
     super.renderToSVG(this.#dom_element);
   }
 }

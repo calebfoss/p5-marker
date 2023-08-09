@@ -7,6 +7,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
   class PositionElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
+      this.setDocumentElementStyle("position", "absolute");
     }
     #position_x = null;
     #position_y = null;
@@ -17,6 +18,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
           : this.#position_x,
       (value) => {
         this.#position_x = value;
+        this.setDocumentElementStyle("left", `${value}px`);
       },
       () =>
         this.#position_y === null
@@ -24,6 +26,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
           : this.#position_y,
       (value) => {
         this.#position_y = value;
+        this.setDocumentElementStyle("top", `${value}px`);
       }
     );
     get position(): Vector {
@@ -31,11 +34,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
     }
     set position(value) {
       this.#position = value;
-    }
-    styleDOMElement(element: HTMLElement): void {
-      element.style.position = "absolute";
-      element.style.left = `${this.position.x}px`;
-      element.style.top = `${this.position.y}px`;
-      super.styleDOMElement(element);
+      this.setDocumentElementStyle("left", `${value.x}px`);
+      this.setDocumentElementStyle("top", `${value.y}px`);
     }
   };

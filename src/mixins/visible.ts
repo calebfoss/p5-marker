@@ -1,4 +1,4 @@
-import { MarkerElement } from "./base";
+import { MarkerElement } from "../elements/base";
 
 export const visible = <T extends typeof MarkerElement>(baseClass: T) =>
   class VisibleElement extends baseClass {
@@ -12,8 +12,6 @@ export const visible = <T extends typeof MarkerElement>(baseClass: T) =>
     }
     set visible(value) {
       this.#visible = value;
-    }
-    styleDOMElement(element: HTMLElement): void {
-      element.style.display = this.visible ? "unset" : "none";
+      this.setDocumentElementStyle("display", value ? "unset" : "none");
     }
   };

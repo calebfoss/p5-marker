@@ -132,6 +132,26 @@ export class Base extends HTMLElement {
   get count() {
     return this.#count;
   }
+  protected createDocumentElement(): HTMLElement {
+    const element = document.createElement("div");
+    element.addEventListener("click", (e) => {
+      this.dispatchEvent(new MouseEvent("click", e));
+    });
+    return element;
+  }
+  #documentElementStyle: Partial<CSSStyleDeclaration> = {
+    background: "rgb(255, 255, 255)",
+    outlineColor: "rgb(0, 0, 0)",
+    outlineStyle: "solid",
+    outlineWidth: "1px",
+  };
+  #documentElements: HTMLElement[] = [];
+  get document_element() {
+    if (this.count >= this.#documentElements.length) {
+      this.#documentElements[this.count] = this.createDocumentElement();
+    }
+    return this.#documentElements[this.count];
+  }
   #render_frame = -1;
   #nextValues: Partial<this> = {};
   #preIterationValues: Partial<this> = {};
@@ -173,8 +193,12 @@ export class Base extends HTMLElement {
       render();
       this.#count++;
       deepEvaluateAndAssign(this, this.#getEachValues);
-      if (!this.repeat) break;
+      if (!this.repeat) {
+        this.#count = 0;
+        break;
+      }
       if (this.#count >= this.max_count) {
+        this.#count = 0;
         console.warn(
           `${this.tagName} reached its maximum iteration count of ${this.max_count}`
         );
@@ -231,8 +255,12 @@ export class Base extends HTMLElement {
     }
   }
   renderToDOM(parentElement: Node) {
+    const element = this.document_element;
+    if (element.parentElement !== parentElement)
+      parentElement.appendChild(element);
+    this.styleDocumentElement(element);
     for (const child of this.children) {
-      if (child instanceof Base) child.draw(parentElement);
+      if (child instanceof Base) child.draw(element);
     }
   }
   renderToSVG(parentElement: SVGElement, element?: SVGElement) {
@@ -294,10 +322,18 @@ export class Base extends HTMLElement {
   ) {
     this.#canvas_style[key] = value;
   }
+  setDocumentElementStyle<K extends keyof CSSStyleDeclaration>(
+    key: K,
+    value: CSSStyleDeclaration[K]
+  ) {
+    this.#documentElementStyle[key] = value;
+  }
   styleContext(context: CanvasRenderingContext2D) {
     Object.assign(context, this.#canvas_style);
   }
-  styleDOMElement(element: Element) {}
+  styleDocumentElement(element: Element) {
+    Object.assign(this.document_element.style, this.#documentElementStyle);
+  }
   styleSVGElement(groupElement: SVGElement) {}
   #svg_group: SVGGElement;
   #then = deepProxy(this, this.#getThenValues);

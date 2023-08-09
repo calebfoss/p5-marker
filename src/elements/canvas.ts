@@ -11,9 +11,7 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     this.#dom_element = document.createElement("canvas");
     const context = this.#dom_element.getContext("2d");
     if (context !== null) this.#context = context;
-    this.#dom_element.addEventListener("click", (e) => {
-      this.dispatchEvent(new MouseEvent("click"));
-    });
+    this.#dom_element;
   }
   #background = MarkerCanvas.gray(220);
   get background() {
@@ -25,8 +23,15 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
   get canvas() {
     return this;
   }
-  get dom_element() {
-    return this.#dom_element;
+  protected createDocumentElement(): HTMLCanvasElement {
+    const element = document.createElement("canvas");
+    element.addEventListener("click", (e) => {
+      this.dispatchEvent(e);
+    });
+    return element;
+  }
+  get document_element() {
+    return super.document_element as HTMLCanvasElement;
   }
   set download(filename: string) {
     const extension = filename.slice(filename.lastIndexOf(".") + 1);
@@ -52,14 +57,17 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     anchor.click();
   }
   get drawing_context() {
-    return this.#context;
+    return this.document_element.getContext("2d");
   }
   renderToCanvas(context: CanvasRenderingContext2D): void {
-    const canvas = this.#dom_element as HTMLCanvasElement;
-    if (canvas.width !== this.width || canvas.height !== this.height) {
+    const canvasElement = context.canvas;
+    if (
+      canvasElement.width !== this.width ||
+      canvasElement.height !== this.height
+    ) {
       const contextCopy = JSON.parse(JSON.stringify(context));
-      canvas.width = this.width;
-      canvas.height = this.height;
+      canvasElement.width = this.width;
+      canvasElement.height = this.height;
       Object.assign(context, contextCopy);
     }
     if (this.background !== MarkerCanvas.NONE) {
@@ -71,16 +79,11 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     super.renderToCanvas(context);
   }
   renderToDOM(parentElement: Node) {
-    if (typeof this.#dom_element === "undefined")
-      this.#dom_element = document.createElement("canvas");
-    if (parentElement !== this.#dom_element.parentElement)
-      parentElement.appendChild(this.#dom_element);
-    if (typeof this.#context === "undefined") {
-      const context = this.#dom_element.getContext("2d");
-      if (context === null) return;
-      this.#context = context;
-    }
-    this.renderToCanvas(this.#context);
+    const canvasElement = this.document_element;
+    if (parentElement !== canvasElement.parentElement)
+      parentElement.appendChild(canvasElement);
+    const context = canvasElement.getContext("2d");
+    this.renderToCanvas(context);
   }
   #svg_element: SVGElement;
   #svg_background_element: SVGElement;

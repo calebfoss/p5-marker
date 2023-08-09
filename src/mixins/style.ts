@@ -16,6 +16,7 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
     set fill(value) {
       this.#fill = value;
       this.setContextProperty("fillStyle", value);
+      this.setDocumentElementStyle("background", value);
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.fill !== "none") {
@@ -26,10 +27,6 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
     styleSVGElement(element: SVGElement): void {
       element.setAttribute("fill", this.fill === null ? "none" : this.fill);
       super.styleSVGElement(element);
-    }
-    styleDOMElement(element: HTMLElement): void {
-      element.style.background = this.fill;
-      super.styleDOMElement(element);
     }
   };
 
@@ -64,6 +61,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     set line_width(value) {
       this.#line_width = value;
       this.setContextProperty("lineWidth", value);
+      this.setDocumentElementStyle("outlineWidth", `${value}px`);
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
       if (this.stroke !== "none") {
@@ -79,15 +77,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     set stroke(value) {
       this.#stroke = value;
       this.setContextProperty("strokeStyle", value);
-    }
-    styleDOMElement(element: HTMLElement): void {
-      if (this.stroke === "none") element.style.outline = "none";
-      else {
-        element.style.outlineColor = this.stroke;
-        element.style.outlineWidth = `${this.line_width}px`;
-        element.style.outlineStyle = "solid";
-      }
-      super.styleDOMElement(element);
+      this.setDocumentElementStyle("outlineColor", value);
     }
     styleSVGElement(element: SVGElement): void {
       element.style.stroke = this.stroke;

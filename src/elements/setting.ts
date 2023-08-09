@@ -2,7 +2,7 @@ import { position } from "../mixins/position";
 import { stroke, fill } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 import { MarkerElement } from "./base";
-import { visible } from "./visible";
+import { visible } from "../mixins/visible";
 
 export class Setting extends position(
   dimensions(stroke(fill(visible(MarkerElement))))

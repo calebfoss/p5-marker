@@ -27,6 +27,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     set anchor(value) {
       this.#anchor = value;
       this.#transformations.translate = [value.x, value.y];
+      this.setDocumentElementStyle("translate", `${value.x} ${value.y}`);
     }
     #angle = 0;
     get angle() {
@@ -35,6 +36,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     set angle(value) {
       this.#angle = value;
       this.#transformations.rotate = [value];
+      this.setDocumentElementStyle("rotate", `${value}rad`);
     }
     #scale = new Vector(1, 1);
     get scale() {
@@ -44,12 +46,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       if (typeof value === "number") value = new Vector(value, value);
       this.#scale = value;
       this.#transformations.scale = [value.x, value.y];
-    }
-    styleDOMElement(element: HTMLElement): void {
-      element.style.translate = `${this.anchor.x} ${this.anchor.y}`;
-      element.style.rotate = `${this.angle}rad`;
-      element.style.scale = `${this.scale.x} ${this.scale.y}`;
-      super.styleDOMElement(element);
+      this.setDocumentElementStyle("scale", `${value.x} ${value.y}`);
     }
     styleSVGElement(element: SVGElement) {
       if (
@@ -110,6 +107,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     set transformation(value) {
       this.#transformation = value;
       this.#transformations.transform = value;
+      this.setDocumentElementStyle("transform", `matrix(${value})`);
     }
     untransform(x: number, y: number): Vector;
     untransform(vector: Vector): Vector;

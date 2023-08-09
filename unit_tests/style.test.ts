@@ -11,7 +11,7 @@ let windowElement: MarkerWindow,
   settingElement: Setting;
 let drawListener: EventListener;
 let frame: number;
-const framesPerTest = 1;
+const framesPerTest = 2;
 let done: Promise<boolean>;
 
 const fill1 = "#012345";
@@ -65,17 +65,13 @@ test("fill - canvas", async () => {
 
 test("fill - dom", async () => {
   const fill3 = "rgb(10, 20, 30)";
-  settingElement.parent = windowElement;
-  settingElement.setAttribute("fill", `'${fill3}'`);
-  await new Promise((resolve) => {
-    windowElement.addEventListener("setup", () => {
-      resolve(true);
-    });
-    windowElement.setup();
+  windowElement.addEventListener("setup", () => {
+    settingElement.parent = windowElement;
   });
-  const testElement = document.createElement("div");
-  settingElement.styleDOMElement(testElement);
-  expect(testElement.style.background).toBe(fill3);
+  settingElement.setAttribute("fill", `'${fill3}'`);
+  windowElement.setup();
+  await done;
+  expect(settingElement.document_element.style.background).toBe(fill3);
 });
 
 test("stroke - canvas", async () => {
@@ -112,17 +108,15 @@ test("stroke - canvas", async () => {
 
 test("stroke - dom", async () => {
   const stroke3 = "rgb(20, 30, 40)";
-  settingElement.parent = windowElement;
+  windowElement.addEventListener("setup", () => {
+    settingElement.parent = windowElement;
+  });
   settingElement.setAttribute("stroke", `'${stroke3}'`);
   settingElement.setAttribute("line_width", line_width1.toString());
-  await new Promise((resolve) => {
-    windowElement.addEventListener("setup", () => {
-      resolve(true);
-    });
-    windowElement.setup();
-  });
-  const testElement = document.createElement("div");
-  settingElement.styleDOMElement(testElement);
-  expect(testElement.style.outlineColor).toBe(stroke3);
-  expect(testElement.style.outlineWidth).toBe(`${line_width1}px`);
+  windowElement.setup();
+  await done;
+  expect(settingElement.document_element.style.outlineColor).toBe(stroke3);
+  expect(settingElement.document_element.style.outlineWidth).toBe(
+    `${line_width1}px`
+  );
 });

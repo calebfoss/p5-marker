@@ -12,6 +12,7 @@ export const dimensions = <T extends typeof Base>(baseClass: T) =>
     }
     set width(value) {
       this.#width = value;
+      this.setDocumentElementStyle("width", `${value}px`);
     }
     #height = null;
     get height() {
@@ -20,6 +21,7 @@ export const dimensions = <T extends typeof Base>(baseClass: T) =>
     }
     set height(value) {
       this.#height = value;
+      this.setDocumentElementStyle("height", `${value}px`);
     }
     renderToSVG(parentElement: SVGElement, element?: SVGElement): void {
       if (typeof element !== "undefined") {
@@ -27,10 +29,5 @@ export const dimensions = <T extends typeof Base>(baseClass: T) =>
         element.style.height = `${this.height}px`;
       }
       super.renderToSVG(parentElement, element);
-    }
-    styleDOMElement(element: HTMLElement): void {
-      element.style.width = `${this.width}px`;
-      element.style.height = `${this.height}px`;
-      super.styleDOMElement(element);
     }
   };

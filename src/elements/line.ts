@@ -1,4 +1,4 @@
-import { visible } from "./visible";
+import { visible } from "../mixins/visible";
 import { position } from "../mixins/position";
 import { stroke } from "../mixins/style";
 import { MarkerElement } from "./base";
