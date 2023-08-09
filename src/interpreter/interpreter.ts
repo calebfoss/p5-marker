@@ -20,6 +20,8 @@ export const interpret = (
       case "then":
       case "repeat":
         return [element, element];
+      case "on":
+        return [element, element.parentElement];
       default:
         return [element.base, element.parentElement];
     }

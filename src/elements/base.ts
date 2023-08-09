@@ -138,6 +138,7 @@ export class Base extends HTMLElement {
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
   draw(argument: Node | CanvasRenderingContext2D): void {
+    if (!this.on) return;
     for (const updater of this.#updaters) {
       updater();
     }
@@ -145,9 +146,6 @@ export class Base extends HTMLElement {
       this.#render_frame = this.frame;
       this.#count = 0;
       updateIfNotIn(this.#nextValues, this.#getBaseValues, this.#getThenValues);
-      if ("on" in this.#nextValues) {
-        if (this.#nextValues.on === false) return;
-      } else if (this.on === false) return;
       deepAssign(this, this.#nextValues);
       deepAssign(this.#preIterationValues, this.#nextValues);
       deepEvaluateAndAssign(
@@ -210,12 +208,13 @@ export class Base extends HTMLElement {
   set max_count(value) {
     this.#max_count = value;
   }
-  #on = true;
+  #getOn = () => true;
   get on() {
-    return this.#on;
+    return this.#getOn();
   }
   set on(value) {
-    this.#on = value;
+    if (typeof value === "function") this.#getOn = value;
+    else this.#getOn = identity(value);
   }
   onCanvasClicked(x: number, y: number, time: DOMHighResTimeStamp) {
     for (const child of this.children) {
