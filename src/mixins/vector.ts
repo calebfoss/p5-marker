@@ -1,5 +1,4 @@
-import { Base } from "../elements/base";
-import { Calculate } from "./calculate";
+import { Base, MarkerElement } from "../elements/base";
 
 export class Vector {
   #x = 0;
@@ -37,7 +36,7 @@ export class Vector {
     }
   }
   get magnitude() {
-    return Calculate.distance(0, 0, this.#x, this.#y);
+    return MarkerElement.distance(0, 0, this.#x, this.#y);
   }
   minus(vector: Vector): Vector;
   minus(x: number, y: number): Vector;

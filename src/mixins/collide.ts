@@ -1,5 +1,5 @@
 import { Line, Rectangle } from "../elements/2d_shapes";
-import { Calculate } from "./calculate";
+import { MarkerElement } from "../elements/base";
 import { Mouse } from "./mouse";
 import { Vector } from "./vector";
 
@@ -39,7 +39,10 @@ export class Collide {
         lineEnd.y - lineStart.y,
         lineEnd.x - lineStart.x
       );
-      const distanceFromStartToVector = Calculate.distance(lineStart, vector);
+      const distanceFromStartToVector = MarkerElement.distance(
+        lineStart,
+        vector
+      );
       const angleFromLineToVector = angleToEnd - angleToVector;
       const distanceToLine = Math.abs(
         distanceFromStartToVector * Math.sin(angleFromLineToVector)
