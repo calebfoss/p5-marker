@@ -12,7 +12,7 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     const context = this.#dom_element.getContext("2d");
     if (context !== null) this.#context = context;
     this.#dom_element.addEventListener("click", (e) => {
-      this.onCanvasClicked(e.x, e.y, performance.now());
+      this.dispatchEvent(new MouseEvent("click"));
     });
   }
   #background = MarkerCanvas.gray(220);

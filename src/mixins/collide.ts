@@ -113,4 +113,28 @@ export class Collide {
     const b_vertices = [topLeftB, topRightB, bottomRightB, bottomLeftB];
     return Collide.#polygonPolygon(a_vertices, b_vertices);
   }
+  static rectangleVector(a: Rectangle, b: Vector) {
+    const rectTopLeft = a.untransform(a.position);
+    const rectBottomRight = a.untransform(
+      a.position.x + a.width,
+      a.position.y + a.height
+    );
+    if (a.angle === 0) {
+      return (
+        b.x >= rectTopLeft.x &&
+        b.x <= rectBottomRight.x &&
+        b.y >= rectTopLeft.y &&
+        b.y <= rectBottomRight.y
+      );
+    }
+    const rectTopRight = a.untransform(a.position.x + a.width, a.position.y);
+    const rectBottomLeft = a.untransform(a.position.x, a.position.y + a.height);
+    const rectVertices = [
+      rectTopLeft,
+      rectTopRight,
+      rectBottomRight,
+      rectBottomLeft,
+    ];
+    return Collide.#polygonPoint(rectVertices, b);
+  }
 }

@@ -216,11 +216,6 @@ export class Base extends HTMLElement {
     if (typeof value === "function") this.#getOn = value;
     else this.#getOn = identity(value);
   }
-  onCanvasClicked(x: number, y: number, time: DOMHighResTimeStamp) {
-    for (const child of this.children) {
-      if (child instanceof Base) child.onCanvasClicked(x, y, time);
-    }
-  }
   get parent() {
     return this.parentElement;
   }

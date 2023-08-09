@@ -2,28 +2,35 @@ import { visible } from "./visible";
 import { position } from "../mixins/position";
 import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
-import { clickable } from "../mixins/click";
 import { MarkerElement } from "./base";
 import { Collide } from "../mixins/collide";
 import { Vector } from "../mixins/vector";
 
 export class Rectangle extends position(
-  dimensions(fill(stroke(clickable(visible(MarkerElement)))))
+  dimensions(fill(stroke(visible(MarkerElement))))
 ) {
-  colliding(element: MarkerElement) {
-    if (element instanceof Rectangle)
-      return Collide.rectangleRectangle(this, element);
-
+  get clicked() {
+    return this.window.mouse.up && this.hovered;
+  }
+  colliding(other: Vector | Rectangle) {
+    if (other instanceof Vector) return Collide.rectangleVector(this, other);
+    if (other instanceof Rectangle)
+      return Collide.rectangleRectangle(this, other);
     console.warn(
-      `Collision detection has not been implemented between ${element.tagName} and rectangle.`
+      `Collision detection has not been implemented between ${
+        (other as HTMLElement).tagName
+      } and rectangle.`
     );
     return false;
+  }
+  get hovered() {
+    return this.colliding(this.window.mouse);
   }
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transform_context(context);
     if (this.visible) {
       context.rect(this.position.x, this.position.y, this.width, this.height);
-      this.checkClick(context);
+      if (this.clicked) this.dispatchEvent(new MouseEvent("click"));
     }
     this.styleContext(context);
     super.renderToCanvas(context);
