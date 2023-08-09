@@ -1,19 +1,22 @@
 import { dimensions } from "../mixins/dimensions";
+import { Mouse } from "../mixins/mouse";
 import { MarkerElement } from "./base";
 
 export class MarkerWindow extends dimensions(MarkerElement) {
   constructor() {
     super();
     window.addEventListener("mousedown", (e) => {
-      this.#mouseDownAt = performance.now();
+      this.#mouse.downAt = performance.now();
     });
     window.addEventListener("mouseup", (e) => {
-      this.#mouseUpAt = performance.now();
+      this.#mouse.upAt = performance.now();
     });
     window.addEventListener("mousemove", (e) => {
-      this.#mouseMoveAt = performance.now();
-      this.#mouse_x = e.x;
-      this.#mouse_y = e.y;
+      this.#mouse.moveAt = performance.now();
+      this.#mouse.previous.x = this.#mouse.x;
+      this.#mouse.previous.y = this.#mouse.y;
+      this.#mouse.x = e.x;
+      this.#mouse.y = e.y;
     });
     window.addEventListener("customElementsDefined", () => this.setup());
     const shadowDOM = this.attachShadow({ mode: "open" });
@@ -40,30 +43,12 @@ export class MarkerWindow extends dimensions(MarkerElement) {
   get frame_start() {
     return this.#currentFrameStartAt;
   }
-  #mouseDownAt = -1;
-  #mouseUpAt = -1;
-  #mouseMoveAt = -1;
-  #mouse_x = 0;
-  #mouse_y = 0;
+  #mouse = new Mouse(this);
   get mouse() {
-    const down =
-      this.#mouseDownAt < this.#currentFrameStartAt &&
-      this.#mouseDownAt >= this.#previousFrameStartAt;
-    const up =
-      this.#mouseUpAt < this.#currentFrameStartAt &&
-      this.#mouseUpAt >= this.#previousFrameStartAt;
-    const held = this.#mouseUpAt < this.#mouseDownAt;
-    const moving = this.#mouseMoveAt > this.#previousFrameStartAt;
-    const dragging = held && moving;
-    return {
-      down,
-      up,
-      held,
-      moving,
-      dragging,
-      x: this.#mouse_x,
-      y: this.#mouse_y,
-    };
+    return this.#mouse;
+  }
+  get previous_frame_start() {
+    return this.#previousFrameStartAt;
   }
   get window() {
     return this;

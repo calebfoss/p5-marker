@@ -5,6 +5,7 @@ import { dimensions } from "../mixins/dimensions";
 import { clickable } from "../mixins/click";
 import { MarkerElement } from "./base";
 import { Collide } from "../mixins/collide";
+import { Vector } from "../mixins/vector";
 
 export class Rectangle extends position(
   dimensions(fill(stroke(clickable(visible(MarkerElement)))))
@@ -56,3 +57,42 @@ export class Rectangle extends position(
   #svg_element: SVGRectElement;
 }
 customElements.define("m-rectangle", Rectangle);
+
+export class Line extends position(stroke(visible(MarkerElement))) {
+  #end_x = null;
+  #end_y = null;
+  #end = new Vector(
+    () =>
+      this.#end_x === null
+        ? this.inherit("end", new Vector(this.window.width, this.window.height))
+            .x
+        : this.#end_x,
+    (value) => {
+      this.#end.x = value;
+    },
+    () =>
+      this.#end_y === null
+        ? this.inherit("end", new Vector(this.window.width, this.window.height))
+            .y
+        : this.#end_y,
+    (value) => {
+      this.#end.y = value;
+    }
+  );
+  get end() {
+    return this.#end;
+  }
+  set end(value) {
+    this.#end = value;
+  }
+  renderToCanvas(context: CanvasRenderingContext2D): void {
+    this.transform_context(context);
+    if (this.visible) {
+      context.moveTo(this.position.x, this.position.y);
+      context.lineTo(this.end.x, this.end.y);
+    }
+    this.styleContext(context);
+    super.renderToCanvas(context);
+  }
+}
+customElements.define("m-line", Line);
