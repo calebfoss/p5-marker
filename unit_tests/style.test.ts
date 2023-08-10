@@ -69,9 +69,13 @@ test("fill - dom", async () => {
     settingElement.parent = windowElement;
   });
   settingElement.setAttribute("fill", `'${fill3}'`);
+  let element: HTMLElement | SVGSVGElement;
+  settingElement.addEventListener("draw", () => {
+    element = settingElement.document_element;
+  });
   windowElement.setup();
   await done;
-  expect(settingElement.document_element.style.background).toBe(fill3);
+  expect(element.style.background).toBe(fill3);
 });
 
 test("stroke - canvas", async () => {
@@ -113,10 +117,12 @@ test("stroke - dom", async () => {
   });
   settingElement.setAttribute("stroke", `'${stroke3}'`);
   settingElement.setAttribute("line_width", line_width1.toString());
+  let element: HTMLElement | SVGSVGElement;
+  settingElement.addEventListener("draw", () => {
+    element = settingElement.document_element;
+  });
   windowElement.setup();
   await done;
-  expect(settingElement.document_element.style.outlineColor).toBe(stroke3);
-  expect(settingElement.document_element.style.outlineWidth).toBe(
-    `${line_width1}px`
-  );
+  expect(element.style.outlineColor).toBe(stroke3);
+  expect(element.style.outlineWidth).toBe(`${line_width1}px`);
 });

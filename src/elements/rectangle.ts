@@ -27,6 +27,19 @@ export class Rectangle
     );
     return false;
   }
+  protected createSVGGroup(): SVGGElement {
+    const groupElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g"
+    );
+    const rectElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "rect"
+    );
+    groupElement.appendChild(rectElement);
+    this.styleSVGElement(groupElement, rectElement, true);
+    return groupElement;
+  }
   get hovered() {
     return this.colliding(this.window.mouse);
   }
@@ -39,20 +52,14 @@ export class Rectangle
     this.styleContext(context);
     super.renderToCanvas(context);
   }
-  renderToSVG(parentElement: SVGElement): void {
-    if (typeof this.#svg_element === "undefined")
-      this.#svg_element = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect"
+  get svg_element(): SVGRectElement {
+    const groupElement = this.svg_group;
+    const rectElement = groupElement.firstElementChild;
+    if (!(rectElement instanceof SVGRectElement))
+      throw new Error(
+        "Rectangle's svg_group's first child is not a rect element"
       );
-    const element = this.#svg_element;
-    parentElement.appendChild(element);
-    element.setAttribute("x", this.position.x.toString());
-    element.setAttribute("y", this.position.y.toString());
-    element.setAttribute("width", this.width.toString());
-    element.setAttribute("height", this.height.toString());
-    super.renderToSVG(parentElement, element);
+    return rectElement;
   }
-  #svg_element: SVGRectElement;
 }
 customElements.define("m-rectangle", Rectangle);

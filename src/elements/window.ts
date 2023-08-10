@@ -34,6 +34,9 @@ export class MarkerWindow extends dimensions(MarkerElement) {
   get delta_time() {
     return this.#delta_time;
   }
+  get document_element() {
+    return this;
+  }
   #frame = 0;
   #previousFrameStartAt = 0;
   #currentFrameStartAt = 0;
@@ -49,6 +52,11 @@ export class MarkerWindow extends dimensions(MarkerElement) {
   }
   get previous_frame_start() {
     return this.#previousFrameStartAt;
+  }
+  renderToDOM(parentElement: Node): void {
+    for (const child of this.children) {
+      if (child instanceof MarkerElement) child.draw(this.shadowRoot);
+    }
   }
   get window() {
     return this;

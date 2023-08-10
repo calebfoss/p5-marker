@@ -19,6 +19,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
       (value) => {
         this.#position_x = value;
         this.setDocumentElementStyle("left", `${value}px`);
+        this.setSVGElementAttribute("x", value.toString());
       },
       () =>
         this.#position_y === null
@@ -27,6 +28,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
       (value) => {
         this.#position_y = value;
         this.setDocumentElementStyle("top", `${value}px`);
+        this.setSVGElementAttribute("y", value.toString());
       }
     );
     get position(): Vector {
@@ -36,5 +38,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
       this.#position = value;
       this.setDocumentElementStyle("left", `${value.x}px`);
       this.setDocumentElementStyle("top", `${value.y}px`);
+      this.setSVGElementAttribute("x", value.x.toString());
+      this.setSVGElementAttribute("y", value.y.toString());
     }
   };

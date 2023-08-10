@@ -17,16 +17,13 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
       this.#fill = value;
       this.setContextProperty("fillStyle", value);
       this.setDocumentElementStyle("background", value);
+      this.setSVGStyle("fill", value);
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
-      if (this.fill !== "none") {
+      if (this.fill !== FillElement.NONE) {
         context.fill();
       }
       super.renderToCanvas(context);
-    }
-    styleSVGElement(element: SVGElement): void {
-      element.setAttribute("fill", this.fill === null ? "none" : this.fill);
-      super.styleSVGElement(element);
     }
   };
 
@@ -43,6 +40,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     set line_cap(value) {
       this.#line_cap = value;
       this.setContextProperty("lineCap", value);
+      this.setSVGStyle("stroke-linecap", value);
     }
     #line_join: CanvasLineJoin = null;
     get line_join(): CanvasLineJoin {
@@ -52,6 +50,7 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     set line_join(value) {
       this.#line_join = value;
       this.setContextProperty("lineJoin", value);
+      this.setSVGStyle("stroke-linejoin", value);
     }
     #line_width: number = null;
     get line_width(): number {
@@ -62,9 +61,10 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       this.#line_width = value;
       this.setContextProperty("lineWidth", value);
       this.setDocumentElementStyle("outlineWidth", `${value}px`);
+      this.setSVGStyle("stroke-width", value.toString());
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
-      if (this.stroke !== "none") {
+      if (this.stroke !== StrokeElement.NONE) {
         context.stroke();
       }
       super.renderToCanvas(context);
@@ -78,12 +78,6 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
       this.#stroke = value;
       this.setContextProperty("strokeStyle", value);
       this.setDocumentElementStyle("outlineColor", value);
-    }
-    styleSVGElement(element: SVGElement): void {
-      element.style.stroke = this.stroke;
-      element.style.strokeLinecap = this.line_cap;
-      element.style.strokeLinejoin = this.line_join;
-      element.style.strokeWidth = `${this.line_width}px`;
-      super.styleSVGElement(element);
+      this.setSVGStyle("stroke", value);
     }
   };

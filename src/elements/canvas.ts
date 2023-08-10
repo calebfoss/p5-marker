@@ -19,6 +19,8 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
   }
   set background(value) {
     this.#background = value;
+    this.setDocumentElementStyle("background", value);
+    this.setSVGStyle("fill", value);
   }
   get canvas() {
     return this;
@@ -30,6 +32,20 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     });
     return element;
   }
+  protected createSVGElement(): SVGElement {
+    const groupElement = super.createSVGGroup();
+    const viewElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "view"
+    );
+    const backgroundElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "rect"
+    );
+    groupElement.appendChild(backgroundElement);
+    groupElement.appendChild(viewElement);
+    return groupElement;
+  }
   get document_element() {
     return super.document_element as HTMLCanvasElement;
   }
@@ -40,7 +56,7 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     switch (extension) {
       case "svg":
         const markerSVG = document.createElement("m-svg") as MarkerSVG;
-        const svgParent = markerSVG.dom_element;
+        const svgParent = markerSVG.document_element;
         this.renderToSVG(svgParent);
         markerSVG.download = filename;
         return;
@@ -85,37 +101,18 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     const context = canvasElement.getContext("2d");
     this.renderToCanvas(context);
   }
-  #svg_element: SVGElement;
-  #svg_background_element: SVGElement;
-  renderToSVG(parentElement: SVGElement) {
-    if (typeof this.#svg_element === "undefined") {
-      this.#svg_element = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "view"
-      );
-    }
-    this.#svg_element.setAttribute(
-      "viewBox",
-      `0 0 ${this.width} ${this.height}`
+  styleSVGElement(): void {
+    const [viewElement, backgroundElement] = this.svg_group.children;
+    const currentViewBoxValue = viewElement.getAttributeNS(
+      "http://www.w3.org/2000/svg",
+      "viewBox"
     );
-    if (parentElement !== this.#svg_element.parentNode)
-      parentElement.appendChild(this.#svg_element);
-    const backgroundElementDefined =
-      typeof this.#svg_background_element !== "undefined";
-    if (this.background !== null) {
-      if (!backgroundElementDefined) {
-        this.#svg_background_element = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "rect"
-        );
-        this.#svg_element.appendChild(this.#svg_background_element);
-      }
-      this.#svg_background_element.style.stroke = "none";
-      this.#svg_background_element.style.fill = this.background;
-      this.#svg_background_element.style.width = this.width.toString();
-      this.#svg_background_element.style.height = this.height.toString();
-    } else if (backgroundElementDefined) this.#svg_background_element.remove();
-    super.renderToSVG(parentElement, this.#svg_background_element);
+    const nextViewBoxValue = `0 0 ${this.width} ${this.height}`;
+    if (currentViewBoxValue !== nextViewBoxValue) {
+      viewElement.setAttribute("viewBox", nextViewBoxValue);
+      backgroundElement.setAttribute("width", this.width.toString());
+      backgroundElement.setAttribute("height", this.height.toString());
+    }
   }
 }
 customElements.define("m-canvas", MarkerCanvas);

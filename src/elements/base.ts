@@ -132,11 +132,16 @@ export class Base extends HTMLElement {
   get count() {
     return this.#count;
   }
-  protected createDocumentElement(): HTMLElement {
+  protected createDocumentElement(): HTMLElement | SVGSVGElement {
     const element = document.createElement("div");
     element.addEventListener("click", (e) => {
       this.dispatchEvent(new MouseEvent("click", e));
     });
+    return element;
+  }
+  protected createSVGGroup(): SVGGElement {
+    const element = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    this.styleSVGElement(element, element, true);
     return element;
   }
   #documentElementStyle: Partial<CSSStyleDeclaration> = {
@@ -145,7 +150,7 @@ export class Base extends HTMLElement {
     outlineStyle: "solid",
     outlineWidth: "1px",
   };
-  #documentElements: HTMLElement[] = [];
+  #documentElements: (HTMLElement | SVGSVGElement)[] = [];
   get document_element() {
     if (this.count >= this.#documentElements.length) {
       this.#documentElements[this.count] = this.createDocumentElement();
@@ -164,6 +169,10 @@ export class Base extends HTMLElement {
     }
     if (this.#render_frame !== this.frame) {
       this.#render_frame = this.frame;
+      while (this.#svgGroups.length > this.#count) {
+        console.log(Array.isArray(this.#svgGroups));
+        this.#svgGroups.pop().remove();
+      }
       this.#count = 0;
       updateIfNotIn(this.#nextValues, this.#getBaseValues, this.#getThenValues);
       deepAssign(this, this.#nextValues);
@@ -194,11 +203,9 @@ export class Base extends HTMLElement {
       this.#count++;
       deepEvaluateAndAssign(this, this.#getEachValues);
       if (!this.repeat) {
-        this.#count = 0;
         break;
       }
       if (this.#count >= this.max_count) {
-        this.#count = 0;
         console.warn(
           `${this.tagName} reached its maximum iteration count of ${this.max_count}`
         );
@@ -263,19 +270,11 @@ export class Base extends HTMLElement {
       if (child instanceof Base) child.draw(element);
     }
   }
-  renderToSVG(parentElement: SVGElement, element?: SVGElement) {
-    if (typeof this.#svg_group === "undefined")
-      this.#svg_group = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-      );
-    const groupElement = this.#svg_group;
-    if (parentElement !== groupElement.parentNode)
+  renderToSVG(parentElement: Element) {
+    const groupElement = this.svg_group;
+    if (parentElement !== groupElement.parentElement)
       parentElement.appendChild(groupElement);
-    if (typeof element !== "undefined") {
-      this.styleSVGElement(groupElement);
-      groupElement.appendChild(element);
-    }
+    this.styleSVGElement(groupElement, groupElement);
     for (const child of this.children) {
       if (child instanceof Base) child.draw(groupElement);
     }
@@ -328,14 +327,74 @@ export class Base extends HTMLElement {
   ) {
     this.#documentElementStyle[key] = value;
   }
+  setSVGStyle(attributeName: string, value: string) {
+    if (this.#previousSVGGroupStyle[attributeName] !== value)
+      this.#nextSVGGroupStyle[attributeName] = value;
+  }
+  setSVGElementAttribute(attributeName: string, value: string) {
+    if (this.#previousSVGElementAttrs[attributeName] !== value) {
+      this.#nextSVGElementAttrs[attributeName] = value;
+    }
+  }
   styleContext(context: CanvasRenderingContext2D) {
     Object.assign(context, this.#canvas_style);
   }
   styleDocumentElement(element: Element) {
     Object.assign(this.document_element.style, this.#documentElementStyle);
   }
-  styleSVGElement(groupElement: SVGElement) {}
-  #svg_group: SVGGElement;
+  styleSVGElement(
+    groupElement: SVGGElement,
+    element: SVGElement,
+    newElement = false
+  ) {
+    if (newElement) {
+      for (const [attributeName, value] of Object.entries(
+        this.#previousSVGGroupStyle
+      )) {
+        groupElement.setAttribute(attributeName, value);
+      }
+      for (const [attributeName, value] of Object.entries(
+        this.#previousSVGElementAttrs
+      )) {
+        element.setAttribute(attributeName, value);
+      }
+    }
+    for (const [attributeName, value] of Object.entries(
+      this.#nextSVGGroupStyle
+    )) {
+      groupElement.setAttribute(attributeName, value);
+      this.#previousSVGGroupStyle[attributeName] = value;
+      delete this.#nextSVGGroupStyle[attributeName];
+    }
+
+    for (const [attributeName, value] of Object.entries(
+      this.#nextSVGElementAttrs
+    )) {
+      element.setAttribute(attributeName, value);
+      this.#previousSVGElementAttrs[attributeName] = value;
+      delete this.#nextSVGElementAttrs[attributeName];
+    }
+  }
+  #svgGroups: SVGGElement[] = [];
+  #previousSVGGroupStyle: { [attributeName: string]: string } = {};
+  #nextSVGGroupStyle: { [attributeName: string]: string } = {};
+  #previousSVGElementAttrs: { [attributeName: string]: string } = {};
+  #nextSVGElementAttrs: { [attributeName: string]: string } = {
+    fill: "#ffffff",
+    stroke: "#000000",
+  };
+  get svg_group(): SVGGElement {
+    if (this.count >= this.#svgGroups.length) {
+      this.#svgGroups[this.#count] = this.createSVGGroup();
+    }
+    return this.#svgGroups[this.#count];
+  }
+  get svg_element() {
+    return this.svg_group;
+  }
+  protected get svgElementNextAttrs() {
+    return this.#nextSVGElementAttrs;
+  }
   #then = deepProxy(this, this.#getThenValues);
   get then() {
     return this.#then;

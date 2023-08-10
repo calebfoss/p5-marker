@@ -20,7 +20,20 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     constructor(...args: any[]) {
       super(...args);
     }
-    #anchor = new Vector(0, 0);
+    #anchor_x = 0;
+    #anchor_y = 0;
+    #anchor = new Vector(
+      () => this.#anchor_x,
+      (value) => {
+        this.#anchor_x = value;
+        this.#transformations.translate = [value, this.#anchor_y];
+      },
+      () => this.#anchor_y,
+      (value) => {
+        this.#anchor_y = value;
+        this.#transformations.translate = [this.#anchor_x, value];
+      }
+    );
     get anchor() {
       return this.#anchor;
     }
@@ -38,7 +51,20 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       this.#transformations.rotate = [value];
       this.setDocumentElementStyle("rotate", `${value}rad`);
     }
-    #scale = new Vector(1, 1);
+    #scale_x = 1;
+    #scale_y = 1;
+    #scale = new Vector(
+      () => this.#scale_x,
+      (value) => {
+        this.#scale_x = value;
+        this.#transformations.scale = [value, this.#scale_y];
+      },
+      () => this.#scale_y,
+      (value) => {
+        this.#scale_y = value;
+        this.#transformations.scale = [this.#scale_x, value];
+      }
+    );
     get scale() {
       return this.#scale;
     }
@@ -48,22 +74,31 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       this.#transformations.scale = [value.x, value.y];
       this.setDocumentElementStyle("scale", `${value.x} ${value.y}`);
     }
-    styleSVGElement(element: SVGElement) {
-      if (
-        this.anchor.x !== 0 ||
-        this.anchor.y !== 0 ||
-        this.angle !== 0 ||
-        this.scale.x !== 1 ||
-        this.scale.y !== 1
-      ) {
-        element.setAttribute(
-          "transform",
-          `translate(${this.anchor.x} ${this.anchor.y}) rotate(${
-            this.angle * (180 / Math.PI)
-          }) scale(${this.scale.x} ${this.scale.y})`
-        );
+    styleSVGElement(
+      groupElement: SVGGElement,
+      element: SVGElement,
+      newElement?: boolean
+    ): void {
+      let transformationString = "";
+      for (const [transformationName, args] of Object.entries(
+        this.#transformations
+      )) {
+        switch (transformationName) {
+          case "rotate":
+            transformationString += `rotate(${args
+              .map((arg: any) => (arg * 180) / Math.PI)
+              .join(" ")})`;
+            break;
+          case "transform":
+            transformationString += `matrix(${args.join(" ")})`;
+            break;
+          default:
+            transformationString += `${transformationName}(${args.join(" ")})`;
+        }
       }
-      super.styleSVGElement(element);
+      if (transformationString.length)
+        groupElement.setAttribute("transform", transformationString);
+      super.styleSVGElement(groupElement, element, newElement);
     }
     transform(x: number, y: number): Vector;
     transform(vector: Vector): Vector;
