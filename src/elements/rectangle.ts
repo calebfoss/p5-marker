@@ -28,16 +28,12 @@ export class Rectangle
     return false;
   }
   protected createSVGGroup(): SVGGElement {
-    const groupElement = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "g"
-    );
+    const groupElement = super.createSVGGroup();
     const rectElement = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "rect"
     );
     groupElement.appendChild(rectElement);
-    this.styleSVGElement(groupElement, rectElement, true);
     return groupElement;
   }
   get hovered() {

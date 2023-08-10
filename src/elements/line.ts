@@ -26,6 +26,16 @@ export class Line
     );
     return false;
   }
+  protected createSVGGroup(): SVGGElement {
+    const groupElement = super.createSVGGroup();
+    const lineElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "line"
+    );
+    this.forward(lineElement, MouseEvent, "click");
+    groupElement.appendChild(lineElement);
+    return groupElement;
+  }
   #end_x = null;
   #end_y = null;
   #end = new Vector(
@@ -46,7 +56,7 @@ export class Line
       this.#end.y = value;
     }
   );
-  get end() {
+  get end(): Vector {
     return this.#end;
   }
   set end(value) {
@@ -78,7 +88,7 @@ export class Line
       this.#start_y = value;
     }
   );
-  get start() {
+  get start(): Vector {
     return this.#start;
   }
   set start(value) {
@@ -121,6 +131,20 @@ export class Line
     }
     this.setDocumentElementStyle("background", this.stroke);
     super.styleDocumentElement(element);
+  }
+  styleSVGElement(newElement?: boolean): void {
+    this.setSVGElementAttribute("x1", this.start.x.toString());
+    this.setSVGElementAttribute("y1", this.start.y.toString());
+    this.setSVGElementAttribute("x2", this.end.x.toString());
+    this.setSVGElementAttribute("y2", this.end.y.toString());
+    super.styleSVGElement(newElement);
+  }
+  get svg_element() {
+    const groupElement = this.svg_group;
+    const lineElement = groupElement.firstElementChild;
+    if (!(lineElement instanceof SVGLineElement))
+      throw new Error("Line's svg_group's first child is not a rect element");
+    return lineElement;
   }
 }
 customElements.define("m-line", Line);

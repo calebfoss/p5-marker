@@ -134,15 +134,11 @@ export class Base extends HTMLElement {
   }
   protected createDocumentElement(): HTMLElement | SVGSVGElement {
     const element = document.createElement("div");
-    element.addEventListener("click", (e) => {
-      this.dispatchEvent(new MouseEvent("click", e));
-    });
+    this.forward(element, MouseEvent, "click");
     return element;
   }
   protected createSVGGroup(): SVGGElement {
-    const element = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    this.styleSVGElement(element, element, true);
-    return element;
+    return document.createElementNS("http://www.w3.org/2000/svg", "g");
   }
   #documentElementStyle: Partial<CSSStyleDeclaration> = {
     background: "rgb(255, 255, 255)",
@@ -156,6 +152,15 @@ export class Base extends HTMLElement {
       this.#documentElements[this.count] = this.createDocumentElement();
     }
     return this.#documentElements[this.count];
+  }
+  protected forward<T extends keyof HTMLElementEventMap>(
+    element: HTMLElement | SVGElement,
+    EventConstructor: new (type: T, event: Event) => HTMLElementEventMap[T],
+    type: T
+  ) {
+    element.addEventListener(type, (e) => {
+      this.dispatchEvent(new EventConstructor(type, e));
+    });
   }
   #render_frame = -1;
   #nextValues: Partial<this> = {};
@@ -274,7 +279,7 @@ export class Base extends HTMLElement {
     const groupElement = this.svg_group;
     if (parentElement !== groupElement.parentElement)
       parentElement.appendChild(groupElement);
-    this.styleSVGElement(groupElement, groupElement);
+    this.styleSVGElement();
     for (const child of this.children) {
       if (child instanceof Base) child.draw(groupElement);
     }
@@ -342,11 +347,9 @@ export class Base extends HTMLElement {
   styleDocumentElement(element: Element) {
     Object.assign(this.document_element.style, this.#documentElementStyle);
   }
-  styleSVGElement(
-    groupElement: SVGGElement,
-    element: SVGElement,
-    newElement = false
-  ) {
+  styleSVGElement(newElement = false) {
+    const groupElement = this.svg_group;
+    const element = this.svg_element;
     if (newElement) {
       for (const [attributeName, value] of Object.entries(
         this.#previousSVGGroupStyle
@@ -386,6 +389,7 @@ export class Base extends HTMLElement {
   get svg_group(): SVGGElement {
     if (this.count >= this.#svgGroups.length) {
       this.#svgGroups[this.#count] = this.createSVGGroup();
+      this.styleSVGElement(true);
     }
     return this.#svgGroups[this.#count];
   }

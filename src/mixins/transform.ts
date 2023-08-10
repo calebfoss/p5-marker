@@ -74,11 +74,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
       this.#transformations.scale = [value.x, value.y];
       this.setDocumentElementStyle("scale", `${value.x} ${value.y}`);
     }
-    styleSVGElement(
-      groupElement: SVGGElement,
-      element: SVGElement,
-      newElement?: boolean
-    ): void {
+    styleSVGElement(newElement?: boolean): void {
       let transformationString = "";
       for (const [transformationName, args] of Object.entries(
         this.#transformations
@@ -97,8 +93,8 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
         }
       }
       if (transformationString.length)
-        groupElement.setAttribute("transform", transformationString);
-      super.styleSVGElement(groupElement, element, newElement);
+        this.svg_group.setAttribute("transform", transformationString);
+      super.styleSVGElement(newElement);
     }
     transform(x: number, y: number): Vector;
     transform(vector: Vector): Vector;
