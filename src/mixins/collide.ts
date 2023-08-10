@@ -7,14 +7,14 @@ import { Rectangle } from "../elements/rectangle";
 export class Collide {
   static line = {
     line(a: Line, b: Line) {
-      const a_start = a.untransform(a.position);
+      const a_start = a.untransform(a.start);
       const a_end = a.untransform(a.end);
-      const b_start = b.untransform(b.position);
+      const b_start = b.untransform(b.start);
       const b_end = b.untransform(b.end);
       return Collide.#startEndStartEnd(a_start, a_end, b_start, b_end);
     },
     vector(line: Line, vector: Vector) {
-      const lineStart = line.untransform(line.position);
+      const lineStart = line.untransform(line.start);
       const lineEnd = line.untransform(line.end);
       const halfWidth = line.untransform(line.line_width / 2, 0).magnitude;
       const [left, right] =
@@ -135,7 +135,7 @@ export class Collide {
         rectBottomRight,
         rectBottomLeft,
       ];
-      return this.#polygonLine(rectVertices, b.position, b.end);
+      return this.#polygonLine(rectVertices, b.start, b.end);
     },
     rectangle(a: Rectangle, b: Rectangle) {
       const [topLeftA, bottomRightA] = Collide.rectangle.topLeftBottomRight(a);
