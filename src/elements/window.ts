@@ -50,6 +50,9 @@ export class MarkerWindow extends dimensions(MarkerElement) {
   get mouse() {
     return this.#mouse;
   }
+  get pixel_density() {
+    return window.devicePixelRatio;
+  }
   get previous_frame_start() {
     return this.#previousFrameStartAt;
   }

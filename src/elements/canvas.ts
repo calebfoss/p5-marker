@@ -4,15 +4,6 @@ import { MarkerElement } from "./base";
 import { MarkerSVG } from "./svg";
 
 export class MarkerCanvas extends dimensions(MarkerElement) {
-  #dom_element: HTMLCanvasElement;
-  #context: CanvasRenderingContext2D;
-  constructor() {
-    super();
-    this.#dom_element = document.createElement("canvas");
-    const context = this.#dom_element.getContext("2d");
-    if (context !== null) this.#context = context;
-    this.#dom_element;
-  }
   #background = MarkerCanvas.gray(220);
   get background() {
     return this.#background;
@@ -63,7 +54,7 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
         mimeType = "image/jpeg";
       case "png":
       default:
-        dataURL = this.#dom_element.toDataURL(mimeType);
+        dataURL = this.document_element.toDataURL(mimeType);
     }
     const anchor = document.createElement("a");
     anchor.href = dataURL;
@@ -73,15 +64,30 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
   get drawing_context() {
     return this.document_element.getContext("2d");
   }
+  #pixel_density: number = null;
+  get pixel_density() {
+    return this.#pixel_density === null
+      ? this.window.pixel_density
+      : this.#pixel_density;
+  }
+  set pixel_density(value) {
+    this.#pixel_density = value;
+  }
   renderToCanvas(context: CanvasRenderingContext2D): void {
-    const canvasElement = context.canvas;
+    const canvasElement = this.document_element;
+    const { pixel_density, width, height } = this;
+    const scaledWidth = Math.floor(width * pixel_density);
+    const scaledHeight = Math.floor(height * pixel_density);
     if (
-      canvasElement.width !== this.width ||
-      canvasElement.height !== this.height
+      canvasElement.width !== scaledWidth ||
+      canvasElement.height !== scaledHeight
     ) {
       const contextCopy = JSON.parse(JSON.stringify(context));
-      canvasElement.width = this.width;
-      canvasElement.height = this.height;
+      canvasElement.style.width = `${width}px`;
+      canvasElement.style.height = `${height}px`;
+      canvasElement.width = scaledWidth;
+      canvasElement.height = scaledHeight;
+      this.drawing_context.scale(pixel_density, pixel_density);
       Object.assign(context, contextCopy);
     }
     if (this.background !== MarkerCanvas.NONE) {
