@@ -40,7 +40,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
     set anchor(value) {
       this.#anchor = value;
       this.#transformations.translate = [value.x, value.y];
-      this.setDocumentElementStyle("translate", `${value.x} ${value.y}`);
+      this.setDocumentElementStyle("translate", `${value.x}px ${value.y}px`);
     }
     #angle = 0;
     get angle() {
