@@ -1,4 +1,4 @@
-import { Base } from "../elements/base";
+import { Base, GettersFor } from "../elements/base";
 import { lex } from "./lexer";
 import { parseAttribute } from "./parser";
 import { IdentifierToken, SquareBracketToken } from "./tokens";
@@ -6,7 +6,10 @@ import { IdentifierToken, SquareBracketToken } from "./tokens";
 export const interpret = (
   element: Base,
   dynamicAssigners: (() => void)[],
-  attribute: Attr
+  attribute: Attr,
+  base: GettersFor<Base>,
+  each: GettersFor<Base>,
+  then: GettersFor<Base>
 ) => {
   if (attribute.name === "id") return;
   const nameTokens = lex(attribute.name);
@@ -14,26 +17,27 @@ export const interpret = (
   const [firstNameToken] = nameTokens;
   if (!(firstNameToken instanceof IdentifierToken))
     throw new Error(`Attribute name must begin with property identifier`);
-  const [assignTo, getValuesFrom] = (() => {
+  const [assignTo, getValuesFrom, leftTokens] = (() => {
     switch (firstNameToken.value) {
       case "each":
+        return [each, element, nameTokens.slice(1)];
       case "then":
+        return [then, element, nameTokens.slice(1)];
       case "repeat":
-        return [element, element];
+        return [element, element, nameTokens];
       case "on":
-        return [element, element.parentElement];
+        return [element, element.parentElement, nameTokens];
       default:
-        return [element.base, element.parentElement];
+        return [base, element.parentElement, nameTokens];
     }
   })();
   const [getOwner, getPropertyKey, getValue] = parseAttribute(
-    nameTokens,
+    leftTokens,
     valTokens,
     assignTo,
     getValuesFrom
   );
   const updater = () => {
-    const test = getPropertyKey();
     getOwner()[getPropertyKey()] = getValue;
   };
   const leftSquareBracketIndex = nameTokens.findIndex(

@@ -123,10 +123,6 @@ export class Base extends HTMLElement {
         )}`
       );
   }
-  #base = deepProxy(this, this.#getBaseValues);
-  get base() {
-    return this.#base;
-  }
   get canvas() {
     if (this.parentElement instanceof Base) return this.parentElement.canvas;
     return null;
@@ -214,10 +210,6 @@ export class Base extends HTMLElement {
     this.#frames_on++;
     deepAssign(this, this.#preIterationValues);
   }
-  #each = deepProxy(this, this.#getEachValues);
-  get each() {
-    return this.#each;
-  }
   get frame() {
     if (this.parentElement instanceof Base) return this.parentElement.frame;
     throw new Error(
@@ -288,9 +280,12 @@ export class Base extends HTMLElement {
     else this.#getRepeat = identity(value);
   }
   setup() {
+    const base = deepProxy(this, this.#getBaseValues);
+    const each = deepProxy(this, this.#getEachValues);
+    const then = deepProxy(this, this.#getThenValues);
     for (const attribute of this.attributes) {
       try {
-        interpret(this, this.#dynamicAssigners, attribute);
+        interpret(this, this.#dynamicAssigners, attribute, base, each, then);
       } catch (error) {
         console.error(
           `The following error occurred when interpreting ${this.tagName}'s ${attribute.name} attribute:`
@@ -389,10 +384,6 @@ export class Base extends HTMLElement {
   }
   protected get svgElementNextAttrs() {
     return this.#nextSVGElementAttrs;
-  }
-  #then = deepProxy(this, this.#getThenValues);
-  get then() {
-    return this.#then;
   }
   get window(): MarkerWindow {
     if (this.parentElement instanceof Base) return this.parentElement.window;

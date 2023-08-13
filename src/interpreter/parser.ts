@@ -648,16 +648,16 @@ function parseAttributeName(
 }
 
 export function parseAttribute(
-  nameTokens: Tokens,
-  valueTokens: Tokens,
+  leftTokens: Tokens,
+  rightTokens: Tokens,
   assignTo: object,
   getValuesFrom: object
 ): [() => object, () => PropertyKey, () => any] {
   const [getOwner, getPropertyKey] = parseAttributeName(
     assignTo,
     getValuesFrom,
-    nameTokens
+    leftTokens
   );
-  const getValue = parseExpression(identity(getValuesFrom), valueTokens, 0);
+  const getValue = parseExpression(identity(getValuesFrom), rightTokens, 0);
   return [getOwner, getPropertyKey, getValue];
 }
