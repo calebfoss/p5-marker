@@ -33,6 +33,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  windowElement.removeEventListener("draw", drawListener);
   windowElement.remove();
   canvasElement.remove();
   rectElement.remove();
@@ -42,9 +43,11 @@ afterEach(() => {
 test("canvas render", async () => {
   rectElement.setAttribute("visible", "frame % 2 is 0");
   let calls = 0;
-  canvasElement.drawing_context.rect = () => {
-    calls++;
-  };
+  canvasElement.addEventListener("draw", () => {
+    canvasElement.drawing_context.rect = () => {
+      calls++;
+    };
+  });
   windowElement.setup();
   await done;
   expect(calls).toBe(Math.ceil(framesPerTest / 2));

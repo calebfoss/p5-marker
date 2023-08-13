@@ -99,6 +99,7 @@ const drawEvent = new Event("draw");
 
 export class Base extends HTMLElement {
   #dynamicAssigners: (() => void)[] = [];
+  #getConstantValues: GettersFor<this> = {};
   #getBaseValues: GettersFor<this> = {};
   #getEachValues: GettersFor<this> = {};
   #getThenValues: GettersFor<this> = {};
@@ -160,7 +161,7 @@ export class Base extends HTMLElement {
       this.dispatchEvent(new EventConstructor(type, e));
     });
   }
-  #render_frame = 0;
+  #update_frame = -1;
   #preIterationValues: Partial<this> = {};
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
@@ -169,8 +170,16 @@ export class Base extends HTMLElement {
     for (const assigner of this.#dynamicAssigners) {
       assigner();
     }
-    if (this.#render_frame !== this.frame) {
-      this.#render_frame = this.frame;
+    if (this.#update_frame !== this.frame) {
+      if (this.#update_frame === -1) {
+        deepEvaluateAndAssign(this, this.#getConstantValues);
+        deepAssign(this, this.#preIterationValues);
+        deepAssign(this.#getBaseValues, this.#getThenValues);
+      } else {
+        deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
+        deepAssign(this, this.#preIterationValues);
+      }
+      this.#update_frame = this.frame;
       while (this.#svgGroups.length > this.#count) {
         this.#svgGroups.pop().remove();
       }
@@ -178,8 +187,6 @@ export class Base extends HTMLElement {
         this.#documentElements.pop().remove();
       }
       this.#count = 0;
-      deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
-      deepAssign(this, this.#preIterationValues);
     }
     this.dispatchEvent(drawEvent);
     const render = (() => {
@@ -280,12 +287,21 @@ export class Base extends HTMLElement {
     else this.#getRepeat = identity(value);
   }
   setup() {
-    const base = deepProxy(this, this.#getBaseValues);
+    const constantBase = deepProxy(this, this.#getConstantValues);
+    const dynamicBase = deepProxy(this, this.#getBaseValues);
     const each = deepProxy(this, this.#getEachValues);
     const then = deepProxy(this, this.#getThenValues);
     for (const attribute of this.attributes) {
       try {
-        interpret(this, this.#dynamicAssigners, attribute, base, each, then);
+        interpret(
+          this,
+          this.#dynamicAssigners,
+          attribute,
+          constantBase,
+          dynamicBase,
+          each,
+          then
+        );
       } catch (error) {
         console.error(
           `The following error occurred when interpreting ${this.tagName}'s ${attribute.name} attribute:`
@@ -295,8 +311,6 @@ export class Base extends HTMLElement {
     }
     setGettersForPreIteration(this, this.#getBaseValues, this.#getEachValues);
     deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
-    deepAssign(this, this.#preIterationValues);
-    deepAssign(this.#getBaseValues, this.#getThenValues);
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();

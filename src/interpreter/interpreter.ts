@@ -7,7 +7,8 @@ export const interpret = (
   element: Base,
   dynamicAssigners: (() => void)[],
   attribute: Attr,
-  base: GettersFor<Base>,
+  constantBase: GettersFor<Base>,
+  dynamicBase: GettersFor<Base>,
   each: GettersFor<Base>,
   then: GettersFor<Base>
 ) => {
@@ -31,8 +32,9 @@ export const interpret = (
       case "on":
         return [element, element.parentElement, nameTokens];
       default:
-        if (constantValue) return [element, element.parentElement, nameTokens];
-        return [base, element.parentElement, nameTokens];
+        if (constantValue)
+          return [constantBase, element.parentElement, nameTokens];
+        return [dynamicBase, element.parentElement, nameTokens];
     }
   })();
   const [getOwner, getPropertyKey, getValue] = parseAttribute(
@@ -41,10 +43,6 @@ export const interpret = (
     assignTo,
     getValuesFrom
   );
-  if (constantValue) {
-    getOwner()[getPropertyKey()] = getValue();
-    return;
-  }
   const updater = () => {
     getOwner()[getPropertyKey()] = getValue;
   };
