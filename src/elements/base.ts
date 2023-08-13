@@ -38,65 +38,67 @@ function deepAssign(target: object, source: GettersFor<object>) {
       if (typeof target[key] === "undefined") {
         target[key] = Array.isArray(value) ? [] : {};
         deepAssign(target[key], value);
-      } else if (value instanceof target[key].constructor) target[key] = value;
-      else deepAssign(target[key], value);
+      } else if (
+        Array.isArray(value) ||
+        !(value instanceof target[key].constructor)
+      )
+        deepAssign(target[key], value);
+      else target[key] = value;
     } else target[key] = source[key];
   }
 }
 function deepEvaluateAndAssign<O extends object>(
   target: O,
-  ...sources: GettersFor<O>[]
+  source: GettersFor<O>
 ) {
-  for (
-    let sourceIndexA = sources.length - 1;
-    sourceIndexA >= 0;
-    sourceIndexA--
-  ) {
-    const sourceA = sources[sourceIndexA];
-    for (const [key, value] of Object.entries(sourceA)) {
-      if (typeof value === "object") {
-        if (typeof target[key] === "undefined")
-          target[key] = Array.isArray(value) ? [] : {};
-        deepEvaluateAndAssign(
-          target[key],
-          ...sources
-            .slice(sourceIndexA)
-            .filter((s) => typeof s[key] !== "undefined")
-            .map((s) => s[key])
-        );
-      } else {
-        for (
-          let sourceIndexB = sources.length - 1;
-          sourceIndexB >= sourceIndexA;
-          sourceIndexB--
-        ) {
-          if (sourceIndexB === sourceIndexA) {
-            target[key] = sourceA[key]();
-          } else if (typeof sources[sourceIndexB][key] !== "undefined") break;
-        }
-      }
+  for (const [key, value] of Object.entries(source)) {
+    if (typeof value === "object") {
+      if (typeof target[key] === "undefined")
+        target[key] = Array.isArray(value) ? [] : {};
+      deepEvaluateAndAssign(target[key], source[key]);
+    } else {
+      target[key] = source[key]();
     }
   }
 }
-function updateIfNotIn<O extends object>(
-  target: O,
-  source: GettersFor<O>,
-  exclude: GettersFor<O>
+
+/*
+  This is called in setup(). If the element has a property that will
+  be iterated with 'each' but does not have an initial value set for that 
+  property, this turns the element's default value into an identity function
+  and adds the function to the getBaseValues object.
+
+  Example:
+  <m-rectangle width="100" each.position.x="position.x + width" 
+      repeat="until(position.x is at least canvas.width)"
+       then.position.x="position.x + 1"></m-rectangle>
+  Without calling this function, the row of rectangles would only render on
+  screen in the first frame. After, its x coordinate would be too far to the
+  right.
+*/
+function setGettersForPreIteration<O extends object>(
+  valueHolder: O,
+  getBaseValues: GettersFor<O>,
+  getEachValues: GettersFor<O>
 ) {
-  for (const [key, value] of Object.entries(source)) {
-    const excludeKey = typeof exclude[key] === "undefined";
-    if (typeof value === "object") {
-      updateIfNotIn(target[key], value, excludeKey ? {} : exclude[key]);
-    } else if (typeof value === "function") {
-      if (excludeKey) target[key] = value();
-    } else throw new Error(`Unexpected value for ${key}: ${value}`);
+  for (const [key, eachValue] of Object.entries(getEachValues)) {
+    if (!(key in getBaseValues)) {
+      if (typeof eachValue === "object") {
+        getBaseValues[key] = Array.isArray(eachValue) ? [] : {};
+        setGettersForPreIteration(
+          valueHolder[key],
+          getBaseValues[key],
+          getEachValues[key]
+        );
+      } else getBaseValues[key] = identity(valueHolder[key]);
+    }
   }
 }
 
 const drawEvent = new Event("draw");
 
 export class Base extends HTMLElement {
-  #updaters: (() => void)[] = [];
+  #dynamicAssigners: (() => void)[] = [];
   #getBaseValues: GettersFor<this> = {};
   #getEachValues: GettersFor<this> = {};
   #getThenValues: GettersFor<this> = {};
@@ -162,34 +164,26 @@ export class Base extends HTMLElement {
       this.dispatchEvent(new EventConstructor(type, e));
     });
   }
-  #render_frame = -1;
-  #nextValues: Partial<this> = {};
+  #render_frame = 0;
   #preIterationValues: Partial<this> = {};
   draw(parentElement: Node): void;
   draw(context: CanvasRenderingContext2D): void;
   draw(argument: Node | CanvasRenderingContext2D): void {
     if (!this.on) return;
-    for (const updater of this.#updaters) {
-      updater();
+    for (const assigner of this.#dynamicAssigners) {
+      assigner();
     }
     if (this.#render_frame !== this.frame) {
       this.#render_frame = this.frame;
       while (this.#svgGroups.length > this.#count) {
-        console.log(Array.isArray(this.#svgGroups));
         this.#svgGroups.pop().remove();
       }
+      while (this.#documentElements.length > this.#count) {
+        this.#documentElements.pop().remove();
+      }
       this.#count = 0;
-      updateIfNotIn(this.#nextValues, this.#getBaseValues, this.#getThenValues);
-      deepAssign(this, this.#nextValues);
-      deepAssign(this.#preIterationValues, this.#nextValues);
-      deepEvaluateAndAssign(
-        this.#nextValues,
-        this.#getBaseValues,
-        this.#getThenValues
-      );
-    } else {
+      deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
       deepAssign(this, this.#preIterationValues);
-      updateIfNotIn(this, this.#getBaseValues, this.#getThenValues);
     }
     this.dispatchEvent(drawEvent);
     const render = (() => {
@@ -218,6 +212,7 @@ export class Base extends HTMLElement {
       }
     }
     this.#frames_on++;
+    deepAssign(this, this.#preIterationValues);
   }
   #each = deepProxy(this, this.#getEachValues);
   get each() {
@@ -295,7 +290,7 @@ export class Base extends HTMLElement {
   setup() {
     for (const attribute of this.attributes) {
       try {
-        interpret(this, this.#updaters, attribute);
+        interpret(this, this.#dynamicAssigners, attribute);
       } catch (error) {
         console.error(
           `The following error occurred when interpreting ${this.tagName}'s ${attribute.name} attribute:`
@@ -303,14 +298,10 @@ export class Base extends HTMLElement {
         console.error(error);
       }
     }
-    for (const updater of this.#updaters) {
-      updater();
-    }
-    deepEvaluateAndAssign(this.#nextValues, this.#getBaseValues);
-    if (!("on" in this.#nextValues) || this.#nextValues.on) {
-      deepAssign(this, this.#nextValues);
-    }
-
+    setGettersForPreIteration(this, this.#getBaseValues, this.#getEachValues);
+    deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
+    deepAssign(this, this.#preIterationValues);
+    deepAssign(this.#getBaseValues, this.#getThenValues);
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();

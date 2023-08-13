@@ -1,11 +1,11 @@
 import { Base } from "../elements/base";
 import { lex } from "./lexer";
 import { parseAttribute } from "./parser";
-import { IdentifierToken } from "./tokens";
+import { IdentifierToken, SquareBracketToken } from "./tokens";
 
 export const interpret = (
   element: Base,
-  updaters: (() => void)[],
+  dynamicAssigners: (() => void)[],
   attribute: Attr
 ) => {
   if (attribute.name === "id") return;
@@ -14,7 +14,7 @@ export const interpret = (
   const [firstNameToken] = nameTokens;
   if (!(firstNameToken instanceof IdentifierToken))
     throw new Error(`Attribute name must begin with property identifier`);
-  const [nameReference, valueReference] = (() => {
+  const [assignTo, getValuesFrom] = (() => {
     switch (firstNameToken.value) {
       case "each":
       case "then":
@@ -29,11 +29,28 @@ export const interpret = (
   const [getOwner, getPropertyKey, getValue] = parseAttribute(
     nameTokens,
     valTokens,
-    nameReference,
-    valueReference
+    assignTo,
+    getValuesFrom
   );
   const updater = () => {
+    const test = getPropertyKey();
     getOwner()[getPropertyKey()] = getValue;
   };
-  updaters.push(updater);
+  const leftSquareBracketIndex = nameTokens.findIndex(
+    (token) => token instanceof SquareBracketToken && token.value === "["
+  );
+  if (leftSquareBracketIndex > -1) {
+    const rightSquareBracketIndex = nameTokens.findLastIndex(
+      (token) => token instanceof SquareBracketToken && token.value === "]"
+    );
+    const tokensInBetween = nameTokens.slice(
+      leftSquareBracketIndex + 1,
+      rightSquareBracketIndex
+    );
+    const isDynamic = tokensInBetween.some(
+      (token) => token instanceof IdentifierToken
+    );
+    if (isDynamic) dynamicAssigners.push(updater);
+  }
+  updater();
 };

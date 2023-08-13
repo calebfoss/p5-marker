@@ -595,19 +595,21 @@ function parseExpression<O extends object>(
 }
 
 function parseAttributeName(
-  getOwner: () => object,
+  assignTo: object,
+  getValuesFrom: object,
   tokens: Tokens
 ): [() => object, () => PropertyKey] {
   const [lastToken] = tokens.slice(-1);
   if (lastToken instanceof IdentifierToken) {
     const previousTokens = tokens.slice(0, -1);
     const getPropertyKey = () => lastToken.value;
-    if (previousTokens.length === 0) return [getOwner, getPropertyKey];
+    if (previousTokens.length === 0)
+      return [identity(assignTo), getPropertyKey];
     const [secondToLastToken] = previousTokens.slice(-1);
     if (!(secondToLastToken instanceof DotToken))
       throw new Error(`Unexpected token ${secondToLastToken.value}`);
     const getPropertyOwner = parseExpression(
-      getOwner,
+      identity(assignTo),
       previousTokens.slice(0, -1),
       0
     );
@@ -621,16 +623,20 @@ function parseAttributeName(
     );
     if (leftBracketIndex < 0) throw new Error(`Found ] without matching [`);
     if (leftBracketIndex === 0) {
-      const getPropertyKey = parseExpression(getOwner, tokens.slice(1, -1), 0);
-      return [getOwner, getPropertyKey as () => PropertyKey];
+      const getPropertyKey = parseExpression(
+        identity(getValuesFrom),
+        tokens.slice(1, -1),
+        0
+      );
+      return [identity(assignTo), getPropertyKey as () => PropertyKey];
     }
     const getPropertyOwner = parseExpression(
-      getOwner,
+      identity(assignTo),
       tokens.slice(0, leftBracketIndex),
       0
     ) as () => object;
     const getPropertyKey = parseExpression(
-      getPropertyOwner as () => object,
+      identity(getValuesFrom),
       tokens.slice(leftBracketIndex + 1, -1),
       0
     ) as () => PropertyKey;
@@ -644,13 +650,14 @@ function parseAttributeName(
 export function parseAttribute(
   nameTokens: Tokens,
   valueTokens: Tokens,
-  nameReference: object,
-  valueReference: object
+  assignTo: object,
+  getValuesFrom: object
 ): [() => object, () => PropertyKey, () => any] {
   const [getOwner, getPropertyKey] = parseAttributeName(
-    identity(nameReference),
+    assignTo,
+    getValuesFrom,
     nameTokens
   );
-  const getValue = parseExpression(identity(valueReference), valueTokens, 0);
+  const getValue = parseExpression(identity(getValuesFrom), valueTokens, 0);
   return [getOwner, getPropertyKey, getValue];
 }

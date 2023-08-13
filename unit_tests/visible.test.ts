@@ -19,12 +19,6 @@ beforeEach(async () => {
   canvasElement = document.createElement("m-canvas") as MarkerCanvas;
   rectElement = document.createElement("m-rectangle") as Rectangle;
   windowElement.appendChild(canvasElement).appendChild(rectElement);
-  await new Promise((resolve) => {
-    windowElement.addEventListener("setup", () => {
-      resolve(true);
-    });
-    windowElement.setup();
-  });
   onDraw = () => {};
   frame = 0;
   done = new Promise((resolve) => {
