@@ -41,11 +41,11 @@ export const position = <T extends typeof Base>(baseClass: T) =>
       this.setSVGElementAttribute("x", value.x.toString());
       this.setSVGElementAttribute("y", value.y.toString());
     }
-    styleDocumentElement(element: Element): void {
+    styleDocumentElement(): void {
       this.setDocumentElementStyle(
         "transformOrigin",
         `-${this.position.x}px -${this.position.y}px`
       );
-      super.styleDocumentElement(element);
+      super.styleDocumentElement();
     }
   };

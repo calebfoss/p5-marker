@@ -30,12 +30,13 @@ export class MarkerSVG extends dimensions(MarkerElement) {
     const element = this.document_element;
     if (parentElement !== element.parentElement)
       parentElement.appendChild(element);
-    this.styleDocumentElement(element);
+    this.styleDocumentElement();
     for (const child of this.children) {
       if (child instanceof MarkerElement) child.draw(element);
     }
   }
-  styleDocumentElement(element: Element): void {
+  styleDocumentElement(): void {
+    const element = this.document_element;
     const currentViewBoxValue = element.getAttributeNS(
       "http://www.w3.org/2000/svg",
       "viewBox"

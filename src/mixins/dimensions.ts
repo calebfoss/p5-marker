@@ -21,10 +21,10 @@ export const dimensions = <T extends typeof Base>(baseClass: T) =>
     set height(value) {
       this.#height = value;
     }
-    styleDocumentElement(element: Element): void {
+    styleDocumentElement(): void {
       this.setDocumentElementStyle("width", `${this.width}px`);
       this.setDocumentElementStyle("height", `${this.height}px`);
-      super.styleDocumentElement(element);
+      super.styleDocumentElement();
     }
     styleSVGElement(newElement?: boolean): void {
       this.setSVGElementAttribute("width", this.width.toString());

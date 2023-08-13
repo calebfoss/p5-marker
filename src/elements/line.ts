@@ -96,7 +96,7 @@ export class Line
   }
   #previousStart = new Vector(null, null);
   #previousEnd = new Vector(null, null);
-  styleDocumentElement(element: Element): void {
+  styleDocumentElement(): void {
     const { start, end } = this;
     if (
       this.#previousStart.x !== start.x ||
@@ -130,7 +130,7 @@ export class Line
       );
     }
     this.setDocumentElementStyle("background", this.stroke);
-    super.styleDocumentElement(element);
+    super.styleDocumentElement();
   }
   styleSVGElement(newElement?: boolean): void {
     this.setSVGElementAttribute("x1", this.start.x.toString());

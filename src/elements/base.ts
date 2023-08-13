@@ -257,7 +257,7 @@ export class Base extends HTMLElement {
     const element = this.document_element;
     if (element.parentElement !== parentElement)
       parentElement.appendChild(element);
-    this.styleDocumentElement(element);
+    this.styleDocumentElement();
     for (const child of this.children) {
       if (child instanceof Base) child.draw(element);
     }
@@ -330,7 +330,7 @@ export class Base extends HTMLElement {
   styleContext(context: CanvasRenderingContext2D) {
     Object.assign(context, this.#canvas_style);
   }
-  styleDocumentElement(element: Element) {
+  styleDocumentElement() {
     Object.assign(this.document_element.style, this.#documentElementStyle);
   }
   styleSVGElement(newElement = false) {
