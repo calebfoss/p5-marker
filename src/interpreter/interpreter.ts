@@ -17,6 +17,9 @@ export const interpret = (
   const [firstNameToken] = nameTokens;
   if (!(firstNameToken instanceof IdentifierToken))
     throw new Error(`Attribute name must begin with property identifier`);
+  const constantValue = valTokens.every(
+    (token) => !(token instanceof IdentifierToken)
+  );
   const [assignTo, getValuesFrom, leftTokens] = (() => {
     switch (firstNameToken.value) {
       case "each":
@@ -28,6 +31,7 @@ export const interpret = (
       case "on":
         return [element, element.parentElement, nameTokens];
       default:
+        if (constantValue) return [element, element.parentElement, nameTokens];
         return [base, element.parentElement, nameTokens];
     }
   })();
@@ -37,6 +41,10 @@ export const interpret = (
     assignTo,
     getValuesFrom
   );
+  if (constantValue) {
+    getOwner()[getPropertyKey()] = getValue();
+    return;
+  }
   const updater = () => {
     getOwner()[getPropertyKey()] = getValue;
   };
