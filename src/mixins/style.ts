@@ -77,7 +77,12 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     set stroke(value) {
       this.#stroke = value;
       this.setContextProperty("strokeStyle", value);
-      this.setDocumentElementStyle("outlineColor", value);
+      if (value === StrokeElement.NONE)
+        this.setDocumentElementStyle("outlineStyle", value);
+      else {
+        this.setDocumentElementStyle("outlineStyle", "solid");
+        this.setDocumentElementStyle("outlineColor", value);
+      }
       this.setSVGStyle("stroke", value);
     }
   };
