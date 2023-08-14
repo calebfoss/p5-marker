@@ -34,16 +34,16 @@ export type GettersFor<O extends object> = {
 
 function deepAssign(target: object, source: GettersFor<object>) {
   for (const [key, value] of Object.entries(source)) {
-    if (typeof value === "object") {
+    if (typeof value === "object" && !(value instanceof HTMLElement)) {
       if (typeof target[key] === "undefined") {
         target[key] = Array.isArray(value) ? [] : {};
         deepAssign(target[key], value);
       } else if (
-        Array.isArray(value) ||
-        !(value instanceof target[key].constructor)
-      )
-        deepAssign(target[key], value);
-      else target[key] = value;
+        target[key] === null ||
+        value instanceof target[key].constructor
+      ) {
+        target[key] = value;
+      } else deepAssign(target[key], value);
     } else target[key] = source[key];
   }
 }
@@ -99,6 +99,7 @@ const drawEvent = new Event("draw");
 
 export class Base extends HTMLElement {
   #dynamicAssigners: (() => void)[] = [];
+  #oneTimeAssigners: (() => void)[] = [];
   #getConstantValues: GettersFor<this> = {};
   #getBaseValues: GettersFor<this> = {};
   #getEachValues: GettersFor<this> = {};
@@ -130,6 +131,19 @@ export class Base extends HTMLElement {
   }
   get count() {
     return this.#count;
+  }
+  create(tag: string, id?: string) {
+    tag = tag.slice(0, 2) === "m-" ? tag : `m-${tag}`;
+    const element = document.createElement(tag);
+    if (typeof id !== "undefined") {
+      if (document.querySelector(`#${id}`) !== null)
+        throw new Error(
+          `Tried to create ${tag} with id ${id}, but this id is already in use`
+        );
+      element.id = id;
+    }
+    this.appendChild(element);
+    return element;
   }
   protected createDocumentElement(): HTMLElement | SVGSVGElement {
     const element = document.createElement("div");
@@ -172,9 +186,7 @@ export class Base extends HTMLElement {
     }
     if (this.#update_frame !== this.frame) {
       if (this.#update_frame === -1) {
-        deepEvaluateAndAssign(this, this.#getConstantValues);
-        deepAssign(this, this.#preIterationValues);
-        deepAssign(this.#getBaseValues, this.#getThenValues);
+        this.#firstUpdate();
       } else {
         deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
         deepAssign(this, this.#preIterationValues);
@@ -217,6 +229,16 @@ export class Base extends HTMLElement {
     this.#frames_on++;
     deepAssign(this, this.#preIterationValues);
   }
+  #firstUpdate() {
+    for (const assigner of this.#oneTimeAssigners) {
+      assigner();
+    }
+    setGettersForPreIteration(this, this.#getBaseValues, this.#getEachValues);
+    deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
+    deepEvaluateAndAssign(this, this.#getConstantValues);
+    deepAssign(this, this.#preIterationValues);
+    deepAssign(this.#getBaseValues, this.#getThenValues);
+  }
   get frame() {
     if (this.parentElement instanceof Base) return this.parentElement.frame;
     throw new Error(
@@ -238,7 +260,7 @@ export class Base extends HTMLElement {
   set max_count(value) {
     this.#max_count = value;
   }
-  #getOn = () => true;
+  #getOn = () => this.inherit("on", true);
   get on() {
     return this.#getOn();
   }
@@ -296,6 +318,7 @@ export class Base extends HTMLElement {
         interpret(
           this,
           this.#dynamicAssigners,
+          this.#oneTimeAssigners,
           attribute,
           constantBase,
           dynamicBase,
@@ -309,8 +332,6 @@ export class Base extends HTMLElement {
         console.error(error);
       }
     }
-    setGettersForPreIteration(this, this.#getBaseValues, this.#getEachValues);
-    deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
     this.dispatchEvent(new Event("setup"));
     for (const child of this.children) {
       if (child instanceof Base) child.setup();

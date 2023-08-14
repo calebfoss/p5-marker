@@ -216,3 +216,8 @@ test("window", () => {
     (settingElement.window as any) = canvasElement;
   }).toThrow();
 });
+
+test("create", () => {
+  const rectElement = windowElement.create("rectangle");
+  expect(windowElement.lastElementChild).toBe(rectElement);
+});

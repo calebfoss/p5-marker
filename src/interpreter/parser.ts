@@ -33,11 +33,8 @@ function getProperty<O extends object>(owner: O, propertyKey: PropertyKey) {
     return owner[propertyKey];
   }
   if (propertyKey in MarkerElement) return MarkerElement[propertyKey];
-  if (
-    owner instanceof MarkerElement &&
-    owner.parentElement instanceof MarkerElement
-  )
-    return getProperty(owner.parentElement, propertyKey);
+  if ("parent" in owner)
+    return getProperty(owner.parent as object, propertyKey);
   throw new Error(`Couldn't find ${propertyKey.toString()}`);
 }
 

@@ -6,6 +6,7 @@ import { IdentifierToken, SquareBracketToken } from "./tokens";
 export const interpret = (
   element: Base,
   dynamicAssigners: (() => void)[],
+  oneTimeAssigners: (() => void)[],
   attribute: Attr,
   constantBase: GettersFor<Base>,
   dynamicBase: GettersFor<Base>,
@@ -46,6 +47,16 @@ export const interpret = (
   const updater = () => {
     getOwner()[getPropertyKey()] = getValue;
   };
+  //  Set on value no matter what
+  //  wait to set all other values until on can be checked
+  if (
+    nameTokens.length === 1 &&
+    nameTokens[0] instanceof IdentifierToken &&
+    nameTokens[0].value === "on"
+  ) {
+    updater();
+    return;
+  }
   const leftSquareBracketIndex = nameTokens.findIndex(
     (token) => token instanceof SquareBracketToken && token.value === "["
   );
@@ -61,6 +72,8 @@ export const interpret = (
       (token) => token instanceof IdentifierToken
     );
     if (isDynamic) dynamicAssigners.push(updater);
+    else oneTimeAssigners.push(updater);
+  } else {
+    oneTimeAssigners.push(updater);
   }
-  updater();
 };
