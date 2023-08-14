@@ -18,7 +18,7 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
   }
   protected createDocumentElement(): HTMLCanvasElement {
     const element = document.createElement("canvas");
-    this.forward(element, MouseEvent, "click");
+    this.addInputListeners(element);
     return element;
   }
   protected createSVGElement(): SVGElement {

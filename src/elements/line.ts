@@ -104,30 +104,17 @@ export class Line
       this.#previousEnd.x !== end.x ||
       this.#previousEnd.y !== end.y
     ) {
-      const theta1 = Math.atan2(
+      const angle = Math.atan2(
         this.end.y - this.start.y,
         this.end.x - this.start.x
       );
-      const halfWidth = this.line_width / 2;
-      const xShift = Math.sin(theta1) * halfWidth;
-      const yShift = Math.cos(theta1) * halfWidth;
-      const clipPath =
-        `path('` +
-        `M ${start.x - xShift} ${start.y + yShift} ` +
-        `L ${start.x + xShift} ${start.y - yShift} ` +
-        `L ${end.x + xShift} ${end.y - yShift} ` +
-        `L ${end.x - xShift} ${end.y + yShift} Z` +
-        `')`;
-      this.document_element.style.clipPath = clipPath;
-      this.setDocumentElementStyle("clipPath", clipPath);
-      this.#previousStart.x = start.x;
-      this.#previousStart.y = start.y;
-      this.#previousEnd.x = end.x;
-      this.#previousEnd.y = end.y;
+      const length = Line.distance(this.start, this.end);
+      this.setDocumentElementStyle("width", `${length}px`);
       this.setDocumentElementStyle(
-        "height",
-        `${Math.max(end.y, start.y) + yShift}px`
+        "transformOrigin",
+        `-${this.start.x}px -${this.start.y}px`
       );
+      this.setDocumentElementStyle("rotate", `${angle}rad`);
     }
     this.setDocumentElementStyle("background", this.stroke);
     super.styleDocumentElement();

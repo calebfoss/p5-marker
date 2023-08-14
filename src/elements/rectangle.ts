@@ -19,9 +19,6 @@ export class Rectangle
   extends position(dimensions(fill(stroke(visible(MarkerElement)))))
   implements CollisionElement
 {
-  get clicked() {
-    return this.window.mouse.up && this.hovered;
-  }
   colliding(other: Mouse | Vector | Line | Rectangle) {
     if (other instanceof Vector) return Collide.rectangle.vector(this, other);
     if (other instanceof Rectangle)
@@ -115,11 +112,9 @@ export class Rectangle
       "http://www.w3.org/2000/svg",
       "rect"
     );
+    this.addInputListeners(rectElement);
     groupElement.appendChild(rectElement);
     return groupElement;
-  }
-  get hovered() {
-    return this.colliding(this.window.mouse);
   }
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transform_context(context);
@@ -135,7 +130,6 @@ export class Rectangle
           this.height,
           this.corner_radius
         );
-      if (this.clicked) this.dispatchEvent(new MouseEvent("click"));
     }
     this.styleContext(context);
     super.renderToCanvas(context);

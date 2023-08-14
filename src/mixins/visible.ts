@@ -12,6 +12,7 @@ export const visible = <T extends typeof MarkerElement>(baseClass: T) =>
     }
     set visible(value) {
       this.#visible = value;
-      this.setDocumentElementStyle("display", value ? "unset" : "none");
+      this.setDocumentElementStyle("display", value ? "block" : "none");
+      this.setSVGElementAttribute("display", value ? "unset" : "none");
     }
   };

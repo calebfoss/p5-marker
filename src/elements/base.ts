@@ -109,6 +109,20 @@ export class Base extends HTMLElement {
   constructor(...args: any[]) {
     super();
   }
+  protected addInputListeners(element: HTMLElement | SVGElement) {
+    element.addEventListener("click", (e) => {
+      this.#clicked_at = this.frame;
+      this.dispatchEvent(new MouseEvent("click", e));
+    });
+    element.addEventListener("mouseover", (e) => {
+      this.#hovered = true;
+      this.dispatchEvent(new MouseEvent("mouseover", e));
+    });
+    element.addEventListener("mouseout", (e) => {
+      this.#hovered = false;
+      this.dispatchEvent(new MouseEvent("mouseout", e));
+    });
+  }
   assertType<T>(
     propertyName: string,
     argument: unknown,
@@ -129,6 +143,10 @@ export class Base extends HTMLElement {
     if (this.parentElement instanceof Base) return this.parentElement.canvas;
     return null;
   }
+  #clicked_at = -1;
+  get clicked() {
+    return this.#clicked_at === this.frame - 1;
+  }
   get count() {
     return this.#count;
   }
@@ -147,7 +165,7 @@ export class Base extends HTMLElement {
   }
   protected createDocumentElement(): HTMLElement | SVGSVGElement {
     const element = document.createElement("div");
-    this.forward(element, MouseEvent, "click");
+    this.addInputListeners(element);
     return element;
   }
   protected createSVGGroup(): SVGGElement {
@@ -159,7 +177,7 @@ export class Base extends HTMLElement {
     outlineStyle: "solid",
     outlineWidth: "1px",
   };
-  #documentElements: (HTMLElement | SVGSVGElement)[] = [];
+  #documentElements: (HTMLElement | SVGElement)[] = [];
   get document_element() {
     if (this.count >= this.#documentElements.length) {
       this.#documentElements[this.count] = this.createDocumentElement();
@@ -177,9 +195,9 @@ export class Base extends HTMLElement {
   }
   #update_frame = -1;
   #preIterationValues: Partial<this> = {};
-  draw(parentElement: Node): void;
+  draw(parentElement: HTMLElement | SVGElement): void;
   draw(context: CanvasRenderingContext2D): void;
-  draw(argument: Node | CanvasRenderingContext2D): void {
+  draw(argument: HTMLElement | CanvasRenderingContext2D | SVGElement): void {
     if (!this.on) return;
     for (const assigner of this.#dynamicAssigners) {
       assigner();
@@ -248,6 +266,10 @@ export class Base extends HTMLElement {
   get frames_on() {
     return this.#frames_on;
   }
+  #hovered = false;
+  get hovered() {
+    return this.#hovered;
+  }
   inherit<K extends keyof this>(propertyName: K, defaultValue: this[K]) {
     if (this.parentElement === null || !(propertyName in this.parentElement))
       return defaultValue;
@@ -275,6 +297,27 @@ export class Base extends HTMLElement {
     element.appendChild(this);
   }
   renderToCanvas(context: CanvasRenderingContext2D) {
+    const { mouse } = this.window;
+    const { pixel_density } = this.canvas;
+    const mouse_x = mouse.x * pixel_density;
+    const mouse_y = mouse.y * pixel_density;
+    const wasHovered = this.#hovered;
+    this.#hovered =
+      context.isPointInPath(mouse_x, mouse_y) ||
+      //  Optional chaining because this method can not been implemented
+      //  on node-canvas used for testing
+      context.isPointInStroke?.(mouse_x, mouse_y);
+    if (this.#hovered) {
+      if (!wasHovered) {
+        this.dispatchEvent(new MouseEvent("mouseover"));
+      }
+      if (mouse.up) {
+        this.#clicked_at = performance.now();
+        this.dispatchEvent(new MouseEvent("click"));
+      }
+    } else if (wasHovered) {
+      this.dispatchEvent(new MouseEvent("mouseout"));
+    }
     context.beginPath();
     for (const child of this.children) {
       if (child instanceof Base) {
@@ -282,7 +325,7 @@ export class Base extends HTMLElement {
       }
     }
   }
-  renderToDOM(parentElement: Node) {
+  renderToDOM(parentElement: HTMLElement | SVGElement) {
     const element = this.document_element;
     if (element.parentElement !== parentElement)
       parentElement.appendChild(element);

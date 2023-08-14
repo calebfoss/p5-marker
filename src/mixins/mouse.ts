@@ -10,6 +10,19 @@ export class Mouse extends Vector {
   constructor(window: MarkerWindow) {
     super(0, 0);
     this.#window = window;
+    window.addEventListener("mousedown", (e) => {
+      this.#downAt = performance.now();
+    });
+    window.addEventListener("mouseup", (e) => {
+      this.#upAt = performance.now();
+    });
+    window.addEventListener("mousemove", (e) => {
+      this.#moveAt = performance.now();
+      this.#previous.x = this.x;
+      this.#previous.y = this.y;
+      this.x = e.x;
+      this.y = e.y;
+    });
   }
   set downAt(value: number) {
     this.#downAt = value;

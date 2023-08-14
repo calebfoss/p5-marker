@@ -69,7 +69,7 @@ test("fill - dom", async () => {
     settingElement.parent = windowElement;
   });
   settingElement.setAttribute("fill", `'${fill3}'`);
-  let element: HTMLElement | SVGSVGElement;
+  let element: HTMLElement | SVGElement;
   settingElement.addEventListener("draw", () => {
     element = settingElement.document_element;
   });
@@ -117,7 +117,7 @@ test("stroke - dom", async () => {
   });
   settingElement.setAttribute("stroke", `'${stroke3}'`);
   settingElement.setAttribute("line_width", line_width1.toString());
-  let element: HTMLElement | SVGSVGElement;
+  let element: HTMLElement | SVGElement;
   settingElement.addEventListener("draw", () => {
     element = settingElement.document_element;
   });
