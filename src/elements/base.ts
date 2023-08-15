@@ -110,16 +110,17 @@ export class Base extends HTMLElement {
     super();
   }
   protected addInputListeners(element: HTMLElement | SVGElement) {
+    const { count } = this;
     element.addEventListener("click", (e) => {
-      this.#clicked_at = this.frame;
+      this.#clicked_at[count] = this.frame;
       this.dispatchEvent(new MouseEvent("click", e));
     });
     element.addEventListener("mouseover", (e) => {
-      this.#hovered = true;
+      this.#hovered[count] = true;
       this.dispatchEvent(new MouseEvent("mouseover", e));
     });
     element.addEventListener("mouseout", (e) => {
-      this.#hovered = false;
+      this.#hovered[count] = false;
       this.dispatchEvent(new MouseEvent("mouseout", e));
     });
   }
@@ -143,9 +144,12 @@ export class Base extends HTMLElement {
     if (this.parentElement instanceof Base) return this.parentElement.canvas;
     return null;
   }
-  #clicked_at = -1;
+  #clicked_at: number[] = [];
   get clicked() {
-    return this.#clicked_at === this.frame - 1;
+    while (this.count >= this.#clicked_at.length) {
+      this.#clicked_at[this.#clicked_at.length] = -1;
+    }
+    return this.#clicked_at[this.count] === this.frame - 1;
   }
   get count() {
     return this.#count;
@@ -198,7 +202,16 @@ export class Base extends HTMLElement {
   draw(parentElement: HTMLElement | SVGElement): void;
   draw(context: CanvasRenderingContext2D): void;
   draw(argument: HTMLElement | CanvasRenderingContext2D | SVGElement): void {
-    if (!this.on) return;
+    if (!this.on) {
+      if (argument instanceof SVGElement) {
+        while (this.#svgGroups.length > this.count)
+          this.#svgGroups.pop().remove();
+      } else if (argument instanceof HTMLElement) {
+        while (this.#documentElements.length > this.count)
+          this.#documentElements.pop().remove();
+      }
+      return;
+    }
     for (const assigner of this.#dynamicAssigners) {
       assigner();
     }
@@ -216,7 +229,14 @@ export class Base extends HTMLElement {
       while (this.#documentElements.length > this.#count) {
         this.#documentElements.pop().remove();
       }
+      while (this.#clicked_at.length > this.#count) {
+        this.#clicked_at.pop();
+      }
+      while (this.#hovered.length > this.#count) {
+        this.#hovered.pop();
+      }
       this.#count = 0;
+      this.#frames_on++;
     }
     this.dispatchEvent(drawEvent);
     const render = (() => {
@@ -244,7 +264,7 @@ export class Base extends HTMLElement {
         break;
       }
     }
-    this.#frames_on++;
+
     deepAssign(this, this.#preIterationValues);
   }
   #firstUpdate() {
@@ -266,9 +286,12 @@ export class Base extends HTMLElement {
   get frames_on() {
     return this.#frames_on;
   }
-  #hovered = false;
+  #hovered: boolean[] = [];
   get hovered() {
-    return this.#hovered;
+    while (this.count >= this.#hovered.length) {
+      this.#hovered[this.#hovered.length] = false;
+    }
+    return this.#hovered[this.count];
   }
   inherit<K extends keyof this>(propertyName: K, defaultValue: this[K]) {
     if (this.parentElement === null || !(propertyName in this.parentElement))
@@ -302,7 +325,7 @@ export class Base extends HTMLElement {
     const mouse_x = mouse.x * pixel_density;
     const mouse_y = mouse.y * pixel_density;
     const wasHovered = this.#hovered;
-    this.#hovered =
+    this.#hovered[this.count] =
       context.isPointInPath(mouse_x, mouse_y) ||
       //  Optional chaining because this method can not been implemented
       //  on node-canvas used for testing
@@ -312,7 +335,7 @@ export class Base extends HTMLElement {
         this.dispatchEvent(new MouseEvent("mouseover"));
       }
       if (mouse.up) {
-        this.#clicked_at = performance.now();
+        this.#clicked_at[this.count] = this.frame;
         this.dispatchEvent(new MouseEvent("click"));
       }
     } else if (wasHovered) {
