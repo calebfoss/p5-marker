@@ -135,11 +135,11 @@ export class Collide {
         rectBottomRight,
         rectBottomLeft,
       ];
-      return this.#polygonLine(rectVertices, b.start, b.end);
+      return Collide.#polygonLine(rectVertices, b.start, b.end);
     },
     rectangle(a: Rectangle, b: Rectangle) {
       const [topLeftA, bottomRightA] = Collide.rectangle.topLeftBottomRight(a);
-      const [topLeftB, bottomRightB] = Collide.rectangle.topRightBottomLeft(b);
+      const [topLeftB, bottomRightB] = Collide.rectangle.topLeftBottomRight(b);
       if (a.angle === 0 && b.angle === 0) {
         return Collide.rectangle.unrotatedRectangles(
           topLeftA,
