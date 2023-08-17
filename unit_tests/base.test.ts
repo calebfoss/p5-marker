@@ -4,11 +4,22 @@ import { MarkerCanvas } from "../src/elements/canvas";
 import { Setting } from "../src/elements/setting";
 import { CanvasRenderingContext2D } from "canvas";
 import { wrapMethod } from "./wrapMethod";
+import { MarkerSVG } from "../src/elements/svg";
+import { Rectangle } from "../src/elements/rectangle";
 
 global.CanvasRenderingContext2D = CanvasRenderingContext2D as any;
 let windowElement: MarkerWindow,
   canvasElement: MarkerCanvas,
   settingElement: Setting;
+global.SVGRectElement = {
+  [Symbol.hasInstance](obj) {
+    return (
+      Object.getPrototypeOf(
+        document.createElementNS("http://www.w3.org/2000/svg", "rect")
+      ) === Object.getPrototypeOf(obj)
+    );
+  },
+} as any;
 let drawListener: EventListener;
 let onDraw: () => void;
 let frame: number;
@@ -44,7 +55,7 @@ afterEach(() => {
   windowElement = canvasElement = settingElement = null;
 });
 
-test("create elements", () => {
+test("custom elements defined", () => {
   expect(windowElement).not.toBe(null);
   expect(canvasElement).not.toBe(null);
   expect(settingElement).not.toBe(null);
@@ -113,6 +124,89 @@ test("assert type", () => {
 
 test("canvas property", () => {
   expect(settingElement.canvas).toBe(canvasElement);
+});
+
+describe("clicked", () => {
+  let canvasRect: Rectangle,
+    domRect: Rectangle,
+    svg: MarkerSVG,
+    svgRect: Rectangle;
+  const domRectId = "dom-rect";
+  const svgRectId = "svg-rect";
+  beforeEach(() => {
+    canvasRect = canvasElement.create("rectangle", "canvas-rect") as Rectangle;
+    domRect = windowElement.create("rectangle", domRectId) as Rectangle;
+    svg = windowElement.create("svg") as MarkerSVG;
+    svgRect = svg.create("rectangle", svgRectId) as Rectangle;
+  });
+  afterEach(() => {
+    canvasRect.remove();
+    domRect.remove();
+    svg.remove();
+    svgRect.remove();
+  });
+  test("clicked", async () => {
+    let canvasDom: HTMLCanvasElement,
+      domRectRendered: HTMLDivElement,
+      svgRectRendered: SVGRectElement;
+    let canvasRectClicked: boolean,
+      domRectClicked: boolean,
+      svgRectClicked: boolean;
+    const canvasListener = jest.fn();
+    canvasElement.addEventListener("click", canvasListener);
+    let canvasRectClickedFrame;
+    const canvasRectListener = jest.fn(() => {
+      canvasRectClickedFrame = canvasRect.frame;
+    });
+    canvasRect.addEventListener("click", canvasRectListener);
+    const domRectListener = jest.fn();
+    domRect.addEventListener("click", domRectListener);
+    const svgRectListener = jest.fn();
+    svgRect.addEventListener("click", svgRectListener);
+    onDraw = () => {
+      switch (frame) {
+        case 0:
+          windowElement.document_element.dispatchEvent(
+            new MouseEvent("mousemove", {
+              clientX: windowElement.width / 2,
+              clientY: windowElement.height / 2,
+            })
+          );
+          windowElement.dispatchEvent(
+            new MouseEvent("mouseup", {
+              clientX: windowElement.width / 2,
+              clientY: windowElement.height / 2,
+            })
+          );
+          break;
+        case 1:
+          canvasDom = canvasElement.document_element as HTMLCanvasElement;
+          domRectRendered = domRect.document_element as HTMLDivElement;
+          domRectRendered.click();
+          svgRectRendered = svgRect.document_element as SVGRectElement;
+          svgRectRendered.dispatchEvent(new MouseEvent("click"));
+          break;
+        case 2:
+          canvasRectClicked = canvasRect.clicked;
+          domRectClicked = domRect.clicked;
+          svgRectClicked = svgRect.clicked;
+          break;
+      }
+    };
+    windowElement.setup();
+    await done;
+    expect(canvasDom).not.toBe(null);
+    expect(domRectRendered).not.toBe(null);
+    expect(svgRectRendered).not.toBe(null);
+    expect(canvasListener).toBeCalled();
+    expect(canvasRectListener).toBeCalled();
+    expect(domRectListener).toBeCalled();
+    expect(svgRectListener).toBeCalled();
+    expect(canvasRectClickedFrame).toBe(1);
+    expect(canvasRectClicked).toBe(true);
+    expect(domRectClicked).toBe(true);
+    expect(svgRectClicked).toBe(true);
+  });
 });
 
 test("count", async () => {

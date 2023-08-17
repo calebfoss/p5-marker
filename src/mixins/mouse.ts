@@ -2,36 +2,30 @@ import { MarkerWindow } from "../elements/window";
 import { Vector } from "./vector";
 
 export class Mouse extends Vector {
-  #downAt = -1;
-  #moveAt = -1;
+  #downAt = -2;
+  #moveAt = -2;
   #previous = new Vector(0, 0);
-  #upAt = -1;
+  #upAt = -2;
   #window: MarkerWindow;
   constructor(window: MarkerWindow) {
     super(0, 0);
     this.#window = window;
     window.addEventListener("mousedown", (e) => {
-      this.#downAt = performance.now();
+      this.#downAt = window.frame;
     });
     window.addEventListener("mouseup", (e) => {
-      this.#upAt = performance.now();
+      this.#upAt = window.frame;
     });
     window.addEventListener("mousemove", (e) => {
-      this.#moveAt = performance.now();
+      this.#moveAt = window.frame;
       this.#previous.x = this.x;
       this.#previous.y = this.y;
       this.x = e.x;
       this.y = e.y;
     });
   }
-  set downAt(value: number) {
-    this.#downAt = value;
-  }
   get down() {
-    return (
-      this.#downAt >= this.#window.previous_frame_start &&
-      this.#downAt < this.#window.frame_start
-    );
+    return this.#downAt === this.#window.frame - 1;
   }
   get dragging() {
     return this.held && this.moving;
@@ -43,18 +37,12 @@ export class Mouse extends Vector {
     this.#moveAt = value;
   }
   get moving() {
-    return this.#moveAt > this.#window.previous_frame_start;
+    return this.#moveAt === this.#window.frame - 1;
   }
   get previous() {
     return this.#previous;
   }
-  set upAt(value: number) {
-    this.#upAt = value;
-  }
   get up() {
-    return (
-      this.#upAt >= this.#window.previous_frame_start &&
-      this.#upAt < this.#window.frame_start
-    );
+    return this.#upAt === this.#window.frame - 1;
   }
 }

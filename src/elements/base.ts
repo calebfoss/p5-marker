@@ -140,18 +140,42 @@ export class Base extends HTMLElement {
         )}`
       );
   }
+  #atFrameStart() {
+    if (this.#update_frame === -1) {
+      this.#firstUpdate();
+    } else {
+      deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
+      deepAssign(this, this.#preIterationValues);
+    }
+    this.#update_frame = this.frame;
+    while (this.#svgGroups.length > this.#count) {
+      this.#svgGroups.pop().remove();
+    }
+    while (this.#documentElements.length > this.#count) {
+      this.#documentElements.pop().remove();
+    }
+    while (this.#clicked_at.length > this.#count) {
+      this.#clicked_at.pop();
+    }
+    while (this.#hovered.length > this.#count) {
+      this.#hovered.pop();
+    }
+    this.#count = 0;
+    this.#frames_on++;
+  }
   get canvas() {
     if (this.parentElement instanceof Base) return this.parentElement.canvas;
     return null;
   }
   #clicked_at: number[] = [];
   get clicked() {
-    while (this.count >= this.#clicked_at.length) {
-      this.#clicked_at[this.#clicked_at.length] = -1;
+    while (this.count > this.#clicked_at.length) {
+      this.#clicked_at[this.#clicked_at.length] = -2;
     }
     return this.#clicked_at[this.count] === this.frame - 1;
   }
   get count() {
+    if (this.#update_frame !== this.frame) this.#atFrameStart();
     return this.#count;
   }
   create(tag: string, id?: string) {
@@ -204,10 +228,9 @@ export class Base extends HTMLElement {
   draw(argument: HTMLElement | CanvasRenderingContext2D | SVGElement): void {
     if (!this.on) {
       if (argument instanceof SVGElement) {
-        while (this.#svgGroups.length > this.count)
-          this.#svgGroups.pop().remove();
+        while (this.#svgGroups.length) this.#svgGroups.pop().remove();
       } else if (argument instanceof HTMLElement) {
-        while (this.#documentElements.length > this.count)
+        while (this.#documentElements.length)
           this.#documentElements.pop().remove();
       }
       return;
@@ -216,27 +239,7 @@ export class Base extends HTMLElement {
       assigner();
     }
     if (this.#update_frame !== this.frame) {
-      if (this.#update_frame === -1) {
-        this.#firstUpdate();
-      } else {
-        deepEvaluateAndAssign(this.#preIterationValues, this.#getBaseValues);
-        deepAssign(this, this.#preIterationValues);
-      }
-      this.#update_frame = this.frame;
-      while (this.#svgGroups.length > this.#count) {
-        this.#svgGroups.pop().remove();
-      }
-      while (this.#documentElements.length > this.#count) {
-        this.#documentElements.pop().remove();
-      }
-      while (this.#clicked_at.length > this.#count) {
-        this.#clicked_at.pop();
-      }
-      while (this.#hovered.length > this.#count) {
-        this.#hovered.pop();
-      }
-      this.#count = 0;
-      this.#frames_on++;
+      this.#atFrameStart();
     }
     this.dispatchEvent(drawEvent);
     const render = (() => {
@@ -264,7 +267,6 @@ export class Base extends HTMLElement {
         break;
       }
     }
-
     deepAssign(this, this.#preIterationValues);
   }
   #firstUpdate() {
@@ -288,7 +290,7 @@ export class Base extends HTMLElement {
   }
   #hovered: boolean[] = [];
   get hovered() {
-    while (this.count >= this.#hovered.length) {
+    while (this.count > this.#hovered.length) {
       this.#hovered[this.#hovered.length] = false;
     }
     return this.#hovered[this.count];
