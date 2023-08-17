@@ -56,6 +56,9 @@ function deepEvaluateAndAssign<O extends object>(
       if (typeof target[key] === "undefined")
         target[key] = Array.isArray(value) ? [] : {};
       deepEvaluateAndAssign(target[key], source[key]);
+    } else if (typeof target[key] === "object") {
+      const evaluated = (value as Function)();
+      deepAssign(target[key], evaluated);
     } else {
       target[key] = source[key]();
     }
