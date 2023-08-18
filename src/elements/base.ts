@@ -215,15 +215,6 @@ export class Base extends HTMLElement {
     }
     return this.#documentElements[this.count];
   }
-  protected forward<T extends keyof HTMLElementEventMap>(
-    element: HTMLElement | SVGElement,
-    EventConstructor: new (type: T, event: Event) => HTMLElementEventMap[T],
-    type: T
-  ) {
-    element.addEventListener(type, (e) => {
-      this.dispatchEvent(new EventConstructor(type, e));
-    });
-  }
   #update_frame = -1;
   #preIterationValues: Partial<this> = {};
   draw(parentElement: HTMLElement | SVGElement): void;

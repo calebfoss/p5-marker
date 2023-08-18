@@ -32,7 +32,7 @@ export class Line
       "http://www.w3.org/2000/svg",
       "line"
     );
-    this.forward(lineElement, MouseEvent, "click");
+    this.addInputListeners(lineElement);
     groupElement.appendChild(lineElement);
     return groupElement;
   }
