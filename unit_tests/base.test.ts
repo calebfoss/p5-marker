@@ -223,6 +223,21 @@ test("count", async () => {
   await done;
 });
 
+test("create", async () => {
+  const createdSetting1 = windowElement.create("setting");
+  expect(createdSetting1).toBeInstanceOf(Setting);
+  expect(windowElement.lastElementChild).toBe(createdSetting1);
+  const createdSetting2 = windowElement.create("m-setting");
+  expect(createdSetting2).toBeInstanceOf(Setting);
+  expect(windowElement.lastElementChild).toBe(createdSetting2);
+});
+
+test("document_element", async () => {
+  expect(windowElement.document_element).toBeInstanceOf(HTMLDivElement);
+  expect(settingElement.document_element).toBeInstanceOf(HTMLDivElement);
+  expect(canvasElement.document_element).toBeInstanceOf(HTMLCanvasElement);
+});
+
 test("frame", async () => {
   onDraw = () => {
     expect(windowElement.frame).toBe(canvasElement.frame);
@@ -309,9 +324,4 @@ test("window", () => {
   expect(() => {
     (settingElement.window as any) = canvasElement;
   }).toThrow();
-});
-
-test("create", () => {
-  const rectElement = windowElement.create("rectangle");
-  expect(windowElement.lastElementChild).toBe(rectElement);
 });
