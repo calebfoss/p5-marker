@@ -4,7 +4,7 @@ import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 import { MarkerElement } from "./base";
 import { Collide, CollisionElement } from "../mixins/collide";
-import { Vector } from "../mixins/vector";
+import { Vector } from "../classes/vector";
 import { Mouse } from "../mixins/mouse";
 import { Line } from "./line";
 
@@ -106,15 +106,17 @@ export class Rectangle
       );
     }
   }
-  protected createSVGGroup(): SVGGElement {
-    const groupElement = super.createSVGGroup();
-    const rectElement = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "rect"
-    );
-    this.addInputListeners(rectElement);
-    groupElement.appendChild(rectElement);
-    return groupElement;
+  protected get gradientCoordinates(): {
+    linear: [number, number, number, number];
+    radial: [number, number, number, number, number, number];
+  } {
+    const { position, width, height } = this;
+    const centerX = position.x + this.width / 2;
+    const centerY = position.y + this.height / 2;
+    return {
+      linear: [position.x, position.y, position.x + width, position.y + height],
+      radial: [centerX, centerY, 0, centerX, centerY, width / 2],
+    };
   }
   renderToCanvas(context: CanvasRenderingContext2D) {
     this.transform_context(context);
@@ -161,14 +163,6 @@ export class Rectangle
     }
     super.styleSVGElement(newElement);
   }
-  get svg_element(): SVGRectElement {
-    const groupElement = this.svg_group;
-    const rectElement = groupElement.firstElementChild;
-    if (!(rectElement instanceof SVGRectElement))
-      throw new Error(
-        "Rectangle's svg_group's first child is not a rect element"
-      );
-    return rectElement;
-  }
+  protected svgTag: keyof SVGElementTagNameMap = "rect";
 }
 customElements.define("m-rectangle", Rectangle);

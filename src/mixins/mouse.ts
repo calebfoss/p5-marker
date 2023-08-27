@@ -1,5 +1,5 @@
 import { MarkerWindow } from "../elements/window";
-import { Vector } from "./vector";
+import { Vector } from "../classes/vector";
 
 export class Mouse extends Vector {
   #downAt = -2;

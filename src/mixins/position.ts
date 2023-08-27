@@ -1,5 +1,5 @@
 import { Base } from "../elements/base";
-import { Vector } from "./vector";
+import { Vector } from "../classes/vector";
 
 const origin = new Vector(0, 0);
 

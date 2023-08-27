@@ -2,7 +2,7 @@ import { visible } from "../mixins/visible";
 import { stroke } from "../mixins/style";
 import { MarkerElement } from "./base";
 import { Collide, CollisionElement } from "../mixins/collide";
-import { Vector } from "../mixins/vector";
+import { Vector } from "../classes/vector";
 import { Mouse } from "../mixins/mouse";
 import { Rectangle } from "./rectangle";
 
@@ -25,16 +25,6 @@ export class Line
       } and line.`
     );
     return false;
-  }
-  protected createSVGGroup(): SVGGElement {
-    const groupElement = super.createSVGGroup();
-    const lineElement = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "line"
-    );
-    this.addInputListeners(lineElement);
-    groupElement.appendChild(lineElement);
-    return groupElement;
   }
   #end_x = null;
   #end_y = null;
@@ -61,6 +51,20 @@ export class Line
   }
   set end(value) {
     this.#end = value;
+  }
+  protected get gradientCoordinates(): {
+    linear: [number, number, number, number];
+    radial: [number, number, number, number, number, number];
+  } {
+    const { start, end } = this;
+    const width = end.x - start.x;
+    const height = end.y - start.y;
+    const centerX = start.x + width / 2;
+    const centerY = start.y + height / 2;
+    return {
+      linear: [start.x, start.y, end.x, end.y],
+      radial: [centerX, centerY, 0, centerX, centerY, width / 2],
+    };
   }
   get hovered() {
     return this.colliding(this.window.mouse);
@@ -116,7 +120,6 @@ export class Line
       );
       this.setDocumentElementStyle("rotate", `${angle}rad`);
     }
-    this.setDocumentElementStyle("background", this.stroke);
     super.styleDocumentElement();
   }
   styleSVGElement(newElement?: boolean): void {
@@ -126,12 +129,6 @@ export class Line
     this.setSVGElementAttribute("y2", this.end.y.toString());
     super.styleSVGElement(newElement);
   }
-  get svg_element() {
-    const groupElement = this.svg_group;
-    const lineElement = groupElement.firstElementChild;
-    if (!(lineElement instanceof SVGLineElement))
-      throw new Error("Line's svg_group's first child is not a rect element");
-    return lineElement;
-  }
+  protected svgTag: keyof SVGElementTagNameMap = "line";
 }
 customElements.define("m-line", Line);

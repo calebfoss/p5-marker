@@ -123,6 +123,6 @@ test("stroke - dom", async () => {
   });
   windowElement.setup();
   await done;
-  expect(element.style.outlineColor).toBe(stroke3);
-  expect(element.style.outlineWidth).toBe(`${line_width1}px`);
+  expect(element.style.borderColor).toBe(stroke3);
+  expect(element.style.borderWidth).toBe(`${line_width1}px`);
 });

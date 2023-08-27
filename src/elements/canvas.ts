@@ -106,11 +106,8 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     this.renderToCanvas(context);
   }
   styleSVGElement(): void {
-    const [viewElement, backgroundElement] = this.svg_group.children;
-    const currentViewBoxValue = viewElement.getAttributeNS(
-      "http://www.w3.org/2000/svg",
-      "viewBox"
-    );
+    const [viewElement, backgroundElement] = this.svg_collection.group.children;
+    const currentViewBoxValue = viewElement.getAttribute("viewBox");
     const nextViewBoxValue = `0 0 ${this.width} ${this.height}`;
     if (currentViewBoxValue !== nextViewBoxValue) {
       viewElement.setAttribute("viewBox", nextViewBoxValue);

@@ -10,10 +10,7 @@ export class MarkerSVG extends dimensions(MarkerElement) {
       "http://www.w3.org/2000/svg",
       "svg"
     );
-    element.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    element.addEventListener("click", (e) => {
-      this.dispatchEvent(new MouseEvent("click", e));
-    });
+    this.addInputListeners(element);
     return element;
   }
   set download(filename: string) {
@@ -37,17 +34,10 @@ export class MarkerSVG extends dimensions(MarkerElement) {
   }
   styleDocumentElement(): void {
     const element = this.document_element;
-    const currentViewBoxValue = element.getAttributeNS(
-      "http://www.w3.org/2000/svg",
-      "viewBox"
-    );
+    const currentViewBoxValue = element.getAttribute("viewBox");
     const nextViewBoxValue = `0 0 ${this.width} ${this.height}`;
     if (currentViewBoxValue !== nextViewBoxValue)
-      element.setAttributeNS(
-        "http://www.w3.org/2000/svg",
-        "viewBox",
-        nextViewBoxValue
-      );
+      element.setAttribute("viewBox", nextViewBoxValue);
     element.setAttribute("width", `${this.width}px`);
     element.setAttribute("height", `${this.height}px`);
   }

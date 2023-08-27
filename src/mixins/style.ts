@@ -1,4 +1,5 @@
 import { MarkerElement } from "../elements/base";
+import { LinearGradient, MarkerGradient } from "./gradient";
 
 export const defaultFill = MarkerElement.gray(255);
 export const defaultStroke = MarkerElement.gray(0);
@@ -8,19 +9,29 @@ export const fill = <T extends typeof MarkerElement>(baseClass: T) =>
     constructor(...args: any[]) {
       super(...args);
     }
-    #fill: string = null;
-    get fill(): string {
+    #fill: string | MarkerGradient = null;
+    get fill(): string | MarkerGradient {
       if (this.#fill !== null) return this.#fill;
       return this.inherit("fill", "#ffffff");
     }
     set fill(value) {
       this.#fill = value;
-      this.setContextProperty("fillStyle", value);
-      this.setDocumentElementStyle("background", value);
-      this.setSVGStyle("fill", value);
+      if (value instanceof MarkerGradient) {
+        this.setDocumentElementStyle("background", value.toCSS);
+        this.svg_collection.fillGradient = value.toSVG;
+      } else {
+        this.setDocumentElementStyle("background", value);
+        this.setSVGStyle("fill", value);
+      }
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
-      if (this.fill !== FillElement.NONE) {
+      const { fill } = this;
+      if (fill !== FillElement.NONE) {
+        if (fill instanceof MarkerGradient) {
+          context.fillStyle = fill.toContext(context, this.gradientCoordinates);
+        } else {
+          context.fillStyle = fill;
+        }
         context.fill();
       }
       super.renderToCanvas(context);
@@ -60,29 +71,43 @@ export const stroke = <T extends typeof MarkerElement>(baseClass: T) =>
     set line_width(value) {
       this.#line_width = value;
       this.setContextProperty("lineWidth", value);
-      this.setDocumentElementStyle("outlineWidth", `${value}px`);
+      this.setDocumentElementStyle("borderWidth", `${value}px`);
       this.setSVGStyle("stroke-width", value.toString());
     }
     renderToCanvas(context: CanvasRenderingContext2D) {
-      if (this.stroke !== StrokeElement.NONE) {
+      const { stroke } = this;
+      if (stroke !== StrokeElement.NONE) {
+        if (stroke instanceof MarkerGradient) {
+          context.strokeStyle = stroke.toContext(
+            context,
+            this.gradientCoordinates
+          );
+        } else {
+          context.strokeStyle = stroke;
+        }
         context.stroke();
       }
       super.renderToCanvas(context);
     }
-    #stroke: string = null;
-    get stroke(): string {
+    #stroke: string | MarkerGradient = null;
+    get stroke(): string | MarkerGradient {
       if (this.#stroke !== null) return this.#stroke;
       return this.inherit("stroke", "#000000");
     }
     set stroke(value) {
       this.#stroke = value;
-      this.setContextProperty("strokeStyle", value);
-      if (value === StrokeElement.NONE)
-        this.setDocumentElementStyle("outlineStyle", value);
-      else {
-        this.setDocumentElementStyle("outlineStyle", "solid");
-        this.setDocumentElementStyle("outlineColor", value);
+      if (value instanceof MarkerGradient) {
+        this.setDocumentElementStyle("borderImage", `${value.toCSS} 100`);
+        const collection = this.svg_collection;
+        collection.strokeGradient = value.toSVG;
+      } else {
+        if (value === StrokeElement.NONE)
+          this.setDocumentElementStyle("borderStyle", value);
+        else {
+          this.setDocumentElementStyle("borderStyle", "solid");
+          this.setDocumentElementStyle("borderColor", value);
+        }
+        this.setSVGStyle("stroke", value);
       }
-      this.setSVGStyle("stroke", value);
     }
   };

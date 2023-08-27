@@ -6,6 +6,8 @@ import { constants } from "../mixins/constants";
 import { random } from "../mixins/random";
 import { transform } from "../mixins/transform";
 import { MarkerWindow } from "./window";
+import { gradient } from "../mixins/gradient";
+import { SVGCollection } from "../classes/svgCollection";
 
 export const identity =
   <T>(value: T) =>
@@ -40,7 +42,8 @@ function deepAssign(target: object, source: GettersFor<object>) {
         deepAssign(target[key], value);
       } else if (
         target[key] === null ||
-        value instanceof target[key].constructor
+        value instanceof target[key].constructor ||
+        typeof target[key] !== "object"
       ) {
         target[key] = value;
       } else deepAssign(target[key], value);
@@ -177,6 +180,14 @@ export class Base extends HTMLElement {
     }
     return this.#clicked_at[this.count] === this.frame - 1;
   }
+  connectedCallback() {
+    if (this.id === "") {
+      let index = 0;
+      const idPrefix = "marker-element";
+      while (document.querySelector(`#${idPrefix}${index}`) !== null) index++;
+      this.id = idPrefix + index;
+    }
+  }
   get count() {
     if (this.#update_frame !== this.frame) this.#atFrameStart();
     return this.#count;
@@ -204,9 +215,9 @@ export class Base extends HTMLElement {
   }
   #documentElementStyle: Partial<CSSStyleDeclaration> = {
     background: "rgb(255, 255, 255)",
-    outlineColor: "rgb(0, 0, 0)",
-    outlineStyle: "solid",
-    outlineWidth: "1px",
+    borderColor: "rgb(0, 0, 0)",
+    borderStyle: "solid",
+    borderWidth: "1px",
   };
   #documentElements: (HTMLElement | SVGElement)[] = [];
   get document_element() {
@@ -354,7 +365,7 @@ export class Base extends HTMLElement {
     }
   }
   renderToSVG(parentElement: Element) {
-    const groupElement = this.svg_group;
+    const groupElement = this.svg_collection.group;
     if (parentElement !== groupElement.parentElement)
       parentElement.appendChild(groupElement);
     this.styleSVGElement();
@@ -431,8 +442,9 @@ export class Base extends HTMLElement {
     Object.assign(this.document_element.style, this.#documentElementStyle);
   }
   styleSVGElement(newElement = false) {
-    const groupElement = this.svg_group;
-    const element = this.svg_element;
+    const collection = this.svg_collection;
+    const groupElement = collection.group;
+    const element = collection.element;
     if (newElement) {
       for (const [attributeName, value] of Object.entries(
         this.#previousSVGGroupStyle
@@ -461,23 +473,19 @@ export class Base extends HTMLElement {
       delete this.#nextSVGElementAttrs[attributeName];
     }
   }
+  #svgCollections: SVGCollection[] = [];
   #svgGroups: SVGGElement[] = [];
   #previousSVGGroupStyle: { [attributeName: string]: string } = {};
   #nextSVGGroupStyle: { [attributeName: string]: string } = {};
   #previousSVGElementAttrs: { [attributeName: string]: string } = {};
-  #nextSVGElementAttrs: { [attributeName: string]: string } = {
-    fill: "#ffffff",
-    stroke: "#000000",
-  };
-  get svg_group(): SVGGElement {
-    if (this.count >= this.#svgGroups.length) {
-      this.#svgGroups[this.#count] = this.createSVGGroup();
-      this.styleSVGElement(true);
+  #nextSVGElementAttrs: { [attributeName: string]: string } = {};
+  protected svgTag: keyof SVGElementTagNameMap;
+  get svg_collection() {
+    if (this.#count >= this.#svgCollections.length) {
+      const collection = new SVGCollection(this.id, this.svgTag);
+      this.#svgCollections[this.#count] = collection;
     }
-    return this.#svgGroups[this.#count];
-  }
-  get svg_element() {
-    return this.svg_group;
+    return this.#svgCollections[this.#count];
   }
   protected get svgElementNextAttrs() {
     return this.#nextSVGElementAttrs;
@@ -490,6 +498,6 @@ export class Base extends HTMLElement {
   }
 }
 
-export class MarkerElement extends transform(
-  color(random(constants(math(vector(Base)))))
+export class MarkerElement extends gradient(
+  transform(color(random(constants(math(vector(Base))))))
 ) {}

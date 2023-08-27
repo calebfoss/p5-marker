@@ -1,4 +1,4 @@
-import { Vector } from "./vector";
+import { Vector } from "../classes/vector";
 import { Base } from "../elements/base";
 
 type ContextMethods = Pick<
@@ -122,7 +122,10 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
         }
       }
       if (transformationString.length)
-        this.svg_group.setAttribute("transform", transformationString);
+        this.svg_collection.group.setAttribute(
+          "transform",
+          transformationString
+        );
       super.styleSVGElement(newElement);
     }
     transform(x: number, y: number): Vector;
