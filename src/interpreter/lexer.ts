@@ -173,7 +173,9 @@ export const lex = (str: string): Token[] => {
       return getTokens(end, tokens.concat(equalityToken));
     }
     const logicalMatch = LogicalOperators.find(
-      (operator) => operator === stringFromStart.slice(0, operator.length)
+      (operator) =>
+        operator === stringFromStart.slice(0, operator.length) &&
+        stringFromStart[operator.length].match(/\s/) !== null
     );
     if (logicalMatch) {
       const end = start + logicalMatch.length;

@@ -63,31 +63,31 @@ test("custom elements defined", () => {
 
 test("get value from parent", async () => {
   canvasElement.setAttribute("angle", "frame");
-  settingElement.setAttribute("position.y", "angle");
+  settingElement.setAttribute("origin.y", "angle");
   const angles: number[] = [];
-  const y_positions: number[] = [];
+  const y_origins: number[] = [];
   canvasElement.addEventListener("draw", () => {
     angles[windowElement.frame] = canvasElement.angle;
   });
   settingElement.addEventListener("draw", () => {
-    y_positions[windowElement.frame] = settingElement.position.y;
+    y_origins[windowElement.frame] = settingElement.origin.y;
   });
   windowElement.setup();
   await done;
-  expect(angles.length).toBe(y_positions.length);
+  expect(angles.length).toBe(y_origins.length);
   expect(angles.length).toBe(framesPerTest);
-  for (let i = 0; i < y_positions.length; i++) {
-    expect(y_positions[i]).toBe(angles[i]);
+  for (let i = 0; i < y_origins.length; i++) {
+    expect(y_origins[i]).toBe(angles[i]);
   }
 });
 
 test("each", async () => {
   const repeatUntil = 10;
-  settingElement.setAttribute("position.x", "0");
-  settingElement.setAttribute("each.position.x", "position.x + 1");
+  settingElement.setAttribute("origin.x", "0");
+  settingElement.setAttribute("each.origin.x", "origin.x + 1");
   settingElement.setAttribute(
     "repeat",
-    `until(position.x is at least ${repeatUntil})`
+    `until(origin.x is at least ${repeatUntil})`
   );
   const baseRender = settingElement.renderToCanvas.bind(settingElement);
   let calls = 0;
@@ -101,16 +101,16 @@ test("each", async () => {
 });
 
 test("then", async () => {
-  settingElement.setAttribute("then.position.x", "position.x + 1");
-  const positions = [];
+  settingElement.setAttribute("then.origin.x", "origin.x + 1");
+  const origins = [];
   settingElement.addEventListener("draw", () => {
-    positions[windowElement.frame] = settingElement.position.x;
+    origins[windowElement.frame] = settingElement.origin.x;
   });
   windowElement.setup();
   await done;
-  expect(positions.length).toBe(framesPerTest);
-  for (let i = 0; i < positions.length; i++) {
-    expect(positions[i]).toBe(i);
+  expect(origins.length).toBe(framesPerTest);
+  for (let i = 0; i < origins.length; i++) {
+    expect(origins[i]).toBe(i);
   }
 });
 

@@ -7,14 +7,14 @@ import { Rectangle } from "../elements/rectangle";
 export class Collide {
   static line = {
     line(a: Line, b: Line) {
-      const a_start = a.untransform(a.start);
+      const a_start = a.untransform(a.origin);
       const a_end = a.untransform(a.end);
-      const b_start = b.untransform(b.start);
+      const b_start = b.untransform(b.origin);
       const b_end = b.untransform(b.end);
       return Collide.#startEndStartEnd(a_start, a_end, b_start, b_end);
     },
     vector(line: Line, vector: Vector) {
-      const lineStart = line.untransform(line.start);
+      const lineStart = line.untransform(line.origin);
       const lineEnd = line.untransform(line.end);
       const halfWidth = line.untransform(line.line_width / 2, 0).magnitude;
       const [left, right] =
@@ -135,7 +135,7 @@ export class Collide {
         rectBottomRight,
         rectBottomLeft,
       ];
-      return Collide.#polygonLine(rectVertices, b.start, b.end);
+      return Collide.#polygonLine(rectVertices, b.origin, b.end);
     },
     rectangle(a: Rectangle, b: Rectangle) {
       const [topLeftA, bottomRightA] = Collide.rectangle.topLeftBottomRight(a);
@@ -157,17 +157,17 @@ export class Collide {
     },
     topLeftBottomRight(rect: Rectangle) {
       return [
-        rect.untransform(rect.position),
+        rect.untransform(rect.origin),
         rect.untransform(
-          rect.position.x + rect.width,
-          rect.position.y + rect.height
+          rect.origin.x + rect.width,
+          rect.origin.y + rect.height
         ),
       ];
     },
     topRightBottomLeft(rect: Rectangle) {
       return [
-        rect.untransform(rect.position.x + rect.width, rect.position.y),
-        rect.untransform(rect.position.x, rect.position.y + rect.height),
+        rect.untransform(rect.origin.x + rect.width, rect.origin.y),
+        rect.untransform(rect.origin.x, rect.origin.y + rect.height),
       ];
     },
     unrotatedRectangles(

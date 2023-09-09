@@ -1,41 +1,41 @@
 import { Base } from "../elements/base";
 import { Vector } from "../classes/vector";
 
-const origin = new Vector(0, 0);
+const originPoint = new Vector(0, 0);
 
-export const position = <T extends typeof Base>(baseClass: T) =>
-  class PositionElement extends baseClass {
+export const origin = <T extends typeof Base>(baseClass: T) =>
+  class OriginElement extends baseClass {
     constructor(...args: any[]) {
       super(...args);
       this.setDocumentElementStyle("position", "absolute");
     }
-    #position_x = null;
-    #position_y = null;
-    #position = new Vector(
+    #origin_x = null;
+    #origin_y = null;
+    #origin = new Vector(
       () =>
-        this.#position_x === null
-          ? this.inherit("position", origin).x
-          : this.#position_x,
+        this.#origin_x === null
+          ? this.inherit("origin", originPoint).x
+          : this.#origin_x,
       (value) => {
-        this.#position_x = value;
+        this.#origin_x = value;
         this.setDocumentElementStyle("left", `${value}px`);
         this.setSVGElementAttribute("x", value.toString());
       },
       () =>
-        this.#position_y === null
-          ? this.inherit("position", origin).y
-          : this.#position_y,
+        this.#origin_y === null
+          ? this.inherit("origin", originPoint).y
+          : this.#origin_y,
       (value) => {
-        this.#position_y = value;
+        this.#origin_y = value;
         this.setDocumentElementStyle("top", `${value}px`);
         this.setSVGElementAttribute("y", value.toString());
       }
     );
-    get position(): Vector {
-      return this.#position;
+    get origin(): Vector {
+      return this.#origin;
     }
-    set position(value) {
-      this.#position = value;
+    set origin(value) {
+      this.#origin = value;
       this.setDocumentElementStyle("left", `${value.x}px`);
       this.setDocumentElementStyle("top", `${value.y}px`);
       this.setSVGElementAttribute("x", value.x.toString());
@@ -44,7 +44,7 @@ export const position = <T extends typeof Base>(baseClass: T) =>
     styleDocumentElement(): void {
       this.setDocumentElementStyle(
         "transformOrigin",
-        `-${this.position.x}px -${this.position.y}px`
+        `-${this.origin.x}px -${this.origin.y}px`
       );
       super.styleDocumentElement();
     }

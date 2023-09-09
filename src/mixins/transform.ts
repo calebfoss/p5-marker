@@ -99,8 +99,7 @@ export const transform = <T extends typeof Base>(baseClass: T) =>
           })`;
         }
       }
-      if (transformationString.length)
-        this.document_element.style.transform = transformationString;
+      this.setDocumentElementStyle("transform", transformationString);
       super.styleDocumentElement();
     }
     styleSVGElement(newElement?: boolean): void {

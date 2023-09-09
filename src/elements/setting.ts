@@ -1,10 +1,10 @@
-import { position } from "../mixins/position";
+import { origin } from "../mixins/origin";
 import { stroke, fill } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 import { MarkerElement } from "./base";
 import { visible } from "../mixins/visible";
 
-export class Setting extends position(
+export class Setting extends origin(
   dimensions(stroke(fill(visible(MarkerElement))))
 ) {
   renderToCanvas(context: CanvasRenderingContext2D): void;

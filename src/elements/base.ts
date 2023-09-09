@@ -75,9 +75,9 @@ function deepEvaluateAndAssign<O extends object>(
   and adds the function to the getBaseValues object.
 
   Example:
-  <m-rectangle width="100" each.position.x="position.x + width" 
-      repeat="until(position.x is at least canvas.width)"
-       then.position.x="position.x + 1"></m-rectangle>
+  <m-rectangle width="100" each.origin.x="origin.x + width" 
+      repeat="until(origin.x is at least canvas.width)"
+       then.origin.x="origin.x + 1"></m-rectangle>
   Without calling this function, the row of rectangles would only render on
   screen in the first frame. After, its x coordinate would be too far to the
   right.

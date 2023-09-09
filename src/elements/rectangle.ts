@@ -1,5 +1,5 @@
 import { visible } from "../mixins/visible";
-import { position } from "../mixins/position";
+import { origin } from "../mixins/origin";
 import { fill, stroke } from "../mixins/style";
 import { dimensions } from "../mixins/dimensions";
 import { MarkerElement } from "./base";
@@ -16,7 +16,7 @@ const radiusOrder = [
 ] as const;
 
 export class Rectangle
-  extends position(dimensions(fill(stroke(visible(MarkerElement)))))
+  extends origin(dimensions(fill(stroke(visible(MarkerElement)))))
   implements CollisionElement
 {
   colliding(other: Mouse | Vector | Line | Rectangle) {
@@ -110,11 +110,11 @@ export class Rectangle
     linear: [number, number, number, number];
     radial: [number, number, number, number, number, number];
   } {
-    const { position, width, height } = this;
-    const centerX = position.x + this.width / 2;
-    const centerY = position.y + this.height / 2;
+    const { origin, width, height } = this;
+    const centerX = origin.x + this.width / 2;
+    const centerY = origin.y + this.height / 2;
     return {
-      linear: [position.x, position.y, position.x + width, position.y + height],
+      linear: [origin.x, origin.y, origin.x + width, origin.y + height],
       radial: [centerX, centerY, 0, centerX, centerY, width / 2],
     };
   }
@@ -123,11 +123,11 @@ export class Rectangle
     if (this.visible) {
       const corner_radius = this.#radii;
       if (Object.values(corner_radius).every((value) => value === 0))
-        context.rect(this.position.x, this.position.y, this.width, this.height);
+        context.rect(this.origin.x, this.origin.y, this.width, this.height);
       else
         context.roundRect(
-          this.position.x,
-          this.position.y,
+          this.origin.x,
+          this.origin.y,
           this.width,
           this.height,
           this.corner_radius

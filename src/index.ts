@@ -6,7 +6,7 @@ import { MarkerSVG } from "./elements/svg";
 import { Line } from "./elements/line";
 import { Rectangle } from "./elements/rectangle";
 import { stroke, fill } from "./mixins/style";
-import { position } from "./mixins/position";
+import { origin } from "./mixins/origin";
 
 dispatchEvent(new Event("customElementsDefined"));
 
@@ -23,7 +23,7 @@ const Marker = {
   propertyMixins: {
     stroke: stroke,
     fill: fill,
-    xy: position,
+    xy: origin,
   },
 };
 export { Marker };
