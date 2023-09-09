@@ -161,6 +161,8 @@ export class Rectangle
       this.setSVGElementAttribute("rx", radiiValues[0].toString());
       this.setSVGElementAttribute("ry", radiiValues[0].toString());
     }
+    this.setSVGElementAttribute("width", this.width.toString());
+    this.setSVGElementAttribute("height", this.height.toString());
     super.styleSVGElement(newElement);
   }
   protected svgTag: keyof SVGElementTagNameMap = "rect";

@@ -5,6 +5,7 @@ import { Setting } from "./elements/setting";
 import { MarkerSVG } from "./elements/svg";
 import { Line } from "./elements/line";
 import { Rectangle } from "./elements/rectangle";
+import { Ellipse } from "./elements/ellipse";
 import { stroke, fill } from "./mixins/style";
 import { origin } from "./mixins/origin";
 
@@ -15,6 +16,7 @@ const Marker = {
     MarkerElement: Base,
     Window: MarkerWindow,
     Canvas: MarkerCanvas,
+    Ellipse: Ellipse,
     Line: Line,
     Setting: Setting,
     Rectangle: Rectangle,
