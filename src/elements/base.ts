@@ -121,13 +121,13 @@ export class Base extends HTMLElement {
       this.#clicked_at[count] = this.frame;
       this.dispatchEvent(new MouseEvent("click", e));
     });
-    element.addEventListener("mouseover", (e) => {
+    element.addEventListener("mouseenter", (e) => {
       this.#hovered[count] = true;
-      this.dispatchEvent(new MouseEvent("mouseover", e));
+      this.dispatchEvent(new MouseEvent("mouseenter", e));
     });
-    element.addEventListener("mouseout", (e) => {
+    element.addEventListener("mouseleave", (e) => {
       this.#hovered[count] = false;
-      this.dispatchEvent(new MouseEvent("mouseout", e));
+      this.dispatchEvent(new MouseEvent("mouseleave", e));
     });
   }
   assertType<T>(
@@ -206,7 +206,8 @@ export class Base extends HTMLElement {
     return element;
   }
   protected createDocumentElement(): HTMLElement | SVGSVGElement {
-    const element = document.createElement("div");
+    const element = document.createElement(this.documentTag);
+    element.id = `${this.id}-dom${this.#count}`;
     this.addInputListeners(element);
     return element;
   }
@@ -226,6 +227,7 @@ export class Base extends HTMLElement {
     }
     return this.#documentElements[this.count];
   }
+  protected documentTag: keyof HTMLElementTagNameMap = "div";
   #update_frame = -1;
   #preIterationValues: Partial<this> = {};
   draw(parentElement: HTMLElement | SVGElement): void;
@@ -233,10 +235,9 @@ export class Base extends HTMLElement {
   draw(argument: HTMLElement | CanvasRenderingContext2D | SVGElement): void {
     if (!this.on) {
       if (argument instanceof SVGElement) {
-        while (this.#svgGroups.length) this.#svgGroups.pop().remove();
+        this.#svgGroups[this.#count]?.remove();
       } else if (argument instanceof HTMLElement) {
-        while (this.#documentElements.length)
-          this.#documentElements.pop().remove();
+        this.#documentElements[this.#count]?.remove();
       }
       return;
     }
@@ -339,14 +340,14 @@ export class Base extends HTMLElement {
       context.isPointInStroke?.(mouse_x, mouse_y);
     if (this.#hovered) {
       if (!wasHovered) {
-        this.dispatchEvent(new MouseEvent("mouseover"));
+        this.dispatchEvent(new MouseEvent("mouseenter"));
       }
       if (mouse.up) {
         this.#clicked_at[this.count] = this.frame;
         this.dispatchEvent(new MouseEvent("click"));
       }
     } else if (wasHovered) {
-      this.dispatchEvent(new MouseEvent("mouseout"));
+      this.dispatchEvent(new MouseEvent("mouseleave"));
     }
     context.beginPath();
     for (const child of this.children) {

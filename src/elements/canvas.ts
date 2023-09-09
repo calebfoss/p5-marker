@@ -16,11 +16,6 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
   get canvas() {
     return this;
   }
-  protected createDocumentElement(): HTMLCanvasElement {
-    const element = document.createElement("canvas");
-    this.addInputListeners(element);
-    return element;
-  }
   protected createSVGElement(): SVGElement {
     const groupElement = super.createSVGGroup();
     const viewElement = document.createElementNS(
@@ -35,6 +30,7 @@ export class MarkerCanvas extends dimensions(MarkerElement) {
     groupElement.appendChild(viewElement);
     return groupElement;
   }
+  protected documentTag: keyof HTMLElementTagNameMap = "canvas";
   get document_element() {
     return super.document_element as HTMLCanvasElement;
   }
